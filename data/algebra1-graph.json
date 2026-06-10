@@ -1,6 +1,6 @@
 {
   "schema": {
-    "version": "1.2.0",
+    "version": "1.2.1",
     "course": "Algebra 1",
     "audience": "middle-school",
     "sports": [
@@ -742,7 +742,7 @@
         "softball": "An ERA drops 0.75 from 3.50 — quick decimal subtraction gives 2.75.",
         "basketball": "Free-throw rate climbs from 0.7 to 0.85 — a +0.15 change.",
         "soccer": "Pass completion at 0.82 dips 0.07 in the rain — now 0.75.",
-        "football": "Yards per carry of 4.5 over half as many carries — fraction reasoning.",
+        "football": "Yards per carry: 87 yards on 20 carries is 87/20 = 4.35 — fraction to decimal.",
         "volleyball": "Hitting percentage (kills−errors)/attempts is fraction arithmetic with signs.",
         "neutral": "Splitting a $7.50 cost three ways and adjusting by quarters."
       },
@@ -780,7 +780,7 @@
         "basketball": "Score: 4 threes × 3 + 6 twos × 2 + 5 free throws — order matters.",
         "soccer": "Table points: 5 wins × 3 + 4 draws × 1, not left to right.",
         "football": "Score: 3 TDs × 7 + 2 field goals × 3 demands multiplication first.",
-        "volleyball": "Match points: 3 set wins × 25-ish rallies — grouping decides the count.",
+        "volleyball": "Minimum points in a 3–2 win: 2 sets × 25 + the fifth set's 15 — multiply first, 65.",
         "neutral": "3 + 4 × 2 is 11, not 14."
       },
       "workedExamples": [],
@@ -811,13 +811,13 @@
       ],
       "visual": null,
       "contextHooks": {
-        "baseball": "A bracket doubles each round: 2⁴ teams reach round one of regionals.",
-        "softball": "Pool play doubling: 2⁵ teams means five rounds to a champion.",
-        "basketball": "March-style bracket: 2⁶ = 64 teams, six wins to the title.",
-        "soccer": "Knockout rounds halve the field: 2⁵ clubs need five rounds.",
-        "football": "Playoff field of 2⁴ teams resolves in four elimination rounds.",
-        "volleyball": "A 2³-team pool bracket finishes in three rounds.",
-        "neutral": "5³ means 5 × 5 × 5 = 125, not 5 × 3."
+        "baseball": "A rainout text chain: each player texts 3 teammates, so the third wave alone reaches 3³ = 27 players.",
+        "softball": "Tee-work circuit: 5 stations with 5 swings at each is 5² = 25 swings — not 5 × 2.",
+        "basketball": "A March-style bracket needs exactly 2⁶ = 64 teams — six rounds of doubling back from one champion.",
+        "soccer": "A 10-by-10-yard rondo grid covers 10² = 100 square yards of pressing space.",
+        "football": "Run or pass, left or right, short or deep — 2 choices at 3 decision points give 2³ = 8 play versions.",
+        "volleyball": "A serving chart fills in fast: 6 servers × 6 target zones × 6 attempts each is 6³ = 216 logged serves.",
+        "neutral": "5³ stacks three factors: 5 · 5 · 5 = 125 — never 5 × 3."
       },
       "workedExamples": [],
       "problems": {
@@ -958,7 +958,7 @@
       "contextHooks": {
         "baseball": "3 innings of (2 K + 1 walk) each: distribute the 3 across both.",
         "softball": "4 games of (3 hits + 1 walk) is 4·3 + 4·1.",
-        "basketball": "5 quarters... no — 4 quarters of (6 points + 2 assists): 4 hits every term.",
+        "basketball": "4 quarters of (6 points + 2 assists) each: the 4 reaches every term — 24 points and 8 assists.",
         "soccer": "3 matches of (2 shots + 1 corner) each expands to 6 + 3.",
         "football": "4 drives of (2 runs + 3 passes) is 8 runs and 12 passes.",
         "volleyball": "5 sets of (4 kills + 2 blocks) distributes to 20 + 10.",
@@ -1254,7 +1254,7 @@
         "basketball": "x/4 + 2.5 = 7 — quarter-by-quarter scoring shares.",
         "soccer": "0.25m + 1.5 = 4 — a goal every fourth match plus a cushion.",
         "football": "x/2 − 3.5 = 10.5 yardage halves and decimal lines.",
-        "volleyball": "0.5s + 2 = 6 — kills credited at half-rate in doubles drills.",
+        "volleyball": "Hitting percentage: (k − 4)/20 = 0.350 — clear the 20 to find the 11-kill night.",
         "neutral": "x/3 + 2 = 7 → multiply through by 3: x + 6 = 21."
       },
       "workedExamples": [],
@@ -2022,7 +2022,7 @@
       ],
       "visual": "coordinate",
       "contextHooks": {
-        "baseball": "2x + 3y = 24: combinations of doubles and triples for 24 bases... total bases as a budget line.",
+        "baseball": "2x + 3y = 24 — every mix of doubles and triples worth 24 total bases lies on one line.",
         "softball": "Singles and doubles totaling 18 bases: x + 2y = 18.",
         "basketball": "2x + 3y = 30 — twos and threes that combine for 30 points.",
         "soccer": "3w + 1d = 21: win/draw combinations reaching 21 points.",
@@ -2061,7 +2061,7 @@
       "contextHooks": {
         "baseball": "Two box-score snapshots — write the full season pace equation.",
         "softball": "Rate plus one game's total: solve for b, state the model.",
-        "basketball": "From (5, 90) and (12, 216), write y = 18x + 0... derive both m and b.",
+        "basketball": "Totals of 60 points after game 3 and 150 after game 8: m = 90/5 = 18, then b = 6 — y = 18x + 6.",
         "soccer": "Two table checkpoints define the club's points equation.",
         "football": "Build the yardage model from weeks 3 and 7 totals.",
         "volleyball": "Two set-totals determine the kill-pace equation exactly.",
@@ -2100,7 +2100,7 @@
         "basketball": "Same scoring rate, different starts — parallel forever.",
         "soccer": "A pressing run perpendicular to the passing lane has slope −1/m.",
         "football": "A crossing route cuts the seam route at a negative-reciprocal slope.",
-        "volleyball": "A line shot versus the cross-court angle: perpendicular paths.",
+        "volleyball": "Sketch the court at a tilt: the attack line parallels the net with equal slope, and the sideline crosses both at slope −1/m.",
         "neutral": "Parallel: equal slopes. Perpendicular: slopes multiply to −1."
       },
       "workedExamples": [],
@@ -2205,7 +2205,7 @@
       ],
       "visual": "table",
       "contextHooks": {
-        "baseball": "Card collection growing by 6 a week: aₙ = 6n + start.",
+        "baseball": "A card collection adds 6 cards a week: aₙ = a₁ + (n − 1)·6, starting the count at week one's stack.",
         "softball": "Adding 2 mph of velocity per month follows a common difference.",
         "basketball": "Free-throw streaks rising 5 per week form a sequence.",
         "soccer": "Season tickets adding 3 matches a year: arithmetic growth.",
@@ -2509,7 +2509,7 @@
         "basketball": "Doubling scrimmage pairs across rounds multiplies powers.",
         "soccer": "Passing-drill grids of 3² players run 3³ touches each round.",
         "football": "Playbook trees: 2⁴ formations × 2² motions = 2⁶ looks.",
-        "volleyball": "Rotation combinations stack as powers of 6... powers multiply when raised.",
+        "volleyball": "Serve charting: 6 rotations × 6 target zones is 6¹ · 6¹ = 6²; add 6 servers and it's 6² · 6 = 6³ — exponents add.",
         "neutral": "xᵃ · xᵇ = xᵃ⁺ᵇ and (xᵃ)ᵇ = xᵃᵇ."
       },
       "workedExamples": [],
@@ -2544,7 +2544,7 @@
         "softball": "Pitch-speed decay framed as negative-exponent scaling.",
         "basketball": "A streak halving nightly is 2⁻ⁿ of the original — never negative.",
         "soccer": "Possession share halving by round: positive fractions, negative exponents.",
-        "football": "x⁰ = 1: any rate over itself is one, even yards per yard.",
+        "football": "A 10³-yard rushing season across 10¹ games: 10³⁻¹ = 10² yards a game.",
         "volleyball": "Error rate halving each week: (1/2)ⁿ in exponent form.",
         "neutral": "x⁻ⁿ = 1/xⁿ and x⁰ = 1 (x ≠ 0)."
       },
@@ -2655,7 +2655,7 @@
       "visual": null,
       "contextHooks": {
         "baseball": "A height-vs-time fly ball is degree 2 — that's why it arcs.",
-        "softball": "Pop-up flight: quadratic, two real landings... degree sets the shape.",
+        "softball": "A pop-up's height over time is a degree-2 polynomial — the squared term is what bends the flight into an arc.",
         "basketball": "A jumper's arc is a degree-2 polynomial in time.",
         "soccer": "A chipped pass traces a quadratic; a rolled pass is linear.",
         "football": "Punt hang time lives in a degree-2 height polynomial.",
@@ -2985,7 +2985,7 @@
       "contextHooks": {
         "baseball": "The 90-foot diagonal home-to-second is 90√2 — radicals are distances.",
         "softball": "A 60-foot diamond's diagonal: 60√2 feet, exactly.",
-        "basketball": "Diagonal of a 50-by-50 zone is 50√2 — simplify, don't decimal.",
+        "basketball": "A square cone drill 10 feet on a side: the diagonal sprint is √200 = 10√2 feet — exact, not a rounded decimal.",
         "soccer": "Corner-to-corner of a square box: side × √2.",
         "football": "A 30-yard square section's diagonal is 30√2 yards.",
         "volleyball": "Court diagonal math leaves a √2 standing — keep it exact.",
