@@ -2,61 +2,14 @@
 // Canonical Algebra 1 graph overlaid with the logged-in student's mastery state.
 // Pure, deterministic, Supabase-ready (state arrives as rows; graph as JSON).
 
-export type MasteryStatus =
-  | "unknown" | "introduced" | "developing" | "near_mastery"
-  | "mastered" | "needs_review" | "prerequisite_gap";
-
-export interface SkillNode {
-  id: string; title: string; domain: string; tier: number;
-  prereqs: string[];
-  standards: { ccss: string[]; state: string | null };
-  objective: string;
-  misconceptionTags: string[];
-  visual: "numberline" | "coordinate" | "balance" | "table" | "area-model" | null;
-  contextHooks: Record<string, string>; // keyed by sport + "neutral"
-  problems: { p1: unknown[]; p2: unknown[]; p3: unknown[] };
-}
-
-export interface CurriculumGraph {
-  schema: { version: string; course: string };
-  domains: { id: string; label: string; tier: number }[];
-  nodes: SkillNode[];
-  edges: { from: string; to: string }[];
-}
-
-export interface StudentSkillState {
-  mastery: number;          // 0..1
-  status: MasteryStatus;    // engine-computed, persisted
-  phase: 1 | 2 | 3;         // context progression
-  attempts: number; correct: number; hints: number; timeMs: number;
-  lastFive: boolean[];
-  transfer: boolean;        // demonstrated phase-3 neutral success
-}
-
-export interface OverlayNode {
-  skillId: string; title: string; domain: string; tier: number;
-  mastery: number; phase: 1 | 2 | 3;
-  effectiveStatus: MasteryStatus;   // status with prerequisite-gap override applied
-  blockedBy: string | null;         // first failing prerequisite, if locked
-  frontier: boolean;                // all prereqs mastered, node not yet mastered
-  unlocks: string[];                // direct dependents
-}
-
-export interface StudentOverlay {
-  summary: {
-    mastered: number; frontier: number; locked: number;
-    domainProgress: Record<string, { mastered: number; total: number; avgMastery: number }>;
-  };
-  recommendation: AdaptiveRecommendation | null;
-  nodes: OverlayNode[];
-}
-
-export interface AdaptiveRecommendation {
-  skillId: string; title: string;
-  kind: "remediate" | "continue" | "review" | "accelerate" | "complete";
-  reason: string;               // one plain sentence a 12-year-old understands
-  blockedSkill?: string;        // what this unlocks, when routing backward
-}
+import type {
+  AdaptiveRecommendation,
+  CurriculumGraph,
+  MasteryStatus,
+  OverlayNode,
+  StudentOverlay,
+  StudentSkillState,
+} from "@/types";
 
 export const MASTERY_GATE = 0.7; // tuning is a human checkpoint (CLAUDE.md)
 
@@ -74,7 +27,6 @@ export function computeOverlay(
   graph: CurriculumGraph,
   state: Record<string, StudentSkillState>,
 ): StudentOverlay {
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
   const dependents = new Map<string, string[]>();
   for (const n of graph.nodes)
     for (const p of n.prereqs)

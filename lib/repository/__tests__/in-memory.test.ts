@@ -1,0 +1,167 @@
+import { describe, expect, it } from "vitest";
+import { InMemoryRepository } from "../in-memory";
+import type { NewStudentAttempt, StudentAttempt, StudentProfile } from "@/types";
+
+const newAttempt = (overrides: Partial<NewStudentAttempt> = {}): NewStudentAttempt => ({
+  studentId: "stu-1",
+  skillId: "ALG-F01",
+  problemId: "P-1",
+  phase: 1,
+  sport: "baseball",
+  response: "3",
+  correct: true,
+  hintsUsed: 0,
+  timeMs: 12000,
+  misconceptionTags: [],
+  ...overrides,
+});
+
+const seededAttempt = (
+  id: string,
+  createdAt: string,
+  overrides: Partial<StudentAttempt> = {},
+): StudentAttempt => ({
+  ...newAttempt(),
+  id,
+  createdAt,
+  ...overrides,
+});
+
+const newStudent = (): Omit<StudentProfile, "id" | "createdAt"> => ({
+  displayName: "Avery",
+  gradeLevel: 8,
+  sport: "softball",
+  campusId: null,
+  parentalConsent: { status: "pending", updatedAt: null },
+});
+
+describe("InMemoryRepository — graph", () => {
+  it("getGraph returns the validated real graph (and caches)", async () => {
+    const repo = new InMemoryRepository();
+    const graph = await repo.getGraph();
+    expect(graph.nodes).toHaveLength(74);
+    expect(graph.edges).toHaveLength(114);
+    expect(await repo.getGraph()).toBe(graph); // cached instance
+  });
+
+  it("getGraph throws an Error listing issues when the graph is invalid", async () => {
+    const repo = new InMemoryRepository({ graph: { not: "a graph" } });
+    await expect(repo.getGraph()).rejects.toThrow(/failed validation/);
+    await expect(repo.getGraph()).rejects.toThrow(/SCHEMA/);
+  });
+});
+
+describe("InMemoryRepository — append-only evidence log", () => {
+  it("appendAttempt assigns id + createdAt and the attempt becomes listable", async () => {
+    const repo = new InMemoryRepository();
+    const attempt = await repo.appendAttempt(newAttempt());
+    expect(attempt.id).toMatch(/[0-9a-f-]{36}/);
+    expect(() => new Date(attempt.createdAt).toISOString()).not.toThrow();
+    const listed = await repo.listAttempts("stu-1");
+    expect(listed).toHaveLength(1);
+    expect(listed[0]).toEqual(attempt);
+  });
+
+  it("exposes no update or delete path for attempts or mastery updates", () => {
+    const repo = new InMemoryRepository() as unknown as Record<string, unknown>;
+    const surface = [
+      ...Object.getOwnPropertyNames(Object.getPrototypeOf(repo)),
+      ...Object.getOwnPropertyNames(repo),
+    ];
+    const mutators = surface.filter((name) =>
+      /^(update|delete|remove|set).*(attempt|masteryupdate)/i.test(name),
+    );
+    expect(mutators).toEqual([]);
+  });
+
+  it("returned lists are copies — mutating them does not touch the store", async () => {
+    const repo = new InMemoryRepository();
+    const appended = await repo.appendAttempt(newAttempt({ misconceptionTags: ["tag-a"] }));
+    const listed = await repo.listAttempts("stu-1");
+    listed[0].correct = false;
+    listed[0].misconceptionTags.push("injected");
+    listed.pop();
+    const fresh = await repo.listAttempts("stu-1");
+    expect(fresh).toHaveLength(1);
+    expect(fresh[0]).toEqual(appended);
+  });
+
+  it("listAttempts orders deterministically: createdAt asc, ties by id asc", async () => {
+    const repo = new InMemoryRepository({
+      attempts: [
+        seededAttempt("bbb", "2026-06-02T10:00:00.000Z"),
+        seededAttempt("zzz", "2026-06-01T10:00:00.000Z"),
+        seededAttempt("aaa", "2026-06-02T10:00:00.000Z"), // ties with "bbb" on createdAt
+        seededAttempt("mmm", "2026-05-30T10:00:00.000Z"),
+      ],
+    });
+    const listed = await repo.listAttempts("stu-1");
+    expect(listed.map((a) => a.id)).toEqual(["mmm", "zzz", "aaa", "bbb"]);
+  });
+
+  it("listMasteryUpdates orders deterministically and filters by skillId", async () => {
+    const repo = new InMemoryRepository();
+    const base = {
+      studentId: "stu-1",
+      attemptId: null,
+      trigger: "diagnostic" as const,
+      prevMastery: 0,
+      newMastery: 0.5,
+      prevStatus: "unknown" as const,
+      newStatus: "developing" as const,
+      prevPhase: 1 as const,
+      newPhase: 1 as const,
+      reason: "diagnostic placement",
+      engineVersion: "0.0.0",
+    };
+    await repo.appendMasteryUpdate({ ...base, skillId: "ALG-F02" });
+    await repo.appendMasteryUpdate({ ...base, skillId: "ALG-F01" });
+    const all = await repo.listMasteryUpdates("stu-1");
+    expect(all).toHaveLength(2);
+    expect(all.map((u) => u.createdAt)).toEqual([...all.map((u) => u.createdAt)].sort());
+    const filtered = await repo.listMasteryUpdates("stu-1", "ALG-F01");
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].skillId).toBe("ALG-F01");
+  });
+});
+
+describe("InMemoryRepository — students and skill states", () => {
+  it("createStudent assigns id + createdAt; getStudent returns a copy", async () => {
+    const repo = new InMemoryRepository();
+    const created = await repo.createStudent(newStudent());
+    expect(created.id).toMatch(/[0-9a-f-]{36}/);
+    const fetched = await repo.getStudent(created.id);
+    expect(fetched).toEqual(created);
+    fetched!.parentalConsent.status = "granted";
+    expect((await repo.getStudent(created.id))!.parentalConsent.status).toBe("pending");
+  });
+
+  it("updateStudentSport changes the sport; unknown student throws", async () => {
+    const repo = new InMemoryRepository();
+    const created = await repo.createStudent(newStudent());
+    await repo.updateStudentSport(created.id, "soccer");
+    expect((await repo.getStudent(created.id))!.sport).toBe("soccer");
+    await expect(repo.updateStudentSport("nope", "soccer")).rejects.toThrow(/not found/i);
+  });
+
+  it("setSkillState / getSkillStates round-trips with copies", async () => {
+    const repo = new InMemoryRepository();
+    const state = {
+      mastery: 0.4,
+      status: "developing" as const,
+      phase: 1 as const,
+      attempts: 3,
+      correct: 2,
+      hints: 1,
+      timeMs: 90000,
+      lastFive: [true, false, true],
+      transfer: false,
+    };
+    await repo.setSkillState("stu-1", "ALG-F01", state);
+    const states = await repo.getSkillStates("stu-1");
+    expect(states["ALG-F01"]).toEqual(state);
+    expect(states["ALG-F01"]).not.toBe(state);
+    states["ALG-F01"].lastFive.push(true);
+    expect((await repo.getSkillStates("stu-1"))["ALG-F01"].lastFive).toHaveLength(3);
+  });
+});

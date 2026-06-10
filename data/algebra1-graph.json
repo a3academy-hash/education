@@ -1,6 +1,6 @@
 {
   "schema": {
-    "version": "1.0.0",
+    "version": "1.2.0",
     "course": "Algebra 1",
     "audience": "middle-school",
     "sports": [
@@ -26,7 +26,7 @@
       "needs_review",
       "prerequisite_gap"
     ],
-    "notes": "problems p1/p2/p3 are authored in batches per prompts/03-curriculum-graph-builder.md; standards codes pending mr-kahn verification pass"
+    "notes": "prereqs[] are the source of truth; edges[] must mirror them exactly (validated). problems p1/p2/p3 and workedExamples are authored later per prompts/03-curriculum-graph-builder.md; misconceptionTags must exist in the top-level misconceptionRegistry; standards codes pending mr-kahn verification pass"
   },
   "domains": [
     {
@@ -65,6 +65,620 @@
       "tier": 6
     }
   ],
+  "misconceptionRegistry": [
+    {
+      "id": "absolute-value-makes-negative",
+      "description": "Treats absolute value as 'switch the sign,' returning a negative output for a positive input (e.g., |7| = −7)."
+    },
+    {
+      "id": "add-before-multiply",
+      "description": "Performs addition before multiplication in an unparenthesized expression (e.g., 3 + 4 × 2 = 14)."
+    },
+    {
+      "id": "additive-instead-of-multiplicative",
+      "description": "Extends a proportional relationship by a constant difference instead of scaling by the ratio (e.g., extends 4:6 to 6:8)."
+    },
+    {
+      "id": "adds-constant-to-direct-variation",
+      "description": "Models a proportional y = kx situation with a nonzero starting value (y = kx + b), breaking the required pass through the origin."
+    },
+    {
+      "id": "adds-exponents-and-coefficients",
+      "description": "When multiplying monomials, applies the exponent-addition rule to the coefficients too (e.g., 3x² · 4x³ = 7x⁵)."
+    },
+    {
+      "id": "adds-exponents-on-power",
+      "description": "Adds exponents when raising a power to a power instead of multiplying them (e.g., (x²)³ = x⁵)."
+    },
+    {
+      "id": "adds-half-b-not-squared",
+      "description": "When completing the square, adds b/2 rather than (b/2)², failing to form a perfect-square trinomial."
+    },
+    {
+      "id": "adds-percents-directly",
+      "description": "Combines percents that have different bases by direct addition or subtraction (e.g., treats two successive 10% increases as a single 20% increase)."
+    },
+    {
+      "id": "adds-without-scaling",
+      "description": "Adds two equations whose target-variable coefficients are not equal or opposite without first scaling, so no variable is eliminated."
+    },
+    {
+      "id": "answers-wrong-question",
+      "description": "Solves the equation correctly but reports the variable's value instead of the quantity the problem actually asked for."
+    },
+    {
+      "id": "axis-from-wrong-formula",
+      "description": "Computes the axis of symmetry with a corrupted variant of x = −b/(2a) (e.g., b/(2a) or −b/a), misplacing the vertex."
+    },
+    {
+      "id": "b-as-given-y-coordinate",
+      "description": "Assumes b equals the y-coordinate of the known point instead of solving for it after substituting the point and slope."
+    },
+    {
+      "id": "b-squared-sign-error",
+      "description": "Evaluates b² as negative when b is negative inside the discriminant, computing −(b²) instead of (−b)² = b²."
+    },
+    {
+      "id": "boundary-type-mismatch",
+      "description": "In a system of inequalities, draws a solid boundary for a strict inequality or a dashed boundary for an inclusive one."
+    },
+    {
+      "id": "box-plot-quartile-misread",
+      "description": "Misreads box-plot landmarks, e.g., taking the box's width as a count of data points or the median line as the mean."
+    },
+    {
+      "id": "causation-from-correlation",
+      "description": "Concludes that one variable causes the other from an observed association in a scatter plot."
+    },
+    {
+      "id": "clears-denominator-one-term",
+      "description": "Multiplies only the fraction term by the LCD instead of every term on both sides, unbalancing the equation."
+    },
+    {
+      "id": "coefficient-out-of-range",
+      "description": "Writes scientific notation with a leading factor outside [1, 10) (e.g., 45 × 10³ or 0.45 × 10⁵)."
+    },
+    {
+      "id": "combines-across-equals",
+      "description": "Combines a term on one side with a like term on the other side as if the equals sign did not separate them."
+    },
+    {
+      "id": "combines-unlike-degrees",
+      "description": "Adds or subtracts polynomial terms of different degrees as if they were like terms (e.g., 3x² + 2x = 5x³)."
+    },
+    {
+      "id": "combines-unlike-terms",
+      "description": "Adds terms with different variable parts as if they were like terms (e.g., 5x + 3 = 8x)."
+    },
+    {
+      "id": "common-denominator-skipped",
+      "description": "Adds or subtracts fractions by operating on numerators and denominators separately without a common denominator (e.g., 1/2 + 1/3 = 2/5)."
+    },
+    {
+      "id": "confuses-value-with-distance",
+      "description": "Conflates a number's signed value with its distance from zero, e.g., ranking −8 above 5 because it lies farther from zero."
+    },
+    {
+      "id": "conjugates-keep-middle",
+      "description": "Expands (a + b)(a − b) with a retained middle term instead of recognizing the difference of squares a² − b²."
+    },
+    {
+      "id": "contradiction-read-as-solution",
+      "description": "Treats a false constant statement (e.g., 2 = 9) as still solvable, reporting a leftover constant as the value of x instead of concluding the equation has no solution."
+    },
+    {
+      "id": "cross-multiplies-wrong-pairs",
+      "description": "Cross-multiplies a proportion using same-side products (a·b = c·d) instead of the diagonal products a·d = b·c."
+    },
+    {
+      "id": "decay-factor-as-rate",
+      "description": "Reads the base of an exponential decay model as the percent decrease, e.g., interpreting y = a(0.85)ᵗ as 85% decay instead of 15%."
+    },
+    {
+      "id": "decimal-multiplication-error",
+      "description": "Misplaces the decimal point when multiplying or dividing by a decimal coefficient, shifting the result by a power of ten."
+    },
+    {
+      "id": "decimal-place-shift",
+      "description": "Misaligns place value when adding or subtracting decimals, or shifts the decimal point the wrong number of places in computation."
+    },
+    {
+      "id": "defines-variable-vaguely",
+      "description": "Defines the variable as an object ('x = games') rather than a quantified number ('x = number of games'), producing a mistranslated or unverifiable equation."
+    },
+    {
+      "id": "degree-as-term-count",
+      "description": "Reports a polynomial's degree as its number of terms rather than its greatest exponent."
+    },
+    {
+      "id": "discriminant-includes-root",
+      "description": "Computes the discriminant as √(b² − 4ac) rather than b² − 4ac when classifying the number of solutions."
+    },
+    {
+      "id": "distributes-partially",
+      "description": "While solving, multiplies the outside factor by only some of the terms inside parentheses (e.g., 2(x + 3) = 2x + 3)."
+    },
+    {
+      "id": "distributes-to-first-term-only",
+      "description": "Multiplies the factor by only the first term inside parentheses, yielding a(b + c) = ab + c."
+    },
+    {
+      "id": "divided-first",
+      "description": "In a two-step equation, divides before removing the added constant and applies the division to only part of the side (e.g., 3x + 4 = 19 → x + 4 = 19/3)."
+    },
+    {
+      "id": "divides-by-variable",
+      "description": "Divides both sides of a quadratic by the variable (e.g., x² = 5x → x = 5), discarding the x = 0 solution."
+    },
+    {
+      "id": "divides-only-radical-by-2a",
+      "description": "In the quadratic formula, divides only the radical by 2a instead of the entire numerator −b ± √(b² − 4ac)."
+    },
+    {
+      "id": "divides-single-term",
+      "description": "When solving a formula for a variable, divides only one term of a multi-term side by the coefficient instead of the whole side."
+    },
+    {
+      "id": "drops-coefficient-one",
+      "description": "Fails to treat a bare x as 1x, e.g., simplifying 5x − x to 5x or to 5."
+    },
+    {
+      "id": "drops-negative-across-subtraction",
+      "description": "When subtracting a polynomial, distributes the minus sign to only its first term, leaving later terms' signs unchanged."
+    },
+    {
+      "id": "drops-term-after-factoring",
+      "description": "Omits the quotient of 1 when a term equals the GCF, e.g., factoring 3x² + 3 as 3(x²) instead of 3(x² + 1)."
+    },
+    {
+      "id": "exponent-off-by-one",
+      "description": "Miscounts the decimal-place moves by one when converting to or from scientific notation, producing an exponent one too high or too low."
+    },
+    {
+      "id": "extrapolates-blindly",
+      "description": "Uses a fitted trend line to predict far outside the observed data range without recognizing the prediction is unsupported."
+    },
+    {
+      "id": "factors-sum-of-squares",
+      "description": "Factors a² + b² as (a + b)(a − b) or (a + b)², treating a sum of squares as factorable over the reals."
+    },
+    {
+      "id": "factors-sum-product-swapped",
+      "description": "For x² + bx + c, chooses factor pairs whose sum matches c and whose product matches b, reversing the sum–product conditions."
+    },
+    {
+      "id": "fails-vertical-line-test-reading",
+      "description": "Misapplies the vertical line test when reading a graph, e.g., rejecting a function because a horizontal line crosses it twice."
+    },
+    {
+      "id": "flips-on-subtraction",
+      "description": "Reverses the inequality symbol when adding or subtracting, overgeneralizing the flip rule that applies only to multiplying or dividing by a negative."
+    },
+    {
+      "id": "forces-line-through-origin",
+      "description": "Draws the trend line through (0, 0) regardless of where the data pattern actually intercepts the axis."
+    },
+    {
+      "id": "forgets-flip-on-negative",
+      "description": "Keeps the inequality direction unchanged after multiplying or dividing both sides by a negative number."
+    },
+    {
+      "id": "forgets-negative-root",
+      "description": "Reports only the principal root when solving x² = k, omitting x = −√k."
+    },
+    {
+      "id": "forgot-denominator",
+      "description": "Computes slope as the change in y alone, omitting division by the change in x."
+    },
+    {
+      "id": "grouping-sign-slip",
+      "description": "When factoring by grouping, fails to factor a negative out of the second pair, so the binomial factors do not match (sign error in one group)."
+    },
+    {
+      "id": "histogram-bar-chart-confusion",
+      "description": "Reads a histogram as a bar chart of individual values, treating bar height as a data value rather than the frequency of an interval."
+    },
+    {
+      "id": "identity-means-zero",
+      "description": "Concludes from an identity outcome (e.g., 0 = 0 or 6 = 6) that the solution is x = 0, rather than that every value of x satisfies the equation."
+    },
+    {
+      "id": "ignores-context-restrictions",
+      "description": "States domain or range from the algebraic rule alone, ignoring real-world constraints such as nonnegative counts or capped minutes."
+    },
+    {
+      "id": "ignores-grouping",
+      "description": "Evaluates an expression without honoring parentheses or other grouping symbols."
+    },
+    {
+      "id": "ignores-leading-coefficient",
+      "description": "Factors ax² + bx + c with a ≠ 1 as if the leading coefficient were 1, using factor pairs of c alone."
+    },
+    {
+      "id": "ignores-standard-order",
+      "description": "Writes or reads a polynomial without descending-degree order, misidentifying the leading term or the degree."
+    },
+    {
+      "id": "inconsistent-subtraction-order",
+      "description": "Computes slope with mismatched subtraction order, taking (y₂ − y₁)/(x₁ − x₂) and flipping the sign."
+    },
+    {
+      "id": "intercept-as-pair-confusion",
+      "description": "Confuses an intercept's ordered pair with a single number, e.g., reporting an x-intercept as a y-value or writing (0, a) for an x-intercept."
+    },
+    {
+      "id": "intercept-as-x-value",
+      "description": "Interprets b in y = mx + b as an x-value or x-intercept rather than the output when x = 0."
+    },
+    {
+      "id": "intercept-interpreted-out-of-context",
+      "description": "Assigns real-world meaning to a best-fit line's y-intercept when x = 0 lies outside the sensible domain of the data."
+    },
+    {
+      "id": "intercept-shortcut-misapplied",
+      "description": "Misuses the cover-up intercept shortcut for Ax + By = C, e.g., forgetting to divide C by the remaining coefficient."
+    },
+    {
+      "id": "intersection-vs-union-shading",
+      "description": "Shades the union of the half-planes of a system of inequalities instead of the overlap region satisfying all of them simultaneously."
+    },
+    {
+      "id": "intersects-instead-of-union",
+      "description": "Treats an OR compound inequality as an AND, reporting the intersection instead of the union of the solution sets."
+    },
+    {
+      "id": "inverted-ratio",
+      "description": "Computes slope as run over rise (Δx/Δy), inverting the rate."
+    },
+    {
+      "id": "joint-vs-marginal",
+      "description": "Confuses joint frequencies (cell values) with marginal frequencies (row or column totals) when reading a two-way table."
+    },
+    {
+      "id": "k-as-y-intercept",
+      "description": "Interprets the constant of proportionality k in y = kx as a starting value (y-intercept) rather than the multiplicative rate."
+    },
+    {
+      "id": "leaves-perfect-square-inside",
+      "description": "Stops simplifying a radical while a perfect-square factor remains under the radical sign (e.g., √48 = 2√12)."
+    },
+    {
+      "id": "left-to-right-always",
+      "description": "Evaluates all operations strictly left to right, ignoring the precedence of multiplication and division over addition and subtraction."
+    },
+    {
+      "id": "loses-negative-distributing",
+      "description": "Distributes a negative factor to the first term only, leaving later terms' signs unchanged (e.g., −2(x − 3) = −2x − 6)."
+    },
+    {
+      "id": "loses-second-variable",
+      "description": "After solving for one variable in a system, stops without back-substituting to find the second variable."
+    },
+    {
+      "id": "mean-median-interchanged",
+      "description": "Computes or reports the mean when the median is required (or vice versa), conflating the two measures of center."
+    },
+    {
+      "id": "middle-term-sign-error",
+      "description": "Combines the outer and inner products of a binomial expansion with the wrong sign, producing an incorrect middle term (e.g., (x − 3)(x + 5) = x² − 2x − 15)."
+    },
+    {
+      "id": "mismatched-units-in-ratio",
+      "description": "Sets up a proportion whose two ratios do not place corresponding units in corresponding positions (e.g., hits/at-bats equated to at-bats/hits)."
+    },
+    {
+      "id": "misses-perfect-square-pattern",
+      "description": "Fails to recognize a² ± 2ab + b² as (a ± b)², attempting generic trinomial factoring or declaring the expression prime."
+    },
+    {
+      "id": "mixes-point-coordinates",
+      "description": "When writing a linear equation, substitutes an x-coordinate for y (or pairs coordinates from two different points) while solving for b."
+    },
+    {
+      "id": "moves-decimal-wrong-way",
+      "description": "Shifts the decimal point in the wrong direction when converting between percents and decimals (e.g., 45% = 4.5)."
+    },
+    {
+      "id": "moves-term-without-sign-change",
+      "description": "Transposes a term across the equals sign without changing its sign (e.g., 5x − 2 = 8 → 5x = 8 − 2)."
+    },
+    {
+      "id": "multiplies-base-by-exponent",
+      "description": "Evaluates a power as base times exponent (e.g., 5³ = 15)."
+    },
+    {
+      "id": "multiplies-exponents-on-product",
+      "description": "Multiplies exponents when multiplying powers of the same base instead of adding them (e.g., x² · x³ = x⁶)."
+    },
+    {
+      "id": "multiplies-firsts-and-lasts-only",
+      "description": "Expands (a + b)(c + d) as ac + bd, omitting the outer and inner partial products."
+    },
+    {
+      "id": "negative-exponent-makes-negative",
+      "description": "Interprets a negative exponent as producing a negative value rather than a reciprocal (e.g., 2⁻³ = −8)."
+    },
+    {
+      "id": "negative-means-one-solution",
+      "description": "Misclassifies a negative discriminant as yielding one (or some) real solution instead of no real solutions."
+    },
+    {
+      "id": "negative-reciprocal-error",
+      "description": "Forms a perpendicular slope by negating without reciprocating, or reciprocating without negating, instead of using −1/m."
+    },
+    {
+      "id": "negative-result-accepted",
+      "description": "Produces and accepts solutions for |expression| = c when c is negative, instead of recognizing the equation has no solution."
+    },
+    {
+      "id": "negative-times-negative",
+      "description": "Assigns a negative sign to the product or quotient of two negatives (e.g., (−3)(−4) = −12)."
+    },
+    {
+      "id": "off-by-one-term-index",
+      "description": "Uses aₙ = a₁ + nd instead of aₙ = a₁ + (n − 1)d, shifting every sequence term by one position."
+    },
+    {
+      "id": "one-line-graphed-wrong",
+      "description": "Graphs one equation of the system with a slope or intercept error, producing a false intersection point."
+    },
+    {
+      "id": "one-to-one-confusion",
+      "description": "Rejects a relation as a non-function because an output value repeats, confusing the definition of function with one-to-one correspondence."
+    },
+    {
+      "id": "operates-one-side-only",
+      "description": "Applies the inverse operation to only one side of the equation, breaking equality."
+    },
+    {
+      "id": "outlier-effect-ignored",
+      "description": "Fails to account for how an outlier pulls the mean away from the median when choosing or interpreting a measure of center for skewed data."
+    },
+    {
+      "id": "parallel-as-one-solution",
+      "description": "Reports an intersection solution for a system of parallel lines (equal slopes, different intercepts) instead of concluding no solution."
+    },
+    {
+      "id": "parallel-needs-same-intercept",
+      "description": "Believes parallel lines must share a y-intercept, or rejects equal-slope lines with different intercepts as parallel."
+    },
+    {
+      "id": "partial-distribution",
+      "description": "Multiplies a monomial into only some terms of the polynomial it multiplies."
+    },
+    {
+      "id": "partial-gcf",
+      "description": "Factors out a common factor smaller than the greatest one, leaving a residual common factor inside the parentheses."
+    },
+    {
+      "id": "partial-substitution",
+      "description": "Replaces only some occurrences of the variable with the given value, leaving the others symbolic."
+    },
+    {
+      "id": "percent-as-whole-number",
+      "description": "Computes with a percent as its whole-number face value instead of its decimal or fraction equivalent (e.g., 30% of 80 as 30 × 80)."
+    },
+    {
+      "id": "percent-change-wrong-base",
+      "description": "Computes percent change using the new value, or the raw difference alone, as the base instead of the original value."
+    },
+    {
+      "id": "plots-b-on-x-axis",
+      "description": "Starts the graph of y = mx + b by placing b on the x-axis instead of at the point (0, b)."
+    },
+    {
+      "id": "plots-table-pairs-reversed",
+      "description": "Plots table pairs with input and output swapped, graphing (y, x) instead of (x, y)."
+    },
+    {
+      "id": "plugs-into-wrong-side",
+      "description": "Evaluates f(a) by setting the function's output equal to a and solving, instead of substituting a for x in the rule."
+    },
+    {
+      "id": "point-slope-partial-distribution",
+      "description": "When expanding y − y₁ = m(x − x₁), distributes m to x only, omitting the m·x₁ product."
+    },
+    {
+      "id": "quadrant-sign-confusion",
+      "description": "Misassigns coordinate sign combinations to quadrants, plotting a point in the wrong quadrant (e.g., placing (−3, 2) in Quadrant IV)."
+    },
+    {
+      "id": "ratio-order-flipped",
+      "description": "Writes a ratio with terms in the reverse order of the stated comparison (e.g., 'hits per at-bat' written as at-bats/hits)."
+    },
+    {
+      "id": "ratio-vs-difference-confusion",
+      "description": "Looks for a common ratio in an arithmetic sequence (or a common difference in a geometric one), confusing the two sequence types."
+    },
+    {
+      "id": "reads-fx-as-multiplication",
+      "description": "Interprets f(x) as the product f · x, e.g., treating f(4) as 4 times f or 'dividing both sides by f.'"
+    },
+    {
+      "id": "reads-intersection-imprecisely",
+      "description": "Estimates an intersection point from the graph by eye without verifying, reporting near-miss coordinates that fail to satisfy both equations."
+    },
+    {
+      "id": "reads-table-row-as-rule",
+      "description": "Generalizes a rule from a single input-output row of a table instead of from the consistent change across rows."
+    },
+    {
+      "id": "reverses-subtraction-order",
+      "description": "Translates 'a less than b' in spoken word order as a − b instead of b − a."
+    },
+    {
+      "id": "reverses-x-and-y",
+      "description": "Plots or reads ordered pairs with the coordinates transposed, moving vertically for the first coordinate and horizontally for the second."
+    },
+    {
+      "id": "rise-run-direction-error",
+      "description": "Steps the rise or run in the wrong direction for the slope's sign (e.g., up-and-right for a negative slope), drawing a line of the wrong inclination."
+    },
+    {
+      "id": "roots-a-sum",
+      "description": "Applies the square root term-by-term across a sum (√(a² + b) = a + √b) instead of isolating the squared term before rooting."
+    },
+    {
+      "id": "row-column-percent-confusion",
+      "description": "Computes a conditional percent with the wrong total, dividing by the column total when the question conditions on the row (or vice versa)."
+    },
+    {
+      "id": "sets-wrong-variable-to-zero",
+      "description": "Finds an intercept by zeroing the wrong variable (e.g., setting y = 0 to find the y-intercept)."
+    },
+    {
+      "id": "shades-wrong-direction",
+      "description": "Shades the number line on the side opposite the solution set, often by copying the inequality symbol's direction without testing a value."
+    },
+    {
+      "id": "sign-error-addition",
+      "description": "Adds magnitudes and keeps the wrong sign when combining integers of opposite signs."
+    },
+    {
+      "id": "sign-error-distributing-negative",
+      "description": "Distributes a negative factor without flipping the sign of every interior term (e.g., −3(x − 2) = −3x − 6)."
+    },
+    {
+      "id": "sign-error-isolating",
+      "description": "Applies the correct inverse operation but with the wrong sign while isolating the variable (e.g., adds a constant that should be subtracted)."
+    },
+    {
+      "id": "sign-error-on-point",
+      "description": "Mishandles the built-in subtraction when substituting a point into y − y₁ = m(x − x₁), e.g., writing y − 5 = 2(x + 1) for the point (1, 5)."
+    },
+    {
+      "id": "sign-error-subtracting-equations",
+      "description": "When subtracting one equation from another, fails to subtract every term of the second equation, leaving sign errors in the unsubtracted terms."
+    },
+    {
+      "id": "sign-lost-in-fractions",
+      "description": "Drops or misplaces a negative sign while computing with signed fractions, often detaching the sign from the numerator or the whole fraction."
+    },
+    {
+      "id": "sign-pair-error",
+      "description": "Chooses binomial factor signs inconsistent with the signs of b and c (e.g., x² − x − 6 = (x − 2)(x + 3))."
+    },
+    {
+      "id": "single-case-only",
+      "description": "Solves only the positive case of |ax + b| = c, omitting the negative-case equation and its solution."
+    },
+    {
+      "id": "single-equation-for-two-constraints",
+      "description": "Collapses two distinct conditions (e.g., a count and a value) into one equation, losing a constraint needed to determine both unknowns."
+    },
+    {
+      "id": "solid-vs-dashed-confusion",
+      "description": "Uses a solid boundary line for a strict inequality, or a dashed line for an inclusive one, misrepresenting whether boundary points are solutions."
+    },
+    {
+      "id": "solves-factors-without-zero",
+      "description": "Applies zero-product reasoning when the product equals a nonzero number, e.g., from (x − 2)(x + 1) = 6 setting each factor equal to 6."
+    },
+    {
+      "id": "solves-for-y-with-sign-error",
+      "description": "Makes a sign error when rearranging Ax + By = C to slope-intercept form, typically dropping a negative when moving Ax or dividing by B."
+    },
+    {
+      "id": "splits-sum-under-radical",
+      "description": "Distributes the square root over addition, claiming √(a + b) = √a + √b."
+    },
+    {
+      "id": "square-of-sum-drops-middle",
+      "description": "Expands (a + b)² as a² + b², omitting the 2ab middle term."
+    },
+    {
+      "id": "squares-as-double",
+      "description": "Evaluates n² as 2n, treating squaring as doubling."
+    },
+    {
+      "id": "substitutes-into-same-equation",
+      "description": "Substitutes an expression for a variable back into the equation it was derived from, producing an identity (0 = 0) instead of using the other equation."
+    },
+    {
+      "id": "substitutes-without-parentheses",
+      "description": "Substitutes a negative or multi-part value without parentheses, mis-evaluating powers and products (e.g., x² at x = −2 computed as −2² = −4)."
+    },
+    {
+      "id": "subtracted-not-divided",
+      "description": "Removes a multiplicative coefficient by subtracting it instead of dividing (e.g., 3x = 15 → x = 12)."
+    },
+    {
+      "id": "subtracting-negative",
+      "description": "Evaluates subtraction of a negative as subtraction of a positive (e.g., 5 − (−3) = 2)."
+    },
+    {
+      "id": "swaps-domain-and-range",
+      "description": "Reports the input values as the range and the output values as the domain."
+    },
+    {
+      "id": "swaps-m-and-b",
+      "description": "Reads the constant term as the slope and the coefficient of x as the y-intercept in y = mx + b."
+    },
+    {
+      "id": "tests-point-incorrectly",
+      "description": "Mis-evaluates the test point when checking an inequality's shading, or shades the side containing a point that fails the inequality."
+    },
+    {
+      "id": "transposes-in-circles",
+      "description": "Moves the same terms back and forth across the equals sign without consolidating variable terms on one side when variables appear on both sides."
+    },
+    {
+      "id": "treats-as-equation-point",
+      "description": "Solves an inequality as if it were an equation, reporting a single boundary value rather than a solution interval."
+    },
+    {
+      "id": "treats-exponential-as-steep-linear",
+      "description": "Extends an exponential pattern by repeated addition of a constant amount, modeling growth as a steep linear rate instead of repeated multiplication."
+    },
+    {
+      "id": "treats-letters-as-one-unknown",
+      "description": "Combines or cancels distinct letters in a formula as if they were one unknown, instead of isolating the specified target variable."
+    },
+    {
+      "id": "treats-variable-as-label",
+      "description": "Uses a variable as a unit label or object abbreviation rather than a number, producing reversal errors (the classic students-professors error, 6s = p for s = 6p)."
+    },
+    {
+      "id": "unbalanced-completion",
+      "description": "Adds (b/2)² to one side of the equation without adding it to the other side (or compensating within the expression), changing the equation's value."
+    },
+    {
+      "id": "unbounded-and-statement",
+      "description": "Reports an AND ('between') compound solution as one or two unbounded rays instead of the bounded intersection segment."
+    },
+    {
+      "id": "unlabeled-variables",
+      "description": "Sets up system equations without defining what each variable represents, then misassigns the solved values to the wrong quantities."
+    },
+    {
+      "id": "vanishing-variable-as-no-solution",
+      "description": "Declares 'no solution' whenever the variable terms cancel, treating the disappearance of x as an error state instead of testing whether the remaining constant statement is true or false."
+    },
+    {
+      "id": "vertex-as-y-intercept",
+      "description": "Identifies the parabola's y-intercept (0, c) as the vertex, conflating the constant term with the turning point."
+    },
+    {
+      "id": "vertex-misread-as-root",
+      "description": "Answers a 'when does it reach zero' question with the vertex coordinates instead of the relevant zero of the quadratic."
+    },
+    {
+      "id": "wrong-inverse-operation",
+      "description": "Undoes an operation with the same operation rather than its inverse (e.g., x + 7 = 12 → x = 12 + 7)."
+    },
+    {
+      "id": "wrong-root-chosen-for-context",
+      "description": "Selects the root that violates the context's constraints (e.g., a negative time or distance) instead of the physically meaningful solution."
+    },
+    {
+      "id": "x-to-zero-is-zero",
+      "description": "Evaluates a nonzero base raised to the zero power as 0 (or as the base itself) instead of 1."
+    },
+    {
+      "id": "zero-equals-zero-as-no-solution",
+      "description": "Interprets an identity outcome (e.g., 0 = 0) while solving a system as 'no solution' rather than infinitely many solutions."
+    }
+  ],
   "nodes": [
     {
       "id": "ALG-F01",
@@ -95,6 +709,7 @@
         "volleyball": "Hitting stat: 5 kills minus 3 errors keeps the attack line positive.",
         "neutral": "A bank balance of −$4 plus a $7 deposit leaves +$3."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -131,6 +746,7 @@
         "volleyball": "Hitting percentage (kills−errors)/attempts is fraction arithmetic with signs.",
         "neutral": "Splitting a $7.50 cost three ways and adjusting by quarters."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -167,6 +783,7 @@
         "volleyball": "Match points: 3 set wins × 25-ish rallies — grouping decides the count.",
         "neutral": "3 + 4 × 2 is 11, not 14."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -202,6 +819,7 @@
         "volleyball": "A 2³-team pool bracket finishes in three rounds.",
         "neutral": "5³ means 5 × 5 × 5 = 125, not 5 × 3."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -237,6 +855,7 @@
         "volleyball": "\"Four kills per set for s sets\" translates to 4s.",
         "neutral": "\"Seven less than a number\" is n − 7, not 7 − n."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -249,8 +868,7 @@
       "domain": "foundations",
       "tier": 0,
       "prereqs": [
-        "ALG-F05",
-        "ALG-F03"
+        "ALG-F05"
       ],
       "standards": {
         "ccss": [
@@ -273,6 +891,7 @@
         "volleyball": "4s for s = 5 sets gives a 20-kill night.",
         "neutral": "Evaluate 3x² for x = −2: 3·(−2)² = 12."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -309,6 +928,7 @@
         "volleyball": "Kills add with kills; digs stay a separate term.",
         "neutral": "5x + 3 − 2x simplifies to 3x + 3."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -344,6 +964,7 @@
         "volleyball": "5 sets of (4 kills + 2 blocks) distributes to 20 + 10.",
         "neutral": "3(x + 4) = 3x + 12; the 3 multiplies every term inside."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -379,6 +1000,7 @@
         "volleyball": "A serve 2 feet long or 2 feet short misses by the same |2|.",
         "neutral": "|−6| = 6 because −6 sits six units from zero."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -415,6 +1037,7 @@
         "volleyball": "Kills per set: 44 kills in 11 sets is 4.0.",
         "neutral": "A unit rate is the ratio scaled to a denominator of one."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -450,6 +1073,7 @@
         "volleyball": "Winning 21 of 28 service points is 75%.",
         "neutral": "30% of 80 is 0.30 × 80 = 24."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -485,6 +1109,7 @@
         "volleyball": "x + 6 = 14 kills to hit tonight's target.",
         "neutral": "x + 7 = 12 → subtract 7 from both sides: x = 5."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -521,6 +1146,7 @@
         "volleyball": "4s + 6 = 26 kills — constant first, coefficient second.",
         "neutral": "3x + 4 = 19 → 3x = 15 → x = 5."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -558,6 +1184,7 @@
         "volleyball": "2(s + 3) + 4s = 30 — simplify the left side first.",
         "neutral": "2(x + 3) = 14 → 2x + 6 = 14 → x = 4."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -581,7 +1208,7 @@
       "objective": "Collect variable terms on one side and constants on the other, then isolate.",
       "misconceptionTags": [
         "moves-term-without-sign-change",
-        "stops-at-no-progress"
+        "transposes-in-circles"
       ],
       "visual": "balance",
       "contextHooks": {
@@ -593,6 +1220,7 @@
         "volleyball": "Kill totals equalize at 5s + 2 = 3s + 12.",
         "neutral": "5x − 2 = 3x + 8 → 2x = 10 → x = 5."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -629,6 +1257,7 @@
         "volleyball": "0.5s + 2 = 6 — kills credited at half-rate in doubles drills.",
         "neutral": "x/3 + 2 = 7 → multiply through by 3: x + 6 = 21."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -664,6 +1293,7 @@
         "volleyball": "Hitting % = (K − E)/A — solve for K.",
         "neutral": "Solve P = 2l + 2w for w: w = (P − 2l)/2."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -700,6 +1330,7 @@
         "volleyball": "44 kills in 11 sets — keep the rate over a 15-set week.",
         "neutral": "x/12 = 3/4 → x = 9 by equivalent ratios."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -736,6 +1367,7 @@
         "volleyball": "Serve-receive rating up 12% from a 2.0 base lands at 2.24.",
         "neutral": "A $40 item marked down 25% costs $30."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -772,6 +1404,7 @@
         "volleyball": "Service errors capped: e ≤ 2 per set.",
         "neutral": "x + 7 > 12 → x > 5; open circle, shade right."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -809,6 +1442,7 @@
         "volleyball": "25 − 2r ≤ 13 rally points left — the negative flips it.",
         "neutral": "−2x < 10 → x > −5; dividing by a negative reverses the inequality."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -844,6 +1478,7 @@
         "volleyball": "Set won by 2 within bounds: 25 ≤ p and p − o ≥ 2.",
         "neutral": "−3 < x ≤ 4 graphs as a segment: open at −3, closed at 4."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -880,6 +1515,7 @@
         "volleyball": "|s − 50| = 5 mph around the serve-speed target.",
         "neutral": "|x − 3| = 7 splits into x − 3 = 7 or x − 3 = −7."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -915,6 +1551,44 @@
         "volleyball": "Model kills needed per set to finish the season at 4.0.",
         "neutral": "Define the variable, write the equation, solve, answer in context."
       },
+      "workedExamples": [],
+      "problems": {
+        "p1": [],
+        "p2": [],
+        "p3": []
+      }
+    },
+    {
+      "id": "ALG-E14",
+      "title": "Equations with No Solution or Infinitely Many",
+      "domain": "equations",
+      "tier": 1,
+      "prereqs": [
+        "ALG-E04"
+      ],
+      "standards": {
+        "ccss": [
+          "8.EE.C.7a"
+        ],
+        "state": null
+      },
+      "objective": "Determine whether a linear equation has one solution, no solution, or infinitely many solutions by simplifying it to the form x = a, a = a, or a = b (where a and b are different numbers).",
+      "misconceptionTags": [
+        "identity-means-zero",
+        "vanishing-variable-as-no-solution",
+        "contradiction-read-as-solution"
+      ],
+      "visual": "balance",
+      "contextHooks": {
+        "baseball": "Two hitters both adding 2 hits a game from 14 apiece: 2g + 14 = 2g + 14 is true after every game — infinitely many.",
+        "softball": "Two pitchers each add 5 strikeouts a game, but one leads 9 to 3: 5g + 3 = 5g + 9 never balances — no game ties them.",
+        "basketball": "Two 18-a-night scorers sitting at 90 and 126 points: 18g + 90 = 18g + 126 — same pace, the 36-point gap never closes.",
+        "soccer": "Two clubs both averaging 2 points a match, level on 20: 2m + 20 = 2m + 20 — level after every single match.",
+        "football": "Two backs each gain 90 yards a game with totals of 280 and 350: 90g + 280 = 90g + 350 — no week evens them up.",
+        "volleyball": "Two outside hitters both average 4 kills a set from 36 apiece: 4s + 36 = 4s + 36 holds no matter how many sets they play.",
+        "neutral": "Solving 3(x + 2) = 3x + 6 leaves 6 = 6 — every x works; solving 3x + 2 = 3x + 9 leaves 2 = 9 — no x works."
+      },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -950,6 +1624,7 @@
         "volleyball": "Attack charts mark where each kill lands in the court grid.",
         "neutral": "(3, 2) means 3 right, 2 up from the origin."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -986,6 +1661,7 @@
         "volleyball": "Each rally has one winner — rally number maps to one team.",
         "neutral": "A function assigns each input exactly one output."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1009,7 +1685,7 @@
       },
       "objective": "Read, write, and evaluate functions using f(x) notation.",
       "misconceptionTags": [
-        "reads-f(x)-as-multiplication",
+        "reads-fx-as-multiplication",
         "plugs-into-wrong-side"
       ],
       "visual": null,
@@ -1022,6 +1698,7 @@
         "volleyball": "k(s) = 4s counts kills through set s.",
         "neutral": "If f(x) = 3x + 1, then f(4) = 13 — f(4) is not f times 4."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1057,6 +1734,7 @@
         "volleyball": "Set scores cap the range; rallies index the domain.",
         "neutral": "Domain: allowed inputs. Range: resulting outputs."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1094,6 +1772,7 @@
         "volleyball": "Kills accumulating 4 per set set the line's steepness.",
         "neutral": "Slope = rise/run = Δy/Δx, a constant rate."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1129,6 +1808,7 @@
         "volleyball": "(4, 16) and (9, 36) kills: m = 4 per set.",
         "neutral": "Through (2, 3) and (6, 11): m = 8/4 = 2."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1165,6 +1845,7 @@
         "volleyball": "Set-by-set kill table maps to a straight-line trend.",
         "neutral": "Same linear relationship, three representations."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1202,6 +1883,7 @@
         "volleyball": "y = 4x + 6 — six kills already, four each new set.",
         "neutral": "In y = mx + b, m is rate, b is the starting value."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1237,6 +1919,7 @@
         "volleyball": "Plot kill pace; the line predicts the milestone set.",
         "neutral": "Start at (0, b), step rise over run, connect."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1272,6 +1955,7 @@
         "volleyball": "A deficit line crossing zero is when the set draws even.",
         "neutral": "x-intercept: set y = 0. y-intercept: set x = 0."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1296,7 +1980,7 @@
       "objective": "Write linear equations using y − y₁ = m(x − x₁) from a point and slope.",
       "misconceptionTags": [
         "sign-error-on-point",
-        "expands-incorrectly"
+        "point-slope-partial-distribution"
       ],
       "visual": "coordinate",
       "contextHooks": {
@@ -1308,6 +1992,7 @@
         "volleyball": "Through (6 sets, 25 kills) at 4 per set — point-slope it.",
         "neutral": "Slope 2 through (1, 5): y − 5 = 2(x − 1)."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1321,7 +2006,8 @@
       "tier": 2,
       "prereqs": [
         "ALG-L08",
-        "ALG-L10"
+        "ALG-L10",
+        "ALG-E06"
       ],
       "standards": {
         "ccss": [
@@ -1344,6 +2030,7 @@
         "volleyball": "Kills and aces budgeting to a points target: x + y = 25.",
         "neutral": "Ax + By = C graphs fastest from its two intercepts."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1356,8 +2043,7 @@
       "domain": "linear",
       "tier": 2,
       "prereqs": [
-        "ALG-L11",
-        "ALG-L06"
+        "ALG-L11"
       ],
       "standards": {
         "ccss": [
@@ -1368,7 +2054,7 @@
       },
       "objective": "Construct linear equations from a slope and point, two points, or a context.",
       "misconceptionTags": [
-        "solves-b-with-arithmetic-slip",
+        "b-as-given-y-coordinate",
         "mixes-point-coordinates"
       ],
       "visual": null,
@@ -1381,6 +2067,7 @@
         "volleyball": "Two set-totals determine the kill-pace equation exactly.",
         "neutral": "Find m, substitute a point, solve for b, write y = mx + b."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1416,6 +2103,7 @@
         "volleyball": "A line shot versus the cross-court angle: perpendicular paths.",
         "neutral": "Parallel: equal slopes. Perpendicular: slopes multiply to −1."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1452,6 +2140,7 @@
         "volleyball": "Jump-load management shades safe (sets, attempts) pairs.",
         "neutral": "y > 2x + 1: dashed boundary, shade where the test point works."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1487,6 +2176,7 @@
         "volleyball": "Approach jumps vs. kills across matches, fitted informally.",
         "neutral": "A trend line summarizes the pattern, not every point."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1523,6 +2213,7 @@
         "volleyball": "Serve speed gains of 1 mph per week sequence cleanly.",
         "neutral": "aₙ = a₁ + (n − 1)d — a line sampled at whole numbers."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1559,6 +2250,7 @@
         "volleyball": "Points from aces: p = 1a — direct, origin-anchored.",
         "neutral": "y = kx: doubles when x doubles, graph passes through (0, 0)."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1595,6 +2287,7 @@
         "volleyball": "Kill paces meet at one set — the intersection.",
         "neutral": "The solution is the one point both lines share."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1631,6 +2324,7 @@
         "volleyball": "Blocks expressed through kills inside the points equation.",
         "neutral": "Replace a variable with its equal expression; solve one unknown."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1643,7 +2337,8 @@
       "domain": "systems",
       "tier": 3,
       "prereqs": [
-        "ALG-S02"
+        "ALG-S02",
+        "ALG-L12"
       ],
       "standards": {
         "ccss": [
@@ -1667,6 +2362,7 @@
         "volleyball": "Two fundraiser orders eliminate the t-shirt variable.",
         "neutral": "Scale, then add/subtract so one variable cancels."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1680,7 +2376,9 @@
       "tier": 3,
       "prereqs": [
         "ALG-S02",
-        "ALG-S03"
+        "ALG-S03",
+        "ALG-L14",
+        "ALG-E14"
       ],
       "standards": {
         "ccss": [
@@ -1703,6 +2401,7 @@
         "volleyball": "Two descriptions of one kill pace — every point works.",
         "neutral": "0 = 5 → no solution. 0 = 0 → infinitely many."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1740,6 +2439,7 @@
         "volleyball": "Kills and aces from total points and total attempts.",
         "neutral": "Two facts about two unknowns — define both, build both equations."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1776,6 +2476,7 @@
         "volleyball": "Jump counts and set limits define the overlap to stay in.",
         "neutral": "The feasible region satisfies every inequality at once."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1811,6 +2512,7 @@
         "volleyball": "Rotation combinations stack as powers of 6... powers multiply when raised.",
         "neutral": "xᵃ · xᵇ = xᵃ⁺ᵇ and (xᵃ)ᵇ = xᵃᵇ."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1846,6 +2548,7 @@
         "volleyball": "Error rate halving each week: (1/2)ⁿ in exponent form.",
         "neutral": "x⁻ⁿ = 1/xⁿ and x⁰ = 1 (x ≠ 0)."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1883,6 +2586,7 @@
         "volleyball": "Ball contact time near 1 × 10⁻² seconds.",
         "neutral": "a × 10ⁿ with 1 ≤ a < 10 — the exponent carries the scale."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1896,7 +2600,9 @@
       "tier": 4,
       "prereqs": [
         "ALG-P02",
-        "ALG-L08"
+        "ALG-L08",
+        "ALG-L03",
+        "ALG-F11"
       ],
       "standards": {
         "ccss": [
@@ -1920,6 +2626,7 @@
         "volleyball": "Drill difficulty scaling 1.1× per week compounds.",
         "neutral": "Linear adds the same amount; exponential multiplies by the same factor."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1955,6 +2662,7 @@
         "volleyball": "A serve's flight path: classify it by its degree.",
         "neutral": "3x² − 5x + 2: trinomial, degree 2, leading coefficient 3."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -1967,8 +2675,7 @@
       "domain": "exponents-polynomials",
       "tier": 4,
       "prereqs": [
-        "ALG-P05",
-        "ALG-F07"
+        "ALG-P05"
       ],
       "standards": {
         "ccss": [
@@ -1991,6 +2698,7 @@
         "volleyball": "Combine set-by-set stat polynomials, like terms only.",
         "neutral": "(3x² + 2x) − (x² − 4x) = 2x² + 6x."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2028,6 +2736,7 @@
         "volleyball": "2x sets × (4x + 1) rallies: monomial times binomial.",
         "neutral": "3x(2x + 5) = 6x² + 15x."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2063,6 +2772,7 @@
         "volleyball": "Court plus buffer: (x + 1)(x + 9) expands to four terms first.",
         "neutral": "(x + 3)(x + 5) = x² + 8x + 15 — four products, then combine."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2098,6 +2808,7 @@
         "volleyball": "(x + 3)(x − 3) court margins: conjugates kill the middle.",
         "neutral": "(a + b)² = a² + 2ab + b²; (a + b)(a − b) = a² − b²."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2133,6 +2844,7 @@
         "volleyball": "4x² + 6x contacts share 2x across both terms.",
         "neutral": "6x² + 9x = 3x(2x + 3) — undistribute the GCF."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2169,6 +2881,7 @@
         "volleyball": "Reverse-engineer the court-plus-buffer dimensions.",
         "neutral": "x² + 8x + 15: numbers multiplying to 15, adding to 8 → (x+3)(x+5)."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2204,6 +2917,7 @@
         "volleyball": "2x² + 9x + 4 factors once the middle term splits right.",
         "neutral": "2x² + 11x + 12 = (2x + 3)(x + 4) via the ac method."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2240,6 +2954,7 @@
         "volleyball": "x² − 100 of court margin factors instantly by pattern.",
         "neutral": "a² − b² = (a+b)(a−b); a² + 2ab + b² = (a+b)²."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2276,6 +2991,7 @@
         "volleyball": "Court diagonal math leaves a √2 standing — keep it exact.",
         "neutral": "√72 = √36 · √2 = 6√2."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2289,7 +3005,8 @@
       "tier": 5,
       "prereqs": [
         "ALG-L09",
-        "ALG-P05"
+        "ALG-P05",
+        "ALG-L03"
       ],
       "standards": {
         "ccss": [
@@ -2312,6 +3029,7 @@
         "volleyball": "A perfect set peaks above the net — read its vertex.",
         "neutral": "y = ax² + bx + c: vertex at x = −b/(2a), symmetric arms."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2324,8 +3042,8 @@
       "domain": "quadratics",
       "tier": 5,
       "prereqs": [
-        "ALG-Q02",
-        "ALG-Q06"
+        "ALG-Q06",
+        "ALG-Q03"
       ],
       "standards": {
         "ccss": [
@@ -2349,6 +3067,7 @@
         "volleyball": "Serve height zero at contact and at the floor — both roots matter.",
         "neutral": "If (x − 3)(x + 2) = 0 then x = 3 or x = −2; never divide by x."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2385,6 +3104,7 @@
         "volleyball": "(x − 1)² = 16: two algebraic answers, one physical one.",
         "neutral": "x² = 49 → x = ±7. Both roots, always, then filter by context."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2422,6 +3142,7 @@
         "volleyball": "Complete the square to expose the set's peak height.",
         "neutral": "x² + 6x + 2 = 0 → (x + 3)² = 7 → x = −3 ± √7."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2458,6 +3179,7 @@
         "volleyball": "Set at net height twice per flight — quadratic formula finds both.",
         "neutral": "x = (−b ± √(b²−4ac))/(2a) solves every quadratic."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2493,6 +3215,7 @@
         "volleyball": "Can this set peak at 12 feet? Sign of b² − 4ac decides.",
         "neutral": "Positive: two real roots. Zero: one. Negative: none."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2531,6 +3254,7 @@
         "volleyball": "Model the serve and decide if it clears net and lands in.",
         "neutral": "Define the function, identify what the vertex and roots mean, answer in context."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2567,6 +3291,7 @@
         "volleyball": "Kills per set centered and spread across the rotation.",
         "neutral": "Mean averages everything; median resists outliers."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2603,6 +3328,7 @@
         "volleyball": "Serve speeds histogrammed show the team's velocity bands.",
         "neutral": "Histograms bin values; box plots summarize five numbers."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2639,6 +3365,7 @@
         "volleyball": "Serve type vs. ace/error cross-tabbed by rotation.",
         "neutral": "Joint, marginal, and conditional frequencies answer different questions."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2676,6 +3403,7 @@
         "volleyball": "Jump training vs. kill rate: read the slope, doubt the extrapolation.",
         "neutral": "Slope: predicted change per unit. Intercept: only meaningful if x = 0 makes sense."
       },
+      "workedExamples": [],
       "problems": {
         "p1": [],
         "p2": [],
@@ -2702,10 +3430,6 @@
     },
     {
       "from": "ALG-F05",
-      "to": "ALG-F06"
-    },
-    {
-      "from": "ALG-F03",
       "to": "ALG-F06"
     },
     {
@@ -2809,6 +3533,10 @@
       "to": "ALG-E13"
     },
     {
+      "from": "ALG-E04",
+      "to": "ALG-E14"
+    },
+    {
       "from": "ALG-F01",
       "to": "ALG-L01"
     },
@@ -2881,11 +3609,11 @@
       "to": "ALG-L12"
     },
     {
-      "from": "ALG-L11",
-      "to": "ALG-L13"
+      "from": "ALG-E06",
+      "to": "ALG-L12"
     },
     {
-      "from": "ALG-L06",
+      "from": "ALG-L11",
       "to": "ALG-L13"
     },
     {
@@ -2933,11 +3661,23 @@
       "to": "ALG-S03"
     },
     {
+      "from": "ALG-L12",
+      "to": "ALG-S03"
+    },
+    {
       "from": "ALG-S02",
       "to": "ALG-S04"
     },
     {
       "from": "ALG-S03",
+      "to": "ALG-S04"
+    },
+    {
+      "from": "ALG-L14",
+      "to": "ALG-S04"
+    },
+    {
+      "from": "ALG-E14",
       "to": "ALG-S04"
     },
     {
@@ -2985,15 +3725,15 @@
       "to": "ALG-P04"
     },
     {
+      "from": "ALG-F11",
+      "to": "ALG-P04"
+    },
+    {
       "from": "ALG-F07",
       "to": "ALG-P05"
     },
     {
       "from": "ALG-P05",
-      "to": "ALG-P06"
-    },
-    {
-      "from": "ALG-F07",
       "to": "ALG-P06"
     },
     {
@@ -3051,10 +3791,6 @@
     {
       "from": "ALG-P05",
       "to": "ALG-Q06"
-    },
-    {
-      "from": "ALG-Q02",
-      "to": "ALG-Q07"
     },
     {
       "from": "ALG-Q06",
@@ -3119,6 +3855,18 @@
     {
       "from": "ALG-D01",
       "to": "ALG-D04"
+    },
+    {
+      "from": "ALG-L03",
+      "to": "ALG-Q06"
+    },
+    {
+      "from": "ALG-L03",
+      "to": "ALG-P04"
+    },
+    {
+      "from": "ALG-Q03",
+      "to": "ALG-Q07"
     }
   ]
 }

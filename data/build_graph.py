@@ -1,3 +1,10 @@
+# =============================================================================
+# ARCHIVED BUILD TOOLING — DO NOT RUN
+#
+# data/algebra1-graph.json v1.1.0+ is canonical and hand-maintained.
+# This script and nodes_part*.py would regenerate the obsolete v1.0.0 graph,
+# overwriting the canonical file. They are kept for reference only.
+# =============================================================================
 # build_graph.py — assemble, validate, emit algebra1-graph.json + student overlay sample
 import json, sys
 from collections import defaultdict
