@@ -40,7 +40,7 @@ const copyUpdate = (u: MasteryUpdate): MasteryUpdate => ({ ...u });
 
 const copyState = (s: StudentSkillState): StudentSkillState => ({
   ...s,
-  lastFive: [...s.lastFive],
+  recent: s.recent.map((r) => ({ ...r })),
 });
 
 const copyProfile = (p: StudentProfile): StudentProfile => ({

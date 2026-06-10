@@ -1,28 +1,30 @@
 import { describe, expect, it } from "vitest";
 import { computeOverlay, MASTERY_GATE, propagateDiagnosticCredit } from "./overlay";
+import { computeMasteryAll, MASTERY_CONFIG } from "../mastery-engine";
 import realGraphJson from "../../data/algebra1-graph.json";
 import type { CurriculumGraph } from "@/types";
 
 const realGraph = realGraphJson as unknown as CurriculumGraph;
+const NOW = "2026-06-10T00:00:00.000Z";
 
 describe("computeOverlay — smoke test over the real graph", () => {
-  it("with empty state: 74 nodes, ALG-F01 on the frontier, deterministic recommendation", () => {
-    const overlay = computeOverlay(realGraph, {});
+  it("with empty state: 74 nodes, ALG-F01 on the frontier, no recommendation field", () => {
+    const { results } = computeMasteryAll("stu-1", {}, realGraph, NOW);
+    const overlay = computeOverlay(realGraph, {}, results);
     expect(overlay.nodes).toHaveLength(74);
 
     const root = overlay.nodes.find((n) => n.skillId === "ALG-F01");
     expect(root?.frontier).toBe(true);
+    expect(root?.effectiveStatus).toBe("unknown");
     expect(overlay.summary.frontier).toBe(1);
+    expect(overlay.summary.locked).toBe(73);
 
-    // NOTE: the Phase 0 spec expected kind "continue" here, but the
-    // pre-existing overlay logic (moved byte-for-byte, zero-behavior refactor)
-    // returns "remediate": ALG-F02 is blocked by ALG-F01, and a frontier node
-    // with a locked dependent is classified remediate. Flagged to mr-gates.
-    expect(overlay.recommendation?.skillId).toBe("ALG-F01");
-    expect(overlay.recommendation?.kind).toBe("remediate");
+    // Recommendations are owned by the adaptive router now.
+    expect("recommendation" in overlay).toBe(false);
   });
 
-  it("exposes the approved mastery gate unchanged", () => {
+  it("re-exports the gate from the single home in MASTERY_CONFIG", () => {
+    expect(MASTERY_GATE).toBe(MASTERY_CONFIG.thresholds.prereqGate);
     expect(MASTERY_GATE).toBe(0.7);
   });
 });

@@ -14,8 +14,8 @@ classification objective and corrupting misconception-tag diagnostics.
   (it is batter-relative).
 - Full CCSS code verification across all 74 nodes (schema.notes flags this).
 
-## Phase 1 carry-over (adaptive-router)
-- Overlay recommendation `kind` returns "remediate" for a never-attempted
-  frontier root (e.g. ALG-F01 with empty state); semantically it should consider
-  attempt history before classifying as remediation. Flagged by mr-grunt and
-  mr-gates during Phase 0 diff review; behavior intentionally left unchanged.
+## Phase 1 carry-over (adaptive-router) — RESOLVED (Phase 1)
+- RESOLVED: the router now classifies "remediate" only when the candidate
+  blocks ≥ 1 dependent AND there is attempt evidence of the gap (candidate or
+  any dependent has attempts > 0); a never-attempted frontier root (e.g.
+  ALG-F01 with empty state) yields "continue".

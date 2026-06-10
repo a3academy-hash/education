@@ -18,7 +18,21 @@ export interface StudentProfile {
   createdAt: string;
 }
 
-/** Per-skill mastery state. Shape matches the overlay engine exactly. */
+/** One entry in the rolling recent-attempt window kept on StudentSkillState. */
+export interface RecentAttempt {
+  correct: boolean;
+  timeMs: number;
+  phase: Phase;
+}
+
+/**
+ * Per-skill mastery state. Shape matches the mastery engine exactly.
+ *
+ * CONVENTION — whenever a MasteryUpdate sets/refreshes `masteredAt`, the
+ * caller resets `recent` to []. `recent[]` therefore only ever contains
+ * post-mastery (or post-restoration) attempts; full history lives in the
+ * immutable StudentAttempt log, so nothing is lost for audit.
+ */
 export interface StudentSkillState {
   mastery: number;
   status: MasteryStatus;
@@ -27,8 +41,13 @@ export interface StudentSkillState {
   correct: number;
   hints: number;
   timeMs: number;
-  lastFive: boolean[];
+  /** Rolling window, cap 5, most recent LAST. See CONVENTION above. */
+  recent: RecentAttempt[];
   transfer: boolean;
+  /** ISO timestamp of the most recent attempt, or null if never attempted. */
+  lastAttemptAt: string | null;
+  /** ISO timestamp of when mastery was (last) earned, or null if never mastered. */
+  masteredAt: string | null;
 }
 
 export interface StudentAttempt {
@@ -43,6 +62,11 @@ export interface StudentAttempt {
   hintsUsed: number;
   timeMs: number;
   misconceptionTags: string[];
+  /**
+   * True when the item was served as an N+1 phase probe. Probe attempts are
+   * EXCLUDED from phase-advance accuracy (audit-reconstructable from this log).
+   */
+  isProbe: boolean;
   createdAt: string;
 }
 

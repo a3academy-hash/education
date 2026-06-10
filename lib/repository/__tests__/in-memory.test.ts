@@ -13,6 +13,7 @@ const newAttempt = (overrides: Partial<NewStudentAttempt> = {}): NewStudentAttem
   hintsUsed: 0,
   timeMs: 12000,
   misconceptionTags: [],
+  isProbe: false,
   ...overrides,
 });
 
@@ -154,14 +155,23 @@ describe("InMemoryRepository — students and skill states", () => {
       correct: 2,
       hints: 1,
       timeMs: 90000,
-      lastFive: [true, false, true],
+      recent: [
+        { correct: true, timeMs: 30000, phase: 1 as const },
+        { correct: false, timeMs: 40000, phase: 1 as const },
+        { correct: true, timeMs: 20000, phase: 1 as const },
+      ],
       transfer: false,
+      lastAttemptAt: "2026-06-09T10:00:00.000Z",
+      masteredAt: null,
     };
     await repo.setSkillState("stu-1", "ALG-F01", state);
     const states = await repo.getSkillStates("stu-1");
     expect(states["ALG-F01"]).toEqual(state);
     expect(states["ALG-F01"]).not.toBe(state);
-    states["ALG-F01"].lastFive.push(true);
-    expect((await repo.getSkillStates("stu-1"))["ALG-F01"].lastFive).toHaveLength(3);
+    states["ALG-F01"].recent.push({ correct: true, timeMs: 1000, phase: 1 });
+    states["ALG-F01"].recent[0].correct = false;
+    const fresh = (await repo.getSkillStates("stu-1"))["ALG-F01"];
+    expect(fresh.recent).toHaveLength(3);
+    expect(fresh.recent[0].correct).toBe(true);
   });
 });
