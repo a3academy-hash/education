@@ -1,0 +1,790 @@
+{
+  "student": {
+    "id": "stu_demo_001",
+    "name": "Demo Student",
+    "sport": "baseball",
+    "grade": 8
+  },
+  "course": "Algebra 1",
+  "masteryGate": 0.7,
+  "summary": {
+    "mastered": 14,
+    "frontier": 11,
+    "locked": 48,
+    "domainProgress": {
+      "foundations": {
+        "mastered": 11,
+        "total": 11,
+        "avgMastery": 0.92
+      },
+      "equations": {
+        "mastered": 2,
+        "total": 13,
+        "avgMastery": 0.184
+      },
+      "linear": {
+        "mastered": 1,
+        "total": 18,
+        "avgMastery": 0.074
+      },
+      "systems": {
+        "mastered": 0,
+        "total": 6,
+        "avgMastery": 0.0
+      },
+      "exponents-polynomials": {
+        "mastered": 0,
+        "total": 9,
+        "avgMastery": 0.0
+      },
+      "quadratics": {
+        "mastered": 0,
+        "total": 12,
+        "avgMastery": 0.0
+      },
+      "data": {
+        "mastered": 0,
+        "total": 4,
+        "avgMastery": 0.0
+      }
+    }
+  },
+  "recommendation": {
+    "skillId": "ALG-L05",
+    "title": "Slope as Rate of Change",
+    "kind": "continue",
+    "reason": "Lowest mastery among skills you are ready for; it currently locks Slope from Two Points."
+  },
+  "nodes": [
+    {
+      "skillId": "ALG-F01",
+      "title": "Integer Operations",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F02",
+      "title": "Rational Number Operations",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F03",
+      "title": "Order of Operations",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F04",
+      "title": "Exponents: Repeated Multiplication",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F05",
+      "title": "Variables & Expressions",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F06",
+      "title": "Evaluating Expressions",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F07",
+      "title": "Combining Like Terms",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F08",
+      "title": "Distributive Property",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F09",
+      "title": "Number Line & Absolute Value",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F10",
+      "title": "Ratios, Rates & Proportional Thinking",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-F11",
+      "title": "Percent Fundamentals",
+      "domain": "foundations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E01",
+      "title": "One-Step Equations",
+      "domain": "equations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E02",
+      "title": "Two-Step Equations",
+      "domain": "equations",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E03",
+      "title": "Multi-Step Equations",
+      "domain": "equations",
+      "mastery": 0.55,
+      "phase": 2,
+      "effectiveStatus": "developing",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-E04",
+      "title": "Variables on Both Sides",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E03",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E05",
+      "title": "Equations with Fractions & Decimals",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E03",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E06",
+      "title": "Literal Equations",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E04",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E07",
+      "title": "Solving Proportions",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-E08",
+      "title": "Percent Applications",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E07",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E09",
+      "title": "One-Step Inequalities",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-E10",
+      "title": "Multi-Step Inequalities",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E09",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E11",
+      "title": "Compound Inequalities",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E10",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E12",
+      "title": "Absolute Value Equations",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E04",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-E13",
+      "title": "Modeling with Linear Equations",
+      "domain": "equations",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-E04",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L01",
+      "title": "The Coordinate Plane",
+      "domain": "linear",
+      "mastery": 0.92,
+      "phase": 3,
+      "effectiveStatus": "mastered",
+      "blockedBy": null,
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L02",
+      "title": "Relations & Functions",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-L03",
+      "title": "Function Notation",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L04",
+      "title": "Domain & Range",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L05",
+      "title": "Slope as Rate of Change",
+      "domain": "linear",
+      "mastery": 0.42,
+      "phase": 1,
+      "effectiveStatus": "developing",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-L06",
+      "title": "Slope from Two Points",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L05",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L07",
+      "title": "Patterns, Tables & Graphs",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-L08",
+      "title": "Slope-Intercept Form",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L05",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L09",
+      "title": "Graphing Linear Equations",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L10",
+      "title": "x- and y-Intercepts",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L09",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L11",
+      "title": "Point-Slope Form",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L06",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L12",
+      "title": "Standard Form",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L13",
+      "title": "Writing Linear Equations",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L11",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L14",
+      "title": "Parallel & Perpendicular Lines",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L13",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L15",
+      "title": "Graphing Linear Inequalities",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L09",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L16",
+      "title": "Scatter Plots & Trend Lines",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L13",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L17",
+      "title": "Arithmetic Sequences",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-L18",
+      "title": "Direct Variation",
+      "domain": "linear",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-S01",
+      "title": "Systems by Graphing",
+      "domain": "systems",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L09",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-S02",
+      "title": "Systems by Substitution",
+      "domain": "systems",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-S01",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-S03",
+      "title": "Systems by Elimination",
+      "domain": "systems",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-S02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-S04",
+      "title": "Systems: Special Cases",
+      "domain": "systems",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-S02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-S05",
+      "title": "Systems Word Problems",
+      "domain": "systems",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-S02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-S06",
+      "title": "Systems of Inequalities",
+      "domain": "systems",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-S01",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-P01",
+      "title": "Product & Power Rules",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-P02",
+      "title": "Quotient, Zero & Negative Exponents",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P01",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-P03",
+      "title": "Scientific Notation",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-P04",
+      "title": "Exponential Functions: Growth & Decay",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-P05",
+      "title": "Polynomial Vocabulary & Structure",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-P06",
+      "title": "Adding & Subtracting Polynomials",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P05",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-P07",
+      "title": "Multiplying Monomials & Polynomials",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P01",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-P08",
+      "title": "Multiplying Binomials",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P07",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-P09",
+      "title": "Special Products",
+      "domain": "exponents-polynomials",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q01",
+      "title": "Factoring with GCF",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P07",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q02",
+      "title": "Factoring Trinomials (a = 1)",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-P08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q03",
+      "title": "Factoring Trinomials (a ≠ 1)",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q04",
+      "title": "Factoring Special Products",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q05",
+      "title": "Simplifying Radicals",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-Q06",
+      "title": "Quadratic Functions & Parabolas",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L09",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q07",
+      "title": "Solving by Factoring",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q02",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q08",
+      "title": "Solving by Square Roots",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q05",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q09",
+      "title": "Completing the Square",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q10",
+      "title": "The Quadratic Formula",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q08",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q11",
+      "title": "The Discriminant",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q10",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-Q12",
+      "title": "Modeling with Quadratics",
+      "domain": "quadratics",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-Q07",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-D01",
+      "title": "Measures of Center & Spread",
+      "domain": "data",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-D02",
+      "title": "Data Displays",
+      "domain": "data",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-D01",
+      "frontier": false
+    },
+    {
+      "skillId": "ALG-D03",
+      "title": "Two-Way Tables",
+      "domain": "data",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "unknown",
+      "blockedBy": null,
+      "frontier": true
+    },
+    {
+      "skillId": "ALG-D04",
+      "title": "Interpreting Lines of Best Fit",
+      "domain": "data",
+      "mastery": 0.0,
+      "phase": 1,
+      "effectiveStatus": "prerequisite_gap",
+      "blockedBy": "ALG-L16",
+      "frontier": false
+    }
+  ]
+}
