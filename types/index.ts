@@ -9,3 +9,4 @@ export * from "./diagnostic";
 export * from "./validation";
 export * from "./video";
 export * from "./repository";
+export * from "./compliance";
