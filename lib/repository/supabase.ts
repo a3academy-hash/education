@@ -21,7 +21,9 @@ export class NotWiredError extends Error {
 }
 
 const notWired = (): never => {
-  throw new NotWiredError("SupabaseRepository is not wired in Phase 0");
+  throw new NotWiredError(
+    "SupabaseRepository is not wired yet — see docs/PLATFORM.md build-next",
+  );
 };
 
 export class SupabaseRepository implements A3Repository {

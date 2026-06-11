@@ -193,7 +193,13 @@ export function LearnClient(props: LearnClientProps) {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.5fr_1fr]">
         {/* LEFT: lesson area + worked example */}
         <div className="flex flex-col gap-5">
-          <LessonArea visual={visual} contextHooks={contextHooks} sport={sport} phase={phase} />
+          <LessonArea
+            visual={visual}
+            contextHooks={contextHooks}
+            sport={sport}
+            phase={phase}
+            workedExamples={workedExamples}
+          />
 
           <Card>
             <p className="mb-3.5 text-[12px] font-semibold uppercase tracking-[0.4px] text-accent">
@@ -269,11 +275,13 @@ function LessonArea({
   contextHooks,
   sport,
   phase,
+  workedExamples,
 }: {
   visual: VisualKind | null;
   contextHooks: ContextHooks;
   sport: Sport;
   phase: Phase;
+  workedExamples: WorkedExample[];
 }) {
   const concept = phase === 3 ? contextHooks.neutral : contextHooks[sport];
   return (
@@ -282,7 +290,7 @@ function LessonArea({
         The idea
       </p>
       <p className="mb-5 max-w-[44ch] text-[16px] leading-[1.5] text-ink-800">{concept}</p>
-      <Manipulable visual={visual} phase={phase} sport={sport} />
+      <Manipulable visual={visual} phase={phase} sport={sport} workedExamples={workedExamples} />
     </Card>
   );
 }
@@ -292,10 +300,12 @@ function Manipulable({
   visual,
   phase,
   sport,
+  workedExamples,
 }: {
   visual: VisualKind | null;
   phase: Phase;
   sport: Sport;
+  workedExamples: WorkedExample[];
 }) {
   const [points, setPoints] = useState([
     { x: 2, y: 3 },
@@ -332,7 +342,25 @@ function Manipulable({
       </div>
     );
   }
-  // null visual → a completion-mode StepReveal promoted as the manipulable.
+  // null visual → promote first worked example as the manipulable in REVEAL-ONLY
+  // mode (blankStepIndex null — no hardcoded operation blank). If the node has
+  // no worked example, render the generic step-reveal without a blank.
+  const we = workedExamples[0];
+  if (we && we.steps.length > 0) {
+    const steps = we.steps.map((s) => s.reveal);
+    const result = steps[steps.length - 1];
+    return (
+      <div>
+        <StepReveal
+          problem={we.title}
+          steps={steps}
+          result={result}
+          blankStepIndex={null}
+        />
+        <p className="mt-2 text-[13px] text-ink-500">Reveal each step.</p>
+      </div>
+    );
+  }
   return (
     <div>
       <StepReveal
@@ -343,12 +371,9 @@ function Manipulable({
           "Carry it out and state the result.",
         ]}
         result="That's the shape of every problem in this skill."
-        blankStepIndex={1}
-        blankAnswer="multiply"
+        blankStepIndex={null}
       />
-      <p className="mt-2 text-[13px] text-ink-500">
-        Reveal each step. Fill the blank to keep going.
-      </p>
+      <p className="mt-2 text-[13px] text-ink-500">Reveal each step.</p>
     </div>
   );
 }

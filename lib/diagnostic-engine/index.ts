@@ -711,16 +711,6 @@ export function finishDiagnostic(
 // ---------------------------------------------------------------------------
 
 /**
- * Has any diagnostic ever CREDITED this student? (trigger "diagnostic")
- * Credit presence, not completion — an all-wrong run completes with zero
- * credit and emits NO such update. For "has the student taken it at all?"
- * use diagnosticTaken(attempts) over the append-only attempt log.
- */
-export function wasDiagnosticRun(updates: MasteryUpdate[]): boolean {
-  return updates.some((u) => u.trigger === "diagnostic");
-}
-
-/**
  * Has this student COMPLETED a diagnostic? Derived from the append-only
  * attempt log: any attempt with source "diagnostic" means a run happened,
  * even when nothing was credited (every answer wrong). Drives the Learning

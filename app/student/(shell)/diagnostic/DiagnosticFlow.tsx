@@ -21,7 +21,6 @@ import { AlertPanel, InsetPanel } from "../../../../components/ui/Panels";
 import { CheckIcon } from "../../../../components/ui/icons";
 import { CoordinatePlane } from "../../../../components/learning/CoordinatePlane";
 import { NumberLine } from "../../../../components/learning/NumberLine";
-import { DataTable } from "../../../../components/learning/DataTable";
 import {
   DIAGNOSTIC_CONFIG,
   finishDiagnostic,
@@ -282,17 +281,10 @@ function ItemVisual({ responseType }: { responseType: ResponseType }) {
     );
   }
   if (responseType === "table") {
-    return (
-      <div className="mt-5">
-        <DataTable
-          columns={[
-            { key: "x", header: "x" },
-            { key: "y", header: "y", align: "right" },
-          ]}
-          rows={[]}
-        />
-      </div>
-    );
+    // An empty DataTable renders headers with no rows — a confusing visual for
+    // a typed-answer item where the table has no interactive purpose. Return
+    // null so the student sees a clean prompt + math input (same as "input").
+    return null;
   }
   return null;
 }

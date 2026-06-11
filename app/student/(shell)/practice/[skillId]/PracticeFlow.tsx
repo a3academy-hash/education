@@ -184,8 +184,10 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
             {item.prompt}
           </h2>
 
-          {/* Integrated visual (no split-attention) — marked up after submit. */}
-          {item.visual && (
+          {/* Integrated visual (no split-attention) — marked up AFTER submit only.
+              Pre-submit there is nothing to show in the frame; the prompt carries
+              the context. The bordered box appears only once feedback exists. */}
+          {item.visual && feedback && (
             <div className="mt-5 rounded-[10px] border border-border bg-inset px-4 py-4">
               <MarkedUpVisual
                 visual={item.visual}
@@ -311,45 +313,49 @@ function Feedback({
 
   return (
     <div className="mt-6 flex flex-col gap-4" style={FADE}>
-      {/* Header: icon + word (color is never the sole signal) */}
-      <div className="flex items-center gap-2.5" aria-live="polite">
-        {correct ? (
+      {/* aria-live region spans BOTH the icon+word header and the WHY InsetPanel
+          so screen readers announce the full verdict + explanation on feedback. */}
+      <div aria-live="polite" aria-atomic="true" className="flex flex-col gap-4">
+        {/* Header: icon + word (color is never the sole signal) */}
+        <div className="flex items-center gap-2.5">
+          {correct ? (
+            <span
+              aria-hidden
+              className="flex h-[22px] w-[22px] items-center justify-center rounded-full"
+              style={{ background: "var(--color-success-bg)" }}
+            >
+              <CheckIcon className="text-[var(--color-status-mastered)]" />
+            </span>
+          ) : (
+            <span
+              aria-hidden
+              className="flex h-[22px] w-[22px] items-center justify-center rounded-full"
+              style={{ background: "var(--color-error-bg-soft)" }}
+            >
+              <CrossIcon className="text-error-ink" />
+            </span>
+          )}
           <span
-            aria-hidden
-            className="flex h-[22px] w-[22px] items-center justify-center rounded-full"
-            style={{ background: "var(--color-success-bg)" }}
+            className="text-[15px] font-semibold"
+            style={{ color: correct ? "var(--color-status-mastered)" : "var(--color-error-ink)" }}
           >
-            <CheckIcon className="text-[var(--color-status-mastered)]" />
+            {correct ? "Correct" : "Not quite"}
           </span>
-        ) : (
-          <span
-            aria-hidden
-            className="flex h-[22px] w-[22px] items-center justify-center rounded-full"
-            style={{ background: "var(--color-error-bg-soft)" }}
-          >
-            <CrossIcon className="text-error-ink" />
-          </span>
-        )}
-        <span
-          className="text-[15px] font-semibold"
-          style={{ color: correct ? "var(--color-status-mastered)" : "var(--color-error-ink)" }}
-        >
-          {correct ? "Correct" : "Not quite"}
-        </span>
-      </div>
+        </div>
 
-      {/* WHY (assembled from existing content, spec §B) */}
-      <InsetPanel>
-        {correct ? (
-          <span className="text-ink-800">
-            {[result.why.whatRight, result.why.whyItWorks].filter(Boolean).join(" ")}
-          </span>
-        ) : (
-          <span className="text-ink-800">
-            {[result.why.whatHappened, result.why.theFix].filter(Boolean).join(" ")}
-          </span>
-        )}
-      </InsetPanel>
+        {/* WHY (assembled from existing content, spec §B) */}
+        <InsetPanel>
+          {correct ? (
+            <span className="text-ink-800">
+              {[result.why.whatRight, result.why.whyItWorks].filter(Boolean).join(" ")}
+            </span>
+          ) : (
+            <span className="text-ink-800">
+              {[result.why.whatHappened, result.why.theFix].filter(Boolean).join(" ")}
+            </span>
+          )}
+        </InsetPanel>
+      </div>
 
       {missedProbe && (
         <p className="text-[13px] leading-[1.5] text-ink-500">
@@ -422,7 +428,7 @@ function Feedback({
 // ---------------------------------------------------------------------------
 
 function MarkedUpVisual({
-  visual,
+  visual: _visual,
   feedback,
   response,
 }: {
@@ -430,16 +436,9 @@ function MarkedUpVisual({
   feedback: PracticeResult | null;
   response: string;
 }) {
-  // Pre-submit: a calm framed placeholder so the diagram and question read as
-  // one unit. The interactive read-mostly diagram would mount here in banks
-  // that carry coordinates; these banks are typed-answer, so we keep a frame.
-  if (!feedback) {
-    return (
-      <p className="text-[13px] text-ink-500">
-        Use the space above to reason about the {visual === "coordinate" ? "graph" : "line"}.
-      </p>
-    );
-  }
+  // The frame is only rendered when feedback exists (caller gate); this guard
+  // is belt-and-suspenders — the component is never called without feedback.
+  if (!feedback) return null;
   if (feedback.correct) {
     return (
       <div className="flex items-center gap-2">

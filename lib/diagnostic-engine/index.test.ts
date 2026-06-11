@@ -24,7 +24,6 @@ import {
   recordResponse,
   startDiagnostic,
   toDiagnosticGraphView,
-  wasDiagnosticRun,
 } from "./index";
 import {
   buildDiagnosticFixture,
@@ -707,7 +706,7 @@ describe("source isolation — `source` NEVER enters mastery/phase math", () => 
 // Read-side helpers
 // ---------------------------------------------------------------------------
 
-describe("wasDiagnosticRun / diagnosticCreditedSkills (mr-gates #3)", () => {
+describe("diagnosticCreditedSkills (mr-gates #3)", () => {
   const update = (skillId: string, trigger: MasteryUpdate["trigger"], n: number): MasteryUpdate => ({
     id: `u-${n}`,
     studentId: "s",
@@ -726,9 +725,9 @@ describe("wasDiagnosticRun / diagnosticCreditedSkills (mr-gates #3)", () => {
     createdAt: `2026-06-10T09:0${n}:00.000Z`,
   });
 
-  it("derives the completion signal and credited set from the update log", () => {
-    expect(wasDiagnosticRun([])).toBe(false);
-    expect(wasDiagnosticRun([update("ALG-F01", "attempt", 0)])).toBe(false);
+  it("returns the credited skill set from the update log, deduped, in order", () => {
+    expect(diagnosticCreditedSkills([])).toEqual([]);
+    expect(diagnosticCreditedSkills([update("ALG-F01", "attempt", 0)])).toEqual([]);
     const log = [
       update("ALG-F05", "diagnostic", 0),
       update("ALG-F03", "credit-propagation", 1),
@@ -736,7 +735,6 @@ describe("wasDiagnosticRun / diagnosticCreditedSkills (mr-gates #3)", () => {
       update("ALG-F01", "credit-propagation", 3), // dup — deduped
       update("ALG-E01", "attempt", 4), // practice — excluded
     ];
-    expect(wasDiagnosticRun(log)).toBe(true);
     expect(diagnosticCreditedSkills(log)).toEqual(["ALG-F05", "ALG-F03", "ALG-F01"]);
   });
 });
@@ -777,8 +775,10 @@ describe("diagnosticTaken — completion from the attempt log, not credit", () =
   it("is true after an all-wrong diagnostic run (zero credit — the Riley case)", () => {
     const allWrong = [0, 1, 2].map((n) => attempt(n, false, "diagnostic"));
     expect(diagnosticTaken(allWrong)).toBe(true);
-    // The credit-derived signal stays false here — that mismatch was the bug.
-    expect(wasDiagnosticRun([])).toBe(false);
+    // The credit-derived signal stays empty — that mismatch was the bug that
+    // wasDiagnosticRun (now removed) tried to paper over. diagnosticCreditedSkills
+    // returns [] when no diagnostic/propagation updates exist (all-wrong run).
+    expect(diagnosticCreditedSkills([])).toEqual([]);
   });
 
   it("is true when diagnostic rows are mixed into practice history", () => {
