@@ -5,6 +5,7 @@ export * from "./curriculum";
 export * from "./problem";
 export * from "./student";
 export * from "./engine";
+export * from "./diagnostic";
 export * from "./validation";
 export * from "./video";
 export * from "./repository";

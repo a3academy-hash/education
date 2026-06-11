@@ -14,6 +14,7 @@ const newAttempt = (overrides: Partial<NewStudentAttempt> = {}): NewStudentAttem
   timeMs: 12000,
   misconceptionTags: [],
   isProbe: false,
+  source: "practice",
   ...overrides,
 });
 

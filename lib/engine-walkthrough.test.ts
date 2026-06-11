@@ -83,6 +83,7 @@ describe("ENGINE WALKTHROUGH — Jordan (basketball) goes from diagnostic to acc
       timeMs: 45_000,
       misconceptionTags: [],
       isProbe: false,
+      source: "practice",
       createdAt,
     });
   };

@@ -67,6 +67,16 @@ export interface StudentAttempt {
    * EXCLUDED from phase-advance accuracy (audit-reconstructable from this log).
    */
   isProbe: boolean;
+  /**
+   * Provenance marker, orthogonal to isProbe: "practice" for normal learning
+   * attempts (the default at every writer), "diagnostic" for placement-
+   * diagnostic items. ISOLATION RULE (mr-kahn + mr-gates): `source` must NEVER
+   * enter mastery/phase math — advancePhase/selectProblems/computeMastery
+   * ignore it. Write-side provenance + read-side audit only.
+   * (Supabase later: `source text not null default 'practice'
+   * check (source in ('practice','diagnostic'))` — additive, reversible.)
+   */
+  source: "practice" | "diagnostic";
   createdAt: string;
 }
 

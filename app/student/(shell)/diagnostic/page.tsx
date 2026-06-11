@@ -1,16 +1,24 @@
-// Placeholder — the placement diagnostic is built in Phase 3. Relocated under
-// the (shell) route group so it renders within the AppShell chrome.
+// Placement diagnostic (Phase 3). Server component: reads the opaque student
+// cookie, then hands the CLIENT flow a PRUNED graph view (neutral p3 banks
+// only — the full curriculum graph never ships to the browser; mr-gates
+// Phase 2 condition 1). No student → calm setup pointer (phase3-direction.md).
 
-import { PageHeader } from "../../../../components/ui/PageHeader";
-import { Card } from "../../../../components/ui/Card";
+import { cookies } from "next/headers";
+import { getRepository } from "../../../../lib/repository/server";
+import { toDiagnosticGraphView } from "../../../../lib/diagnostic-engine";
+import { STUDENT_COOKIE } from "../../onboarding/constants";
+import { DiagnosticFlow } from "./DiagnosticFlow";
 
-export default function DiagnosticPage() {
-  return (
-    <div className="fade-in">
-      <PageHeader eyebrow="Placement" title="Diagnostic" />
-      <Card>
-        <p className="text-[14px] text-ink-700">The placement diagnostic arrives in Phase 3.</p>
-      </Card>
-    </div>
-  );
+export default async function DiagnosticPage() {
+  const cookieStore = await cookies();
+  const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
+  const repo = getRepository();
+  const student = studentId ? await repo.getStudent(studentId) : null;
+
+  if (!student) {
+    return <DiagnosticFlow graphView={null} />;
+  }
+
+  const graph = await repo.getGraph();
+  return <DiagnosticFlow graphView={toDiagnosticGraphView(graph)} />;
 }

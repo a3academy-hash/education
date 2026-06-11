@@ -84,6 +84,7 @@ const attempt = (over: Partial<StudentAttempt>): StudentAttempt => ({
   timeMs: 10_000,
   misconceptionTags: [],
   isProbe: false,
+  source: "practice",
   createdAt: "2026-06-01T00:00:00.000Z",
   ...over,
 });
