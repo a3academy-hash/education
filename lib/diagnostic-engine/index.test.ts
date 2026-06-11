@@ -682,6 +682,7 @@ describe("source isolation — `source` NEVER enters mastery/phase math", () => 
     misconceptionTags: [],
     isProbe: false,
     source,
+    sessionId: `sess-${source}`,
     createdAt: `2026-06-10T09:0${n}:00.000Z`,
   });
 
@@ -721,6 +722,7 @@ describe("wasDiagnosticRun / diagnosticCreditedSkills (mr-gates #3)", () => {
     newPhase: 3,
     reason: "",
     engineVersion: "1.0.0",
+    sessionId: `sess-${n}`,
     createdAt: `2026-06-10T09:0${n}:00.000Z`,
   });
 
@@ -758,6 +760,7 @@ describe("diagnosticTaken — completion from the attempt log, not credit", () =
     misconceptionTags: [],
     isProbe: true,
     source,
+    sessionId: `sess-${source}`,
     createdAt: `2026-06-10T09:0${n}:00.000Z`,
   });
 

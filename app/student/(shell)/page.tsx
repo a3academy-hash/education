@@ -154,7 +154,9 @@ export default async function StudentHomePage() {
       skillId,
       title: nodeById.get(skillId)?.title ?? skillId,
       count: list.length,
-      accuracy: Math.round((100 * list.filter((a) => a.correct).length) / list.length),
+      // Fraction form, never a student-facing % (project-wide rule; consistent
+      // with the Summary stat row "{correct} of {count}").
+      correct: list.filter((a) => a.correct).length,
       latest: list[list.length - 1].createdAt,
     }))
     .sort((a, b) => b.latest.localeCompare(a.latest) || a.skillId.localeCompare(b.skillId))
@@ -345,7 +347,7 @@ export default async function StudentHomePage() {
                     <p className="text-[14px] font-medium text-ink">{row.title}</p>
                     <p className="mt-0.5 text-[12.5px] text-ink-500">
                       {row.count} problem{row.count === 1 ? "" : "s"} &middot;{" "}
-                      {row.accuracy}% accuracy
+                      {row.correct} of {row.count} correct
                     </p>
                   </div>
                   <p className="text-[12px] text-ink-500">

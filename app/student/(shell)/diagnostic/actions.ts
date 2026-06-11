@@ -107,6 +107,10 @@ export async function persistDiagnostic(
     }
 
     const nowIso = new Date().toISOString();
+    // ONE session id per diagnostic submission — stamped on every appended
+    // attempt and every MasteryUpdate below (provenance/audit only; never
+    // enters mastery/phase/routing math).
+    const sessionId = crypto.randomUUID();
 
     // (a) append the immutable attempt rows — the accreditation evidence trail.
     const attemptIds: string[] = [];
@@ -127,6 +131,7 @@ export async function persistDiagnostic(
         misconceptionTags: c.tag ? [c.tag] : [],
         isProbe: false,
         source: "diagnostic",
+        sessionId,
       });
       attemptIds.push(attempt.id);
     }
@@ -143,8 +148,9 @@ export async function persistDiagnostic(
     const states = await repo.getSkillStates(studentId);
     const credit = creditFromDiagnostic(studentId, graph, result.demonstrated, states, nowIso);
 
-    // (d) persist the mastery updates.
-    for (const u of credit.updates) await repo.appendMasteryUpdate(u);
+    // (d) persist the mastery updates — stamped with this session's id (the
+    // engine emits a placeholder; the action owns session identity).
+    for (const u of credit.updates) await repo.appendMasteryUpdate({ ...u, sessionId });
 
     // (e) set each credited skill state: masteredAt set, recent reset.
     for (const u of credit.updates) {

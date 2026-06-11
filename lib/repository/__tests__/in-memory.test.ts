@@ -15,6 +15,7 @@ const newAttempt = (overrides: Partial<NewStudentAttempt> = {}): NewStudentAttem
   misconceptionTags: [],
   isProbe: false,
   source: "practice",
+  sessionId: "sess-1",
   ...overrides,
 });
 
@@ -115,6 +116,7 @@ describe("InMemoryRepository — append-only evidence log", () => {
       newPhase: 1 as const,
       reason: "diagnostic placement",
       engineVersion: "0.0.0",
+      sessionId: "sess-1",
     };
     await repo.appendMasteryUpdate({ ...base, skillId: "ALG-F02" });
     await repo.appendMasteryUpdate({ ...base, skillId: "ALG-F01" });

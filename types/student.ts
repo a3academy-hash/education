@@ -77,6 +77,16 @@ export interface StudentAttempt {
    * check (source in ('practice','diagnostic'))` — additive, reversible.)
    */
   source: "practice" | "diagnostic";
+  /**
+   * Provenance/audit marker for the session that produced this attempt —
+   * mirrors `source`. ISOLATION RULE (mr-kahn + mr-gates): `sessionId` must
+   * NEVER enter mastery/phase/routing math — advancePhase/computeTransfer/
+   * computeMastery/recommend ignore it. Write-side provenance + read-side
+   * audit (and Summary before/after scoping) only.
+   * (Supabase later: `session_id uuid not null` — Phase 5 references
+   * sessions(id); bare uuid until then. Additive, reversible.)
+   */
+  sessionId: string;
   createdAt: string;
 }
 
@@ -96,6 +106,14 @@ export interface MasteryUpdate {
   newPhase: Phase;
   reason: string;
   engineVersion: string;
+  /**
+   * Provenance/audit marker for the session that produced this update —
+   * mirrors StudentAttempt.sessionId. ISOLATION RULE: `sessionId` must NEVER
+   * enter mastery/phase/routing math. Write-side provenance + read-side audit
+   * (Summary before/after scoping) only.
+   * (Supabase later: `session_id uuid not null` — additive, reversible.)
+   */
+  sessionId: string;
   createdAt: string;
 }
 

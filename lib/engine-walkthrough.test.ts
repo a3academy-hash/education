@@ -84,6 +84,7 @@ describe("ENGINE WALKTHROUGH — Jordan (basketball) goes from diagnostic to acc
       misconceptionTags: [],
       isProbe: false,
       source: "practice",
+      sessionId: "walkthrough-session",
       createdAt,
     });
   };

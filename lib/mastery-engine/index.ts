@@ -360,6 +360,10 @@ export function computeMasteryAll(
       studentId,
       skillId: node.id,
       attemptId: null,
+      // Provenance placeholder — the engine never owns session identity (it
+      // would be an isolation-rule violation for sessionId to come from
+      // mastery math). The persisting caller stamps the real sessionId.
+      sessionId: "",
       trigger: state.recent.length > 0 ? "attempt" : "decay",
       prevMastery: state.mastery,
       newMastery: result.score,
@@ -474,6 +478,9 @@ export function creditFromDiagnostic(
       studentId,
       skillId,
       attemptId: null,
+      // Provenance placeholder — stamped by the persisting caller (the
+      // diagnostic action) so sessionId never originates in mastery math.
+      sessionId: "",
       prevMastery: prev.mastery,
       newMastery: MASTERY_CONFIG.thresholds.mastered,
       prevStatus: prev.status,
