@@ -1,9 +1,12 @@
-// Placeholder — onboarding (sport selection) is built in Phase 2 (pee-wee-gated).
+// Onboarding (§D) — sits OUTSIDE the (shell) route group (mr-gates condition
+// 4): no nullable-student chrome wraps a student who does not exist yet.
+
+import { OnboardingFlow } from "./OnboardingFlow";
+
+export const metadata = {
+  title: "Set up your course — A3 Academy",
+};
+
 export default function OnboardingPage() {
-  return (
-    <main className="p-12">
-      <h1 className="text-2xl font-semibold">Welcome</h1>
-      <p className="mt-2 text-neutral-600">Onboarding arrives in Phase 2.</p>
-    </main>
-  );
+  return <OnboardingFlow />;
 }

@@ -11,6 +11,8 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["lib/**/*.test.ts"],
+    // Engine tests in /lib; co-located math-helper tests in /components/learning
+    // (mr-gates condition 8 keeps the kahn-gate boundary crisp).
+    include: ["lib/**/*.test.ts", "components/**/*.test.ts"],
   },
 });
