@@ -1,6 +1,6 @@
 {
   "schema": {
-    "version": "1.9.0",
+    "version": "1.9.1",
     "course": "Algebra 1",
     "audience": "middle-school",
     "sports": [
@@ -20334,23 +20334,23 @@
           },
           {
             "id": "ALG-E03-p2-volleyball-02",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-E03",
             "phase": 2,
             "sport": "volleyball",
-            "prompt": "A kill model is 2(s + 3) + 4s = 30, where s is kills per set. Solve for s.",
+            "prompt": "An analyst writes the kill total as the expression 7(k − 2) + 3k, where k is kills per set, and sets it equal to 36. Solve the equation 7(k − 2) + 3k = 36 for k.",
             "visual": "balance",
             "answer": {
               "kind": "numeric",
-              "value": "4"
+              "value": "5"
             },
             "misconceptionMap": {
-              "6": "combines-across-equals",
-              "4.5": "distributes-partially"
+              "2.2": "combines-across-equals",
+              "3.8": "distributes-partially"
             },
             "hints": [
-              "Distribute the 2, then combine 2s + 4s = 6s.",
-              "You should reach 6s + 6 = 30 before isolating s."
+              "Distribute the 7 across BOTH terms, then combine 7k + 3k = 10k.",
+              "You should reach 10k − 14 = 36 before isolating k."
             ],
             "difficulty": 2
           },
@@ -93152,28 +93152,28 @@
           },
           {
             "id": "ALG-Q03-p1-baseball-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-Q03",
             "phase": 1,
             "sport": "baseball",
-            "prompt": "A baseball coach writes the area of a rectangular bullpen as the trinomial 3x² + 7x + 2. Factor 3x² + 7x + 2.",
+            "prompt": "A groundskeeper models the area of a rectangular batting cage as the trinomial 3x² + 8x + 4. Factor 3x² + 8x + 4.",
             "visual": null,
             "answer": {
               "kind": "choice",
-              "value": "(3x + 1)(x + 2)"
+              "value": "(3x + 2)(x + 2)"
             },
             "choices": [
-              "(3x + 1)(x + 2)",
-              "(x + 1)(x + 2)",
-              "(3x − 1)(x + 2)"
+              "(3x + 2)(x + 2)",
+              "(x + 2)(x + 2)",
+              "(3x − 2)(x + 2)"
             ],
             "misconceptionMap": {
-              "(x + 1)(x + 2)": "ignores-leading-coefficient",
-              "(3x − 1)(x + 2)": "grouping-sign-slip"
+              "(x + 2)(x + 2)": "ignores-leading-coefficient",
+              "(3x − 2)(x + 2)": "grouping-sign-slip"
             },
             "hints": [
-              "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
-              "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+              "a·c = 3·4 = 12; find two integers that multiply to 12 and add to 8.",
+              "2 and 6: split 8x into 2x + 6x, group, and you get (3x + 2)(x + 2)."
             ],
             "difficulty": 2
           },
@@ -93260,28 +93260,28 @@
           },
           {
             "id": "ALG-Q03-p1-softball-03",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-Q03",
             "phase": 1,
             "sport": "softball",
-            "prompt": "A softball coach writes the area of a rectangular warmup zone as the trinomial 3x² + 7x + 2. Factor 3x² + 7x + 2.",
+            "prompt": "A field manager models the area of the rectangular protective screen beside the pitching circle as the trinomial 2x² + 9x + 4. Factor 2x² + 9x + 4.",
             "visual": null,
             "answer": {
               "kind": "choice",
-              "value": "(3x + 1)(x + 2)"
+              "value": "(2x + 1)(x + 4)"
             },
             "choices": [
-              "(3x + 1)(x + 2)",
-              "(x + 1)(x + 2)",
-              "(3x − 1)(x + 2)"
+              "(2x + 1)(x + 4)",
+              "(x + 1)(x + 4)",
+              "(2x − 1)(x + 4)"
             ],
             "misconceptionMap": {
-              "(x + 1)(x + 2)": "ignores-leading-coefficient",
-              "(3x − 1)(x + 2)": "grouping-sign-slip"
+              "(x + 1)(x + 4)": "ignores-leading-coefficient",
+              "(2x − 1)(x + 4)": "grouping-sign-slip"
             },
             "hints": [
-              "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
-              "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+              "a·c = 2·4 = 8; find two integers that multiply to 8 and add to 9.",
+              "1 and 8: split 9x into x + 8x, group, and you get (2x + 1)(x + 4)."
             ],
             "difficulty": 2
           },
@@ -93584,28 +93584,28 @@
           },
           {
             "id": "ALG-Q03-p1-football-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-Q03",
             "phase": 1,
             "sport": "football",
-            "prompt": "A football coach writes the area of a rectangular end-zone drill as the trinomial 3x² + 7x + 2. Factor 3x² + 7x + 2.",
+            "prompt": "A coordinator models the area of a rectangular sideline warmup grid as the trinomial 5x² + 7x + 2. Factor 5x² + 7x + 2.",
             "visual": null,
             "answer": {
               "kind": "choice",
-              "value": "(3x + 1)(x + 2)"
+              "value": "(5x + 2)(x + 1)"
             },
             "choices": [
-              "(3x + 1)(x + 2)",
-              "(x + 1)(x + 2)",
-              "(3x − 1)(x + 2)"
+              "(5x + 2)(x + 1)",
+              "(x + 2)(x + 1)",
+              "(5x − 2)(x + 1)"
             ],
             "misconceptionMap": {
-              "(x + 1)(x + 2)": "ignores-leading-coefficient",
-              "(3x − 1)(x + 2)": "grouping-sign-slip"
+              "(x + 2)(x + 1)": "ignores-leading-coefficient",
+              "(5x − 2)(x + 1)": "grouping-sign-slip"
             },
             "hints": [
-              "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
-              "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+              "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 7.",
+              "2 and 5: split 7x into 2x + 5x, group, and you get (5x + 2)(x + 1)."
             ],
             "difficulty": 2
           },
@@ -93773,28 +93773,28 @@
           },
           {
             "id": "ALG-Q03-p1-neutral-02",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-Q03",
             "phase": 1,
             "sport": "neutral",
-            "prompt": "Factor the trinomial 3x² + 7x + 2.",
+            "prompt": "Rewrite 3x² + 10x + 8 as a product of two binomials.",
             "visual": null,
             "answer": {
               "kind": "choice",
-              "value": "(3x + 1)(x + 2)"
+              "value": "(3x + 4)(x + 2)"
             },
             "choices": [
-              "(3x + 1)(x + 2)",
-              "(x + 1)(x + 2)",
-              "(3x − 1)(x + 2)"
+              "(3x + 4)(x + 2)",
+              "(x + 4)(x + 2)",
+              "(3x − 4)(x + 2)"
             ],
             "misconceptionMap": {
-              "(x + 1)(x + 2)": "ignores-leading-coefficient",
-              "(3x − 1)(x + 2)": "grouping-sign-slip"
+              "(x + 4)(x + 2)": "ignores-leading-coefficient",
+              "(3x − 4)(x + 2)": "grouping-sign-slip"
             },
             "hints": [
-              "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
-              "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+              "a·c = 3·8 = 24; find two integers that multiply to 24 and add to 10.",
+              "4 and 6: split 10x into 4x + 6x, group, and you get (3x + 4)(x + 2)."
             ],
             "difficulty": 2
           },
@@ -98100,28 +98100,28 @@
           },
           {
             "id": "ALG-Q05-p3-neutral-02",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-Q05",
             "phase": 3,
             "sport": "neutral",
-            "prompt": "Simplify √98 completely.",
+            "prompt": "Simplify √52 completely.",
             "visual": null,
             "choices": [
-              "7√2",
-              "√49·√2",
-              "√98",
-              "49√2"
+              "2√13",
+              "√4·√13",
+              "√52",
+              "4√13"
             ],
             "answer": {
               "kind": "choice",
-              "value": "7√2"
+              "value": "2√13"
             },
             "misconceptionMap": {
-              "√49·√2": "leaves-perfect-square-inside"
+              "√4·√13": "leaves-perfect-square-inside"
             },
             "hints": [
-              "Find the largest perfect square that divides 98.",
-              "98 = 49 · 2, so √98 = 7√2."
+              "Find the largest perfect square that divides 52.",
+              "52 = 4 · 13, so √52 = 2√13."
             ],
             "difficulty": 2
           },
@@ -106945,11 +106945,11 @@
           },
           {
             "id": "ALG-Q11-p1-softball-04",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-Q11",
             "phase": 1,
             "sport": "softball",
-            "prompt": "A bunt pop-up's height above the plate is h = x² − 9x + 14. How many times is it exactly at plate height (h = 0)? Use the discriminant of x² − 9x + 14.",
+            "prompt": "A bunt pop-up's height above the top of the backstop is h = −x² + 7x − 10. How many times is it exactly level with the top of the backstop (h = 0)? Use the discriminant of −x² + 7x − 10.",
             "visual": null,
             "choices": [
               "two real solutions",
@@ -106962,8 +106962,8 @@
             },
             "misconceptionMap": {},
             "hints": [
-              "Compute b² − 4ac: b² = 81, 4ac = 56.",
-              "D = 25 > 0, so two real solutions."
+              "Compute b² − 4ac: b² = 49, 4ac = 4(−1)(−10) = 40.",
+              "D = 49 − 40 = 9 > 0, so two real solutions."
             ],
             "difficulty": 3
           },
@@ -107221,11 +107221,11 @@
           },
           {
             "id": "ALG-Q11-p1-football-04",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-Q11",
             "phase": 1,
             "sport": "football",
-            "prompt": "A kickoff's height above the goal line is h = x² − 11x + 24. How many times is it exactly at goal-line height (h = 0)? Use the discriminant of x² − 11x + 24.",
+            "prompt": "A punt's height above the crossbar is h = −x² + 9x − 8. How many times is it exactly level with the crossbar (h = 0)? Use the discriminant of −x² + 9x − 8.",
             "visual": null,
             "choices": [
               "two real solutions",
@@ -107238,8 +107238,8 @@
             },
             "misconceptionMap": {},
             "hints": [
-              "Compute b² − 4ac: b² = 121, 4ac = 96.",
-              "D = 25 > 0, so two real solutions."
+              "Compute b² − 4ac: b² = 81, 4ac = 4(−1)(−8) = 32.",
+              "D = 81 − 32 = 49 > 0, so two real solutions."
             ],
             "difficulty": 3
           },
@@ -107313,11 +107313,11 @@
           },
           {
             "id": "ALG-Q11-p1-volleyball-04",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-Q11",
             "phase": 1,
             "sport": "volleyball",
-            "prompt": "A dig's height above the floor is h = x² − 7x + 6. How many times is it exactly at floor height (h = 0)? Use the discriminant of x² − 7x + 6.",
+            "prompt": "A set's height above the net tape is h = −x² + 7x − 6. How many times is it level with the net tape (h = 0)?",
             "visual": null,
             "choices": [
               "two real solutions",
@@ -107330,8 +107330,8 @@
             },
             "misconceptionMap": {},
             "hints": [
-              "Compute b² − 4ac: b² = 49, 4ac = 24.",
-              "D = 25 > 0, so two real solutions."
+              "Compute b² − 4ac: b² = 49, 4ac = 4(−1)(−6) = 24.",
+              "D = 49 − 24 = 25 > 0, so two real solutions."
             ],
             "difficulty": 3
           },
@@ -107582,11 +107582,11 @@
           },
           {
             "id": "ALG-Q11-p2-softball-04",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-Q11",
             "phase": 2,
             "sport": "softball",
-            "prompt": "For 2x² − 7x + 3 = 0, compute b² − 4ac and decide: how many real solutions?",
+            "prompt": "A pop-up's height model reduces to 2x² − 7x + 6 = 0. Compute b² − 4ac and decide: how many real solutions?",
             "visual": null,
             "choices": [
               "two real solutions",
@@ -107599,7 +107599,7 @@
             },
             "misconceptionMap": {},
             "hints": [
-              "b² = 49, 4ac = 4(2)(3) = 24, so D = 25 > 0.",
+              "b² = 49, 4ac = 4(2)(6) = 48, so D = 49 − 48 = 1 > 0.",
               "A positive discriminant gives two real solutions."
             ],
             "difficulty": 3
@@ -107850,11 +107850,11 @@
           },
           {
             "id": "ALG-Q11-p2-football-04",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-Q11",
             "phase": 2,
             "sport": "football",
-            "prompt": "For 3x² − 7x + 2 = 0, compute b² − 4ac and decide: how many real solutions?",
+            "prompt": "A punt model reduces to 3x² − 10x + 7 = 0. Compute b² − 4ac and decide: how many real solutions?",
             "visual": null,
             "choices": [
               "two real solutions",
@@ -107867,7 +107867,7 @@
             },
             "misconceptionMap": {},
             "hints": [
-              "b² = 49, 4ac = 4(3)(2) = 24, so D = 25 > 0.",
+              "b² = 100, 4ac = 4(3)(7) = 84, so D = 100 − 84 = 16 > 0.",
               "A positive discriminant gives two real solutions."
             ],
             "difficulty": 3
@@ -107938,11 +107938,11 @@
           },
           {
             "id": "ALG-Q11-p2-volleyball-04",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-Q11",
             "phase": 2,
             "sport": "volleyball",
-            "prompt": "For x² − 9x + 14 = 0, compute b² − 4ac and decide: how many real solutions?",
+            "prompt": "A set's height model reduces to x² − 15x + 14 = 0. Compute b² − 4ac and decide: how many real solutions?",
             "visual": null,
             "choices": [
               "two real solutions",
@@ -107955,7 +107955,7 @@
             },
             "misconceptionMap": {},
             "hints": [
-              "b² = 81, 4ac = 56, so D = 25 > 0.",
+              "b² = 225, 4ac = 56, so D = 225 − 56 = 169 > 0.",
               "A positive discriminant gives two real solutions."
             ],
             "difficulty": 3
@@ -109949,7 +109949,7 @@
           },
           {
             "id": "ALG-D01-p1-softball-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 1,
             "sport": "softball",
@@ -109964,7 +109964,7 @@
             },
             "hints": [
               "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 9, is the median."
             ],
             "difficulty": 2
           },
@@ -110033,22 +110033,26 @@
           },
           {
             "id": "ALG-D01-p1-basketball-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 1,
             "sport": "basketball",
-            "prompt": "Rebounds per game were 4, 6, 7, 10, 13. What is the median number of rebounds?",
+            "prompt": "Rebounds per game were 4, 6, 7, 9, 12, 14. What is the median number of rebounds?",
             "visual": null,
             "answer": {
               "kind": "numeric",
-              "value": "7"
+              "value": "8"
             },
             "misconceptionMap": {
-              "8": "mean-median-interchanged"
+              "8.7": "mean-median-interchanged",
+              "8.67": "mean-median-interchanged",
+              "8.666": "mean-median-interchanged",
+              "8.6667": "mean-median-interchanged",
+              "8.6666": "mean-median-interchanged"
             },
             "hints": [
-              "Order the data and find the middle value.",
-              "The 3rd of 5 values is the median."
+              "Order the data; with 6 values the median is the average of the two middle ones.",
+              "Average the 3rd and 4th values: (7 + 9) ÷ 2 = 8."
             ],
             "difficulty": 2
           },
@@ -110115,7 +110119,7 @@
           },
           {
             "id": "ALG-D01-p1-soccer-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 1,
             "sport": "soccer",
@@ -110130,7 +110134,7 @@
             },
             "hints": [
               "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 6, is the median."
             ],
             "difficulty": 2
           },
@@ -110193,20 +110197,22 @@
           },
           {
             "id": "ALG-D01-p1-football-03",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D01",
             "phase": 1,
             "sport": "football",
-            "prompt": "Field goals made per game were 1, 2, 3, 4, 5. What is the median?",
+            "prompt": "Field goals made per game were 0, 2, 3, 4, 7. What is the median?",
             "visual": null,
             "answer": {
               "kind": "numeric",
               "value": "3"
             },
-            "misconceptionMap": {},
+            "misconceptionMap": {
+              "3.2": "mean-median-interchanged"
+            },
             "hints": [
               "Order the data and find the middle value.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 3, is the median."
             ],
             "difficulty": 2
           },
@@ -110273,22 +110279,22 @@
           },
           {
             "id": "ALG-D01-p1-volleyball-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 1,
             "sport": "volleyball",
-            "prompt": "Digs per match were 5, 7, 9, 12, 16. What is the median number of digs?",
+            "prompt": "Digs per match were 5, 7, 12, 16. What is the median number of digs?",
             "visual": null,
             "answer": {
               "kind": "numeric",
-              "value": "9"
+              "value": "9.5"
             },
             "misconceptionMap": {
-              "9.8": "mean-median-interchanged"
+              "10": "mean-median-interchanged"
             },
             "hints": [
-              "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "An even count of 4 digs puts the median between the 2nd and 3rd values.",
+              "Average the 2nd and 3rd values: (7 + 12) ÷ 2 = 9.5."
             ],
             "difficulty": 2
           },
@@ -110355,7 +110361,7 @@
           },
           {
             "id": "ALG-D01-p1-neutral-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 1,
             "sport": "neutral",
@@ -110370,7 +110376,7 @@
             },
             "hints": [
               "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 9, is the median."
             ],
             "difficulty": 2
           },
@@ -110533,20 +110539,22 @@
           },
           {
             "id": "ALG-D01-p2-softball-03",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D01",
             "phase": 2,
             "sport": "softball",
-            "prompt": "A data set of strikeouts per start is 4, 7, 8, 9, 12. Find the median.",
+            "prompt": "A data set of strikeouts per start is 4, 7, 8, 9, 17. Find the median.",
             "visual": null,
             "answer": {
               "kind": "numeric",
               "value": "8"
             },
-            "misconceptionMap": {},
+            "misconceptionMap": {
+              "9": "mean-median-interchanged"
+            },
             "hints": [
               "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 8, is the median."
             ],
             "difficulty": 2
           },
@@ -110617,20 +110625,22 @@
           },
           {
             "id": "ALG-D01-p2-basketball-03",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D01",
             "phase": 2,
             "sport": "basketball",
-            "prompt": "A data set of assists per game is 2, 5, 7, 9, 12. Find the median.",
+            "prompt": "A data set of assists per game is 2, 5, 7, 9, 14. Find the median.",
             "visual": null,
             "answer": {
               "kind": "numeric",
               "value": "7"
             },
-            "misconceptionMap": {},
+            "misconceptionMap": {
+              "7.4": "mean-median-interchanged"
+            },
             "hints": [
               "Order the data and take the middle value.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 7, is the median."
             ],
             "difficulty": 2
           },
@@ -110701,22 +110711,22 @@
           },
           {
             "id": "ALG-D01-p2-soccer-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 2,
             "sport": "soccer",
-            "prompt": "A data set of saves per game is 2, 4, 5, 8, 10. Find the median.",
+            "prompt": "A data set of saves per game is 2, 4, 5, 6, 8, 10. Find the median.",
             "visual": null,
             "answer": {
               "kind": "numeric",
-              "value": "5"
+              "value": "5.5"
             },
             "misconceptionMap": {
               "5.8": "mean-median-interchanged"
             },
             "hints": [
-              "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With 6 values, the median is the average of the two middle ones.",
+              "Average the 3rd and 4th values: (5 + 6) ÷ 2 = 5.5."
             ],
             "difficulty": 2
           },
@@ -110787,7 +110797,7 @@
           },
           {
             "id": "ALG-D01-p2-football-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 2,
             "sport": "football",
@@ -110802,7 +110812,7 @@
             },
             "hints": [
               "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 2, is the median."
             ],
             "difficulty": 2
           },
@@ -110873,7 +110883,7 @@
           },
           {
             "id": "ALG-D01-p2-volleyball-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 2,
             "sport": "volleyball",
@@ -110888,7 +110898,7 @@
             },
             "hints": [
               "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 8, is the median."
             ],
             "difficulty": 2
           },
@@ -110959,20 +110969,22 @@
           },
           {
             "id": "ALG-D01-p2-neutral-03",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D01",
             "phase": 2,
             "sport": "neutral",
-            "prompt": "A data set is 3, 7, 9, 12, 14. Find the median.",
+            "prompt": "A data set is 2, 7, 9, 12, 14. Find the median.",
             "visual": null,
             "answer": {
               "kind": "numeric",
               "value": "9"
             },
-            "misconceptionMap": {},
+            "misconceptionMap": {
+              "8.8": "mean-median-interchanged"
+            },
             "hints": [
               "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With these 5 values, the 3rd one, 9, is the median."
             ],
             "difficulty": 2
           },
@@ -111020,22 +111032,23 @@
           },
           {
             "id": "ALG-D01-p3-neutral-02",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D01",
             "phase": 3,
             "sport": "neutral",
-            "prompt": "Find the median of 6, 9, 13, 15, 17.",
+            "prompt": "Find the median of 6, 9, 13, 17.",
             "visual": null,
             "answer": {
               "kind": "numeric",
-              "value": "13"
+              "value": "11"
             },
             "misconceptionMap": {
-              "12": "mean-median-interchanged"
+              "11.3": "mean-median-interchanged",
+              "11.25": "mean-median-interchanged"
             },
             "hints": [
-              "Order the values and take the middle one.",
-              "The 3rd of 5 values is the median."
+              "With 4 values, the median is the average of the two middle ones.",
+              "Average the 2nd and 3rd values: (9 + 13) ÷ 2 = 11."
             ],
             "difficulty": 2
           },
@@ -111919,43 +111932,43 @@
           },
           {
             "id": "ALG-D02-p2-basketball-01",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D02",
             "phase": 2,
             "sport": "basketball",
-            "prompt": "A histogram of points scored per game uses equal-width intervals 0–9, 10–19, 20–29, 30–39 with touching bars. The 10–19 bar has height 12. How many games fell in the 10–19 interval?",
+            "prompt": "A coach's frequency table bins points scored per game using the ranges 15–21, 22–28, 29–35, 36–42. The frequency column reads 4, 13, 7, 2 from top to bottom. On the matching histogram, what is the height of the bar drawn over the range 22–28?",
             "visual": "histogram",
             "answer": {
               "kind": "numeric",
-              "value": "12"
+              "value": "13"
             },
             "misconceptionMap": {
-              "19": "histogram-bar-chart-confusion"
+              "28": "histogram-bar-chart-confusion"
             },
             "hints": [
-              "The bar height is the frequency for that whole interval.",
-              "Read the height, not the interval's endpoints."
+              "A histogram bar's height equals the frequency listed for that class interval.",
+              "Read down the frequency column to the 22–28 row; do not read the interval's bound 28."
             ],
             "difficulty": 2
           },
           {
             "id": "ALG-D02-p2-basketball-02",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D02",
             "phase": 2,
             "sport": "basketball",
-            "prompt": "A box plot of rebounds per game has min 2, Q1 5, median 8, Q3 11, max 16. What is the IQR (Q3 − Q1)?",
+            "prompt": "A box plot of rebounds per game is built from this five-number summary table — Min: 3, Q1: 9, Median: 14, Q3: 24, Max: 35. Using the formula IQR = Q3 − Q1, compute the interquartile range.",
             "visual": "boxplot",
             "answer": {
               "kind": "numeric",
-              "value": "6"
+              "value": "15"
             },
             "misconceptionMap": {
-              "14": "box-plot-quartile-misread"
+              "32": "box-plot-quartile-misread"
             },
             "hints": [
-              "IQR uses the box edges Q1 and Q3.",
-              "11 − 5, not max − min."
+              "IQR uses only the Q1 and Q3 rows (the box edges), not Min and Max.",
+              "24 − 9, not Max − Min."
             ],
             "difficulty": 2
           },
@@ -111988,47 +112001,47 @@
           },
           {
             "id": "ALG-D02-p2-soccer-02",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D02",
             "phase": 2,
             "sport": "soccer",
-            "prompt": "A display of players' total minutes played groups the minutes into equal-width intervals with the bars touching. Which TRUE statement applies?",
+            "prompt": "A staff frequency table records total minutes played using the ranges 0–29, 30–59, 60–89, 90–119 with frequencies 2, 7, 9, 4. A teammate wants to redraw it as a bar chart with gaps between the bars. Which statement correctly classifies the display this data calls for?",
             "visual": "histogram",
             "answer": {
               "kind": "choice",
-              "value": "It is a histogram, because minutes played is numeric data shown in equal-width bins with touching bars."
+              "value": "It must be a histogram with touching bars, because the class intervals split one numeric scale (minutes) into adjoining ranges."
             },
             "misconceptionMap": {
-              "It is a bar chart, because the bins are separate categories separated by gaps.": "histogram-bar-chart-confusion"
+              "A gapped bar chart is correct, because each class interval is a separate category that should stand apart.": "histogram-bar-chart-confusion"
             },
             "hints": [
-              "Numeric variable in bins with touching bars means histogram.",
-              "Minutes is a number and the bars touch, so the bins are not separate categories."
+              "Class intervals over a numeric scale touch, so the correct display is a histogram, not a gapped bar chart.",
+              "Minutes is numeric data split into ranges, not a set of separate categories."
             ],
             "difficulty": 2,
             "choices": [
-              "It is a histogram, because minutes played is numeric data shown in equal-width bins with touching bars.",
-              "It is a bar chart, because the bins are separate categories separated by gaps."
+              "It must be a histogram with touching bars, because the class intervals split one numeric scale (minutes) into adjoining ranges.",
+              "A gapped bar chart is correct, because each class interval is a separate category that should stand apart."
             ]
           },
           {
             "id": "ALG-D02-p2-football-01",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D02",
             "phase": 2,
             "sport": "football",
-            "prompt": "A histogram of rushing yards per game uses equal-width intervals 0–24, 25–49, 50–74, 75–99 with touching bars. The 50–74 bar has height 6. How many games fell in the 50–74 interval?",
+            "prompt": "An analyst's frequency distribution of rushing yards per game uses the ranges 20–39, 40–59, 60–79, 80–99 with frequencies 5, 11, 8, 3 respectively. When this distribution is drawn as a histogram, what is the height of the bar over the range 40–59?",
             "visual": "histogram",
             "answer": {
               "kind": "numeric",
-              "value": "6"
+              "value": "11"
             },
             "misconceptionMap": {
-              "74": "histogram-bar-chart-confusion"
+              "59": "histogram-bar-chart-confusion"
             },
             "hints": [
-              "The bar height is the count of games in that interval.",
-              "Read the height, not an endpoint of the bin."
+              "Each histogram bar's height equals the frequency listed for that class interval.",
+              "Use the frequency paired with 40–59; do not read the interval bound 59."
             ],
             "difficulty": 2
           },
@@ -112443,60 +112456,60 @@
         "p3": [
           {
             "id": "ALG-D02-p3-neutral-01",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D02",
             "phase": 3,
             "sport": "neutral",
-            "prompt": "A box plot has min 12, Q1 20, median 27, Q3 35, max 48. What is the median?",
+            "prompt": "A box plot has min 13, Q1 19, median 31, Q3 42, max 56. What is the median?",
             "visual": "boxplot",
             "answer": {
               "kind": "numeric",
-              "value": "27"
+              "value": "31"
             },
             "misconceptionMap": {
-              "20": "box-plot-quartile-misread"
+              "19": "box-plot-quartile-misread"
             },
             "hints": [
               "The median is the line inside the box.",
-              "The left edge (20) is Q1; the median is the next line right of it."
+              "The left edge (19) is Q1; the median is the next line right of it."
             ],
             "difficulty": 1
           },
           {
             "id": "ALG-D02-p3-neutral-02",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D02",
             "phase": 3,
             "sport": "neutral",
-            "prompt": "A box plot has min 5, Q1 11, median 18, Q3 26, max 33. What is the IQR (Q3 − Q1)?",
+            "prompt": "A box plot has min 7, Q1 16, median 23, Q3 41, max 54. What is the IQR (Q3 − Q1)?",
             "visual": "boxplot",
             "answer": {
               "kind": "numeric",
-              "value": "15"
+              "value": "25"
             },
             "misconceptionMap": {
-              "28": "box-plot-quartile-misread"
+              "47": "box-plot-quartile-misread"
             },
             "hints": [
               "IQR = Q3 − Q1, using the two box edges.",
-              "26 − 11, not max − min."
+              "41 − 16, not max − min."
             ],
             "difficulty": 2
           },
           {
             "id": "ALG-D02-p3-neutral-03",
-            "version": 1,
+            "version": 2,
             "skillId": "ALG-D02",
             "phase": 3,
             "sport": "neutral",
-            "prompt": "A histogram groups a numeric variable into equal-width intervals 0–9, 10–19, 20–29, 30–39 with touching bars. The 20–29 bar has height 14. How many data values fall in the 20–29 interval?",
+            "prompt": "A histogram groups a numeric variable into equal-width intervals 40–49, 50–59, 60–69, 70–79 with touching bars. The 50–59 bar has height 17. How many data values fall in the 50–59 interval?",
             "visual": "histogram",
             "answer": {
               "kind": "numeric",
-              "value": "14"
+              "value": "17"
             },
             "misconceptionMap": {
-              "29": "histogram-bar-chart-confusion"
+              "59": "histogram-bar-chart-confusion"
             },
             "hints": [
               "The bar height is the frequency for that interval.",
@@ -112533,27 +112546,27 @@
           },
           {
             "id": "ALG-D02-p3-neutral-05",
-            "version": 1,
+            "version": 3,
             "skillId": "ALG-D02",
             "phase": 3,
             "sport": "neutral",
-            "prompt": "A numeric variable is displayed in equal-width intervals with bars that touch each other. Which TRUE statement describes this display?",
+            "prompt": "A graph shows a measurement along the horizontal axis, split into equal-width ranges. The bars touch, with no gaps. What does the height of each bar tell you?",
             "visual": "histogram",
             "answer": {
               "kind": "choice",
-              "value": "It is a histogram: a numeric variable in equal-width bins, and each bar's height is the frequency of values in that bin."
+              "value": "The vertical axis reports frequency: each bar's height counts how many measured values land inside that range."
             },
             "misconceptionMap": {
-              "It is a bar chart: each bar is a separate category, so the bars must be separated by gaps.": "histogram-bar-chart-confusion"
+              "The vertical axis reports a category label, since each adjoining bar names its own separate group.": "histogram-bar-chart-confusion"
             },
             "hints": [
-              "Histograms show numeric data in touching bins; bar charts show categories with gaps.",
-              "The variable is numeric and the bars touch, so the bins are not separate categories."
+              "Adjoining bars over a measured quantity form a histogram, where height equals a count.",
+              "A measured quantity split into ranges is not a set of named categories."
             ],
             "difficulty": 3,
             "choices": [
-              "It is a histogram: a numeric variable in equal-width bins, and each bar's height is the frequency of values in that bin.",
-              "It is a bar chart: each bar is a separate category, so the bars must be separated by gaps."
+              "The vertical axis reports frequency: each bar's height counts how many measured values land inside that range.",
+              "The vertical axis reports a category label, since each adjoining bar names its own separate group."
             ]
           },
           {

@@ -210,7 +210,7 @@ export async function runPracticeAttempt(
   let tutor: TutorPanel | null = null;
   if (correct) {
     feedbackState = "correct";
-    why = assembleCorrect(problem, node.workedExamples);
+    why = assembleCorrect(problem, node.workedExamples, raw.response);
   } else if (check.misconceptionTag) {
     feedbackState = "incorrect-tag";
     const t = await tutorRemediation(
@@ -224,10 +224,10 @@ export async function runPracticeAttempt(
     // audit surface (none ships Phase 4); the screen never renders it. The
     // student "why" is sourced from AUTHORED hints / worked example instead.
     tutor = { diagnosis: t.diagnosis, reframe: t.reframe, bridgeToNeutral: t.bridgeToNeutral };
-    why = assembleIncorrectTagged(problem, hintsUsed, node.workedExamples);
+    why = assembleIncorrectTagged(problem, hintsUsed, node.workedExamples, raw.response);
   } else {
     feedbackState = "incorrect-no-tag";
-    why = assembleIncorrectUntagged(problem, hintsUsed, node.workedExamples);
+    why = assembleIncorrectUntagged(problem, hintsUsed, node.workedExamples, raw.response);
   }
 
   return { correct, feedbackState, misconceptionTags, why, tutor, phaseChanged, masteredNow };

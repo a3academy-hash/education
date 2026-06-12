@@ -15,11 +15,16 @@ export interface ValidationIssue {
     | "MISSING_HOOK"
     | "PROBLEM_MISMATCH"
     | "TIER_MISMATCH"
-    | "UNKNOWN_MISCONCEPTION_TAG";
+    | "UNKNOWN_MISCONCEPTION_TAG"
+    | "DUP_WORKED_EXAMPLE"
+    | "NEAR_DUP_PROMPT"
+    | "REUSED_TEXT";
   message: string;
   nodeId?: string;
   edge?: SkillEdge;
   path?: string[];
+  /** IDs of the colliding artifacts (worked-example ids, problem ids, etc.). */
+  items?: string[];
 }
 
 export interface ValidationReport {

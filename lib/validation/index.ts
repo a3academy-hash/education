@@ -7,6 +7,7 @@ import type {
   ValidationIssue,
   ValidationReport,
 } from "../../types";
+import { validateSemantics } from "./semantic.ts";
 
 const VISUAL_KINDS = new Set(["numberline", "coordinate", "balance", "table", "area-model"]);
 
@@ -423,6 +424,11 @@ export function validateGraph(raw: unknown): ValidationReport {
     if (!usedTags.has(id)) {
       warn("UNKNOWN_MISCONCEPTION_TAG", `registry entry "${id}" is not used by any node`);
     }
+  }
+
+  // ---- SEMANTIC: dedup rules (DUP_WORKED_EXAMPLE, NEAR_DUP_PROMPT, REUSED_TEXT) -----
+  for (const issue of validateSemantics(nodes)) {
+    issues.push(issue);
   }
 
   // ---- Stats --------------------------------------------------------------------------
