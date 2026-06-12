@@ -26,8 +26,17 @@ import {
 export interface NumberLineProps {
   value: number;
   onChange?: (value: number) => void;
+  /**
+   * "display" is read-only (no drag, no click-to-move) — the marker is an
+   * illustration. "interactive" keeps the draggable handle. Default
+   * "interactive" so existing callers are unaffected; spec callers opt into
+   * "display".
+   */
+  mode?: "display" | "interactive";
   from?: number;
   to?: number;
+  /** Optional extra display markers (read-only ticks with an optional label). */
+  markers?: { value: number; label?: string }[];
   /** Optional signed operation; draws an arc from value-delta..value. */
   operationDelta?: number;
   caption?: string;
@@ -37,12 +46,15 @@ export interface NumberLineProps {
 export function NumberLine({
   value,
   onChange,
+  mode = "interactive",
   from = DEFAULT_LINE.from,
   to = DEFAULT_LINE.to,
+  markers = [],
   operationDelta,
   caption,
   ariaLabel = "Number line",
 }: NumberLineProps) {
+  const readOnly = mode === "display";
   const cfg: LineConfig = useMemo(
     () => ({ from, to, width: DEFAULT_LINE.width, pad: DEFAULT_LINE.pad }),
     [from, to],
@@ -78,18 +90,20 @@ export function NumberLine({
   );
 
   const onPointerDown = (e: ReactPointerEvent) => {
+    if (readOnly) return;
     e.preventDefault();
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
     setDragging(true);
     onChange?.(clientToValue(e.clientX));
   };
   const onPointerMove = (e: ReactPointerEvent) => {
-    if (!dragging) return;
+    if (readOnly || !dragging) return;
     onChange?.(clientToValue(e.clientX));
   };
   const endDrag = () => setDragging(false);
 
   const onKeyDown = (e: ReactKeyboardEvent) => {
+    if (readOnly) return;
     const step = e.shiftKey ? 5 : 1;
     if (e.key === "ArrowRight") {
       e.preventDefault();
@@ -141,11 +155,41 @@ export function NumberLine({
               textAnchor="middle"
               fontSize={11}
               fill="var(--color-ink-500)"
-              style={{ fontFamily: "var(--font-mono)", cursor: "pointer" }}
-              onClick={() => onChange?.(t)}
+              style={{
+                fontFamily: "var(--font-mono)",
+                cursor: readOnly ? undefined : "pointer",
+              }}
+              onClick={readOnly ? undefined : () => onChange?.(t)}
             >
               {t}
             </text>
+          </g>
+        ))}
+
+        {/* display markers — read-only labelled ticks (e.g. the start value) */}
+        {markers.map((m, i) => (
+          <g key={`marker-${i}`} aria-hidden>
+            <line
+              x1={x(m.value)}
+              y1={axisY - 7}
+              x2={x(m.value)}
+              y2={axisY + 7}
+              stroke="var(--color-accent)"
+              strokeWidth={2}
+            />
+            <circle cx={x(m.value)} cy={axisY} r={4} fill="var(--color-accent)" />
+            {m.label && (
+              <text
+                x={x(m.value)}
+                y={axisY - 12}
+                textAnchor="middle"
+                fontSize={11}
+                fill="var(--color-accent)"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {m.label}
+              </text>
+            )}
           </g>
         ))}
 
@@ -172,16 +216,20 @@ export function NumberLine({
           </g>
         )}
 
-        {/* marker handle */}
+        {/* marker handle (interactive) or static value dot (display) */}
         <g
-          tabIndex={0}
-          role="slider"
+          tabIndex={readOnly ? -1 : 0}
+          role={readOnly ? "img" : "slider"}
           aria-label={ariaLabel}
-          aria-valuenow={safeValue}
-          aria-valuemin={cfg.from}
-          aria-valuemax={cfg.to}
+          aria-valuenow={readOnly ? undefined : safeValue}
+          aria-valuemin={readOnly ? undefined : cfg.from}
+          aria-valuemax={readOnly ? undefined : cfg.to}
           aria-valuetext={String(safeValue)}
-          className="cursor-grab focus:outline-none [&:active]:cursor-grabbing"
+          className={
+            readOnly
+              ? "focus:outline-none"
+              : "cursor-grab focus:outline-none [&:active]:cursor-grabbing"
+          }
           onPointerDown={onPointerDown}
           onKeyDown={onKeyDown}
           onFocus={() => setFocused(true)}

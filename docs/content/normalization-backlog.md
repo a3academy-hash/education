@@ -172,3 +172,13 @@ mr-kahn APPROVE; 0 CRITICAL/MAJOR, 2 deferred MINORs:
 
 All changes to `data/algebra1-graph.json` are mr-kahn-gated (content) and must keep the validator VALID and tests
 green; re-run `npm run validate:graph` and `npm run test` after each step.
+
+---
+
+## E. Phase 8 experiential-quality polish (deferred 2026-06-12, Matt's call)
+Surfaced during Phase 8B (visuals wired to real problem data, schema v1.9.2). Non-blocking; logged for a later pass.
+
+- **E1. L05 lesson concept vs explore plane mismatch.** The Learn "THE IDEA" concept sentence for ALG-L05 cites slope 18 (from the node contextHook) while the seeded explore CoordinatePlane shows a real graph item at slope 3. Both are wired/correct; they just cite different examples. Polish: seed the explore plane from an item whose slope matches the concept sentence, or align the concept sentence to the seed.
+- **E2. L01 plot frame clipping.** Interactive plot items (ALG-L01) render the placement plane at the default −5→5 frame; an answer point beyond that (e.g. (6, 4)) is still typeable but sits outside the placement window. Polish: extend the plot frame to a sensible bound when the item's answer arity/range implies off-frame placement (without leaking the target — frame from given context + a generous margin).
+- **E3. F01/F02 number lines — Wave-2 authoring (mr-kahn's call).** F01/F02 numberline items were STRIPPED (visual nulled) in 8B rather than authored, because prose-embedded start values risk marking the landing/result (answer leak). A start-only display number line is pedagogically valuable for signed addition; author it safely under an explicit no-landing-marker + answer-agnostic-range rule. mr-kahn gates.
+- **E4. Data/Stats display primitives — genuine curriculum gap (future phase).** ALG-D02/D04 (and L16 scatter) assess display-reading standards (6.SP, 8.SP.A, S-ID) but the 184 boxplot/histogram/scatter `visual` values were nulled in 8B (no primitive). Several items currently test definition recall ("the median is the line inside the box") rather than reading a real display. Needs: build BoxPlot/Histogram/Scatter primitives (extend VisualKind) + re-author those items to read from a rendered display. Later-phase primitive wishlist (priority): boxplot/histogram → parabola curve (Q06/Q12) → region shading (L15/S06) → balance worked-examples. This is a real scope gap — do NOT claim full Data/Stats display coverage until built.

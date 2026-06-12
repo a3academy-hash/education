@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
+  DEFAULT_FRAME,
   DEFAULT_PLANE,
   clampToRange,
   equationReadout,
   fmt,
+  frameFor,
   lineThrough,
   nudge,
   pointLabel,
@@ -14,8 +16,20 @@ import {
   toPxX,
   toPxY,
   unitPx,
+  type Frame,
   type PlaneConfig,
+  type Point,
 } from "./coordinate-plane-math";
+
+const span = (lo: number, hi: number) => hi - lo;
+const isSquare = (f: Frame) =>
+  span(f.xMin, f.xMax) === span(f.yMin, f.yMax);
+const allInteger = (f: Frame) =>
+  [f.xMin, f.xMax, f.yMin, f.yMax].every(Number.isInteger);
+const includesOrigin = (f: Frame) =>
+  f.xMin <= 0 && f.xMax >= 0 && f.yMin <= 0 && f.yMax >= 0;
+const contains = (f: Frame, p: Point) =>
+  p.x >= f.xMin && p.x <= f.xMax && p.y >= f.yMin && p.y <= f.yMax;
 
 const cfg: PlaneConfig = { ...DEFAULT_PLANE };
 
@@ -90,6 +104,70 @@ describe("coordinate-plane-math: line model", () => {
   it("readout flags vertical lines", () => {
     const l = lineThrough({ x: 3, y: 0 }, { x: 3, y: 5 });
     expect(equationReadout(l)).toContain("undefined");
+  });
+});
+
+describe("coordinate-plane-math: frameFor (auto-frame §C)", () => {
+  it("empty geometry → origin-centered default frame", () => {
+    expect(frameFor([])).toEqual(DEFAULT_FRAME);
+  });
+
+  it("all-invalid geometry → default frame (never blank)", () => {
+    expect(frameFor([{ x: NaN, y: 2 }, { x: 3, y: Infinity }])).toEqual(
+      DEFAULT_FRAME,
+    );
+  });
+
+  it("always includes the origin on both axes (first-quadrant data)", () => {
+    const f = frameFor([{ x: 6, y: 8 }, { x: 9, y: 5 }]);
+    expect(includesOrigin(f)).toBe(true);
+  });
+
+  it("renders negative quadrants when data is negative", () => {
+    const f = frameFor([{ x: -3, y: 5 }, { x: 2, y: -4 }]);
+    expect(f.xMin).toBeLessThan(0);
+    expect(f.yMin).toBeLessThan(0);
+    expect(includesOrigin(f)).toBe(true);
+  });
+
+  it("produces a square frame with integer bounds", () => {
+    const f = frameFor([{ x: -3, y: 5 }, { x: 9, y: -1 }]);
+    expect(isSquare(f)).toBe(true);
+    expect(allInteger(f)).toBe(true);
+  });
+
+  it("enforces a minimum span of 4 for tightly clustered data", () => {
+    // A single point near the origin: padding alone is small; min-span lifts it.
+    const f = frameFor([{ x: 1, y: 1 }]);
+    expect(span(f.xMin, f.xMax)).toBeGreaterThanOrEqual(4);
+    expect(span(f.yMin, f.yMax)).toBeGreaterThanOrEqual(4);
+    expect(isSquare(f)).toBe(true);
+  });
+
+  it("pads by at least 1 unit beyond the extreme points", () => {
+    const f = frameFor([{ x: 5, y: 5 }]);
+    // The data max (5) must sit strictly inside the framed max.
+    expect(f.xMax).toBeGreaterThan(5);
+    expect(f.yMax).toBeGreaterThan(5);
+  });
+
+  it("pads by ~10% of span for a wide spread", () => {
+    // Span 0..20 → pad = ceil(0.1*20) = 2.
+    const f = frameFor([{ x: 0, y: 0 }, { x: 20, y: 0 }]);
+    expect(f.xMax).toBe(22);
+  });
+
+  it("keeps every data point inside the frame", () => {
+    const pts: Point[] = [{ x: -7, y: 3 }, { x: 4, y: -9 }, { x: 1, y: 1 }];
+    const f = frameFor(pts);
+    for (const p of pts) expect(contains(f, p)).toBe(true);
+  });
+
+  it("includes a line's endpoints in the frame", () => {
+    const f = frameFor([], [{ through: [{ x: -6, y: 0 }, { x: 0, y: 6 }] }]);
+    expect(contains(f, { x: -6, y: 0 })).toBe(true);
+    expect(contains(f, { x: 0, y: 6 })).toBe(true);
+    expect(isSquare(f)).toBe(true);
   });
 });
 

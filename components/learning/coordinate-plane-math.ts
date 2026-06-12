@@ -141,3 +141,111 @@ function minus(magnitude: number): string {
 export function pointLabel(p: Point): string {
   return `(${fmt(p.x)}, ${fmt(p.y)})`;
 }
+
+// ---------------------------------------------------------------------------
+// Auto-frame (§C). Pure. Given the geometry (points + lines), produce a
+// square, integer-bounded frame that always includes the origin on each axis.
+// ---------------------------------------------------------------------------
+
+export interface Frame {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+}
+
+/** A line described either by two points or slope/intercept (for sampling). */
+export interface FrameLine {
+  through?: [Point, Point];
+  slope?: number;
+  intercept?: number;
+}
+
+/** Default origin-centered frame used when geometry is empty/invalid. */
+export const DEFAULT_FRAME: Frame = { xMin: -5, xMax: 5, yMin: -5, yMax: 5 };
+
+const MIN_SPAN = 4;
+
+/** 10%-of-span padding, at least 1 unit, rounded up to an integer. */
+function padFor(span: number): number {
+  return Math.max(1, Math.ceil(0.1 * span));
+}
+
+/**
+ * frameFor — collect all geometry x/y PLUS 0 on each axis, pad by
+ * max(1, ceil(10% span)), enforce a minimum span of 4, then SQUARE the frame
+ * (grow the smaller axis around its center to match the larger span). Integer
+ * bounds throughout. Empty/invalid geometry → DEFAULT_FRAME.
+ */
+export function frameFor(points: Point[], lines: FrameLine[] = []): Frame {
+  const xs: number[] = [0];
+  const ys: number[] = [0];
+
+  for (const p of points) {
+    if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+      xs.push(p.x);
+      ys.push(p.y);
+    }
+  }
+  for (const line of lines) {
+    if (line.through) {
+      for (const p of line.through) {
+        if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+          xs.push(p.x);
+          ys.push(p.y);
+        }
+      }
+    }
+  }
+
+  // Nothing usable beyond the origin → origin-centered default.
+  if (xs.length === 1 && ys.length === 1) return { ...DEFAULT_FRAME };
+
+  const rawXMin = Math.min(...xs);
+  const rawXMax = Math.max(...xs);
+  const rawYMin = Math.min(...ys);
+  const rawYMax = Math.max(...ys);
+
+  // Pad each axis by a share of its own data span.
+  const xPad = padFor(rawXMax - rawXMin);
+  const yPad = padFor(rawYMax - rawYMin);
+
+  let xMin = Math.floor(rawXMin) - xPad;
+  let xMax = Math.ceil(rawXMax) + xPad;
+  let yMin = Math.floor(rawYMin) - yPad;
+  let yMax = Math.ceil(rawYMax) + yPad;
+
+  // Enforce minimum span on each axis (grow symmetrically, integer).
+  [xMin, xMax] = enforceMinSpan(xMin, xMax);
+  [yMin, yMax] = enforceMinSpan(yMin, yMax);
+
+  // Square the frame: grow the smaller-span axis around its center.
+  const xSpan = xMax - xMin;
+  const ySpan = yMax - yMin;
+  if (xSpan < ySpan) {
+    [xMin, xMax] = growToSpan(xMin, xMax, ySpan);
+  } else if (ySpan < xSpan) {
+    [yMin, yMax] = growToSpan(yMin, yMax, xSpan);
+  }
+
+  return { xMin, xMax, yMin, yMax };
+}
+
+/** Grow [min,max] symmetrically (integer) until its span ≥ MIN_SPAN. */
+function enforceMinSpan(min: number, max: number): [number, number] {
+  let lo = min;
+  let hi = max;
+  while (hi - lo < MIN_SPAN) {
+    lo -= 1;
+    hi += 1;
+  }
+  return [lo, hi];
+}
+
+/** Grow [min,max] to exactly `target` span, biasing the extra unit to the top. */
+function growToSpan(min: number, max: number, target: number): [number, number] {
+  const deficit = target - (max - min);
+  const addLow = Math.floor(deficit / 2);
+  const addHigh = deficit - addLow;
+  return [min - addLow, max + addHigh];
+}

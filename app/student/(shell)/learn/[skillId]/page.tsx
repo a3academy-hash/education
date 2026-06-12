@@ -16,11 +16,22 @@ import { STUDENT_COOKIE } from "../../../onboarding/constants";
 import { Card } from "../../../../../components/ui/Card";
 import { InsetPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon } from "../../../../../components/ui/icons";
-import { LearnClient, type LearnClientProps } from "./LearnClient";
+import {
+  coordinateSeedFromProblems,
+  numberlineSeedFromProblems,
+  equationSeedFromNode,
+  flattenProblems,
+} from "../../../../../components/learning/learn-explore-seed";
+import {
+  LearnClient,
+  type LearnClientProps,
+  type LearnExploreSeed,
+} from "./LearnClient";
 import type {
   CurriculumGraph,
   MasteryStatus,
   Phase,
+  SkillNode,
   StudentSkillState,
 } from "../../../../../types";
 
@@ -50,6 +61,32 @@ const blankState = (): StudentSkillState => ({
 function requiresWorkedExample(phase: Phase, status: MasteryStatus): boolean {
   if (phase >= 2) return false;
   return status === "unknown" || status === "introduced" || status === "developing";
+}
+
+/**
+ * Derive the Learn lesson area's EXPLORE seed from a node's REAL data:
+ *  - coordinate node → the first problem with a coordinate visualSpec (L05/L06);
+ *  - numberline node → the first numberline-spec problem (F09);
+ *  - balance/equation node → an equation parsed from the node (E01–E04/E14).
+ * Returns null when nothing usable is extractable → the client degrades to the
+ * StepReveal manipulable. Reads existing content only; authors no new field.
+ */
+function deriveExploreSeed(node: SkillNode): LearnExploreSeed | null {
+  const problems = flattenProblems(node);
+
+  if (node.visual === "coordinate") {
+    const spec = coordinateSeedFromProblems(problems);
+    if (spec) return { kind: "coordinate", spec };
+  }
+  if (node.visual === "numberline") {
+    const spec = numberlineSeedFromProblems(problems);
+    if (spec) return { kind: "numberline", spec };
+  }
+  if (node.visual === "balance") {
+    const equation = equationSeedFromNode(node.workedExamples, problems);
+    if (equation) return { kind: "balance", equation };
+  }
+  return null;
 }
 
 function MissingShell({ message }: { message: string }) {
@@ -140,6 +177,13 @@ export default async function LearnPage({
   const served = selectProblems(node, state, sport);
   const hasPractice = served.length > 0;
 
+  // EXPLORE seed for the Learn lesson area — DERIVED from this node's own real
+  // data (a representative problem's authored visualSpec, or the node's parsed
+  // equation), never an authored field. Computed server-side so only the seed
+  // (given context, no withheld answer) ships to the client — not the full
+  // problem bank. Null → the client degrades to the StepReveal manipulable.
+  const exploreSeed = deriveExploreSeed(node);
+
   return (
     <LearnClient
       skillId={skillId}
@@ -150,6 +194,7 @@ export default async function LearnPage({
       phase={phase}
       mastery={mastery}
       visual={node.visual}
+      exploreSeed={exploreSeed}
       contextHooks={node.contextHooks}
       workedExamples={node.workedExamples}
       sport={sport}

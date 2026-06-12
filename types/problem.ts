@@ -2,6 +2,23 @@
 // per prompts/03-curriculum-graph-builder.md.
 
 import type { Phase, Sport, VisualKind } from "./core";
+import type { VisualSpec } from "./visual-spec";
+
+// Re-export the visual-spec surface so consumers can import everything
+// problem-related from "./problem" (and transitively from "@/types").
+export type {
+  VisualMode,
+  PlaneAffordance,
+  SpecPoint,
+  SpecLine,
+  Frame,
+  CoordinateSpec,
+  NumberLineSpec,
+  TableSpec,
+  VisualSpec,
+  RenderableVisualKind,
+} from "./visual-spec";
+export { RENDERABLE_VISUAL_KINDS } from "./visual-spec";
 
 /**
  * Discriminated union over answer kinds. All values are strings to keep
@@ -26,6 +43,12 @@ export interface ProblemTemplate {
   sport: Sport;
   prompt: string;
   visual: VisualKind | null;
+  /**
+   * Optional per-problem geometry. DEGRADE-SAFE: when absent (or when its
+   * kind is not renderable), the item renders no visual surface. Independent
+   * of `visual` — decoration never reappears by omission. Authored in B2.
+   */
+  visualSpec?: VisualSpec;
   choices?: string[];
   answer: AnswerSpec;
   /** Wrong-answer pattern → misconception tag (must exist in the owning node's misconceptionTags). */

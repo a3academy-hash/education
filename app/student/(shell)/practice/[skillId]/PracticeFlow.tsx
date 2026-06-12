@@ -18,9 +18,16 @@ import { Input } from "../../../../../components/ui/Input";
 import { Progress } from "../../../../../components/ui/Progress";
 import { AlertPanel, InsetPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon, CheckIcon, CrossIcon } from "../../../../../components/ui/icons";
+import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
 import { submitPractice } from "./actions";
 import type { PracticeResult } from "./shared";
-import type { AnswerSpec, Phase, Sport, VisualKind } from "../../../../../types";
+import type {
+  AnswerSpec,
+  Phase,
+  Sport,
+  VisualKind,
+  VisualSpec,
+} from "../../../../../types";
 
 const FADE: React.CSSProperties = {
   animation: "a3-fade-in var(--duration-base) var(--ease-calm) both",
@@ -44,6 +51,8 @@ export interface ServedItem {
   sport: Sport;
   prompt: string;
   visual: VisualKind | null;
+  /** Geometry for a degrade-safe ProblemVisual; absent in B1. */
+  visualSpec?: VisualSpec;
   hints: string[];
   isProbe: boolean;
   answerKind: AnswerSpec["kind"];
@@ -183,6 +192,23 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
           <h2 className="mt-3 font-display text-[22px] font-medium leading-[1.4] text-ink">
             {item.prompt}
           </h2>
+
+          {/* Spec-driven geometry (no split-attention). Degrade-safe: with no
+              visualSpec (B1) this renders nothing — a clean prompt + input.
+              Shown pre-submit only; the marked-up comparison takes over once
+              feedback exists. */}
+          {!feedback && (
+            <div className="empty:hidden">
+              <div className="mt-5 empty:mt-0">
+                <ProblemVisual
+                  visual={item.visual}
+                  visualSpec={item.visualSpec}
+                  sport={item.sport}
+                  phase={item.phase}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Integrated visual (no split-attention) — marked up AFTER submit only.
               Pre-submit there is nothing to show in the frame; the prompt carries

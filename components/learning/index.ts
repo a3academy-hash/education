@@ -1,7 +1,15 @@
 // Math primitives barrel (§C). Import from "@/components/learning".
 
 export { CoordinatePlane } from "./CoordinatePlane";
-export type { CoordinatePlaneProps } from "./CoordinatePlane";
+export type {
+  CoordinatePlaneProps,
+  PlaneMode,
+  PlaneLine,
+  LabeledPoint,
+} from "./CoordinatePlane";
+
+export { ProblemVisual } from "./ProblemVisual";
+export type { ProblemVisualProps } from "./ProblemVisual";
 
 export { NumberLine } from "./NumberLine";
 export type { NumberLineProps } from "./NumberLine";

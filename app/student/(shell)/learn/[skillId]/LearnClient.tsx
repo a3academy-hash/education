@@ -18,17 +18,32 @@ import { Progress } from "../../../../../components/ui/Progress";
 import { StatusPill } from "../../../../../components/ui/StatusPill";
 import { AlertPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon, ArrowRightIcon } from "../../../../../components/ui/icons";
-import { CoordinatePlane } from "../../../../../components/learning/CoordinatePlane";
-import { NumberLine } from "../../../../../components/learning/NumberLine";
 import { StepReveal } from "../../../../../components/learning/StepReveal";
+import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
+import { BalanceScale } from "../../../../../components/learning/BalanceScale";
+import type { Equation } from "../../../../../components/learning/balance-scale-math";
 import type {
   ContextHooks,
+  CoordinateSpec,
   MasteryStatus,
+  NumberLineSpec,
   Phase,
   Sport,
   VisualKind,
+  VisualSpec,
   WorkedExample,
 } from "../../../../../types";
+
+/**
+ * The Learn lesson area's EXPLORE seed — DERIVED server-side from the node's
+ * REAL data (a representative problem's authored visualSpec, or the node's
+ * equation), never an authored field. A null seed (no usable data) degrades to
+ * the StepReveal manipulable.
+ */
+export type LearnExploreSeed =
+  | { kind: "coordinate"; spec: CoordinateSpec }
+  | { kind: "numberline"; spec: NumberLineSpec }
+  | { kind: "balance"; equation: Equation };
 
 const STATUS_FILL: Record<MasteryStatus, string> = {
   unknown: "var(--color-status-unknown)",
@@ -78,6 +93,8 @@ export interface LearnClientProps {
   phase: Phase;
   mastery: number;
   visual: VisualKind | null;
+  /** EXPLORE seed derived from this node's real data; null → StepReveal fallback. */
+  exploreSeed: LearnExploreSeed | null;
   contextHooks: ContextHooks;
   workedExamples: WorkedExample[];
   sport: Sport;
@@ -97,6 +114,7 @@ export function LearnClient(props: LearnClientProps) {
     phase,
     mastery,
     visual,
+    exploreSeed,
     contextHooks,
     workedExamples,
     sport,
@@ -195,6 +213,7 @@ export function LearnClient(props: LearnClientProps) {
         <div className="flex flex-col gap-5">
           <LessonArea
             visual={visual}
+            exploreSeed={exploreSeed}
             contextHooks={contextHooks}
             sport={sport}
             phase={phase}
@@ -272,12 +291,14 @@ export function LearnClient(props: LearnClientProps) {
 
 function LessonArea({
   visual,
+  exploreSeed,
   contextHooks,
   sport,
   phase,
   workedExamples,
 }: {
   visual: VisualKind | null;
+  exploreSeed: LearnExploreSeed | null;
   contextHooks: ContextHooks;
   sport: Sport;
   phase: Phase;
@@ -290,61 +311,45 @@ function LessonArea({
         The idea
       </p>
       <p className="mb-5 max-w-[44ch] text-[16px] leading-[1.5] text-ink-800">{concept}</p>
-      <Manipulable visual={visual} phase={phase} sport={sport} workedExamples={workedExamples} />
+      <Manipulable
+        visual={visual}
+        exploreSeed={exploreSeed}
+        phase={phase}
+        sport={sport}
+        workedExamples={workedExamples}
+      />
     </Card>
   );
 }
 
-/** The touchable handle. Axis labels carry the sport→neutral fade (spec §E). */
+/**
+ * The touchable handle.
+ *
+ * When the node's real data yields an explore seed (B2's authored coordinate /
+ * numberline visualSpecs, or an equation parsed from the node), the lesson area
+ * renders a GENUINE explore manipulable seeded from that data: drag changes
+ * THIS lesson's math, Reset returns to the seed. With NO usable seed it
+ * degrades to the StepReveal manipulable (never a blank or broken plane).
+ */
 function Manipulable({
-  visual,
+  exploreSeed,
   phase,
   sport,
   workedExamples,
 }: {
   visual: VisualKind | null;
+  exploreSeed: LearnExploreSeed | null;
   phase: Phase;
   sport: Sport;
   workedExamples: WorkedExample[];
 }) {
-  const [points, setPoints] = useState([
-    { x: 2, y: 3 },
-    { x: 6, y: 7 },
-  ]);
-  const [marker, setMarker] = useState(2);
+  if (exploreSeed) {
+    return <ExploreManipulable seed={exploreSeed} phase={phase} sport={sport} />;
+  }
 
-  if (visual === "coordinate") {
-    // P1 sport semantics on the axes; neutral x/y by P3.
-    const sportAxes = phase <= 1 && sport !== "neutral";
-    return (
-      <div>
-        <CoordinatePlane
-          points={points}
-          onChange={setPoints}
-          showLine
-          showRiseRun
-          xLabel={sportAxes ? "games" : "x"}
-          yLabel={sportAxes ? "total" : "y"}
-        />
-        <p className="mt-2 text-[13px] text-ink-500">
-          Drag a point. Watch the line and its equation change.
-        </p>
-      </div>
-    );
-  }
-  if (visual === "numberline") {
-    return (
-      <div>
-        <NumberLine value={marker} onChange={setMarker} from={-10} to={10} operationDelta={3} />
-        <p className="mt-2 text-[13px] text-ink-500">
-          Drag the marker. Watch the operation arc move with it.
-        </p>
-      </div>
-    );
-  }
-  // null visual → promote first worked example as the manipulable in REVEAL-ONLY
-  // mode (blankStepIndex null — no hardcoded operation blank). If the node has
-  // no worked example, render the generic step-reveal without a blank.
+  // null/unseeded → promote first worked example as the manipulable in
+  // REVEAL-ONLY mode (blankStepIndex null — no hardcoded operation blank). If
+  // the node has no worked example, render the generic step-reveal.
   const we = workedExamples[0];
   if (we && we.steps.length > 0) {
     const steps = we.steps.map((s) => s.reveal);
@@ -374,6 +379,80 @@ function Manipulable({
         blankStepIndex={null}
       />
       <p className="mt-2 text-[13px] text-ink-500">Reveal each step.</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Explore manipulable — a genuine touchable seeded from THIS node's real data.
+// coordinate/numberline run interactive+explore through the shared ProblemVisual
+// mapper (controlled here so the live geometry changes the lesson's math); a
+// "Start over" returns to the seed. balance wraps BalanceScale, which owns its
+// own action row + reset. All three are degrade-safe at the caller (a null seed
+// never reaches here).
+// ---------------------------------------------------------------------------
+
+function ExploreManipulable({
+  seed,
+  phase,
+  sport,
+}: {
+  seed: LearnExploreSeed;
+  phase: Phase;
+  sport: Sport;
+}) {
+  if (seed.kind === "balance") {
+    return (
+      <div>
+        <BalanceScale initial={seed.equation} />
+        <p className="mt-2 text-[13px] text-ink-500">
+          Do the same to both sides until x stands alone.
+        </p>
+      </div>
+    );
+  }
+  return <ExplorePlane seed={seed} phase={phase} sport={sport} />;
+}
+
+/**
+ * Controlled coordinate/numberline explore. The seed (from the node's real
+ * visualSpec) becomes interactive geometry the student drags; "Start over"
+ * restores the seed. The spec's mode is forced to "interactive" so the lesson
+ * primitive is genuinely touchable, and `explore` is passed so the coordinate
+ * plane appends up to its concept cap (the adapter fix routes append on this
+ * flag, not on affordances).
+ */
+function ExplorePlane({
+  seed,
+  phase,
+  sport,
+}: {
+  seed: { kind: "coordinate"; spec: CoordinateSpec } | { kind: "numberline"; spec: NumberLineSpec };
+  phase: Phase;
+  sport: Sport;
+}) {
+  const seedSpec: VisualSpec = { ...seed.spec, mode: "interactive" };
+  const [live, setLive] = useState<VisualSpec>(seedSpec);
+  return (
+    <div>
+      <ProblemVisual
+        visual={seed.kind}
+        visualSpec={live}
+        sport={sport}
+        phase={phase}
+        explore
+        onChange={setLive}
+      />
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <p className="text-[13px] text-ink-500">
+          {seed.kind === "coordinate"
+            ? "Drag the points — the line and its equation follow."
+            : "Drag the marker — the jump follows."}
+        </p>
+        <Button variant="quiet" size="sm" type="button" onClick={() => setLive(seedSpec)}>
+          Start over
+        </Button>
+      </div>
     </div>
   );
 }

@@ -398,6 +398,141 @@ describe("validateSemantics — real data/algebra1-graph.json snapshot", () => {
     );
     expect(semanticErrors).toHaveLength(0);
   });
+
+  // --- Phase 8 / B §G visual rules (baseline lock) ---
+
+  it("flags 0 VISUAL_KIND_DRIFT warnings (B2 content pass nulled the 184 drift visuals)", () => {
+    const drift = issues.filter((i) => i.code === "VISUAL_KIND_DRIFT");
+    expect(drift).toHaveLength(0);
+  });
+
+  it("flags 0 VISUAL_DECORATION warnings (B2 content pass stripped/authored the 1535 leftovers)", () => {
+    const deco = issues.filter((i) => i.code === "VISUAL_DECORATION");
+    expect(deco).toHaveLength(0);
+  });
+
+  it("has zero VISUAL_SPEC_MISMATCH / VISUAL_ANSWER_LEAK (every authored spec is kind-aligned and leak-free)", () => {
+    expect(issues.filter((i) => i.code === "VISUAL_SPEC_MISMATCH")).toHaveLength(0);
+    expect(issues.filter((i) => i.code === "VISUAL_ANSWER_LEAK")).toHaveLength(0);
+  });
+
+  it("no visual rule emits an error against the shipped graph (build stays green)", () => {
+    const visualErrors = issues.filter(
+      (i) =>
+        (i.code === "VISUAL_KIND_DRIFT" ||
+          i.code === "VISUAL_DECORATION" ||
+          i.code === "VISUAL_SPEC_MISMATCH" ||
+          i.code === "VISUAL_ANSWER_LEAK") &&
+        i.severity === "error",
+    );
+    expect(visualErrors).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 8 / B §G — crafted fixtures for the visual rules
+// ---------------------------------------------------------------------------
+
+describe("Rule 4 — visual spec rules (crafted)", () => {
+  type RawAny = Record<string, unknown>;
+  const nodeWith = (problems: RawAny[]): RawAny =>
+    ({
+      id: "VIS-01",
+      workedExamples: [],
+      problems: { p1: problems, p2: [], p3: [] },
+    });
+
+  it("VISUAL_KIND_DRIFT — a drift `visual` (scatter) flags a warning", () => {
+    const node = nodeWith([
+      { id: "P-drift", phase: 1, sport: "neutral", prompt: "x", visual: "scatter", answer: { kind: "numeric", value: "1" }, hints: [] },
+    ]);
+    const issues = validateSemantics([node as never]);
+    const drift = issues.filter((i) => i.code === "VISUAL_KIND_DRIFT");
+    expect(drift).toHaveLength(1);
+    expect(drift[0].severity).toBe("warning");
+    expect(drift[0].items).toEqual(["P-drift"]);
+  });
+
+  it("VISUAL_SPEC_MISMATCH — spec.kind ≠ visual is an error", () => {
+    const node = nodeWith([
+      {
+        id: "P-mismatch",
+        phase: 1,
+        sport: "neutral",
+        prompt: "x",
+        visual: "coordinate",
+        visualSpec: { kind: "numberline", mode: "display", range: { min: 0, max: 5 } },
+        answer: { kind: "numeric", value: "1" },
+        hints: [],
+      },
+    ]);
+    const issues = validateSemantics([node as never]);
+    const mismatch = issues.filter((i) => i.code === "VISUAL_SPEC_MISMATCH");
+    expect(mismatch).toHaveLength(1);
+    expect(mismatch[0].severity).toBe("error");
+  });
+
+  it("VISUAL_ANSWER_LEAK — interactive coordinate spec plotting the answer is an error", () => {
+    const node = nodeWith([
+      {
+        id: "P-leak",
+        phase: 1,
+        sport: "neutral",
+        prompt: "Plot the point",
+        visual: "coordinate",
+        visualSpec: {
+          kind: "coordinate",
+          mode: "interactive",
+          points: [{ x: 4, y: 2 }],
+        },
+        answer: { kind: "coordinate", value: "(4, 2)" },
+        hints: [],
+      },
+    ]);
+    const issues = validateSemantics([node as never]);
+    const leak = issues.filter((i) => i.code === "VISUAL_ANSWER_LEAK");
+    expect(leak).toHaveLength(1);
+    expect(leak[0].severity).toBe("error");
+  });
+
+  it("VISUAL_ANSWER_LEAK — interactive coordinate with only CONTEXT points is clean", () => {
+    const node = nodeWith([
+      {
+        id: "P-ok",
+        phase: 1,
+        sport: "neutral",
+        prompt: "Plot the point",
+        visual: "coordinate",
+        visualSpec: {
+          kind: "coordinate",
+          mode: "interactive",
+          points: [{ x: 0, y: 0 }],
+        },
+        answer: { kind: "coordinate", value: "(4, 2)" },
+        hints: [],
+      },
+    ]);
+    const issues = validateSemantics([node as never]);
+    expect(issues.filter((i) => i.code === "VISUAL_ANSWER_LEAK")).toHaveLength(0);
+  });
+
+  it("VISUAL_DECORATION — renderable visual, no spec, numeric answer is a warning", () => {
+    const node = nodeWith([
+      { id: "P-deco", phase: 1, sport: "neutral", prompt: "x", visual: "coordinate", answer: { kind: "numeric", value: "1" }, hints: [] },
+    ]);
+    const issues = validateSemantics([node as never]);
+    const deco = issues.filter((i) => i.code === "VISUAL_DECORATION");
+    expect(deco).toHaveLength(1);
+    expect(deco[0].severity).toBe("warning");
+  });
+
+  it("VISUAL_DECORATION — null visual is never decoration", () => {
+    const node = nodeWith([
+      { id: "P-null", phase: 1, sport: "neutral", prompt: "x", visual: null, answer: { kind: "numeric", value: "1" }, hints: [] },
+    ]);
+    const issues = validateSemantics([node as never]);
+    expect(issues.filter((i) => i.code === "VISUAL_DECORATION")).toHaveLength(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

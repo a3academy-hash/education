@@ -98,6 +98,9 @@ export default async function PracticePage({
     sport: s.problem.sport,
     prompt: s.problem.prompt,
     visual: s.problem.visual,
+    // visualSpec rides the same DTO channel as `visual`; answer/misconceptionMap
+    // stay stripped (engine re-checks server-side). Absent in B1.
+    visualSpec: s.problem.visualSpec,
     hints: s.problem.hints,
     isProbe: s.isProbe,
     answerKind: s.problem.answer.kind,

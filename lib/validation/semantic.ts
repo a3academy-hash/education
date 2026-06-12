@@ -19,6 +19,8 @@ type RawProblem = {
   answer?: unknown;
   hints?: unknown;
   misconceptionMap?: unknown;
+  visual?: unknown;
+  visualSpec?: unknown;
 };
 type RawNode = {
   id: string;
@@ -478,6 +480,128 @@ function rule3ReusedText(nodes: RawNode[]): ValidationIssue[] {
 }
 
 // ---------------------------------------------------------------------------
+// RULE 4 — VISUAL SPEC RULES (Phase 8 / B §G; regression guard).
+//
+// Operates on every authored problem across p1/p2/p3:
+//   (1) VISUAL_SPEC_MISMATCH (error)  — spec present ⇒ spec.kind === visual.
+//   (2) VISUAL_KIND_DRIFT    (warning)— `visual` must be in the supported set
+//        {coordinate,numberline,table,balance,area-model} ∪ null; the drift
+//        values graph/boxplot/histogram/scatter are flagged (being nulled).
+//   (3) VISUAL_ANSWER_LEAK   (error)  — interactive coordinate spec ⇒ its
+//        `points` must not contain the answer coordinate (the target).
+//   (4) VISUAL_DECORATION    (warning)— a coordinate/numberline/table visual
+//        with NO visualSpec and a non-geometry answer = leftover decoration.
+// ---------------------------------------------------------------------------
+
+const SUPPORTED_VISUAL_KINDS = new Set([
+  "coordinate",
+  "numberline",
+  "table",
+  "balance",
+  "area-model",
+]);
+const RENDERABLE_VISUAL_KINDS = new Set(["coordinate", "numberline", "table"]);
+
+/** Parse "(x, y)" → "x,y" canonical, or null when it isn't a coordinate pair. */
+function coordKey(raw: string): string | null {
+  const c = canon(raw);
+  const m = c.match(/^\(?\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)?$/);
+  if (!m) return null;
+  return `${Number(m[1])},${Number(m[2])}`;
+}
+
+function eachProblem(node: RawNode, fn: (p: RawProblem) => void): void {
+  if (!isRecord(node.problems)) return;
+  for (const bucket of ["p1", "p2", "p3"]) {
+    const list = (node.problems as Record<string, unknown>)[bucket];
+    if (!Array.isArray(list)) continue;
+    for (const p of list as RawProblem[]) fn(p);
+  }
+}
+
+function rule4VisualSpec(node: RawNode): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+
+  eachProblem(node, (p) => {
+    const pid = str(p.id) || "<no id>";
+    const visual = typeof p.visual === "string" ? p.visual : null;
+    const spec = isRecord(p.visualSpec) ? p.visualSpec : null;
+    const answer = isRecord(p.answer) ? (p.answer as RawAnswer) : null;
+    const answerKind = answer && typeof answer.kind === "string" ? answer.kind : null;
+
+    // (2) VISUAL_KIND_DRIFT — unsupported kind (warning). null is allowed.
+    if (visual !== null && !SUPPORTED_VISUAL_KINDS.has(visual)) {
+      issues.push({
+        severity: "warning",
+        code: "VISUAL_KIND_DRIFT",
+        nodeId: node.id,
+        items: [pid],
+        message: `problem ${pid} has visual "${visual}" which is not a supported kind — null it or author a primitive`,
+      });
+    }
+
+    if (spec) {
+      const specKind = typeof spec.kind === "string" ? spec.kind : null;
+      const specMode = typeof spec.mode === "string" ? spec.mode : null;
+
+      // (1) VISUAL_SPEC_MISMATCH — spec.kind must equal the declared visual.
+      if (specKind !== visual) {
+        issues.push({
+          severity: "error",
+          code: "VISUAL_SPEC_MISMATCH",
+          nodeId: node.id,
+          items: [pid],
+          message: `problem ${pid} visualSpec.kind "${String(specKind)}" does not match visual "${String(visual)}"`,
+        });
+      }
+
+      // (3) VISUAL_ANSWER_LEAK — interactive coordinate must not plot the target.
+      if (
+        specKind === "coordinate" &&
+        specMode === "interactive" &&
+        answerKind === "coordinate" &&
+        typeof answer?.value === "string"
+      ) {
+        const target = coordKey(answer.value);
+        const specPoints = Array.isArray(spec.points) ? spec.points : [];
+        if (target) {
+          for (const sp of specPoints) {
+            if (!isRecord(sp)) continue;
+            const sx = typeof sp.x === "number" ? sp.x : NaN;
+            const sy = typeof sp.y === "number" ? sp.y : NaN;
+            if (`${sx},${sy}` === target) {
+              issues.push({
+                severity: "error",
+                code: "VISUAL_ANSWER_LEAK",
+                nodeId: node.id,
+                items: [pid],
+                message: `problem ${pid} interactive coordinate spec plots the answer point (${target}) — that leaks the target`,
+              });
+              break;
+            }
+          }
+        }
+      }
+    } else {
+      // (4) VISUAL_DECORATION — a renderable visual with no spec and a
+      // non-geometry answer is leftover decoration.
+      const geometryAnswer = answerKind === "coordinate";
+      if (visual !== null && RENDERABLE_VISUAL_KINDS.has(visual) && !geometryAnswer) {
+        issues.push({
+          severity: "warning",
+          code: "VISUAL_DECORATION",
+          nodeId: node.id,
+          items: [pid],
+          message: `problem ${pid} declares visual "${visual}" with no visualSpec and a ${String(answerKind)} answer — leftover decoration; null the visual or author a spec`,
+        });
+      }
+    }
+  });
+
+  return issues;
+}
+
+// ---------------------------------------------------------------------------
 // Public entry point
 // ---------------------------------------------------------------------------
 
@@ -488,6 +612,7 @@ export function validateSemantics(nodes: RawNode[]): ValidationIssue[] {
   for (const node of nodes) {
     issues.push(...rule1DupWorkedExample(node));
     issues.push(...rule2NearDupPrompt(node));
+    issues.push(...rule4VisualSpec(node));
   }
 
   // Graph-wide rules

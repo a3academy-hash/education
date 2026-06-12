@@ -18,7 +18,11 @@ export interface ValidationIssue {
     | "UNKNOWN_MISCONCEPTION_TAG"
     | "DUP_WORKED_EXAMPLE"
     | "NEAR_DUP_PROMPT"
-    | "REUSED_TEXT";
+    | "REUSED_TEXT"
+    | "VISUAL_SPEC_MISMATCH"
+    | "VISUAL_KIND_DRIFT"
+    | "VISUAL_ANSWER_LEAK"
+    | "VISUAL_DECORATION";
   message: string;
   nodeId?: string;
   edge?: SkillEdge;

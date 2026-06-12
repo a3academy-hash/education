@@ -19,8 +19,7 @@ import { Progress } from "../../../../components/ui/Progress";
 import { StatusPill } from "../../../../components/ui/StatusPill";
 import { AlertPanel, InsetPanel } from "../../../../components/ui/Panels";
 import { CheckIcon } from "../../../../components/ui/icons";
-import { CoordinatePlane } from "../../../../components/learning/CoordinatePlane";
-import { NumberLine } from "../../../../components/learning/NumberLine";
+import { ProblemVisual } from "../../../../components/learning/ProblemVisual";
 import {
   DIAGNOSTIC_CONFIG,
   finishDiagnostic,
@@ -36,7 +35,6 @@ import type {
   CurriculumGraph,
   DiagnosticItem,
   DiagnosticSession,
-  ResponseType,
 } from "../../../../types";
 
 const FADE_BASE: React.CSSProperties = {
@@ -231,7 +229,18 @@ function ItemScreen({
         <h2 className="font-display text-[20px] font-medium leading-[1.45] text-ink">
           {item.problem.prompt}
         </h2>
-        <ItemVisual responseType={item.responseType} />
+        {/* Spec-driven, degrade-safe. The diagnostic ships the full problem, so
+            visualSpec rides along; without one (B1) this renders nothing — a
+            clean prompt + math input. The diagnostic measures with typed
+            answers, so any geometry here is display-only (no answer sink). */}
+        <div className="mt-5 empty:mt-0">
+          <ProblemVisual
+            visual={item.problem.visual}
+            visualSpec={item.problem.visualSpec}
+            sport="neutral"
+            phase={item.problem.phase}
+          />
+        </div>
         <form
           className="mt-6"
           onSubmit={(e) => {
@@ -256,37 +265,6 @@ function ItemScreen({
       </Card>
     </div>
   );
-}
-
-/** The touchable thing (pee-wee): manipulable scratch surface per item kind.
- * BalanceScale stays OUT — it teaches; the diagnostic measures. */
-function ItemVisual({ responseType }: { responseType: ResponseType }) {
-  const [points, setPoints] = useState([
-    { x: 2, y: 3 },
-    { x: 6, y: 7 },
-  ]);
-  const [marker, setMarker] = useState(0);
-  if (responseType === "plane") {
-    return (
-      <div className="mt-5">
-        <CoordinatePlane points={points} onChange={setPoints} />
-      </div>
-    );
-  }
-  if (responseType === "line") {
-    return (
-      <div className="mt-5">
-        <NumberLine value={marker} onChange={setMarker} from={-10} to={10} />
-      </div>
-    );
-  }
-  if (responseType === "table") {
-    // An empty DataTable renders headers with no rows — a confusing visual for
-    // a typed-answer item where the table has no interactive purpose. Return
-    // null so the student sees a clean prompt + math input (same as "input").
-    return null;
-  }
-  return null;
 }
 
 // ---------------------------------------------------------------------------

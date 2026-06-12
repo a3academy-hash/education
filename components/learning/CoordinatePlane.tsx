@@ -1,6 +1,14 @@
-// CoordinatePlane (§C). SVG, props = pure data + callbacks. No engine or
-// repository imports. Pointer + keyboard parity, visible SVG focus ring on
-// handles, aria-live value announcements, reduced-motion = instant.
+// CoordinatePlane (§C, finished). SVG, props = pure data + callbacks. No engine
+// or repository imports. Spec-driven: an explicit `frame` (or frameFor over the
+// geometry), axes drawn AT ZERO when 0 ∈ frame, and mode-gated interactivity:
+//
+//   mode "display"     → read-only illustration (no onChange, no click, no drag)
+//   mode "interactive" → background click REPOSITIONS the single answer point
+//   affordance "explore" (Learn) → background click APPENDS up to a concept cap
+//
+// Pointer + keyboard parity, visible SVG focus ring on handles, aria-live value
+// announcements, reduced-motion = instant (inherited from global tokens; this
+// component animates nothing imperatively).
 
 "use client";
 
@@ -13,28 +21,59 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { Button } from "../ui/Button";
 import {
-  DEFAULT_PLANE,
+  DEFAULT_FRAME,
   equationReadout,
   fmt,
+  frameFor,
   lineThrough,
-  nudge,
   pointLabel,
-  pxToSnappedPoint,
-  toPxX,
-  toPxY,
-  type PlaneConfig,
+  snapValue,
+  type Frame,
+  type FrameLine,
   type Point,
 } from "./coordinate-plane-math";
 
+export type PlaneMode = "display" | "interactive";
+
+/** A line to draw: through two points (preferred) or slope/intercept. */
+export interface PlaneLine {
+  through?: [Point, Point];
+  slope?: number;
+  intercept?: number;
+  style?: "solid" | "dashed";
+}
+
+/** A point with an optional label rendered beside it. */
+export interface LabeledPoint extends Point {
+  label?: string;
+}
+
 export interface CoordinatePlaneProps {
-  points: Point[];
-  onChange?: (points: Point[]) => void;
-  /** Inclusive axis range (both axes share it). Default 0..10. */
-  range?: { min: number; max: number };
+  points: LabeledPoint[];
+  onChange?: (points: LabeledPoint[]) => void;
+  /**
+   * Interaction posture. "display" is read-only (no onChange honored even if
+   * passed); "interactive" repositions the single answer point on background
+   * click. Default "display" — decoration never reappears by omission.
+   */
+  mode?: PlaneMode;
+  /**
+   * Explore mode (Learn only): background clicks APPEND points up to
+   * `exploreCap`. Requires mode "interactive".
+   */
+  explore?: boolean;
+  exploreCap?: number;
+  /** Explicit frame; when absent it is auto-computed from the geometry. */
+  frame?: Frame;
+  /** Lines drawn over the plane (display geometry). */
+  lines?: PlaneLine[];
+  /** Standalone segments (two points each), drawn but not extended to a line. */
+  segments?: [Point, Point][];
   /** Snap increment; 1 default, 0.5 allowed. */
-  snap?: number;
-  /** Draw the connecting line + equation readout when two points exist. */
+  snap?: 1 | 0.5;
+  /** Draw the connecting line + equation readout when exactly two points exist. */
   showLine?: boolean;
   /** Draw the dashed rise/run elbow for the two-point line. */
   showRiseRun?: boolean;
@@ -46,10 +85,17 @@ export interface CoordinatePlaneProps {
   caption?: string;
 }
 
+const PAD = 28;
+
 export function CoordinatePlane({
   points,
   onChange,
-  range = { min: DEFAULT_PLANE.min, max: DEFAULT_PLANE.max },
+  mode = "display",
+  explore = false,
+  exploreCap = 6,
+  frame,
+  lines = [],
+  segments = [],
   snap = 1,
   showLine = true,
   showRiseRun = false,
@@ -58,18 +104,8 @@ export function CoordinatePlane({
   size = 320,
   caption,
 }: CoordinatePlaneProps) {
+  const interactive = mode === "interactive";
   const clampedSize = Math.max(320, Math.min(420, size));
-  const cfg: PlaneConfig = useMemo(
-    () => ({
-      min: range.min,
-      max: range.max,
-      size: clampedSize,
-      pad: 28,
-      snap: snap === 0.5 ? 0.5 : 1,
-    }),
-    [range.min, range.max, clampedSize, snap],
-  );
-
   const svgRef = useRef<SVGSVGElement>(null);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
@@ -79,7 +115,7 @@ export function CoordinatePlane({
   const titleId = useId();
 
   // dev-only invalid-prop guard: render frame, suppress the bad point.
-  const safePoints = useMemo(
+  const safePoints = useMemo<LabeledPoint[]>(
     () =>
       points.filter((p, i) => {
         const ok = Number.isFinite(p?.x) && Number.isFinite(p?.y);
@@ -91,11 +127,49 @@ export function CoordinatePlane({
     [points],
   );
 
-  const ticks = useMemo(() => {
-    const out: number[] = [];
-    for (let i = Math.ceil(range.min); i <= range.max; i++) out.push(i);
-    return out;
-  }, [range.min, range.max]);
+  // Frame: explicit spec.frame ?? auto-frame over points+lines+segments.
+  const fr: Frame = useMemo(() => {
+    if (frame) {
+      const ok = [frame.xMin, frame.xMax, frame.yMin, frame.yMax].every(
+        Number.isFinite,
+      );
+      if (ok && frame.xMax > frame.xMin && frame.yMax > frame.yMin) return frame;
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("CoordinatePlane: invalid frame prop, using auto-frame.", frame);
+      }
+    }
+    const frameLines: FrameLine[] = [
+      ...lines.map((l) => ({ through: l.through, slope: l.slope, intercept: l.intercept })),
+      ...segments.map((s) => ({ through: s })),
+    ];
+    return frameFor(safePoints, frameLines);
+  }, [frame, lines, segments, safePoints]);
+
+  const fallbackFrame = fr ?? DEFAULT_FRAME;
+
+  // Per-axis pixel mapping over the (square) frame.
+  const xSpan = fallbackFrame.xMax - fallbackFrame.xMin;
+  const ySpan = fallbackFrame.yMax - fallbackFrame.yMin;
+  const inner = clampedSize - 2 * PAD;
+  const px = useCallback(
+    (x: number) => PAD + ((x - fallbackFrame.xMin) / xSpan) * inner,
+    [fallbackFrame.xMin, xSpan, inner],
+  );
+  const py = useCallback(
+    (y: number) => clampedSize - PAD - ((y - fallbackFrame.yMin) / ySpan) * inner,
+    [fallbackFrame.yMin, ySpan, inner, clampedSize],
+  );
+
+  // Axes at data-0 when 0 is inside the frame; otherwise pin to the edge.
+  const xZero = fallbackFrame.xMin <= 0 && fallbackFrame.xMax >= 0;
+  const yZero = fallbackFrame.yMin <= 0 && fallbackFrame.yMax >= 0;
+  const axisX = yZero ? 0 : fallbackFrame.yMin; // y-value where the x-axis sits
+  const axisY = xZero ? 0 : fallbackFrame.xMin; // x-value where the y-axis sits
+
+  // Integer ticks; thin labels when the span is large.
+  const xTicks = useMemo(() => integerTicks(fallbackFrame.xMin, fallbackFrame.xMax), [fallbackFrame.xMin, fallbackFrame.xMax]);
+  const yTicks = useMemo(() => integerTicks(fallbackFrame.yMin, fallbackFrame.yMax), [fallbackFrame.yMin, fallbackFrame.yMax]);
+  const labelEvery = Math.max(xSpan, ySpan) > 16 ? 2 : 1;
 
   const line =
     showLine && safePoints.length === 2
@@ -105,24 +179,33 @@ export function CoordinatePlane({
   const clientToData = useCallback(
     (clientX: number, clientY: number): Point => {
       const svg = svgRef.current;
-      if (!svg) return { x: range.min, y: range.min };
+      if (!svg) return { x: fallbackFrame.xMin, y: fallbackFrame.yMin };
       const rect = svg.getBoundingClientRect();
-      const sx = ((clientX - rect.left) / rect.width) * cfg.size;
-      const sy = ((clientY - rect.top) / rect.height) * cfg.size;
-      return pxToSnappedPoint(sx, sy, cfg);
+      const sx = ((clientX - rect.left) / rect.width) * clampedSize;
+      const sy = ((clientY - rect.top) / rect.height) * clampedSize;
+      const dataX = fallbackFrame.xMin + ((sx - PAD) / inner) * xSpan;
+      const dataY = fallbackFrame.yMin + ((clampedSize - PAD - sy) / inner) * ySpan;
+      return {
+        x: clampAxis(snapValue(dataX, snap), fallbackFrame.xMin, fallbackFrame.xMax),
+        y: clampAxis(snapValue(dataY, snap), fallbackFrame.yMin, fallbackFrame.yMax),
+      };
     },
-    [cfg, range.min],
+    [fallbackFrame, clampedSize, inner, xSpan, ySpan, snap],
   );
 
   const commit = useCallback(
     (idx: number, next: Point) => {
-      const updated = points.map((p, i) => (i === idx ? next : p));
+      if (!interactive) return;
+      const updated = points.map((p, i) =>
+        i === idx ? { ...p, x: next.x, y: next.y } : p,
+      );
       onChange?.(updated);
     },
-    [points, onChange],
+    [points, onChange, interactive],
   );
 
   const onPointerDownHandle = (idx: number) => (e: ReactPointerEvent) => {
+    if (!interactive) return;
     e.preventDefault();
     (e.target as Element).setPointerCapture?.(e.pointerId);
     setActiveIdx(idx);
@@ -130,44 +213,51 @@ export function CoordinatePlane({
   };
 
   const onPointerMove = (e: ReactPointerEvent) => {
-    if (draggingIdx === null) return;
+    if (!interactive || draggingIdx === null) return;
     commit(draggingIdx, clientToData(e.clientX, e.clientY));
   };
 
   const endDrag = () => setDraggingIdx(null);
 
-  // Background placement: only when interactive (onChange present) and the
-  // pointerdown did NOT originate on an existing draggable point handle
-  // (so dragging a point never also creates one). Gridlines/axes/ticks count
-  // as background, so a click anywhere on the plotting area places a point.
+  // Background placement. Display → inert. Interactive/plot → REPOSITION the
+  // single answer point (replace, never append). Explore (Learn) → append up to
+  // the concept cap. A pointerdown that lands on an existing handle is ignored
+  // here (the handle drag owns it), so dragging never also places.
   const onBackgroundPointerDown = (e: ReactPointerEvent) => {
-    if (!onChange) return;
-    if (draggingIdx !== null) return; // a handle drag is in progress
+    if (!interactive) return;
+    if (draggingIdx !== null) return;
     const target = e.target as Element;
-    if (target.closest?.('[role="slider"]')) return; // an existing handle was hit
+    if (target.closest?.('[role="slider"]')) return;
     const next = clientToData(e.clientX, e.clientY);
-    const nextIdx = points.length;
-    onChange([...points, next]);
-    setActiveIdx(nextIdx);
+    if (explore) {
+      if (points.length >= exploreCap) return;
+      onChange?.([...points, next]);
+      setActiveIdx(points.length);
+    } else {
+      // plot: a single answer point — replace if one exists, else create.
+      onChange?.([next]);
+      setActiveIdx(0);
+    }
     setPlacedPoint(next);
   };
 
   const onHandleKeyDown = (idx: number) => (e: ReactKeyboardEvent) => {
-    const step = e.shiftKey ? 5 : 1;
+    if (!interactive) return;
+    const step = (e.shiftKey ? 5 : 1) * snap;
     const p = points[idx];
     let next: Point | null = null;
     switch (e.key) {
       case "ArrowRight":
-        next = { x: nudge(p.x, step * cfg.snap, cfg), y: p.y };
+        next = { x: clampAxis(snapValue(p.x + step, snap), fallbackFrame.xMin, fallbackFrame.xMax), y: p.y };
         break;
       case "ArrowLeft":
-        next = { x: nudge(p.x, -step * cfg.snap, cfg), y: p.y };
+        next = { x: clampAxis(snapValue(p.x - step, snap), fallbackFrame.xMin, fallbackFrame.xMax), y: p.y };
         break;
       case "ArrowUp":
-        next = { x: p.x, y: nudge(p.y, step * cfg.snap, cfg) };
+        next = { x: p.x, y: clampAxis(snapValue(p.y + step, snap), fallbackFrame.yMin, fallbackFrame.yMax) };
         break;
       case "ArrowDown":
-        next = { x: p.x, y: nudge(p.y, -step * cfg.snap, cfg) };
+        next = { x: p.x, y: clampAxis(snapValue(p.y - step, snap), fallbackFrame.yMin, fallbackFrame.yMax) };
         break;
       default:
         return;
@@ -175,6 +265,18 @@ export function CoordinatePlane({
     e.preventDefault();
     setActiveIdx(idx);
     if (next) commit(idx, next);
+  };
+
+  // Reset (interactive only). plot → clear the placed point; explore → caller
+  // owns the seed, so we delegate by emitting an empty set and refocusing the
+  // first handle if one survives. Focus returns to the live region's handle.
+  const onReset = () => {
+    if (!interactive) return;
+    setPlacedPoint(null);
+    setActiveIdx(null);
+    onChange?.([]);
+    // Return focus to the SVG group so keyboard users keep their place.
+    requestAnimationFrame(() => svgRef.current?.focus?.());
   };
 
   const placedAnnouncement = placedPoint
@@ -185,26 +287,32 @@ export function CoordinatePlane({
     placedAnnouncement +
     (safePoints.length > 0
       ? safePoints.map((p, i) => `Point ${i + 1} at ${pointLabel(p)}`).join(". ") +
-        (line
-          ? `. ${equationReadout(line)}`
-          : "")
+        (line ? `. ${equationReadout(line)}` : "")
       : "No points placed.");
 
-  const px = (x: number) => toPxX(x, cfg);
-  const py = (y: number) => toPxY(y, cfg);
+  // Per-mode readout strip (fixed height). display → slope/equation; plot →
+  // placed coordinate only (no derived equation hand-out); explore → equation.
+  const readout = readoutFor({ mode, explore, line, points: safePoints });
+
+  // Lines to draw: explicit spec lines + the two-point auto-line.
+  const drawLines = useMemo(
+    () => buildDrawLines(lines, line, safePoints),
+    [lines, line, safePoints],
+  );
 
   return (
     <div className="inline-flex flex-col gap-2">
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${cfg.size} ${cfg.size}`}
+        viewBox={`0 0 ${clampedSize} ${clampedSize}`}
         width="100%"
         role="group"
+        tabIndex={-1}
         aria-labelledby={titleId}
         style={{
-          maxWidth: cfg.size,
+          maxWidth: clampedSize,
           touchAction: "none",
-          cursor: onChange ? "crosshair" : undefined,
+          cursor: interactive ? "crosshair" : undefined,
         }}
         onPointerDown={onBackgroundPointerDown}
         onPointerMove={onPointerMove}
@@ -216,106 +324,134 @@ export function CoordinatePlane({
         </title>
 
         {/* gridlines */}
-        {ticks.map((t) => (
-          <g key={`grid-${t}`}>
-            <line
-              x1={px(t)}
-              y1={py(range.min)}
-              x2={px(t)}
-              y2={py(range.max)}
-              stroke="var(--color-selected)"
-              strokeWidth={1}
-            />
-            <line
-              x1={px(range.min)}
-              y1={py(t)}
-              x2={px(range.max)}
-              y2={py(t)}
-              stroke="var(--color-selected)"
-              strokeWidth={1}
-            />
-          </g>
+        {xTicks.map((t) => (
+          <line
+            key={`gx-${t}`}
+            x1={px(t)}
+            y1={py(fallbackFrame.yMin)}
+            x2={px(t)}
+            y2={py(fallbackFrame.yMax)}
+            stroke="var(--color-selected)"
+            strokeWidth={1}
+          />
+        ))}
+        {yTicks.map((t) => (
+          <line
+            key={`gy-${t}`}
+            x1={px(fallbackFrame.xMin)}
+            y1={py(t)}
+            x2={px(fallbackFrame.xMax)}
+            y2={py(t)}
+            stroke="var(--color-selected)"
+            strokeWidth={1}
+          />
         ))}
 
-        {/* axes */}
+        {/* axes — drawn AT ZERO when 0 ∈ frame, so the four quadrants read */}
         <line
-          x1={px(range.min)}
-          y1={py(range.min)}
-          x2={px(range.max)}
-          y2={py(range.min)}
+          x1={px(fallbackFrame.xMin)}
+          y1={py(axisX)}
+          x2={px(fallbackFrame.xMax)}
+          y2={py(axisX)}
           stroke="var(--color-axis)"
           strokeWidth={1.5}
         />
         <line
-          x1={px(range.min)}
-          y1={py(range.min)}
-          x2={px(range.min)}
-          y2={py(range.max)}
+          x1={px(axisY)}
+          y1={py(fallbackFrame.yMin)}
+          x2={px(axisY)}
+          y2={py(fallbackFrame.yMax)}
           stroke="var(--color-axis)"
           strokeWidth={1.5}
         />
 
         {/* axis ticks (mono) */}
-        {ticks.map((t) => (
-          <g key={`tick-${t}`}>
+        {xTicks.map((t) =>
+          t === axisY ? null : (
             <text
+              key={`tx-${t}`}
               x={px(t)}
-              y={py(range.min) + 16}
+              y={py(axisX) + 16}
               textAnchor="middle"
               fontSize={11}
               fill="var(--color-ink-500)"
               style={{ fontFamily: "var(--font-mono)" }}
             >
-              {t}
+              {t % labelEvery === 0 ? t : ""}
             </text>
-            {t !== range.min && (
-              <text
-                x={px(range.min) - 8}
-                y={py(t) + 4}
-                textAnchor="end"
-                fontSize={11}
-                fill="var(--color-ink-500)"
-                style={{ fontFamily: "var(--font-mono)" }}
-              >
-                {t}
-              </text>
-            )}
-          </g>
-        ))}
-
-        {/* rise/run elbow */}
-        {showRiseRun && line && safePoints.length === 2 && (
-          <RiseRun a={safePoints[0]} b={safePoints[1]} px={px} py={py} />
+          ),
+        )}
+        {yTicks.map((t) =>
+          t === axisX ? null : (
+            <text
+              key={`ty-${t}`}
+              x={px(axisY) - 8}
+              y={py(t) + 4}
+              textAnchor="end"
+              fontSize={11}
+              fill="var(--color-ink-500)"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {t % labelEvery === 0 ? t : ""}
+            </text>
+          ),
         )}
 
-        {/* line */}
-        {line && line.slope !== null && line.intercept !== null && (
+        {/* standalone segments */}
+        {segments.map((s, i) => (
           <line
-            x1={px(range.min)}
-            y1={py(line.slope * range.min + line.intercept)}
-            x2={px(range.max)}
-            y2={py(line.slope * range.max + line.intercept)}
+            key={`seg-${i}`}
+            x1={px(s[0].x)}
+            y1={py(s[0].y)}
+            x2={px(s[1].x)}
+            y2={py(s[1].y)}
             stroke="var(--color-accent)"
             strokeWidth={2.5}
             strokeLinecap="round"
           />
+        ))}
+
+        {/* rise/run elbow for the auto two-point line */}
+        {showRiseRun && line && safePoints.length === 2 && (
+          <RiseRun a={safePoints[0]} b={safePoints[1]} px={px} py={py} />
         )}
 
-        {/* draggable points */}
+        {/* lines (spec + auto), clipped to the frame edges */}
+        {drawLines.map((dl, i) => (
+          <line
+            key={`line-${i}`}
+            x1={px(fallbackFrame.xMin)}
+            y1={py(dl.slope * fallbackFrame.xMin + dl.intercept)}
+            x2={px(fallbackFrame.xMax)}
+            y2={py(dl.slope * fallbackFrame.xMax + dl.intercept)}
+            stroke="var(--color-accent)"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeDasharray={dl.style === "dashed" ? "5 4" : undefined}
+          />
+        ))}
+
+        {/* points */}
         {safePoints.map((p, i) => {
           const active = activeIdx === i || draggingIdx === i;
           const showHalo = active || hoverIdx === i;
+          const labelText = p.label ?? pointLabel(p);
           return (
             <g
               key={`pt-${i}`}
-              tabIndex={0}
-              role="slider"
+              tabIndex={interactive ? 0 : -1}
+              role={interactive ? "slider" : "img"}
               aria-label={`Point ${i + 1}`}
               aria-valuetext={pointLabel(p)}
-              className="cursor-grab focus:outline-none [&:active]:cursor-grabbing"
+              className={
+                interactive
+                  ? "cursor-grab focus:outline-none [&:active]:cursor-grabbing"
+                  : "focus:outline-none"
+              }
               onPointerDown={onPointerDownHandle(i)}
               onKeyDown={onHandleKeyDown(i)}
               onFocus={() => {
+                if (!interactive) return;
                 setActiveIdx(i);
                 setFocusIdx(i);
               }}
@@ -323,7 +459,6 @@ export function CoordinatePlane({
               onMouseEnter={() => setHoverIdx(i)}
               onMouseLeave={() => setHoverIdx(null)}
             >
-              {/* focus ring (visible when the handle is focused) */}
               {focusIdx === i && (
                 <circle
                   cx={px(p.x)}
@@ -344,7 +479,6 @@ export function CoordinatePlane({
                   fillOpacity={0.25}
                 />
               )}
-              {/* 12px hit radius */}
               <circle cx={px(p.x)} cy={py(p.y)} r={12} fill="transparent" />
               <circle
                 cx={px(p.x)}
@@ -359,19 +493,19 @@ export function CoordinatePlane({
                 fill="var(--color-ink)"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
-                {pointLabel(p)}
+                {labelText}
               </text>
             </g>
           );
         })}
       </svg>
 
-      {/* fixed-height mono equation readout */}
+      {/* fixed-height mono readout strip */}
       <div
         className="flex h-6 items-center font-mono text-[13px] text-ink-700"
         aria-hidden
       >
-        {line ? equationReadout(line) : " "}
+        {readout || " "}
       </div>
 
       {/* axis labels + caption */}
@@ -380,8 +514,17 @@ export function CoordinatePlane({
         <span className="font-mono">{yLabel}</span>
       </div>
       {caption && <p className="text-[13px] text-ink-500">{caption}</p>}
-      {safePoints.length === 0 && !caption && onChange && (
+      {interactive && safePoints.length === 0 && !caption && (
         <p className="text-[13px] text-ink-500">Click the plane to place a point.</p>
+      )}
+
+      {/* Reset — interactive only, right-aligned, keyboard reachable. */}
+      {interactive && (
+        <div className="flex justify-end">
+          <Button variant="secondary" size="sm" type="button" onClick={onReset}>
+            Reset
+          </Button>
+        </div>
       )}
 
       {/* aria-live announcement region */}
@@ -390,6 +533,69 @@ export function CoordinatePlane({
       </span>
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Helpers (local presentational logic; pure math lives in the sibling module).
+// ---------------------------------------------------------------------------
+
+function clampAxis(v: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, v));
+}
+
+/** Integer ticks across [min, max] inclusive. */
+function integerTicks(min: number, max: number): number[] {
+  const out: number[] = [];
+  for (let i = Math.ceil(min); i <= max; i++) out.push(i);
+  return out;
+}
+
+interface DrawLine {
+  slope: number;
+  intercept: number;
+  style?: "solid" | "dashed";
+}
+
+/** Resolve spec lines + the auto two-point line into slope/intercept drawables. */
+function buildDrawLines(
+  specLines: PlaneLine[],
+  autoLine: ReturnType<typeof lineThrough> | null,
+  points: Point[],
+): DrawLine[] {
+  const out: DrawLine[] = [];
+  for (const l of specLines) {
+    if (l.through) {
+      const m = lineThrough(l.through[0], l.through[1]);
+      if (m.slope !== null && m.intercept !== null) {
+        out.push({ slope: m.slope, intercept: m.intercept, style: l.style });
+      }
+    } else if (typeof l.slope === "number" && typeof l.intercept === "number") {
+      out.push({ slope: l.slope, intercept: l.intercept, style: l.style });
+    }
+  }
+  if (autoLine && autoLine.slope !== null && autoLine.intercept !== null && points.length === 2) {
+    out.push({ slope: autoLine.slope, intercept: autoLine.intercept });
+  }
+  return out;
+}
+
+function readoutFor({
+  mode,
+  explore,
+  line,
+  points,
+}: {
+  mode: PlaneMode;
+  explore: boolean;
+  line: ReturnType<typeof lineThrough> | null;
+  points: Point[];
+}): string {
+  // plot (interactive, not explore): show only the placed coordinate.
+  if (mode === "interactive" && !explore) {
+    return points.length > 0 ? pointLabel(points[points.length - 1]) : "";
+  }
+  // display + explore: surface the equation when a line is present.
+  return line ? equationReadout(line) : "";
 }
 
 function RiseRun({
@@ -407,7 +613,6 @@ function RiseRun({
   const run = b.x - a.x;
   return (
     <g aria-hidden>
-      {/* horizontal run leg */}
       <line
         x1={px(a.x)}
         y1={py(a.y)}
@@ -417,7 +622,6 @@ function RiseRun({
         strokeWidth={1}
         strokeDasharray="3 3"
       />
-      {/* vertical rise leg */}
       <line
         x1={px(b.x)}
         y1={py(a.y)}
