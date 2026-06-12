@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useId, type InputHTMLAttributes } from "react";
+import { useId, type InputHTMLAttributes, type Ref } from "react";
 
 export type InputMode = "text" | "math";
 
@@ -16,6 +16,8 @@ export interface InputProps
   helperText?: string;
   errorText?: string;
   className?: string;
+  /** Forwarded ref to the underlying <input> (e.g. for the math keypad). */
+  inputRef?: Ref<HTMLInputElement>;
 }
 
 export function Input({
@@ -26,6 +28,7 @@ export function Input({
   id,
   disabled,
   className = "",
+  inputRef,
   ...rest
 }: InputProps) {
   const generatedId = useId();
@@ -64,6 +67,7 @@ export function Input({
       )}
       <input
         id={inputId}
+        ref={inputRef}
         disabled={disabled}
         aria-invalid={hasError || undefined}
         aria-describedby={describedBy}

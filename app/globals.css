@@ -128,6 +128,18 @@ body {
   animation-delay: 180ms;
 }
 
+/* =====================================================================
+   KaTeX inline math — size/color inherit (pee-wee, Phase 8/C).
+   KaTeX's stylesheet sets .katex { font-size: 1.21em; color: ... } and may
+   scale fonts; force the rendered math to match the host text size and ink
+   color exactly so it sits in prompts/feedback as if it were prose.
+   ===================================================================== */
+.a3-mathtext .katex {
+  font-size: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
 /* 600ms spinner rotation is exempt from the ceiling (§B Button loading). */
 @keyframes a3-spin {
   to {

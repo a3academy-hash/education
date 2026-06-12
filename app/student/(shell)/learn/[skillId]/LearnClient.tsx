@@ -19,6 +19,7 @@ import { StatusPill } from "../../../../../components/ui/StatusPill";
 import { AlertPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon, ArrowRightIcon } from "../../../../../components/ui/icons";
 import { StepReveal } from "../../../../../components/learning/StepReveal";
+import { MathText } from "../../../../../components/ui/MathText";
 import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
 import { BalanceScale } from "../../../../../components/learning/BalanceScale";
 import type { Equation } from "../../../../../components/learning/balance-scale-math";
@@ -310,7 +311,11 @@ function LessonArea({
       <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.4px] text-accent">
         The idea
       </p>
-      <p className="mb-5 max-w-[44ch] text-[16px] leading-[1.5] text-ink-800">{concept}</p>
+      {/* concept text — notation renders inline at the host size/ink (size+color
+          inherit); prose+math segmented by MathText. Raw concept unchanged. */}
+      <p className="mb-5 max-w-[44ch] text-[16px] leading-[1.5] text-ink-800">
+        <MathText>{concept}</MathText>
+      </p>
       <Manipulable
         visual={visual}
         exploreSeed={exploreSeed}
@@ -566,10 +571,12 @@ function ContextBridge({
         <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.4px] text-ink-500">
           Standard notation
         </p>
-        <p className="text-[14px] leading-[1.55] text-ink-800">{neutralHook}</p>
+        <p className="text-[14px] leading-[1.55] text-ink-800">
+          <MathText>{neutralHook}</MathText>
+        </p>
         {showBreadcrumb && (
           <p className="mt-3.5 text-[12.5px] leading-[1.5] text-ink-500">
-            You first saw this as: {sportHook}
+            You first saw this as: <MathText>{sportHook}</MathText>
           </p>
         )}
       </Card>
@@ -590,7 +597,7 @@ function ContextBridge({
       <p
         className={`text-[14px] leading-[1.55] ${parity ? "text-ink-700" : "text-ink-800"}`}
       >
-        {sportHook}
+        <MathText>{sportHook}</MathText>
       </p>
       <div className="my-3.5 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.4px] text-ink-400">
         <span className="h-px flex-1 bg-selected" />
@@ -603,7 +610,7 @@ function ContextBridge({
       <p
         className={`text-[13.5px] leading-[1.55] ${parity ? "text-ink-700" : "text-ink-500"}`}
       >
-        {neutralHook}
+        <MathText>{neutralHook}</MathText>
       </p>
     </Card>
   );

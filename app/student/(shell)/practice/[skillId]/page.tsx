@@ -10,6 +10,7 @@ import Link from "next/link";
 import { getRepository } from "../../../../../lib/repository/server";
 import { computeMasteryAll } from "../../../../../lib/mastery-engine";
 import { selectProblems } from "../../../../../lib/problem-engine";
+import { inputNotation } from "../../../../../lib/math-notation/input-notation";
 import { STUDENT_COOKIE } from "../../../onboarding/constants";
 import { Card } from "../../../../../components/ui/Card";
 import { InsetPanel } from "../../../../../components/ui/Panels";
@@ -104,6 +105,9 @@ export default async function PracticePage({
     hints: s.problem.hints,
     isProbe: s.isProbe,
     answerKind: s.problem.answer.kind,
+    // Compute keypad flags from the answer HERE; ship ONLY the booleans (the
+    // answer value stays stripped). null → no keypad → omit the field.
+    inputNotation: inputNotation(s.problem.answer) ?? undefined,
   }));
 
   const sessionId = crypto.randomUUID();

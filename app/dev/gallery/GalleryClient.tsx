@@ -14,6 +14,7 @@ import {
   InsetPanel,
   Input,
   LabeledSection,
+  MathText,
   PageHeader,
   Progress,
   StatusPill,
@@ -54,6 +55,7 @@ export function GalleryClient() {
 
       <div className="flex flex-col gap-12">
         <UISection />
+        <MathNotationSection />
         <MathSection />
       </div>
     </div>
@@ -241,6 +243,68 @@ function UISection() {
   );
 }
 
+function MathNotationSection() {
+  // A 20px prompt context (Fraunces) and a 14px feedback context (sans) prove
+  // that <MathText> inherits the surrounding size and color, and that the
+  // degrade path shows legible plain text rather than a red KaTeX error.
+  return (
+    <Group title="Math notation (KaTeX)">
+      <LabeledSection label="Prompt context — 20px Fraunces, real exponents">
+        <p className="font-display text-[20px] leading-[1.5] text-ink">
+          Evaluate <MathText>4²</MathText> and <MathText>b²³</MathText>, then
+          compare with <MathText>2^10</MathText>.
+        </p>
+      </LabeledSection>
+
+      <LabeledSection label="Fractions — left as a/b for now (\\frac is mr-kahn-gated)">
+        <p className="text-[20px] leading-[1.5] text-ink-700">
+          <MathText>3/4 + 1/6</MathText> and a worked term{" "}
+          <MathText>(a + b)/2</MathText>.
+        </p>
+      </LabeledSection>
+
+      <LabeledSection label="Radicals — paren-balanced and single-token">
+        <p className="text-[20px] leading-[1.5] text-ink-700">
+          The quadratic discriminant root <MathText>√(b² − 4ac)</MathText>, and{" "}
+          <MathText>2√13</MathText>.
+        </p>
+      </LabeledSection>
+
+      <LabeledSection label="Subscripts — slope numerator">
+        <p className="text-[20px] leading-[1.5] text-ink-700">
+          Rise over run uses <MathText>y₂ − y₁</MathText> over{" "}
+          <MathText>x₂ − x₁</MathText>.
+        </p>
+      </LabeledSection>
+
+      <LabeledSection label="Symbols — ·, ×, ±, π, − (minus)">
+        <p className="text-[20px] leading-[1.5] text-ink-700">
+          <MathText>3·4</MathText>, <MathText>3×4</MathText>,{" "}
+          <MathText>±5</MathText>, <MathText>2π</MathText>,{" "}
+          <MathText>7 − 2</MathText>.
+        </p>
+      </LabeledSection>
+
+      <LabeledSection label="Size inherit — same markup in a 14px feedback context">
+        <p className="text-[14px] leading-[1.6] text-ink-500">
+          Not yet — recheck <MathText>√(b² − 4ac)</MathText> and{" "}
+          <MathText>4²</MathText>. The math here is 14px and ink-500, matching
+          this line.
+        </p>
+      </LabeledSection>
+
+      <LabeledSection label="Degrade — junk renders as plain legible text, never a red error">
+        <p className="text-[20px] leading-[1.5] text-ink-700">
+          Raw input{" "}
+          <code className="rounded bg-inset px-1 text-[14px]">{`\\frac{ bad`}</code>{" "}
+          renders as: &ldquo;<MathText>{`\\frac{ bad`}</MathText>&rdquo; — plain
+          ink text, no red, no error glyphs.
+        </p>
+      </LabeledSection>
+    </Group>
+  );
+}
+
 function MathSection() {
   return (
     <Group title="Math primitives">
@@ -319,6 +383,8 @@ function CoordinatePlaneDemo() {
         <CoordinatePlane
           points={points}
           onChange={setPoints}
+          mode="interactive"
+          explore
           showLine
           showRiseRun
           xLabel="x"
@@ -333,6 +399,8 @@ function CoordinatePlaneDemo() {
         <CoordinatePlane
           points={placedPoints}
           onChange={setPlacedPoints}
+          mode="interactive"
+          explore
           showLine
           xLabel="x"
           yLabel="y"

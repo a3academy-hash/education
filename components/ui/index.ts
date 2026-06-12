@@ -42,6 +42,9 @@ export type {
   LabeledSectionProps,
 } from "./Panels";
 
+export { MathText } from "./MathText";
+export type { MathTextProps } from "./MathText";
+
 export {
   CheckIcon,
   CrossIcon,

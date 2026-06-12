@@ -20,6 +20,10 @@ import { StatusPill } from "../../../../components/ui/StatusPill";
 import { AlertPanel, InsetPanel } from "../../../../components/ui/Panels";
 import { CheckIcon } from "../../../../components/ui/icons";
 import { ProblemVisual } from "../../../../components/learning/ProblemVisual";
+import { MathText } from "../../../../components/ui/MathText";
+import { MathKeypad } from "../../../../components/learning/MathKeypad";
+import { keypadHint } from "../../../../components/learning/math-keypad-hint";
+import { inputNotation } from "../../../../lib/math-notation/input-notation";
 import {
   DIAGNOSTIC_CONFIG,
   finishDiagnostic,
@@ -219,6 +223,11 @@ function ItemScreen({
   onChange: (v: string) => void;
   onSubmit: () => void;
 }) {
+  const answerRef = useRef<HTMLInputElement>(null);
+  // The diagnostic ships the full ProblemTemplate, so compute the answer-free
+  // keypad flags client-side from problem.answer. null → no keypad.
+  const keypad = inputNotation(item.problem.answer);
+  const hint = keypad ? keypadHint(keypad) : null;
   return (
     <div className="mx-auto max-w-[600px]" style={FADE_BASE}>
       <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
@@ -227,7 +236,9 @@ function ItemScreen({
       <Progress value={progress} height={4} label="Diagnostic progress" className="mb-6" />
       <Card className="px-8 py-8" padding="flush">
         <h2 className="font-display text-[20px] font-medium leading-[1.45] text-ink">
-          {item.problem.prompt}
+          {/* Notation rendered inline at the prompt size/ink (size+color inherit).
+              RAW prompt unchanged; checkAnswer is unaffected (render only). */}
+          <MathText>{item.problem.prompt}</MathText>
         </h2>
         {/* Spec-driven, degrade-safe. The diagnostic ships the full problem, so
             visualSpec rides along; without one (B1) this renders nothing — a
@@ -253,9 +264,29 @@ function ItemScreen({
             fieldMode="math"
             placeholder="Type your answer"
             autoFocus
+            inputRef={answerRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            helperText={hint?.text}
           />
+          {hint && hint.example && (
+            <p className="-mt-1 text-[13px] text-ink-500">
+              <MathText>{hint.example}</MathText>
+            </p>
+          )}
+          {keypad && (
+            <MathKeypad
+              notation={keypad}
+              inputRef={answerRef}
+              value={value}
+              onValueChange={onChange}
+            />
+          )}
+          {keypad && (
+            <p className="mt-2 text-[13px] text-ink-500">
+              {value.trim() ? <MathText>{value}</MathText> : " "}
+            </p>
+          )}
           <div className="mt-5">
             <Button variant="primary" type="submit" disabled={!value.trim()}>
               Submit

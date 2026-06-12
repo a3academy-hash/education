@@ -19,6 +19,10 @@ import { Progress } from "../../../../../components/ui/Progress";
 import { AlertPanel, InsetPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon, CheckIcon, CrossIcon } from "../../../../../components/ui/icons";
 import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
+import { MathText } from "../../../../../components/ui/MathText";
+import { MathKeypad } from "../../../../../components/learning/MathKeypad";
+import { keypadHint } from "../../../../../components/learning/math-keypad-hint";
+import type { InputNotation } from "../../../../../lib/math-notation/input-notation";
 import { submitPractice } from "./actions";
 import type { PracticeResult } from "./shared";
 import type {
@@ -56,6 +60,12 @@ export interface ServedItem {
   hints: string[];
   isProbe: boolean;
   answerKind: AnswerSpec["kind"];
+  /**
+   * Answer-FREE keypad flags computed server-side from the served problem's
+   * answer (page.tsx). Only the booleans ship — never the answer value. Absent
+   * (undefined) → NO keypad.
+   */
+  inputNotation?: InputNotation;
 }
 
 export interface PracticeFlowProps {
@@ -77,6 +87,7 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
   const [streak, setStreak] = useState(0);
   const [persistError, setPersistError] = useState(false);
   const startRef = useRef<number>(Date.now());
+  const answerRef = useRef<HTMLInputElement>(null);
 
   const item = items[index];
   const isLast = index >= items.length - 1;
@@ -154,6 +165,10 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
   const hintsAvailable = Math.min(2, item.hints.length);
   const canShowHint = hintsShown < hintsAvailable && !feedback;
   const visibleHints = item.hints.slice(0, hintsShown);
+  // Keypad shows ONLY when the served answer carries typeable notation. The
+  // flags are answer-free (computed server-side); the value never reached us.
+  const keypad = item.inputNotation ?? null;
+  const hint = keypad ? keypadHint(keypad) : null;
 
   return (
     <div className="mx-auto max-w-[720px]">
@@ -190,7 +205,10 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
           )}
 
           <h2 className="mt-3 font-display text-[22px] font-medium leading-[1.4] text-ink">
-            {item.prompt}
+            {/* Notation rendered inline at the prompt size/ink (size+color inherit);
+                mixed prose+math is segmented by MathText. The RAW item.prompt is
+                unchanged — this is presentation only, downstream of checkAnswer. */}
+            <MathText>{item.prompt}</MathText>
           </h2>
 
           {/* Spec-driven geometry (no split-attention). Degrade-safe: with no
@@ -238,9 +256,33 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
                 fieldMode="math"
                 placeholder="Type your answer"
                 autoFocus
+                inputRef={answerRef}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
+                helperText={hint?.text}
               />
+              {/* FORMAT HINT example, rendered notation (ink-500), continues the
+                  helperText sentence above. */}
+              {hint && hint.example && (
+                <p className="-mt-1 text-[13px] text-ink-500">
+                  <MathText>{hint.example}</MathText>
+                </p>
+              )}
+              {/* The keypad — answer-free; only present when notation applies. */}
+              {keypad && (
+                <MathKeypad
+                  notation={keypad}
+                  inputRef={answerRef}
+                  value={value}
+                  onValueChange={setValue}
+                />
+              )}
+              {/* LIVE ECHO — the grader-eye view of the current value forming. */}
+              {keypad && (
+                <p className="mt-2 text-[13px] text-ink-500">
+                  {value.trim() ? <MathText>{value}</MathText> : " "}
+                </p>
+              )}
               {visibleHints.length > 0 && (
                 <InsetPanel label="Hint" className="mt-4">
                   <div className="flex flex-col gap-2">
@@ -369,15 +411,21 @@ function Feedback({
           </span>
         </div>
 
-        {/* WHY (assembled from existing content, spec §B) */}
+        {/* WHY (assembled from existing content, spec §B). why.ts stays PURE —
+            its strings flow UNCHANGED; MathText only renders notation inline at
+            the panel's 14px / ink-800 (size+color inherit). */}
         <InsetPanel>
           {correct ? (
             <span className="text-ink-800">
-              {[result.why.whatRight, result.why.whyItWorks].filter(Boolean).join(" ")}
+              <MathText>
+                {[result.why.whatRight, result.why.whyItWorks].filter(Boolean).join(" ")}
+              </MathText>
             </span>
           ) : (
             <span className="text-ink-800">
-              {[result.why.whatHappened, result.why.theFix].filter(Boolean).join(" ")}
+              <MathText>
+                {[result.why.whatHappened, result.why.theFix].filter(Boolean).join(" ")}
+              </MathText>
             </span>
           )}
         </InsetPanel>
@@ -473,7 +521,12 @@ function MarkedUpVisual({
           className="inline-block h-2.5 w-2.5 rounded-full"
           style={{ background: "var(--color-status-mastered)" }}
         />
-        <span className="font-mono text-[14px] text-ink">{response}</span>
+        <span className="font-mono text-[14px] text-ink">
+          {/* RAW submitted response is echoed; MathText renders notation (e.g. a
+              typed 4^2 → 4²) at the mono host's size+ink. Render only — the raw
+              string already reached checkAnswer. */}
+          <MathText>{response}</MathText>
+        </span>
         <span className="text-[12.5px] text-ink-500">your answer</span>
       </div>
     );
@@ -489,7 +542,11 @@ function MarkedUpVisual({
           className="inline-block h-2.5 w-2.5 rounded-full border-2 border-dashed"
           style={{ borderColor: "var(--color-error-ink)" }}
         />
-        <span className="font-mono text-[14px] text-error-ink">{response}</span>
+        <span className="font-mono text-[14px] text-error-ink">
+          {/* The "you" mark inherits error-ink; MathText renders the student's
+              raw response as notation (no red KaTeX error — degrade holds). */}
+          <MathText>{response}</MathText>
+        </span>
         <span className="text-[12.5px] text-ink-500">you</span>
       </div>
       <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Fraunces, Hanken_Grotesk, Spline_Sans_Mono } from "next/font/google";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 
 // Self-hosted via next/font (MANDATORY DEVIATION §F-1: no third-party

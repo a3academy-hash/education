@@ -9,6 +9,7 @@
 import { useId, useMemo, useState, type ReactNode } from "react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { MathText } from "../ui/MathText";
 import {
   initRevealState,
   isComplete,
@@ -77,9 +78,11 @@ export function StepReveal({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* problem strip */}
+      {/* problem strip — mono host kept for the literal echo; notation renders
+          via MathText (displayStyle: standalone equation line → \dfrac / tall
+          radicals). The raw `problem` string is unchanged. */}
       <div className="rounded-[10px] border border-track bg-inset px-[14px] py-3 font-mono text-[15px] text-ink">
-        {problem}
+        <MathText displayStyle>{problem}</MathText>
       </div>
 
       {/* revealed steps */}
@@ -97,11 +100,14 @@ export function StepReveal({
               </span>
               {isBlank ? (
                 <span className="text-[14px] leading-[1.5] text-ink-800">
-                  {/* satisfied blank shows the confirmed answer */}
-                  {blankValue || text}
+                  {/* satisfied blank shows the confirmed (raw) answer; notation
+                      renders inline at the step size/ink (size+color inherit). */}
+                  <MathText>{blankValue || text}</MathText>
                 </span>
               ) : (
-                <span className="text-[14px] leading-[1.5] text-ink-800">{text}</span>
+                <span className="text-[14px] leading-[1.5] text-ink-800">
+                  <MathText>{text}</MathText>
+                </span>
               )}
             </li>
           );
@@ -147,7 +153,10 @@ export function StepReveal({
             className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ background: "var(--color-status-mastered)" }}
           />
-          <span className="font-mono text-[14px] text-ink">{result}</span>
+          <span className="font-mono text-[14px] text-ink">
+            {/* result chip — mono host kept; notation renders inline at host size+ink. */}
+            <MathText>{result}</MathText>
+          </span>
         </div>
       )}
 
