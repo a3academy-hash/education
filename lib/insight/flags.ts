@@ -9,6 +9,7 @@
 // holds no mastery weights).
 
 import { MASTERY_CONFIG } from "../mastery-engine";
+import { retentionStatus } from "../retention";
 import type {
   CurriculumGraph,
   FlagEntry,
@@ -187,8 +188,22 @@ export function computeFlags(
     }
   }
 
-  // --- Retention probes due: STUB until Workstream C lands. The slot is present
-  // (the panel shows an "available soon" disabled row) but produces no flag yet.
+  // --- Retention probes due (Phase 7C): a mastered node whose spaced-review
+  // clock has come due (derived read-only from the immutable logs by
+  // lib/retention — scheduling/serving only, never engine math). One info-level
+  // flag per due node, in graph node order; the detail is the factual due date.
+  for (const node of graph.nodes) {
+    const rs = retentionStatus(node, states[node.id], updates, attempts, nowIso);
+    if (rs.due && rs.dueAt !== null) {
+      flags.push({
+        kind: "retention-probes-due",
+        severity: "info",
+        skillId: node.id,
+        detail: `Due for a retention check (since ${rs.dueAt.slice(0, 10)})`,
+        evidenceAttemptIds: [],
+      });
+    }
+  }
 
   return flags;
 }

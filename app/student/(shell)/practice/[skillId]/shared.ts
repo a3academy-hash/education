@@ -13,6 +13,13 @@ export interface PracticeSubmission {
   phase: 1 | 2 | 3;
   isProbe: boolean;
   sessionId: string;
+  /**
+   * Per-item provenance. "retention" for an injected retention probe (carries
+   * its OWN mastered-node skillId, which may differ from the session skill);
+   * defaulted to "practice" otherwise. Provenance ONLY — never enters
+   * mastery/phase/routing math (types/student.ts ISOLATION RULE).
+   */
+  source?: "practice" | "retention";
 }
 
 /** Resolved tutor strings (in-process RuleBasedTutor — never a fetch). */

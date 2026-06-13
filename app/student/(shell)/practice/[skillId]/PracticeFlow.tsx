@@ -51,6 +51,14 @@ const LINK_QUIET =
 
 export interface ServedItem {
   problemId: string;
+  /**
+   * The node this item is scored against. Usually the session skill; a
+   * retention probe carries its OWN mastered-node skillId (≠ the session skill).
+   * Absent → the session skill (the common case).
+   */
+  skillId?: string;
+  /** Per-item provenance — "retention" for an injected probe; else "practice". */
+  source?: "practice" | "retention";
   phase: Phase;
   sport: Sport;
   prompt: string;
@@ -110,7 +118,9 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
     setPending(true);
     setPersistError(false);
     const res = await submitPractice({
-      skillId,
+      // A retention probe carries its OWN mastered-node skillId; normal items
+      // are scored against the session skill.
+      skillId: item.skillId ?? skillId,
       problemId: item.problemId,
       response,
       timeMs: Date.now() - startRef.current,
@@ -118,6 +128,7 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
       phase: item.phase,
       isProbe: item.isProbe,
       sessionId,
+      source: item.source ?? "practice",
     });
     setPending(false);
     if (!res.ok) {
@@ -193,15 +204,29 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
               low-stakes stretch rather than a hidden trap (mr-kahn #4). */}
           <div className="flex items-start justify-between">
             <p className="text-[11px] font-semibold uppercase tracking-[0.4px] text-ink-500">
-              {item.isProbe ? "Stretch ahead" : "Problem"}
+              {item.source === "retention"
+                ? "Quick tune-up"
+                : item.isProbe
+                  ? "Stretch ahead"
+                  : "Problem"}
             </p>
             <Momentum streak={streak} />
           </div>
-          {item.isProbe && (
+          {/* A retention probe is a calm 90-second check on something already
+              proved — a feature, never remediation. (Source takes precedence
+              over isProbe: a probe is always isProbe:false.) */}
+          {item.source === "retention" ? (
             <p className="mt-1 text-[12.5px] leading-[1.5] text-ink-500">
-              A peek at what&rsquo;s coming next. It doesn&rsquo;t count against you &mdash; just
-              give it a try.
+              A quick check on something you proved earlier &mdash; about 90 seconds to keep it
+              sharp.
             </p>
+          ) : (
+            item.isProbe && (
+              <p className="mt-1 text-[12.5px] leading-[1.5] text-ink-500">
+                A peek at what&rsquo;s coming next. It doesn&rsquo;t count against you &mdash; just
+                give it a try.
+              </p>
+            )
           )}
 
           <h2 className="mt-3 font-display text-[22px] font-medium leading-[1.4] text-ink">

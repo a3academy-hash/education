@@ -9,14 +9,21 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { getRepository } from "../../../../../lib/repository/server";
 import { computeMasteryAll } from "../../../../../lib/mastery-engine";
-import { selectProblems } from "../../../../../lib/problem-engine";
+import { selectProblems, type ServedProblem } from "../../../../../lib/problem-engine";
+import { selectRetentionProbe } from "../../../../../lib/retention";
 import { inputNotation } from "../../../../../lib/math-notation/input-notation";
 import { STUDENT_COOKIE } from "../../../onboarding/constants";
 import { Card } from "../../../../../components/ui/Card";
 import { InsetPanel } from "../../../../../components/ui/Panels";
 import { Button } from "../../../../../components/ui/Button";
 import { PracticeFlow, type ServedItem } from "./PracticeFlow";
-import type { CurriculumGraph, Phase, StudentSkillState } from "../../../../../types";
+import type {
+  CurriculumGraph,
+  MasteryUpdate,
+  Phase,
+  StudentAttempt,
+  StudentSkillState,
+} from "../../../../../types";
 
 const blankState = (): StudentSkillState => ({
   mastery: 0,
@@ -61,6 +68,8 @@ export default async function PracticePage({
 
   let graph: CurriculumGraph;
   let states: Record<string, StudentSkillState>;
+  let attempts: StudentAttempt[];
+  let updates: MasteryUpdate[];
   let sport: ServedItem["sport"];
   try {
     const repo = getRepository();
@@ -69,7 +78,14 @@ export default async function PracticePage({
       return <EmptyShell skillId={skillId} message="We couldn't find your course profile." />;
     }
     sport = student.sport;
-    [graph, states] = await Promise.all([repo.getGraph(), repo.getSkillStates(studentId)]);
+    // attempts + updates feed the retention scheduler (read-only over the
+    // immutable logs); listAttempts is already a read in the practice path.
+    [graph, states, attempts, updates] = await Promise.all([
+      repo.getGraph(),
+      repo.getSkillStates(studentId),
+      repo.listAttempts(studentId),
+      repo.listMasteryUpdates(studentId),
+    ]);
   } catch {
     return (
       <EmptyShell skillId={skillId} message="We couldn't load this practice set just now." />
@@ -92,9 +108,14 @@ export default async function PracticePage({
     return <EmptyShell skillId={skillId} message="This practice set is being prepared." />;
   }
 
-  // Narrow per-problem payload — only what the client renders + replays.
-  const items: ServedItem[] = served.map((s) => ({
+  // Narrow per-problem payload — only what the client renders + replays. Each
+  // carries the node it is scored against (the session skill, unless a probe).
+  const toItem = (s: ServedProblem, itemSkillId: string, source?: "retention"): ServedItem => ({
     problemId: s.problem.id,
+    // Only stamp skillId when it differs from the session skill (retention
+    // probe); normal items omit it and default to the session skill client-side.
+    ...(itemSkillId === skillId ? {} : { skillId: itemSkillId }),
+    ...(source ? { source } : {}),
     phase: s.problem.phase,
     sport: s.problem.sport,
     prompt: s.problem.prompt,
@@ -108,7 +129,20 @@ export default async function PracticePage({
     // Compute keypad flags from the answer HERE; ship ONLY the booleans (the
     // answer value stays stripped). null → no keypad → omit the field.
     inputNotation: inputNotation(s.problem.answer) ?? undefined,
-  }));
+  });
+
+  const items: ServedItem[] = served.map((s) => toItem(s, skillId));
+
+  // RETENTION (Phase 7C): scheduling + serving ONLY. Called ONCE per minted
+  // sessionId — which is what makes maxProbesPerSession:1 structural. If a
+  // mastered node is due, PREPEND one neutral-P3 probe (its OWN skillId,
+  // source:"retention") at slot 0. It rides the existing slot-validator +
+  // scoring path UNCHANGED (phase 3, isProbe:false, a member of selectProblems
+  // for the probe node). No mastery/phase/routing math is touched.
+  const probe = selectRetentionProbe(graph, states, updates, attempts, sport, nowIso);
+  if (probe) {
+    items.unshift(toItem(probe, probe.problem.skillId, "retention"));
+  }
 
   const sessionId = crypto.randomUUID();
 

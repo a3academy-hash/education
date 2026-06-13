@@ -31,7 +31,8 @@ function isSubmissionShape(s: unknown): s is PracticeSubmission {
     typeof r.hintsUsed === "number" &&
     (r.phase === 1 || r.phase === 2 || r.phase === 3) &&
     typeof r.isProbe === "boolean" &&
-    typeof r.sessionId === "string"
+    typeof r.sessionId === "string" &&
+    (r.source === undefined || r.source === "practice" || r.source === "retention")
   );
 }
 
@@ -64,6 +65,9 @@ export async function submitPractice(raw: PracticeSubmission): Promise<SubmitPra
         phase: raw.phase as Phase,
         isProbe: raw.isProbe,
         sessionId: raw.sessionId,
+        // Per-item provenance ONLY (defaulted in the core) — never enters
+        // mastery/phase/routing math (types/student.ts ISOLATION RULE).
+        source: raw.source,
       },
       nowIso,
     );

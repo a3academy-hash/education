@@ -9,6 +9,12 @@
 --   No psql / supabase / SQL was run to produce or verify this file. Read it
 --   top-to-bottom; approve; THEN run via the Supabase migration tooling.
 --
+-- CHANGELOG (pre-execution edits to this pending migration):
+--   - Phase 7C: extend student_attempts.source CHECK to include 'retention'
+--     (a scheduled retention probe; provenance only, never enters engine math).
+--     One-line constraint + comment edit; NOT a second migration (this file has
+--     not run yet).
+--
 -- Scope notes:
 --   - No npm dependency is added by this file. `pgcrypto` is a POSTGRES
 --     extension created inside this migration (for gen_random_uuid); it is not
@@ -196,7 +202,7 @@ create table student_attempts (
   is_probe           boolean not null default false,
   -- Provenance only — NEVER enters mastery/phase math (ISOLATION RULE, /types).
   source             text not null default 'practice'
-    check (source in ('practice','diagnostic')),
+    check (source in ('practice','diagnostic','retention')),
   session_id         uuid not null references sessions(id) on delete restrict,
   created_at         timestamptz not null default now()
 );
@@ -523,7 +529,7 @@ comment on table student_skill_state is 'MUTABLE, derived/regenerable from the a
 comment on column student_skill_state.skill_id is 'Opaque graph node id; NOT an FK (graph lives in data/algebra1-graph.json).';
 comment on table student_attempts is 'APPEND-ONLY evidence trail (accreditation). Guarded by revoke (app paths) + trigger (privileged roles).';
 comment on column student_attempts.response is 'Math-only response; never free prose (privacy). Re-review if a free-text surface is ever added.';
-comment on column student_attempts.source is 'Provenance only; NEVER enters mastery/phase math (ISOLATION RULE).';
+comment on column student_attempts.source is 'Provenance only; NEVER enters mastery/phase math (ISOLATION RULE). One of practice|diagnostic|retention (retention = scheduled retention probe, Phase 7C).';
 comment on table mastery_updates is 'APPEND-ONLY evidence trail. attempt_id null for decay/credit-propagation; createdAt is the replayable nowIso.';
 comment on table course_enrollments is 'NCAA defined-course-timeframe stub (not yet wired).';
 comment on table messages is 'APPEND-ONLY NCAA interaction record; skill_id/attempt_id tie interaction to student work.';

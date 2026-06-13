@@ -234,17 +234,10 @@ function FlagsPanel({
         </ul>
       )}
 
-      {/* Retention-probes-due slot — disabled "available soon" (Workstream C). */}
-      <div className="mt-4 border-t border-selected pt-3">
-        <p className="flex items-center gap-2.5 text-[12.5px] text-ink-400">
-          <span
-            aria-hidden
-            className="inline-block shrink-0 rounded-full border border-track"
-            style={{ width: 7, height: 7 }}
-          />
-          Retention checks — available soon
-        </p>
-      </div>
+      {/* Retention checks now flow into the signal list above as
+          "retention-probes-due" flags (Phase 7C — lib/retention, scheduling
+          only; the probe itself is served + scored through the unchanged
+          engine). No separate stub row. */}
     </div>
   );
 }

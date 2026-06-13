@@ -70,13 +70,17 @@ export interface StudentAttempt {
   /**
    * Provenance marker, orthogonal to isProbe: "practice" for normal learning
    * attempts (the default at every writer), "diagnostic" for placement-
-   * diagnostic items. ISOLATION RULE (mr-kahn + mr-gates): `source` must NEVER
-   * enter mastery/phase math — advancePhase/selectProblems/computeMastery
-   * ignore it. Write-side provenance + read-side audit only.
+   * diagnostic items, "retention" for a scheduled retention probe (a normal
+   * P3-neutral problem on an already-mastered node, injected by lib/retention
+   * and scored through the UNCHANGED engine). ISOLATION RULE (mr-kahn +
+   * mr-gates): `source` must NEVER enter mastery/phase/routing math —
+   * advancePhase/selectProblems/computeMastery/recommend ignore it. Write-side
+   * provenance + read-side audit only (lib/retention reads it to derive the
+   * schedule; it never feeds any scoring decision).
    * (Supabase later: `source text not null default 'practice'
-   * check (source in ('practice','diagnostic'))` — additive, reversible.)
+   * check (source in ('practice','diagnostic','retention'))` — additive, reversible.)
    */
-  source: "practice" | "diagnostic";
+  source: "practice" | "diagnostic" | "retention";
   /**
    * Provenance/audit marker for the session that produced this attempt —
    * mirrors `source`. ISOLATION RULE (mr-kahn + mr-gates): `sessionId` must

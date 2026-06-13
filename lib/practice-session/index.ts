@@ -53,6 +53,13 @@ export interface RawAttempt {
   phase: Phase;
   isProbe: boolean;
   sessionId: string;
+  /**
+   * Per-item provenance — "retention" for an injected retention probe; defaults
+   * to "practice" when absent. Provenance ONLY; NEVER enters mastery/phase/
+   * transfer/routing math (types/student.ts ISOLATION RULE). The probe rides
+   * the EXISTING slot-validator + scoring path unchanged.
+   */
+  source?: "practice" | "retention";
 }
 
 export interface TutorPanel {
@@ -143,7 +150,7 @@ export async function runPracticeAttempt(
     timeMs,
     misconceptionTags,
     isProbe: raw.isProbe,
-    source: "practice",
+    source: raw.source ?? "practice", // provenance only — NEVER read by any math
     sessionId: raw.sessionId,
   });
 

@@ -175,11 +175,28 @@ describe("computeFlags", () => {
     expect(stale?.detail).toMatch(/1 day since last session/);
   });
 
-  it("never emits a retention-probes-due flag (stub until Workstream C)", () => {
+  it("emits no retention-probes-due flag for a non-mastered node", () => {
     const flags = flagsFor({ a: state() }, [
       attempt({ id: "x1", createdAt: "2026-06-01T10:00:00.000Z" }),
     ]);
     expect(flags.some((f) => f.kind === "retention-probes-due")).toBe(false);
+  });
+
+  it("emits a retention-probes-due flag for a mastered node past its interval", () => {
+    // Mastered 30 days before NOW (2026-06-02): past the 21-day first interval.
+    const mastered = state({
+      status: "mastered",
+      masteredAt: "2026-05-03T10:00:00.000Z",
+      recent: [],
+    });
+    const flags = flagsFor({ a: mastered }, [
+      attempt({ id: "x1", createdAt: "2026-05-03T10:00:00.000Z" }),
+    ]);
+    const r = flags.find((f) => f.kind === "retention-probes-due");
+    expect(r).toBeDefined();
+    expect(r?.skillId).toBe("a");
+    expect(r?.severity).toBe("info");
+    expect(r?.detail).toMatch(/Due for a retention check/);
   });
 
   it("emits no skill flags for a student with no attempts", () => {

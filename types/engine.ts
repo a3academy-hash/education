@@ -84,6 +84,22 @@ export interface ProblemEngineConfig {
   transferRequired: number;
 }
 
+/**
+ * Retention-probe scheduling tuning. Lives OUTSIDE MasteryConfig on purpose:
+ * these values drive SCHEDULING + SERVING only and NEVER enter mastery/phase/
+ * routing math (the isolation guarantee that keeps lib/mastery-engine and
+ * lib/adaptive-router byte-identical). Changing ANY value is a Matt human
+ * checkpoint (CLAUDE.md), exactly like MASTERY_CONFIG/PROBLEM_CONFIG.
+ */
+export interface RetentionConfig {
+  /** Escalating spaced-review cadence (days) once a node has been exercised here. */
+  intervalsDays: number[];
+  /** First-check interval (days) for diagnostic-credited, never-exercised nodes. */
+  creditedFirstDays: number;
+  /** Hard cap — at most this many probes injected per session. */
+  maxProbesPerSession: number;
+}
+
 export interface AdaptiveRecommendation {
   skillId: string;
   title: string;

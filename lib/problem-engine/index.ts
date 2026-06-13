@@ -44,6 +44,18 @@ function bankFor(node: SkillNode, phase: Phase, sport: Sport): ProblemTemplate[]
 }
 
 /**
+ * The committed Phase-3 NEUTRAL bank for a node, ordered easy→hard (difficulty,
+ * then id — deterministic). THIS is the exact read+sort that selectProblems uses
+ * for a phase-3 slot (bankFor(node, 3, "neutral")); lib/retention calls it so the
+ * retention probe is ALWAYS a member of selectProblems(node, phase-3 state,
+ * sport) and therefore passes the runPracticeAttempt slot-validator unchanged.
+ * One source of truth — never re-implement the bank read/sort elsewhere.
+ */
+export function neutralP3Bank(node: SkillNode): ProblemTemplate[] {
+  return bankFor(node, 3, "neutral");
+}
+
+/**
  * Serve the current-phase bank in the student's sport, ordered easy→hard
  * (difficulty, then id — deterministic). Every probeRatio-th slot is an
  * N+1-phase probe, marked { isProbe: true }. Phase 3 has no N+1, so no
