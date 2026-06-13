@@ -18,6 +18,7 @@ import { Progress } from "../../../../../components/ui/Progress";
 import { StatusPill } from "../../../../../components/ui/StatusPill";
 import { AlertPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon, ArrowRightIcon } from "../../../../../components/ui/icons";
+import { LessonVideo } from "../../../../../components/learning/LessonVideo";
 import { StepReveal } from "../../../../../components/learning/StepReveal";
 import { MathText } from "../../../../../components/ui/MathText";
 import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
@@ -45,6 +46,18 @@ export type LearnExploreSeed =
   | { kind: "coordinate"; spec: CoordinateSpec }
   | { kind: "numberline"; spec: NumberLineSpec }
   | { kind: "balance"; equation: Equation };
+
+/**
+ * A supplementary lesson video, ready for the player (Phase 11 Workstream D).
+ * Carries ONLY a server-minted, signed, expiring URL — NEVER the bare playback
+ * id (D4: a leak would be a type error). Empty list → the rail renders nothing.
+ */
+export interface LearnVideo {
+  signedUrl: string;
+  captionsUrl?: string;
+  title?: string;
+  posterUrl?: string;
+}
 
 const STATUS_FILL: Record<MasteryStatus, string> = {
   unknown: "var(--color-status-unknown)",
@@ -103,6 +116,8 @@ export interface LearnClientProps {
   weakPrereq: { skillId: string; title: string } | null;
   gateWorkedExample: boolean;
   hasPractice: boolean;
+  /** Supplementary lesson videos (signed URLs only). Empty → no video card. */
+  videos: LearnVideo[];
 }
 
 export function LearnClient(props: LearnClientProps) {
@@ -123,6 +138,7 @@ export function LearnClient(props: LearnClientProps) {
     weakPrereq,
     gateWorkedExample,
     hasPractice,
+    videos,
   } = props;
 
   const [exampleSeen, setExampleSeen] = useState(false);
@@ -237,9 +253,20 @@ export function LearnClient(props: LearnClientProps) {
           </Card>
         </div>
 
-        {/* RIGHT rail: video slots + context bridge */}
+        {/* RIGHT rail: supplementary lesson video (secondary, above the bridge)
+            + context bridge. No video / disabled mode → the video Card is not
+            rendered at all and the rail reflows (D7). */}
         <div className="flex flex-col gap-5">
-          <VideoSlots />
+          {videos.length > 0 && (
+            <Card>
+              <LessonVideo
+                signedUrl={videos[0].signedUrl}
+                captionsUrl={videos[0].captionsUrl}
+                title={videos[0].title}
+                posterUrl={videos[0].posterUrl}
+              />
+            </Card>
+          )}
           <ContextBridge contextHooks={contextHooks} sport={sport} phase={phase} />
         </div>
       </div>
@@ -496,47 +523,6 @@ function WorkedExampleArea({
     <div onPointerDownCapture={onAdvanced} onKeyDownCapture={onAdvanced}>
       <StepReveal problem={we.title} steps={steps} result={result} blankStepIndex={null} />
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Video slots — calm empty slot, no dark theme, no fake thumbnail (§0.10).
-// ---------------------------------------------------------------------------
-
-function VideoSlots() {
-  const chips = ["Alternate explanation", "Remediation clip", "Worked example", "External resource"];
-  return (
-    <Card>
-      <p className="mb-3.5 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
-        Lesson video
-      </p>
-      <div className="flex aspect-video items-center justify-center rounded-[10px] border border-border bg-inset">
-        <div className="flex flex-col items-center gap-2 px-6 text-center">
-          <span
-            aria-hidden
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-ink-400 text-ink-400"
-          >
-            <svg width={16} height={16} viewBox="0 0 16 16" fill="currentColor" aria-hidden>
-              <path d="M5 3.5v9l7-4.5z" />
-            </svg>
-          </span>
-          <p className="text-[13px] text-ink-500">
-            Primary lesson video — not yet added for this skill.
-          </p>
-        </div>
-      </div>
-      <div className="mt-3.5 flex flex-col gap-2">
-        {chips.map((c, i) => (
-          <div
-            key={c}
-            className="flex items-center justify-between rounded-[8px] bg-inset px-3 py-2 text-[13px] text-ink-500"
-          >
-            <span>{c}</span>
-            {i === chips.length - 1 && <ArrowRightIcon aria-hidden />}
-          </div>
-        ))}
-      </div>
-    </Card>
   );
 }
 

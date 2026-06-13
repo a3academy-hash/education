@@ -244,3 +244,11 @@ describe("InMemoryRepository — students and skill states", () => {
     expect(fresh.recent[0].correct).toBe(true);
   });
 });
+
+describe("InMemoryRepository — listVideoAssets (Phase 11 Workstream D, D6)", () => {
+  it("returns [] for any skill (video is a supabase-only feature; the contract)", async () => {
+    const repo = new InMemoryRepository();
+    expect(await repo.listVideoAssets("ALG-F01")).toEqual([]);
+    expect(await repo.listVideoAssets("anything")).toEqual([]);
+  });
+});

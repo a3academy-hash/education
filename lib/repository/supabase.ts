@@ -26,6 +26,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { mapVideoAssetRow, type VideoAssetRow } from "../video/asset-map";
 import graphJson from "../../data/algebra1-graph.json";
 import { getLoadedGraphVersion } from "../curriculum";
 import { ENGINE_VERSION } from "../mastery-engine";
@@ -40,6 +41,7 @@ import type {
   Phase,
   RecentAttempt,
   Sport,
+  StreamVideoAsset,
   StudentAttempt,
   StudentProfile,
   StudentSkillState,
@@ -119,6 +121,9 @@ interface MasteryUpdateRow {
   graph_version: string;
   created_at: string;
 }
+
+// video_assets row shape + mapper live in lib/video/asset-map.ts (pure, testable
+// without the Supabase client). Imported above as VideoAssetRow / mapVideoAssetRow.
 
 // ── row ↔ type mappers (camelCase types are the app surface) ──────────────────
 
@@ -387,5 +392,22 @@ export class SupabaseRepository implements A3Repository {
     const { data, error } = await q;
     if (error) fail("listMasteryUpdates", error);
     return ((data ?? []) as MasteryUpdateRow[]).map(toUpdate).sort(byCreatedAtThenId);
+  }
+
+  // Supplementary lesson-video metadata (Workstream D, D6). userClient (RLS
+  // authenticated read; policy video_assets_select_authenticated, 0004) — NOT
+  // service-role. The row is non-PII metadata; the SIGNED playback URL is minted
+  // server-side from playback_id (lib/video/signed-url.ts). NO write path here:
+  // video upload is service-role-only (scripts/upload-video.mjs). Deterministic
+  // order: created_at asc, ties by id asc (same convention as the other lists).
+  async listVideoAssets(skillId: string): Promise<StreamVideoAsset[]> {
+    const { data, error } = await this.userClient
+      .from("video_assets")
+      .select("*")
+      .eq("skill_id", skillId);
+    if (error) fail("listVideoAssets", error);
+    return ((data ?? []) as VideoAssetRow[])
+      .map(mapVideoAssetRow)
+      .sort((a, b) => a.id.localeCompare(b.id));
   }
 }

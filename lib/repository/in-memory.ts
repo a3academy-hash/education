@@ -13,6 +13,7 @@ import type {
   NewMasteryUpdate,
   NewStudentAttempt,
   Sport,
+  StreamVideoAsset,
   StudentAttempt,
   StudentProfile,
   StudentSkillState,
@@ -182,5 +183,14 @@ export class InMemoryRepository implements A3Repository {
       .filter((u) => u.studentId === studentId && (skillId === undefined || u.skillId === skillId))
       .map(copyUpdate)
       .sort(byCreatedAtThenId);
+  }
+
+  // CONTRACT (Phase 11 Workstream D, D6): video is a supabase-only feature — the
+  // in-memory backend holds NO video assets and deterministically returns []. The
+  // Learn server component gates on getVideoMode() (disabled in `memory`), so this
+  // is never called with video live; it is here to satisfy the A3Repository shape.
+  async listVideoAssets(_skillId: string): Promise<StreamVideoAsset[]> {
+    void _skillId;
+    return [];
   }
 }

@@ -8,6 +8,7 @@ export * from "./engine";
 export * from "./diagnostic";
 export * from "./validation";
 export * from "./video";
+export * from "./stream-video";
 export * from "./repository";
 export * from "./compliance";
 export * from "./insight";

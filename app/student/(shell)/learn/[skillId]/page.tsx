@@ -8,6 +8,8 @@
 
 import Link from "next/link";
 import { getRepository } from "../../../../../lib/repository/server";
+import { getVideoMode } from "../../../../../lib/video/mode";
+import { getSignedPlaybackUrl } from "../../../../../lib/video/signed-url";
 import { computeMasteryAll } from "../../../../../lib/mastery-engine";
 import { computeOverlay } from "../../../../../lib/graph/overlay";
 import { selectProblems } from "../../../../../lib/problem-engine";
@@ -25,6 +27,7 @@ import {
   LearnClient,
   type LearnClientProps,
   type LearnExploreSeed,
+  type LearnVideo,
 } from "./LearnClient";
 import type {
   CurriculumGraph,
@@ -182,6 +185,41 @@ export default async function LearnPage({
   // problem bank. Null → the client degrades to the StepReveal manipulable.
   const exploreSeed = deriveExploreSeed(node);
 
+  // SUPPLEMENTARY lesson video (Phase 11 Workstream D, D4). ONLY when video mode
+  // is enabled (supabase world + Cloudflare env present) do we read the metadata
+  // and mint a SIGNED, expiring iframe URL per asset SERVER-SIDE. The client
+  // receives ONLY the signed URL (+ captions/poster/title) — never the playback
+  // id (D4). Disabled mode / no assets → empty list → the rail renders nothing.
+  // Video never gates practice: a mint failure degrades to no video, never an
+  // error for the lesson. The repository call uses the RLS userClient (D6).
+  let videos: LearnVideo[] = [];
+  if (getVideoMode() === "enabled") {
+    try {
+      const repo = await getRepository();
+      const assets = await repo.listVideoAssets(skillId);
+      videos = (
+        await Promise.all(
+          assets.map(async (a): Promise<LearnVideo | null> => {
+            try {
+              const signedUrl = await getSignedPlaybackUrl(a.playbackId);
+              return {
+                signedUrl,
+                captionsUrl: a.captionsUrl ?? undefined,
+                title: a.kind ?? undefined,
+              };
+            } catch {
+              // A single asset's mint failure must not break the lesson; drop it.
+              return null;
+            }
+          }),
+        )
+      ).filter((v): v is LearnVideo => v !== null);
+    } catch {
+      // Video is supplementary — any failure degrades to no video, silently.
+      videos = [];
+    }
+  }
+
   return (
     <LearnClient
       skillId={skillId}
@@ -200,6 +238,7 @@ export default async function LearnPage({
       weakPrereq={weakPrereq}
       gateWorkedExample={requiresWorkedExample(phase, status)}
       hasPractice={hasPractice}
+      videos={videos}
     />
   );
 }

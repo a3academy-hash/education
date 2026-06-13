@@ -11,6 +11,7 @@ import type {
   StudentProfile,
   StudentSkillState,
 } from "./student";
+import type { StreamVideoAsset } from "./stream-video";
 
 /**
  * All IDs are opaque strings — no numeric parsing, no ordering semantics
@@ -36,4 +37,14 @@ export interface A3Repository {
   /** Deterministic order: createdAt ascending, ties broken by id ascending. */
   listAttempts(studentId: string, skillId?: string): Promise<StudentAttempt[]>;
   listMasteryUpdates(studentId: string, skillId?: string): Promise<MasteryUpdate[]>;
+  /**
+   * Supplementary lesson-video METADATA for a skill (Phase 11 Workstream D, D6).
+   * Read-only metadata (no PII): the server then mints a SIGNED playback URL per
+   * asset (lib/video/signed-url.ts). Video NEVER affects mastery, routing, or the
+   * evidence trail — it is supplementary instruction.
+   *   - InMemory  → returns [] (deterministic; video is a supabase-only feature).
+   *   - Supabase  → reads video_assets via the RLS userClient (authenticated read,
+   *                 NOT service-role). Writes are service-role-only (upload script).
+   */
+  listVideoAssets(skillId: string): Promise<StreamVideoAsset[]>;
 }
