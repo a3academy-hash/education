@@ -87,6 +87,12 @@ create table curriculum_graph_activations (
 create table diagnostic_estimates (
   id                  uuid primary key default gen_random_uuid(),
   session_id          uuid not null references sessions(id) on delete restrict,
+  -- Denormalized owner (Phase 11B / binding B1). Own-row RLS needs a direct
+  -- student_id so the policy is `student_id = app.current_student_id()` and stays
+  -- subquery-free (scoping via the RLS-protected sessions would re-trigger RLS /
+  -- recurse — the 0001 invariant forbids it). The writer (Workstream C) stamps
+  -- student_id from the SAME session this row references; the two must agree.
+  student_id          uuid not null references student_profiles(id) on delete restrict,
   skill_id            text not null,                 -- opaque graph node id (not an FK)
   estimate_status     text,                          -- engine MasteryStatus estimate (mastered/near_mastery/developing/unknown ...)
   confidence          text not null
@@ -192,6 +198,7 @@ create index curriculum_graph_activations_activated_idx
   on curriculum_graph_activations (activated_at);
 
 create index diagnostic_estimates_session_idx on diagnostic_estimates (session_id);
+create index diagnostic_estimates_student_idx  on diagnostic_estimates (student_id);
 create index diagnostic_estimates_skill_idx   on diagnostic_estimates (skill_id);
 
 create index summative_results_student_course_idx on summative_results (student_id, course_id);
@@ -269,6 +276,7 @@ comment on table curriculum_graphs is 'IMMUTABLE versioned snapshot of the valid
 comment on column curriculum_graphs.graph_version is 'Content version; same string stamped on evidence rows (G2).';
 comment on table curriculum_graph_activations is 'APPEND-ONLY activation log. Active version is DERIVED (greatest activated_at), never a mutable is_active bit (G1).';
 comment on table diagnostic_estimates is 'APPEND-ONLY diagnostic PROVENANCE. EXPLAINS estimates + records declined-credit; NOT the credit truth (no prev/new_mastery). Committed credit derives SOLELY from mastery_updates.';
+comment on column diagnostic_estimates.student_id is 'Denormalized owner (binding B1). Enables subquery-free own-row RLS (student_id = app.current_student_id()). Writer (Workstream C) stamps it from the SAME session this row references.';
 comment on column diagnostic_estimates.credited is 'Audit-critical: false despite a correct probe = credit DECLINED (e.g. unconfirmed chain). The integrity signal.';
 comment on column diagnostic_estimates.evidence_kind is 'Mirrors lib/diagnostic-engine: directly-probed | inferred-from-descendant | descended-past | untouched.';
 comment on column diagnostic_estimates.confidence is 'Mirrors lib/diagnostic-engine ConfidenceLevel: high | medium | low | unknown.';
