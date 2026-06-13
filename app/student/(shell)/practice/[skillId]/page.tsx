@@ -72,7 +72,7 @@ export default async function PracticePage({
   let updates: MasteryUpdate[];
   let sport: ServedItem["sport"];
   try {
-    const repo = getRepository();
+    const repo = await getRepository();
     const student = await repo.getStudent(studentId);
     if (!student) {
       return <EmptyShell skillId={skillId} message="We couldn't find your course profile." />;

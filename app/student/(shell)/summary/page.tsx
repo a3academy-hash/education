@@ -114,7 +114,7 @@ export default async function SummaryPage({
   let allUpdates: MasteryUpdate[];
   let credited: string[];
   try {
-    const repo = getRepository();
+    const repo = await getRepository();
     const student = await repo.getStudent(studentId);
     if (!student) return <NoSession />;
     [graph, states, allAttempts, allUpdates] = await Promise.all([

@@ -50,7 +50,7 @@ export async function completeOnboarding(
     return { ok: false, error: "Choose a set of examples to continue." };
   }
 
-  const repo = getRepository();
+  const repo = await getRepository();
   const profile = await repo.createStudent({
     displayName: rawName,
     gradeLevel,

@@ -85,6 +85,8 @@ describe("ENGINE WALKTHROUGH — Jordan (basketball) goes from diagnostic to acc
       isProbe: false,
       source: "practice",
       sessionId: "walkthrough-session",
+      graphVersion: "1.9.2",
+      engineVersion: "1.0.0",
       createdAt,
     });
   };

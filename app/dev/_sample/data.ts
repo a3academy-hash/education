@@ -114,6 +114,7 @@ export function buildSampleData(): SampleData {
       reason: "Mastered — neutral-notation transfer confirmed.",
       engineVersion: "1.0.0",
       sessionId: "sample-session-01",
+      graphVersion: "1.9.2",
       createdAt: at,
     });
   }

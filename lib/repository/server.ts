@@ -1,23 +1,27 @@
 // server-only — never import from client components.
 //
-// mr-gates condition 1: the repository singleton lives here, in a server-only
+// mr-gates condition 1: the repository accessor lives here, in a server-only
 // module, and is intentionally NOT re-exported from lib/repository/index.ts.
 // This guards against the curriculum graph JSON (bundled by InMemoryRepository)
-// ever shipping into a client bundle.
+// and the Supabase service-role client ever shipping into a client bundle.
 //
-// mr-gates condition 2: the instance is parked on globalThis (typed, keyed) so
-// in-memory data survives Next.js HMR in development. This is honest
-// ephemerality — the store is process-local and resets on a cold server start;
-// nothing here is a durable database. Supabase replaces it when wired.
+// FEATURE FLAG (C-R3): REPOSITORY_BACKEND selects the backend.
+//   - 'memory' (default, CI/tests): the process-local InMemoryRepository
+//     singleton, parked on globalThis to survive Next.js HMR. Behavior is
+//     UNCHANGED from before — just Promise-wrapped (getRepository is now async).
+//   - 'supabase': a FRESH SupabaseRepository built PER REQUEST from the
+//     per-request RLS userClient (cookies) + the server-only service client.
+//     NEVER cached on globalThis (the userClient is request-scoped).
 
 import { InMemoryRepository } from "./in-memory";
+import { SupabaseRepository } from "./supabase";
+import { createClient as createUserClient } from "../supabase/server";
+import { createServiceClient } from "../supabase/service";
 import type { A3Repository } from "../../types";
 
-// No-dep server-only guard. The `server-only` npm package would be cleaner, but
-// adding it is a package.json checkpoint deferred per the new-dependency rule.
-// This runtime guard fails fast if the module is ever pulled into a client
-// bundle (window is undefined on the server). Pair with the convention that
-// this file is NOT re-exported from the barrel.
+// No-dep server-only guard. Fails fast if this module is ever pulled into a
+// client bundle (window is undefined on the server). Pair with the convention
+// that this file is NOT re-exported from the barrel.
 if (typeof window !== "undefined") {
   throw new Error(
     "lib/repository/server.ts is server-only and must never run in the browser.",
@@ -32,11 +36,31 @@ type GlobalWithRepo = typeof globalThis & {
 
 const store = globalThis as GlobalWithRepo;
 
+function repositoryBackend(): "memory" | "supabase" {
+  return process.env.REPOSITORY_BACKEND === "supabase" ? "supabase" : "memory";
+}
+
 /**
- * The process-local repository singleton. Server components, route handlers,
- * and server actions read/write through this. Survives HMR via globalThis.
+ * The request's repository. Server components, route handlers, and server
+ * actions read/write through this.
+ *
+ * memory  → the process-local InMemoryRepository singleton (survives HMR).
+ * supabase → a fresh, request-scoped SupabaseRepository (RLS userClient from
+ *            cookies + server-only service client). NEVER cached across requests.
+ *
+ * ASYNC (C-R3): the Supabase userClient needs per-request `cookies()`, so all
+ * call sites do `const repo = await getRepository();`. The memory path resolves
+ * synchronously through the Promise (no behavior change).
  */
-export function getRepository(): A3Repository {
+export async function getRepository(): Promise<A3Repository> {
+  if (repositoryBackend() === "supabase") {
+    const [userClient, serviceClient] = [
+      await createUserClient(),
+      createServiceClient(),
+    ];
+    return new SupabaseRepository({ userClient, serviceClient });
+  }
+
   if (!store[GLOBAL_KEY]) {
     store[GLOBAL_KEY] = new InMemoryRepository();
   }

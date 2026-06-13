@@ -682,6 +682,8 @@ describe("source isolation — `source` NEVER enters mastery/phase math", () => 
     isProbe: false,
     source,
     sessionId: `sess-${source}`,
+    graphVersion: "1.9.2",
+    engineVersion: "1.0.0",
     createdAt: `2026-06-10T09:0${n}:00.000Z`,
   });
 
@@ -722,6 +724,7 @@ describe("diagnosticCreditedSkills (mr-gates #3)", () => {
     reason: "",
     engineVersion: "1.0.0",
     sessionId: `sess-${n}`,
+    graphVersion: "1.9.2",
     createdAt: `2026-06-10T09:0${n}:00.000Z`,
   });
 
@@ -759,6 +762,8 @@ describe("diagnosticTaken — completion from the attempt log, not credit", () =
     isProbe: true,
     source,
     sessionId: `sess-${source}`,
+    graphVersion: "1.9.2",
+    engineVersion: "1.0.0",
     createdAt: `2026-06-10T09:0${n}:00.000Z`,
   });
 

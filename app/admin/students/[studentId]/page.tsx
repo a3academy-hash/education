@@ -53,7 +53,7 @@ export default async function StudentInsightPage({
   const staff = requireStaff();
   const { studentId } = await params;
 
-  const repo = getRepository();
+  const repo = await getRepository();
   const profile = await repo.getStudent(studentId);
   if (!profile) notFound();
   // Campus scope: scoped staff only see their own campus's students.

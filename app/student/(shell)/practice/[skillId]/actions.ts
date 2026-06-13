@@ -44,7 +44,7 @@ export async function submitPractice(raw: PracticeSubmission): Promise<SubmitPra
     const studentId = cookieStore.get(STUDENT_COOKIE)?.value;
     if (!studentId) return FAIL;
 
-    const repo = getRepository();
+    const repo = await getRepository();
     const student = await repo.getStudent(studentId);
     if (!student) return FAIL;
 

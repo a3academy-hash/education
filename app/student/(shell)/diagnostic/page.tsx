@@ -12,7 +12,7 @@ import { DiagnosticFlow } from "./DiagnosticFlow";
 export default async function DiagnosticPage() {
   const cookieStore = await cookies();
   const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
-  const repo = getRepository();
+  const repo = await getRepository();
   const student = studentId ? await repo.getStudent(studentId) : null;
 
   if (!student) {

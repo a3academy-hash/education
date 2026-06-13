@@ -121,7 +121,7 @@ export default async function LearnPage({
   let states: Record<string, StudentSkillState>;
   let sport: LearnClientProps["sport"];
   try {
-    const repo = getRepository();
+    const repo = await getRepository();
     const student = await repo.getStudent(studentId);
     if (!student) {
       return (

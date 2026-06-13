@@ -272,6 +272,8 @@ describe("END-TO-END — accelerating student reaches mastery via P3 neutral tra
         isProbe: false,
         source: "practice" as const,
         sessionId: "prior",
+        graphVersion: "1.9.2",
+        engineVersion: "1.0.0",
         createdAt: T(i),
       })),
     });

@@ -210,6 +210,7 @@ describe("retention scheduling — credited-first priority (T3)", () => {
     reason: "credited",
     engineVersion: "1.0.0",
     sessionId: "",
+    graphVersion: "1.9.2",
     createdAt: "2026-05-01T10:00:00.000Z",
   });
 
@@ -260,6 +261,8 @@ describe("retention scheduling — credited-first priority (T3)", () => {
       isProbe: false,
       source: "retention",
       sessionId: "x",
+      graphVersion: "1.9.2",
+      engineVersion: "1.0.0",
       createdAt: "2026-05-20T10:00:00.000Z",
     };
     const rs = retentionStatus(g.nodes[1], states.credited, [update("credited")], [sat], NOW);
@@ -300,6 +303,8 @@ describe("retention serving — never-seen filtering (T6)", () => {
       isProbe: false,
       source: "practice",
       sessionId: "x",
+      graphVersion: "1.9.2",
+      engineVersion: "1.0.0",
       createdAt: "2026-04-01T10:00:00.000Z",
     });
     const attempts = [seenAttempt("seen-p3-1"), seenAttempt("seen-p3-2")];

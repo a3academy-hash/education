@@ -91,10 +91,31 @@ export interface StudentAttempt {
    * sessions(id); bare uuid until then. Additive, reversible.)
    */
   sessionId: string;
+  /**
+   * Curriculum CONTENT version the engine loaded when this attempt was scored
+   * (graph_version, C-G2). Stamped CENTRALLY by the repository at append time
+   * from getLoadedGraphVersion() — callers never pass it (it is NOT on
+   * NewStudentAttempt). Maps to student_attempts.graph_version (NOT NULL).
+   */
+  graphVersion: string;
+  /**
+   * Deterministic engine version that produced this attempt row (engine_version,
+   * C-G2). Stamped CENTRALLY by the repository at append time from ENGINE_VERSION
+   * — callers never pass it. Maps to student_attempts.engine_version (NOT NULL).
+   */
+  engineVersion: string;
   createdAt: string;
 }
 
-export type NewStudentAttempt = Omit<StudentAttempt, "id" | "createdAt">;
+/**
+ * Insert shape: the centrally-stamped provenance fields (id, createdAt,
+ * graphVersion, engineVersion) are Omitted — the repository fills them so no
+ * call site can forget or forge a stamp (C-G1/C-G2).
+ */
+export type NewStudentAttempt = Omit<
+  StudentAttempt,
+  "id" | "createdAt" | "graphVersion" | "engineVersion"
+>;
 
 export interface MasteryUpdate {
   id: string;
@@ -118,7 +139,24 @@ export interface MasteryUpdate {
    * (Supabase later: `session_id uuid not null` — additive, reversible.)
    */
   sessionId: string;
+  /**
+   * Curriculum CONTENT version the engine loaded when this update was produced
+   * (graph_version, C-G2). Stamped CENTRALLY by the repository at append time
+   * from getLoadedGraphVersion() — callers never pass it (NOT on
+   * NewMasteryUpdate). engineVersion above is kept from the engine (the engine
+   * already stamps it); only graphVersion is repository-filled. Maps to
+   * mastery_updates.graph_version (NOT NULL).
+   */
+  graphVersion: string;
   createdAt: string;
 }
 
-export type NewMasteryUpdate = Omit<MasteryUpdate, "id" | "createdAt">;
+/**
+ * Insert shape: id, createdAt and the centrally-stamped graphVersion are
+ * Omitted. engineVersion is RETAINED on the input (the engine stamps it on the
+ * proposed update; the repository preserves it — C-G2).
+ */
+export type NewMasteryUpdate = Omit<
+  MasteryUpdate,
+  "id" | "createdAt" | "graphVersion"
+>;

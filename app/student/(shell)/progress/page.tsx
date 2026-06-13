@@ -33,7 +33,7 @@ export default async function ProgressPage() {
   const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
   if (!studentId) return <NoStudent />;
 
-  const repo = getRepository();
+  const repo = await getRepository();
   const profile = await repo.getStudent(studentId);
   if (!profile) return <NoStudent />;
 

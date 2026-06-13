@@ -3,6 +3,8 @@
 // evidence trail): no update or delete path exists on this class.
 
 import graphJson from "../../data/algebra1-graph.json";
+import { getLoadedGraphVersion } from "../curriculum";
+import { ENGINE_VERSION } from "../mastery-engine";
 import { validateGraph } from "../validation";
 import type {
   A3Repository,
@@ -140,9 +142,14 @@ export class InMemoryRepository implements A3Repository {
   }
 
   async appendAttempt(a: NewStudentAttempt): Promise<StudentAttempt> {
+    // Central stamping (C-G1/C-G2): graphVersion + engineVersion are filled
+    // HERE, never by the caller, so row shapes match the Supabase backend
+    // exactly ("in-memory is the contract"). Read the loaded graph version once.
     const attempt: StudentAttempt = {
       ...a,
       misconceptionTags: [...a.misconceptionTags],
+      graphVersion: getLoadedGraphVersion(),
+      engineVersion: ENGINE_VERSION,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
     };
@@ -151,8 +158,11 @@ export class InMemoryRepository implements A3Repository {
   }
 
   async appendMasteryUpdate(u: NewMasteryUpdate): Promise<MasteryUpdate> {
+    // Central stamping (C-G1/C-G2): graphVersion is filled HERE; engineVersion
+    // is RETAINED from the engine-produced input (the engine stamps it).
     const update: MasteryUpdate = {
       ...u,
+      graphVersion: getLoadedGraphVersion(),
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
     };

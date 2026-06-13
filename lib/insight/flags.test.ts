@@ -76,6 +76,8 @@ function attempt(over: Partial<StudentAttempt> & { id: string; createdAt: string
     isProbe: false,
     source: "practice",
     sessionId: "sess-1",
+    graphVersion: "1.9.2",
+    engineVersion: "1.0.0",
     ...over,
   };
 }

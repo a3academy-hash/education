@@ -78,7 +78,7 @@ export default async function StudentHomePage() {
   let updates: MasteryUpdate[];
   let attempts: StudentAttempt[];
   try {
-    const repo = getRepository();
+    const repo = await getRepository();
     const student = await repo.getStudent(studentId);
     if (!student) return <NoStudent />;
     [graph, states, updates, attempts] = await Promise.all([

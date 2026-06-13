@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { InMemoryRepository } from "../in-memory";
+import { getLoadedGraphVersion } from "../../curriculum";
+import { ENGINE_VERSION } from "../../mastery-engine";
 import type { NewStudentAttempt, StudentAttempt, StudentProfile } from "@/types";
 
 const newAttempt = (overrides: Partial<NewStudentAttempt> = {}): NewStudentAttempt => ({
@@ -25,6 +27,9 @@ const seededAttempt = (
   overrides: Partial<StudentAttempt> = {},
 ): StudentAttempt => ({
   ...newAttempt(),
+  // Centrally-stamped provenance (C-G2) — present on stored rows, not inputs.
+  graphVersion: "0.0.0",
+  engineVersion: "0.0.0",
   id,
   createdAt,
   ...overrides,
@@ -96,6 +101,34 @@ describe("InMemoryRepository — append-only evidence log", () => {
     const listed = await repo.listAttempts("stu-1");
     expect(listed).toHaveLength(1);
     expect(listed[0]).toEqual(attempt);
+  });
+
+  it("central-stamps graphVersion + engineVersion on appended attempts (C-G2)", async () => {
+    const repo = new InMemoryRepository();
+    const attempt = await repo.appendAttempt(newAttempt());
+    expect(attempt.graphVersion).toBe(getLoadedGraphVersion());
+    expect(attempt.engineVersion).toBe(ENGINE_VERSION);
+  });
+
+  it("central-stamps graphVersion on appended mastery updates, keeping engineVersion (C-G2)", async () => {
+    const repo = new InMemoryRepository();
+    const update = await repo.appendMasteryUpdate({
+      studentId: "stu-1",
+      skillId: "ALG-F01",
+      attemptId: null,
+      trigger: "diagnostic",
+      prevMastery: 0,
+      newMastery: 0.5,
+      prevStatus: "unknown",
+      newStatus: "developing",
+      prevPhase: 1,
+      newPhase: 1,
+      reason: "diagnostic placement",
+      engineVersion: "7.7.7",
+      sessionId: "sess-1",
+    });
+    expect(update.graphVersion).toBe(getLoadedGraphVersion());
+    expect(update.engineVersion).toBe("7.7.7"); // retained from the engine input
   });
 
   it("exposes no update or delete path for attempts or mastery updates", () => {

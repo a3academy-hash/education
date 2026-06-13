@@ -15,7 +15,8 @@ export default async function ShellLayout({ children }: { children: ReactNode })
 
   let displayName: string | null = null;
   if (studentId) {
-    const student = await getRepository().getStudent(studentId);
+    const repo = await getRepository();
+    const student = await repo.getStudent(studentId);
     displayName = student?.displayName ?? null;
   }
 

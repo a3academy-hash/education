@@ -111,6 +111,7 @@ function masteredUpdate(
     reason: "Mastered",
     engineVersion: "1.0.0",
     sessionId: "sess-1",
+    graphVersion: "1.9.2",
     createdAt,
   };
 }

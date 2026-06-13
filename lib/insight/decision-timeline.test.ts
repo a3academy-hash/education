@@ -79,6 +79,8 @@ function attempt(over: Partial<StudentAttempt> & { id: string; createdAt: string
     isProbe: false,
     source: "practice",
     sessionId: "sess-1",
+    graphVersion: "1.9.2",
+    engineVersion: "1.0.0",
     ...over,
   };
 }
@@ -100,6 +102,7 @@ function update(
     reason: "Mastered: score above the bar, with transfer demonstrated on neutral problems.",
     engineVersion: "1.0.0",
     sessionId: "sess-1",
+    graphVersion: "1.9.2",
     ...over,
   };
 }

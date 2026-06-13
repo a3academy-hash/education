@@ -3,4 +3,5 @@
 export type { A3Repository } from "../../types";
 export { InMemoryRepository } from "./in-memory";
 export type { InMemorySeed } from "./in-memory";
-export { SupabaseRepository, NotWiredError } from "./supabase";
+export { SupabaseRepository } from "./supabase";
+export type { SupabaseRepositoryClients } from "./supabase";

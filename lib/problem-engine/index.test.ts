@@ -86,6 +86,8 @@ const attempt = (over: Partial<StudentAttempt>): StudentAttempt => ({
   isProbe: false,
   source: "practice",
   sessionId: "sess-1",
+  graphVersion: "1.9.2",
+  engineVersion: "1.0.0",
   createdAt: "2026-06-01T00:00:00.000Z",
   ...over,
 });

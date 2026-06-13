@@ -27,7 +27,7 @@ function relativeDate(iso: string | null): string {
 export default async function AdminStudentsPage() {
   const staff = requireStaff();
 
-  const repo = getRepository();
+  const repo = await getRepository();
   const graph = await repo.getGraph();
   const profiles = await repo.listStudents();
 
