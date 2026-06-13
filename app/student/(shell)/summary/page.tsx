@@ -7,14 +7,13 @@
 // celebration. WHAT TO FIRM UP is student-rephrased (tutor diagnosis, spec §C).
 // The full graph never ships; the engine runs ONCE per request.
 
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { getRepository } from "../../../../lib/repository/server";
 import { computeMasteryAll } from "../../../../lib/mastery-engine";
 import { recommend } from "../../../../lib/adaptive-router";
 import { diagnosticCreditedSkills } from "../../../../lib/diagnostic-engine";
 import { deriveVerdict, firmUpStatement, VERDICT_COPY } from "../../../../lib/session-helpers";
-import { STUDENT_COOKIE } from "../../onboarding/constants";
+import { getCurrentStudentId } from "../../../../lib/auth/session";
 import { Card } from "../../../../components/ui/Card";
 import { Progress } from "../../../../components/ui/Progress";
 import { StatusPill } from "../../../../components/ui/StatusPill";
@@ -104,8 +103,7 @@ export default async function SummaryPage({
   searchParams: Promise<{ skill?: string; session?: string }>;
 }) {
   const { skill: skillId, session: sessionId } = await searchParams;
-  const cookieStore = await cookies();
-  const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
+  const studentId = await getCurrentStudentId();
   if (!studentId || !skillId || !sessionId) return <NoSession />;
 
   let graph: CurriculumGraph;

@@ -20,7 +20,6 @@
 // RETAKE is strictly additive: this action only ever appends attempt rows and
 // credits more skills; prior diagnostic credit is never revoked.
 
-import { cookies } from "next/headers";
 import { getRepository } from "../../../../lib/repository/server";
 import {
   DIAGNOSTIC_CONFIG,
@@ -32,7 +31,7 @@ import {
 import { checkAnswer } from "../../../../lib/problem-engine";
 import { computeMasteryAll, creditFromDiagnostic } from "../../../../lib/mastery-engine";
 import { recommend } from "../../../../lib/adaptive-router";
-import { STUDENT_COOKIE } from "../../onboarding/constants";
+import { getCurrentStudentId } from "../../../../lib/auth/session";
 import type { DiagnosticSession, StudentSkillState } from "../../../../types";
 import type { DiagnosticAnswer, PersistDiagnosticResponse } from "./shared";
 
@@ -72,8 +71,7 @@ export async function persistDiagnostic(
   rawAnswers: DiagnosticAnswer[],
 ): Promise<PersistDiagnosticResponse> {
   try {
-    const cookieStore = await cookies();
-    const studentId = cookieStore.get(STUDENT_COOKIE)?.value;
+    const studentId = await getCurrentStudentId();
     if (!studentId) return FAIL;
 
     const repo = await getRepository();

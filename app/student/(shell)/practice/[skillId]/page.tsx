@@ -5,14 +5,13 @@
 // the Summary (so before/after scopes to this session). The full graph never
 // ships — only this node's served problems + content. No third-party requests.
 
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { getRepository } from "../../../../../lib/repository/server";
 import { computeMasteryAll } from "../../../../../lib/mastery-engine";
 import { selectProblems, type ServedProblem } from "../../../../../lib/problem-engine";
 import { selectRetentionProbe } from "../../../../../lib/retention";
 import { inputNotation } from "../../../../../lib/math-notation/input-notation";
-import { STUDENT_COOKIE } from "../../../onboarding/constants";
+import { getCurrentStudentId } from "../../../../../lib/auth/session";
 import { Card } from "../../../../../components/ui/Card";
 import { InsetPanel } from "../../../../../components/ui/Panels";
 import { Button } from "../../../../../components/ui/Button";
@@ -60,8 +59,7 @@ export default async function PracticePage({
   params: Promise<{ skillId: string }>;
 }) {
   const { skillId } = await params;
-  const cookieStore = await cookies();
-  const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
+  const studentId = await getCurrentStudentId();
   if (!studentId) {
     return <EmptyShell skillId={skillId} message="You haven't set up your course yet." />;
   }

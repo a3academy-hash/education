@@ -5,7 +5,6 @@
 // The acceleration strip derives from diagnosticCreditedSkills(updates) fed
 // into recommend({ justCredited }). No third-party requests.
 
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { Card } from "../../../components/ui/Card";
@@ -22,7 +21,7 @@ import {
   diagnosticCreditedSkills,
   diagnosticTaken,
 } from "../../../lib/diagnostic-engine";
-import { STUDENT_COOKIE } from "../onboarding/constants";
+import { getCurrentStudentId } from "../../../lib/auth/session";
 import type {
   CurriculumGraph,
   MasteryUpdate,
@@ -68,8 +67,8 @@ function relativeTime(iso: string, nowMs: number): string {
 }
 
 export default async function StudentHomePage() {
-  const cookieStore = await cookies();
-  const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
+  // Identity seam (C2 S1) — memory/supabase resolved in one place, consent-gated.
+  const studentId = await getCurrentStudentId();
 
   if (!studentId) return <NoStudent />;
 

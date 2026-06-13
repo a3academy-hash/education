@@ -12,6 +12,14 @@ export interface AppShellProps {
   children: ReactNode;
   /** First name for the chrome; null when unknown (pre-onboarding). */
   displayName: string | null;
+  /**
+   * Parent-context chrome (C2 P6): when true (supabase mode, a parent has
+   * launched a child), the identity reads "Working as {name}" and a quiet
+   * parent-gated "Manage students" entry appears. NOT auth chrome — no
+   * "session/logged in" language. Defaults false (memory dev/test path is the
+   * plain student identity, unchanged).
+   */
+  workingAs?: boolean;
 }
 
 const NAV = [
@@ -27,7 +35,7 @@ function initials(name: string | null): string {
   return (first + second).toUpperCase() || first.toUpperCase() || "—";
 }
 
-export function AppShell({ children, displayName }: AppShellProps) {
+export function AppShell({ children, displayName, workingAs = false }: AppShellProps) {
   return (
     <div className="min-h-screen bg-canvas">
       <header className="sticky top-0 z-10 border-b border-border bg-surface">
@@ -52,10 +60,27 @@ export function AppShell({ children, displayName }: AppShellProps) {
                 {item.label}
               </NavLink>
             ))}
+            {workingAs && (
+              <Link
+                href="/parent"
+                className="rounded-[7px] px-3 py-2 text-[13px] font-medium text-ink-500 transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                Manage students
+              </Link>
+            )}
             <span aria-hidden className="mx-2 h-6 w-px bg-border" />
             <div className="flex items-center gap-2.5 pl-1">
               {displayName && (
-                <span className="text-[13.5px] font-medium text-ink-700">{displayName}</span>
+                <span className="flex flex-col leading-tight">
+                  {workingAs && (
+                    <span className="text-[10.5px] uppercase tracking-[0.3px] text-ink-400">
+                      Working as
+                    </span>
+                  )}
+                  <span className="text-[13.5px] font-medium text-ink-700">
+                    {displayName}
+                  </span>
+                </span>
               )}
               <span
                 aria-hidden

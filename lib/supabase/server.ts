@@ -42,9 +42,15 @@ export async function createClient() {
         return cookieStore.getAll();
       },
       setAll(cookiesToSet) {
-        // In Server Components, cookie writes throw; the middleware/route-handler
-        // refresh path (C2) owns session-cookie persistence. Swallowing here is
-        // the documented @supabase/ssr pattern for read-only render contexts.
+        // Cookie-write context matters (C2 / Phase 11 BLOCKER 2):
+        //   - Server ACTIONS and Route Handlers: cookies() is WRITABLE, so these
+        //     writes PERSIST. This is the path establishChildSession() relies on
+        //     to mint the child's session cookies — they DO land here.
+        //   - Server COMPONENT render: cookies() is read-only and set() throws;
+        //     the middleware/route-handler refresh path owns persistence there.
+        // Swallowing the throw is the documented @supabase/ssr pattern for the
+        // read-only render context ONLY; it must never mask a failed write from a
+        // Server Action (where set() does not throw).
         try {
           for (const { name, value, options } of cookiesToSet) {
             cookieStore.set(name, value, options);

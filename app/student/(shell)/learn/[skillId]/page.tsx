@@ -6,13 +6,12 @@
 // + worked-example StepReveal are the client spine (LearnClient). No
 // third-party requests; the full graph never ships — only this node's content.
 
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { getRepository } from "../../../../../lib/repository/server";
 import { computeMasteryAll } from "../../../../../lib/mastery-engine";
 import { computeOverlay } from "../../../../../lib/graph/overlay";
 import { selectProblems } from "../../../../../lib/problem-engine";
-import { STUDENT_COOKIE } from "../../../onboarding/constants";
+import { getCurrentStudentId } from "../../../../../lib/auth/session";
 import { Card } from "../../../../../components/ui/Card";
 import { InsetPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon } from "../../../../../components/ui/icons";
@@ -109,8 +108,7 @@ export default async function LearnPage({
   params: Promise<{ skillId: string }>;
 }) {
   const { skillId } = await params;
-  const cookieStore = await cookies();
-  const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
+  const studentId = await getCurrentStudentId();
   if (!studentId) {
     return (
       <MissingShell message="You haven't set up your course yet. Head back to your learning home to begin." />

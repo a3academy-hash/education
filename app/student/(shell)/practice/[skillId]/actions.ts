@@ -8,10 +8,9 @@
 // fields; correctness is re-checked server-side; source/sessionId are
 // provenance only and never enter mastery/phase/routing math.
 
-import { cookies } from "next/headers";
 import { getRepository } from "../../../../../lib/repository/server";
 import { runPracticeAttempt } from "../../../../../lib/practice-session";
-import { STUDENT_COOKIE } from "../../../onboarding/constants";
+import { getCurrentStudentId } from "../../../../../lib/auth/session";
 import type { PracticeSubmission, SubmitPracticeResponse } from "./shared";
 import type { Phase } from "../../../../../types";
 
@@ -40,8 +39,7 @@ export async function submitPractice(raw: PracticeSubmission): Promise<SubmitPra
   try {
     if (!isSubmissionShape(raw)) return FAIL;
 
-    const cookieStore = await cookies();
-    const studentId = cookieStore.get(STUDENT_COOKIE)?.value;
+    const studentId = await getCurrentStudentId();
     if (!studentId) return FAIL;
 
     const repo = await getRepository();

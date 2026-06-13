@@ -3,15 +3,13 @@
 // only — the full curriculum graph never ships to the browser; mr-gates
 // Phase 2 condition 1). No student → calm setup pointer (phase3-direction.md).
 
-import { cookies } from "next/headers";
 import { getRepository } from "../../../../lib/repository/server";
 import { toDiagnosticGraphView } from "../../../../lib/diagnostic-engine";
-import { STUDENT_COOKIE } from "../../onboarding/constants";
+import { getCurrentStudentId } from "../../../../lib/auth/session";
 import { DiagnosticFlow } from "./DiagnosticFlow";
 
 export default async function DiagnosticPage() {
-  const cookieStore = await cookies();
-  const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
+  const studentId = await getCurrentStudentId();
   const repo = await getRepository();
   const student = studentId ? await repo.getStudent(studentId) : null;
 

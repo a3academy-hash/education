@@ -1,11 +1,11 @@
 // /student/progress — parent/student weekly progress digest + family transcript
-// (Phase 7 §B). SERVER component (mr-gates G7); self-scoped via STUDENT_COOKIE
-// like the rest of /student/(shell). Layout P4: digest first (hero Card),
+// (Phase 7 §B). SERVER component (mr-gates G7); self-scoped via the identity
+// seam getCurrentStudentId() (C2 S1) like the rest of /student/(shell). Layout
+// P4: digest first (hero Card),
 // transcript second (Table, default density). Parent-legible voice: no engine
 // jargon, no percentages, no empty 0-bars, no comparative language, no raw audit
 // rows, no "AI" framing. Primary action = "Continue learning" → /student.
 
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { getRepository } from "../../../../lib/repository/server";
 import { buildProgressDigest } from "../../../../lib/digest/progress-digest";
@@ -17,7 +17,7 @@ import { StatusPill } from "../../../../components/ui/StatusPill";
 import { CreditedTag } from "../../../../components/insight/CreditedTag";
 import { Table, TableHead, TableBody, TableRow, Th, Td } from "../../../../components/ui/Table";
 import { CheckIcon } from "../../../../components/ui/icons";
-import { STUDENT_COOKIE } from "../../onboarding/constants";
+import { getCurrentStudentId } from "../../../../lib/auth/session";
 import type { StandardTranscriptRow } from "../../../../types";
 
 const LINK_PRIMARY =
@@ -29,8 +29,7 @@ const LINK_PRIMARY =
 const deAmp = (label: string): string => label.replace(/\s*&\s*/g, " and ");
 
 export default async function ProgressPage() {
-  const cookieStore = await cookies();
-  const studentId = cookieStore.get(STUDENT_COOKIE)?.value ?? null;
+  const studentId = await getCurrentStudentId();
   if (!studentId) return <NoStudent />;
 
   const repo = await getRepository();
