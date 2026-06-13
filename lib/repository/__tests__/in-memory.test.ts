@@ -38,6 +38,39 @@ const newStudent = (): Omit<StudentProfile, "id" | "createdAt"> => ({
   parentalConsent: { status: "pending", updatedAt: null },
 });
 
+const seededStudent = (id: string, createdAt: string): StudentProfile => ({
+  ...newStudent(),
+  displayName: id,
+  id,
+  createdAt,
+});
+
+describe("InMemoryRepository — listStudents (Phase 7)", () => {
+  it("returns all seeded students ordered by createdAt then id", async () => {
+    const repo = new InMemoryRepository({
+      students: [
+        seededStudent("c", "2026-06-03T00:00:00.000Z"),
+        seededStudent("a", "2026-06-01T00:00:00.000Z"),
+        seededStudent("b", "2026-06-01T00:00:00.000Z"),
+      ],
+    });
+    const students = await repo.listStudents();
+    expect(students.map((s) => s.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("returns an empty array when no students are seeded", async () => {
+    expect(await new InMemoryRepository().listStudents()).toEqual([]);
+  });
+
+  it("returns copies — mutating a returned profile does not affect the store", async () => {
+    const repo = new InMemoryRepository({
+      students: [seededStudent("a", "2026-06-01T00:00:00.000Z")],
+    });
+    (await repo.listStudents())[0].displayName = "mutated";
+    expect((await repo.listStudents())[0].displayName).toBe("a");
+  });
+});
+
 describe("InMemoryRepository — graph", () => {
   it("getGraph returns the validated real graph (and caches)", async () => {
     const repo = new InMemoryRepository();

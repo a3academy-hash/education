@@ -14,7 +14,10 @@ export interface AppShellProps {
   displayName: string | null;
 }
 
-const NAV = [{ href: "/student", label: "Learning Home" }];
+const NAV = [
+  { href: "/student", label: "Learning Home", exact: true },
+  { href: "/student/progress", label: "Progress" },
+];
 
 function initials(name: string | null): string {
   if (!name) return "—";
@@ -45,7 +48,7 @@ export function AppShell({ children, displayName }: AppShellProps) {
 
           <nav className="flex items-center gap-1">
             {NAV.map((item) => (
-              <NavLink key={item.href} href={item.href}>
+              <NavLink key={item.href} href={item.href} exact={item.exact}>
                 {item.label}
               </NavLink>
             ))}

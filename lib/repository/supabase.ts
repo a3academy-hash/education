@@ -35,6 +35,10 @@ export class SupabaseRepository implements A3Repository {
     return notWired();
   }
 
+  listStudents(): Promise<StudentProfile[]> {
+    return notWired();
+  }
+
   createStudent(_p: Omit<StudentProfile, "id" | "createdAt">): Promise<StudentProfile> {
     return notWired();
   }

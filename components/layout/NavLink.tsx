@@ -10,11 +10,15 @@ import type { ReactNode } from "react";
 export interface NavLinkProps {
   href: string;
   children: ReactNode;
+  /** Exact match only — for a parent route that shares a prefix with siblings. */
+  exact?: boolean;
 }
 
-export function NavLink({ href, children }: NavLinkProps) {
+export function NavLink({ href, children, exact = false }: NavLinkProps) {
   const pathname = usePathname();
-  const active = pathname === href || pathname.startsWith(`${href}/`);
+  const active = exact
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
   return (
     <Link
       href={href}

@@ -10,3 +10,5 @@ export * from "./validation";
 export * from "./video";
 export * from "./repository";
 export * from "./compliance";
+export * from "./insight";
+export * from "./digest";

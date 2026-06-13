@@ -101,6 +101,10 @@ export class InMemoryRepository implements A3Repository {
     return found ? copyProfile(found) : null;
   }
 
+  async listStudents(): Promise<StudentProfile[]> {
+    return [...this.students.values()].map(copyProfile).sort(byCreatedAtThenId);
+  }
+
   async createStudent(p: Omit<StudentProfile, "id" | "createdAt">): Promise<StudentProfile> {
     const student: StudentProfile = {
       ...copyProfile({ ...p, id: "", createdAt: "" }),
