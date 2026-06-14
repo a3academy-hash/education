@@ -50,7 +50,7 @@ export default async function StudentInsightPage({
 }: {
   params: Promise<{ studentId: string }>;
 }) {
-  const staff = requireStaff();
+  const staff = await requireStaff();
   const { studentId } = await params;
 
   const repo = await getRepository();

@@ -1,52 +1,66 @@
 // lib/auth/staff-guard.ts — the SINGLE server-only chokepoint for staff-gated
 // surfaces (Phase 7 §A, mr-gates G2). Every /admin/* route calls requireStaff()
-// and renders nothing until it returns a staff identity.
+// and renders nothing until it returns a verified staff identity.
 //
 // POSTURE (mr-gates G2 — binding):
-//  - In PRODUCTION with no real JWT, this MUST notFound() — mirroring the
-//    /dev/* "notFound() in production" posture. The production data path stays
+//  - SUPABASE MODE: server-VERIFIED claims (getClaims, never getSession) — the
+//    same 0005-minted claims RLS reads. The app role is `user_role` (NOT the
+//    reserved `role` claim). Any non-staff principal (student/parent/
+//    unprovisioned) or any failure → notFound(). The production data path stays
 //    closed; there is no backdoor to real data.
-//  - A STUB staff identity is permitted ONLY when NODE_ENV !== "production",
-//    and the stub branch is dead code in a production bundle (the prod path
-//    returns/notFound() before it is reached).
-//  - When Supabase auth lands, this one function reads the JWT `role` claim
-//    (role === "staff") and `campus_id` — exactly the claims the RLS policies in
-//    supabase/migrations already expect. This is the only seam to wire.
+//  - MEMORY MODE: in PRODUCTION → notFound() (mirrors the /dev/* posture); in
+//    non-production → an unscoped stub staff identity so the admin surfaces are
+//    demonstrable against the in-memory store.
 //
-// server-only: imports next/navigation's notFound, which throws in render. Never
-// import this from a client component.
+// server-only: imports next/navigation's notFound, which throws in render, and
+// the Supabase server client. Never import this from a client component.
 
 import { notFound } from "next/navigation";
+import { getAuthMode } from "./mode";
+import { createClient as createUserClient } from "../supabase/server";
+import { STAFF_ROLES, type StaffRole } from "../../types";
 
-/** Resolved staff identity — shape matches the JWT claims the RLS reads. */
-export interface StaffIdentity {
-  role: "staff";
-  /** Campus scope from the JWT `campus_id` claim; null = unscoped/global. */
-  campusId: string | null;
+if (typeof window !== "undefined") {
+  throw new Error("lib/auth/staff-guard.ts is server-only and must never run in the browser.");
 }
 
-/**
- * The dev-only stub campus. Aligns with the single seeded in-memory campus so
- * the campusId every read builder receives (mr-gates G3) is consistent before
- * RLS exists. Inert in production (the stub branch is never reached there).
- */
-const STUB_CAMPUS_ID: string | null = null;
+export interface StaffIdentity {
+  /** The staff role tier from the 0005 user_role claim. */
+  role: StaffRole;
+  /** Campus scope from the campus_id claim; null = unscoped (super_admin → all). */
+  campusId: string | null;
+  /** The verified auth uid (JWT sub) — audit/identity stamp. */
+  actorId: string | null;
+}
 
-/**
- * Gate a staff-only surface. Returns the staff identity, or calls notFound()
- * (which throws) when the caller is not authorized.
- *
- * Today (pre-auth): production → notFound(); non-production → stub staff. When
- * Supabase auth lands, replace the body with a JWT read of role/campus_id; the
- * call sites and return type do not change.
- */
-export function requireStaff(): StaffIdentity {
-  // Production data path is CLOSED until real auth is wired. No stub identity
-  // ever materializes in a production bundle.
-  if (process.env.NODE_ENV === "production") {
-    notFound();
+function isStaffRole(v: unknown): v is StaffRole {
+  return typeof v === "string" && (STAFF_ROLES as readonly string[]).includes(v);
+}
+
+export async function requireStaff(): Promise<StaffIdentity> {
+  // MEMORY MODE (dev/tests): unchanged posture. Production → closed; non-prod →
+  // an unscoped stub staff identity so the admin surface is demonstrable.
+  if (getAuthMode() === "memory") {
+    if (process.env.NODE_ENV === "production") notFound();
+    return { role: "super_admin", campusId: null, actorId: null };
   }
-  // Dev/preview only: a stub staff identity so the admin surfaces are
-  // demonstrable against the in-memory store. Mirrors the JWT claim shape.
-  return { role: "staff", campusId: STUB_CAMPUS_ID };
+
+  // SUPABASE MODE: server-VERIFIED claims (getClaims, never getSession). Deny any
+  // non-staff principal (student/parent/unprovisioned) with notFound().
+  let claims: Record<string, unknown> | null = null;
+  try {
+    const userClient = await createUserClient();
+    const { data, error } = await userClient.auth.getClaims();
+    if (!error && data?.claims) claims = data.claims as Record<string, unknown>;
+  } catch {
+    claims = null;
+  }
+  if (!claims) notFound();
+
+  const role = claims.user_role;
+  if (!isStaffRole(role)) notFound();
+
+  const campusId = typeof claims.campus_id === "string" ? claims.campus_id : null;
+  const actorId = typeof claims.sub === "string" ? claims.sub : null;
+  return { role, campusId, actorId };
 }

@@ -18,6 +18,10 @@ export interface StudentProfile {
   createdAt: string;
 }
 
+/** Staff role tiers minted by the 0005 access-token hook (user_role claim). */
+export type StaffRole = "super_admin" | "campus_admin" | "coach";
+export const STAFF_ROLES: readonly StaffRole[] = ["super_admin", "campus_admin", "coach"];
+
 /** One entry in the rolling recent-attempt window kept on StudentSkillState. */
 export interface RecentAttempt {
   correct: boolean;
