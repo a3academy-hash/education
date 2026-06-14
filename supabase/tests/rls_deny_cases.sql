@@ -160,7 +160,7 @@ insert into video_assets (id, skill_id, playback_id, kind)
 values ('71de0a01-0000-0000-0000-0000000000a1','N-FOUND-01','pb-1','lesson');
 
 insert into record_access_log (id, actor_id, actor_role, student_id, record_type)
-values ('a00e5501-0000-0000-0000-0000000000a1','f0000000-0000-0000-0000-0000000000ax','campus_admin','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa000a','student_profiles');
+values ('a00e5501-0000-0000-0000-0000000000a1','f0000000-0000-0000-0000-0000000000ad','campus_admin','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa000a','student_profiles');
 
 -- identity rows.
 insert into parent_profiles (id, display_name, email)
@@ -171,9 +171,9 @@ values
 
 insert into staff_profiles (id, display_name, role, campus_id)
 values
-  ('f0000000-0000-0000-0000-0000000000cx','Coach X','coach','11111111-1111-1111-1111-111111110001'),
-  ('f0000000-0000-0000-0000-0000000000ax','Admin X','campus_admin','11111111-1111-1111-1111-111111110001'),
-  ('f0000000-0000-0000-0000-0000000000ss','Super S','super_admin',null);
+  ('f0000000-0000-0000-0000-0000000000c0','Coach X','coach','11111111-1111-1111-1111-111111110001'),
+  ('f0000000-0000-0000-0000-0000000000ad','Admin X','campus_admin','11111111-1111-1111-1111-111111110001'),
+  ('f0000000-0000-0000-0000-0000000000e5','Super S','super_admin',null);
 
 -- links: P granted (→granted event), Q pending (→pending event), R revoked link
 -- (status revoked) but its consent pointer is a GRANTED event (proves the link
@@ -404,7 +404,7 @@ reset request.jwt.claims;
 -- ── O4 + M-5 + M-6: STAFF impersonations (campus scoping) ─────────────────────
 
 -- Coach X (campus X) — reads A (campus X) across staff-visible tables; 0 for B.
-set local request.jwt.claims = '{"sub":"f0000000-0000-0000-0000-0000000000cx","actor_id":"f0000000-0000-0000-0000-0000000000cx","campus_id":"11111111-1111-1111-1111-111111110001"}';
+set local request.jwt.claims = '{"sub":"f0000000-0000-0000-0000-0000000000c0","actor_id":"f0000000-0000-0000-0000-0000000000c0","campus_id":"11111111-1111-1111-1111-111111110001"}';
 select pg_temp.assert_count($$select 1 from student_profiles where id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa000a'$$, 1,'O4 coachX reads A (own campus)');
 select pg_temp.assert_count($$select 1 from student_attempts where student_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa000a'$$, 1,'O4 coachX reads A attempts (own campus)');
 select pg_temp.assert_count($$select 1 from student_profiles where id='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb000b'$$, 0,'O4 coachX denied B (other campus)');
@@ -418,14 +418,14 @@ select pg_temp.assert_count($$select 1 from parent_student_links where student_i
 reset request.jwt.claims;
 
 -- M-5: campus_admin X cannot read campus-Y identity; CAN read campus-X.
-set local request.jwt.claims = '{"sub":"f0000000-0000-0000-0000-0000000000ax","actor_id":"f0000000-0000-0000-0000-0000000000ax","campus_id":"11111111-1111-1111-1111-111111110001"}';
+set local request.jwt.claims = '{"sub":"f0000000-0000-0000-0000-0000000000ad","actor_id":"f0000000-0000-0000-0000-0000000000ad","campus_id":"11111111-1111-1111-1111-111111110001"}';
 select pg_temp.assert_count($$select 1 from student_profiles where id='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb000b'$$, 0,'M-5 adminX denied B profile (other campus)');
 select pg_temp.assert_count($$select 1 from staff_profiles  where campus_id='11111111-1111-1111-1111-111111110002'$$, 0,'M-5 adminX denied campusY staff');
 select pg_temp.assert_count($$select 1 from student_profiles where id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa000a'$$, 1,'M-5 adminX reads A (own campus, control)');
 reset request.jwt.claims;
 
 -- M-5 + O4: super_admin reads ACROSS campuses.
-set local request.jwt.claims = '{"sub":"f0000000-0000-0000-0000-0000000000ss","actor_id":"f0000000-0000-0000-0000-0000000000ss"}';
+set local request.jwt.claims = '{"sub":"f0000000-0000-0000-0000-0000000000e5","actor_id":"f0000000-0000-0000-0000-0000000000e5"}';
 select pg_temp.assert_count($$select 1 from student_profiles where id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa000a'$$, 1,'M-5 super reads A');
 select pg_temp.assert_count($$select 1 from student_profiles where id='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb000b'$$, 1,'M-5 super reads B (cross-campus)');
 select pg_temp.assert_count($$select 1 from parent_profiles$$, 3,'M-5 super reads all parent_profiles');
