@@ -59,6 +59,18 @@ export default async function StudentInsightPage({
   // Campus scope: scoped staff only see their own campus's students.
   if (staff.campusId !== null && profile.campusId !== staff.campusId) notFound();
 
+  // FERPA read-audit (LB2): no record disclosure without a persisted audit row.
+  try {
+    await repo.appendAccessLog({
+      actorId: staff.actorId ?? "",
+      actorRole: staff.role,
+      studentId,
+      recordType: "student_insight",
+    });
+  } catch {
+    notFound();
+  }
+
   const [graph, states, attempts, updates] = await Promise.all([
     repo.getGraph(),
     repo.getSkillStates(studentId),

@@ -198,4 +198,12 @@ export class InMemoryRepository implements A3Repository {
     void _skillId;
     return [];
   }
+
+  // FERPA read-audit (LB2): no-op — memory mode has no FERPA disclosure surface
+  // (no record_access_log table). Here only to satisfy the A3Repository shape.
+  async appendAccessLog(
+    _entry: { actorId: string; actorRole: string; studentId: string; recordType: string },
+  ): Promise<void> {
+    void _entry;
+  }
 }

@@ -264,3 +264,17 @@ describe("InMemoryRepository — listVideoAssets (Phase 11 Workstream D, D6)", (
     expect(await repo.listVideoAssets("anything")).toEqual([]);
   });
 });
+
+describe("InMemoryRepository — appendAccessLog (FERPA read-audit, LB2)", () => {
+  it("resolves without throwing (no-op — memory mode has no FERPA surface)", async () => {
+    const repo = new InMemoryRepository();
+    await expect(
+      repo.appendAccessLog({
+        actorId: "staff-1",
+        actorRole: "campus_admin",
+        studentId: "stu-1",
+        recordType: "student_insight",
+      }),
+    ).resolves.toBeUndefined();
+  });
+});

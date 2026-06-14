@@ -7,11 +7,20 @@ import type {
   MasteryUpdate,
   NewMasteryUpdate,
   NewStudentAttempt,
+  StaffRole,
   StudentAttempt,
   StudentProfile,
   StudentSkillState,
 } from "./student";
 import type { StreamVideoAsset } from "./stream-video";
+
+/**
+ * Kinds of student education-record disclosure that generate a FERPA read-audit
+ * row. Only "student_insight" (the admin per-student record view) is WIRED today;
+ * "transcript" and "parent_child_record" are reserved for surfaces that must log
+ * before they ship (see appendAccessLog).
+ */
+export type RecordAccessType = "student_insight" | "transcript" | "parent_child_record";
 
 /**
  * All IDs are opaque strings — no numeric parsing, no ordering semantics
@@ -57,4 +66,12 @@ export interface A3Repository {
    *                 NOT service-role). Writes are service-role-only (upload script).
    */
   listVideoAssets(skillId: string): Promise<StreamVideoAsset[]>;
+  /**
+   * Append an immutable FERPA read-audit row: logs HUMAN inspection of a student's
+   * education record (admin record view, future parent/transcript views). NOT a query
+   * log — engine/service-role/system reads are deliberately NOT audited here.
+   * Supabase: INSERT via the userClient (RLS with-check actor_id = current_actor_id()).
+   * InMemory: no-op (memory mode has no FERPA disclosure surface).
+   */
+  appendAccessLog(entry: { actorId: string; actorRole: StaffRole; studentId: string; recordType: RecordAccessType }): Promise<void>;
 }

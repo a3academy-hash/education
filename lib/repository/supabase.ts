@@ -424,4 +424,21 @@ export class SupabaseRepository implements A3Repository {
       .map(mapVideoAssetRow)
       .sort((a, b) => a.id.localeCompare(b.id));
   }
+
+  // FERPA read-audit (LB2): INSERT (never upsert) into record_access_log via the
+  // userClient — RLS with-check actor_id = current_actor_id() authorizes the
+  // reader's OWN audit row (NOT service-role, which carries no actor sub and would
+  // fail-closed/unattributable). Append-only: there is no update/delete path.
+  async appendAccessLog(entry: { actorId: string; actorRole: string; studentId: string; recordType: string }): Promise<void> {
+    if (!entry.actorId) {
+      throw new Error("appendAccessLog: missing actor identity (cannot write an unattributable FERPA audit row)");
+    }
+    const { error } = await this.userClient.from("record_access_log").insert({
+      actor_id: entry.actorId,
+      actor_role: entry.actorRole,
+      student_id: entry.studentId,
+      record_type: entry.recordType,
+    });
+    if (error) fail("appendAccessLog", error);
+  }
 }
