@@ -17,21 +17,28 @@ import { redirect } from "next/navigation";
 import { getAuthMode } from "../../lib/auth/mode";
 import { createClient as createUserClient } from "../../lib/supabase/server";
 import { createServiceClient } from "../../lib/supabase/service";
+import {
+  GENERIC_SIGNIN_ERROR,
+  GENERIC_SIGNUP_ERROR,
+  mapSignInError,
+} from "../../lib/auth/error-copy";
 
 export interface AuthResult {
   ok: boolean;
   /** Generic, non-enumerating error copy for the form (P2). */
   error?: string;
+  /**
+   * Set when signUp succeeded but the account needs email confirmation
+   * (Supabase "Confirm email" ON → no session yet). The client renders a
+   * "check your email" panel instead of redirecting (LB1).
+   */
+  pendingConfirmation?: boolean;
 }
 
 const UNAVAILABLE: AuthResult = {
   ok: false,
   error: "Parent accounts are not available in this environment.",
 };
-const GENERIC_SIGNIN_ERROR = "That email and password don't match. Please try again.";
-const GENERIC_SIGNUP_ERROR =
-  "We couldn't create that account just now. Please try again.";
-
 function readCredentials(formData: FormData): { email: string; password: string } {
   return {
     email: String(formData.get("email") ?? "").trim(),
@@ -64,7 +71,8 @@ export async function signIn(
   try {
     const userClient = await createUserClient();
     const { data, error } = await userClient.auth.signInWithPassword({ email, password });
-    if (error || !data.user) return { ok: false, error: GENERIC_SIGNIN_ERROR };
+    if (error) return { ok: false, error: mapSignInError(error) };
+    if (!data.user) return { ok: false, error: GENERIC_SIGNIN_ERROR };
   } catch {
     return { ok: false, error: GENERIC_SIGNIN_ERROR };
   }
@@ -88,16 +96,26 @@ export async function signUp(
   }
 
   let uid: string | null = null;
+  // null session ⇒ "Confirm email" is ON: auth.signUp returns data.user but no
+  // session until the emailed link is clicked. A created-but-unconfirmed user
+  // still populates data.user (incl. on re-signup of the same unconfirmed
+  // email — Supabase resends), so it reaches this branch, NOT the generic error
+  // (LB1 L1/L7).
+  let needsConfirmation = false;
   try {
     const userClient = await createUserClient();
     const { data, error } = await userClient.auth.signUp({ email, password });
     if (error || !data.user) return { ok: false, error: GENERIC_SIGNUP_ERROR };
     uid = data.user.id;
+    needsConfirmation = !data.session;
   } catch {
     return { ok: false, error: GENERIC_SIGNUP_ERROR };
   }
 
   try {
+    // Service-role write — session-independent, so it lands even on the
+    // pending-confirmation path (so the 0005 hook mints role=parent on first
+    // sign-in, no bounce). Idempotent upsert ⇒ self-heals on retry.
     if (uid) await ensureParentProfile(uid, displayName);
   } catch {
     // Profile-ensure failure is non-fatal to the auth record; the next sign-in
@@ -105,6 +123,10 @@ export async function signUp(
     return { ok: false, error: GENERIC_SIGNUP_ERROR };
   }
 
+  // redirect() MUST stay outside any try (it throws NEXT_REDIRECT — never
+  // swallow). Confirmation-pending ⇒ no session to land with: return the
+  // pending result so the client shows "check your email" (LB1 L1).
+  if (needsConfirmation) return { ok: true, pendingConfirmation: true };
   redirect("/parent");
 }
 
