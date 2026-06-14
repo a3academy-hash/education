@@ -15,6 +15,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "../../../../components/ui/Button";
 import { Card } from "../../../../components/ui/Card";
 import { Input } from "../../../../components/ui/Input";
+import { ChoiceInput } from "../../../../components/ui/ChoiceInput";
+import { widgetForKind } from "../../../../components/learning/answer-widget";
 import { Progress } from "../../../../components/ui/Progress";
 import { StatusPill } from "../../../../components/ui/StatusPill";
 import { AlertPanel, InsetPanel } from "../../../../components/ui/Panels";
@@ -226,7 +228,8 @@ function ItemScreen({
   const answerRef = useRef<HTMLInputElement>(null);
   // The diagnostic ships the full ProblemTemplate, so compute the answer-free
   // keypad flags client-side from problem.answer. null → no keypad.
-  const keypad = inputNotation(item.problem.answer);
+  const isChoice = widgetForKind(item.problem.answer.kind) === "choice";
+  const keypad = isChoice ? null : inputNotation(item.problem.answer);
   const hint = keypad ? keypadHint(keypad) : null;
   return (
     <div className="mx-auto max-w-[600px]" style={FADE_BASE}>
@@ -259,33 +262,46 @@ function ItemScreen({
             onSubmit();
           }}
         >
-          <Input
-            label="Your answer"
-            fieldMode="math"
-            placeholder="Type your answer"
-            autoFocus
-            inputRef={answerRef}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            helperText={hint?.text}
-          />
-          {hint && hint.example && (
-            <p className="-mt-1 text-[13px] text-ink-500">
-              <MathText>{hint.example}</MathText>
-            </p>
-          )}
-          {keypad && (
-            <MathKeypad
-              notation={keypad}
-              inputRef={answerRef}
+          {isChoice ? (
+            // Multiple-choice → ChoiceInput. The selected choice's exact string
+            // becomes `value` (same submission path); keypad/hint/echo suppressed.
+            <ChoiceInput
+              choices={item.problem.choices ?? []}
               value={value}
-              onValueChange={onChange}
+              onChange={onChange}
+              autoFocus
             />
-          )}
-          {keypad && (
-            <p className="mt-2 text-[13px] text-ink-500">
-              {value.trim() ? <MathText>{value}</MathText> : " "}
-            </p>
+          ) : (
+            <>
+              <Input
+                label="Your answer"
+                fieldMode="math"
+                placeholder="Type your answer"
+                autoFocus
+                inputRef={answerRef}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                helperText={hint?.text}
+              />
+              {hint && hint.example && (
+                <p className="-mt-1 text-[13px] text-ink-500">
+                  <MathText>{hint.example}</MathText>
+                </p>
+              )}
+              {keypad && (
+                <MathKeypad
+                  notation={keypad}
+                  inputRef={answerRef}
+                  value={value}
+                  onValueChange={onChange}
+                />
+              )}
+              {keypad && (
+                <p className="mt-2 text-[13px] text-ink-500">
+                  {value.trim() ? <MathText>{value}</MathText> : " "}
+                </p>
+              )}
+            </>
           )}
           <div className="mt-5">
             <Button variant="primary" type="submit" disabled={!value.trim()}>

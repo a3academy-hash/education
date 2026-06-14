@@ -27,6 +27,17 @@ const PHASE_BUCKETS = [
   ["p3", 3],
 ] as const;
 
+// The renderable answer-kind set — codifies the kind↔widget contract so a
+// future unknown kind fails loudly (any kind not here has no widget).
+const KNOWN_ANSWER_KINDS = new Set([
+  "numeric",
+  "expression",
+  "choice",
+  "coordinate",
+  "inequality",
+  "numeric-set",
+]);
+
 // Loose internal view of a node after the SCHEMA pass. Fields are re-checked
 // before use; this only exists to avoid `any` while staying pure.
 type RawNode = {
@@ -388,6 +399,78 @@ export function validateGraph(raw: unknown): ValidationReport {
               );
             }
           }
+        }
+
+        // ---- kind↔widget contract + choice integrity (LB3) -----------------
+        // Codifies the answer kind set so an unknown kind (which would have no
+        // renderable widget) fails loudly, and enforces that every `choice`
+        // item carries a usable, self-consistent options set.
+        const answer = p.answer;
+        if (!isRecord(answer) || typeof answer.kind !== "string") {
+          error(
+            "PROBLEM_MISMATCH",
+            `node ${node.id}: problem ${pid} has no readable answer.kind`,
+            { nodeId: node.id },
+          );
+        } else if (!KNOWN_ANSWER_KINDS.has(answer.kind)) {
+          error(
+            "PROBLEM_MISMATCH",
+            `node ${node.id}: problem ${pid} has unknown answer.kind "${answer.kind}" (no renderable widget)`,
+            { nodeId: node.id },
+          );
+        } else if (answer.kind === "choice") {
+          const choices = p.choices;
+          const value = answer.value;
+          if (!isStringArray(choices) || choices.length < 2) {
+            error(
+              "PROBLEM_MISMATCH",
+              `node ${node.id}: choice problem ${pid} must have a choices[] of at least 2 strings`,
+              { nodeId: node.id },
+            );
+          } else if (typeof value !== "string" || !choices.includes(value)) {
+            error(
+              "PROBLEM_MISMATCH",
+              `node ${node.id}: choice problem ${pid} answer.value "${String(value)}" is not one of its choices`,
+              { nodeId: node.id },
+            );
+          } else {
+            // 3a — no duplicate choices, and at least one distractor exists.
+            if (new Set(choices).size !== choices.length) {
+              error(
+                "PROBLEM_MISMATCH",
+                `node ${node.id}: choice problem ${pid} has duplicate choices`,
+                { nodeId: node.id },
+              );
+            }
+            if (!choices.some((c) => c !== value)) {
+              error(
+                "PROBLEM_MISMATCH",
+                `node ${node.id}: choice problem ${pid} has no distractor (every choice equals answer.value)`,
+                { nodeId: node.id },
+              );
+            }
+            // 3b — every misconceptionMap key is a real distractor.
+            if (isRecord(p.misconceptionMap)) {
+              for (const key of Object.keys(p.misconceptionMap)) {
+                if (!choices.includes(key)) {
+                  error(
+                    "PROBLEM_MISMATCH",
+                    `node ${node.id}: choice problem ${pid} misconceptionMap key "${key}" is not one of its choices`,
+                    { nodeId: node.id },
+                  );
+                } else if (key === value) {
+                  error(
+                    "PROBLEM_MISMATCH",
+                    `node ${node.id}: choice problem ${pid} misconceptionMap key "${key}" equals answer.value`,
+                    { nodeId: node.id },
+                  );
+                }
+              }
+            }
+          }
+          // 3c — every misconceptionMap key's tag is in the node's tags. This
+          // is also covered by the UNKNOWN_MISCONCEPTION_TAG pass above (which
+          // reports under its own code); kept implicit to avoid double-report.
         }
       }
     }

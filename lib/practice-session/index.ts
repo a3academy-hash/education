@@ -76,6 +76,13 @@ export interface PracticeAttemptResult {
   tutor: TutorPanel | null;
   phaseChanged: boolean;
   masteredNow: boolean;
+  /**
+   * For multiple-choice items ONLY: the correct option string, so the feedback
+   * moment can mark the correct row when the student missed (the options are
+   * already on screen — this is informative, not a leak; LB3/R2). Absent for
+   * every non-choice kind so the typed-answer value is NEVER serialized.
+   */
+  correctChoice?: string;
 }
 
 export class PracticeAttemptError extends Error {}
@@ -241,5 +248,20 @@ export async function runPracticeAttempt(
     why = assembleIncorrectUntagged(problem, hintsUsed, node.workedExamples, raw.response);
   }
 
-  return { correct, feedbackState, misconceptionTags, why, tutor, phaseChanged, masteredNow };
+  // For choice items only, surface the correct option string for the feedback
+  // marking (R2). This READS problem.answer.value but never feeds any math;
+  // checkAnswer/mastery/phase/routing are untouched.
+  const correctChoice =
+    problem.answer.kind === "choice" ? problem.answer.value : undefined;
+
+  return {
+    correct,
+    feedbackState,
+    misconceptionTags,
+    why,
+    tutor,
+    phaseChanged,
+    masteredNow,
+    ...(correctChoice !== undefined ? { correctChoice } : {}),
+  };
 }

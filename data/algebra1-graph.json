@@ -36413,6 +36413,11 @@
             "sport": "baseball",
             "prompt": "Two hitters each add exactly 2 hits every game and both start the week with 14 hits. After g games, hitter A has 2g + 14 and hitter B has 2g + 14. Set their totals equal: 2g + 14 = 2g + 14. How many values of g make them tied?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36435,6 +36440,11 @@
             "sport": "baseball",
             "prompt": "Two hitters each add 2 hits per game, but A starts at 9 hits and B starts at 30. Set their totals equal: 2g + 9 = 2g + 30. How many games g make their hit totals equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36479,6 +36489,11 @@
             "sport": "baseball",
             "prompt": "Two hitters each add 2 hits per game and both sit on 14 hits, so 2g + 14 = 2g + 14. A teammate insists they are tied at exactly one specific game and nowhere else. Classify the true number of games g that make them tied.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36501,6 +36516,11 @@
             "sport": "softball",
             "prompt": "Two pitchers each record 5 strikeouts per game and both start the season with 0. After g games, each has 5g, so 5g = 5g. How many values of g make their strikeout totals equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36523,6 +36543,11 @@
             "sport": "softball",
             "prompt": "Two pitchers each add 5 strikeouts per game, but one leads 9 to 3. Their totals are equal when 5g + 3 = 5g + 9. How many games g make them even?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36567,6 +36592,11 @@
             "sport": "softball",
             "prompt": "Two pitchers each add 5 strikeouts per game, one leading 9 to 3, so 5g + 3 = 5g + 9. A fan claims they tie at g = 0 since 'the variable disappears.' Classify the real number of games g that make them tied.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36589,6 +36619,11 @@
             "sport": "basketball",
             "prompt": "Two scorers each average 18 points per night and both start at 90 points. After g games each has 18g + 90, so 18g + 90 = 18g + 90. How many values of g make their point totals equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36611,6 +36646,11 @@
             "sport": "basketball",
             "prompt": "Two scorers each average 18 points per night, sitting at 90 and 126 points. Their totals are equal when 18g + 90 = 18g + 126. How many games g close the gap?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36655,6 +36695,11 @@
             "sport": "basketball",
             "prompt": "Two 18-a-night scorers both start at 90 points, so 18g + 90 = 18g + 90. A coach says they are level at exactly one game. Classify the true number of games g that make their totals equal.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36677,6 +36722,11 @@
             "sport": "soccer",
             "prompt": "Two clubs each earn 2 points per match and both sit on 20 points. After m matches each has 2m + 20, so 2m + 20 = 2m + 20. How many values of m make their point totals equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36699,6 +36749,11 @@
             "sport": "soccer",
             "prompt": "Two clubs each earn 2 points per match, but one sits on 20 and the other on 26. Their totals are equal when 2m + 20 = 2m + 26. How many matches m level them?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36743,6 +36798,11 @@
             "sport": "soccer",
             "prompt": "Two clubs both earn 2 points per match and are level on 20, so 2m + 20 = 2m + 20. A pundit insists they are only level at m = 0 because 'the m goes away.' Classify the real number of matches m that make them level.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36765,6 +36825,11 @@
             "sport": "football",
             "prompt": "Two running backs each gain 90 yards per game and both start at 280 yards. After g games each has 90g + 280, so 90g + 280 = 90g + 280. How many values of g make their yardage totals equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36787,6 +36852,11 @@
             "sport": "football",
             "prompt": "Two backs each gain 90 yards per game with totals of 280 and 350. Their totals are equal when 90g + 280 = 90g + 350. How many games g even them up?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36831,6 +36901,11 @@
             "sport": "football",
             "prompt": "Two backs each gain 90 yards per game with totals of 280 and 350, so 90g + 280 = 90g + 350. A broadcaster claims they tie at exactly one game. Classify the real number of games g that even their totals.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36853,6 +36928,11 @@
             "sport": "volleyball",
             "prompt": "Two outside hitters each average 4 kills per set and both sit on 36 kills. After s sets each has 4s + 36, so 4s + 36 = 4s + 36. How many values of s make their kill totals equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36875,6 +36955,11 @@
             "sport": "volleyball",
             "prompt": "Two outside hitters each average 4 kills per set, sitting on 36 and 48 kills. Their totals are equal when 4s + 36 = 4s + 48. How many sets s level them?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -36919,6 +37004,11 @@
             "sport": "volleyball",
             "prompt": "Two outside hitters both average 4 kills per set from 36 apiece, so 4s + 36 = 4s + 36. A scorekeeper says they are only tied at s = 0 because 'the s cancels.' Classify the true number of sets s that make their kill totals equal.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36941,6 +37031,11 @@
             "sport": "neutral",
             "prompt": "Two savings plans each add $5 a week and both start at $40. After w weeks each holds 5w + 40, so 5w + 40 = 5w + 40. How many values of w make the balances equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -36963,6 +37058,11 @@
             "sport": "neutral",
             "prompt": "Two plans each add $5 a week, but one starts at $40 and the other at $52. Their balances are equal when 5w + 40 = 5w + 52. How many weeks w make them equal?",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37007,6 +37107,11 @@
             "sport": "neutral",
             "prompt": "Two plans both add $5 a week and start level at $40, so 5w + 40 = 5w + 40. Someone claims they are equal only at w = 0 since 'the w cancels.' Classify the real number of weeks w that make the balances equal.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37031,6 +37136,11 @@
             "sport": "baseball",
             "prompt": "A scout writes a hitter's projection two ways and sets them equal: 2(h + 7) = 2h + 14, where h is hits so far. Simplify and classify the number of solutions for h.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37053,6 +37163,11 @@
             "sport": "baseball",
             "prompt": "Two scouting models for a hitter's hits h are set equal: 3h + 5 = 3(h + 4). Simplify and classify the number of solutions for h.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37075,6 +37190,11 @@
             "sport": "baseball",
             "prompt": "A model for hits h reduces to 5h + 8 = 2h + 23. Simplify and classify the number of solutions for h.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "one solution"
@@ -37097,6 +37217,11 @@
             "sport": "baseball",
             "prompt": "A projection for hits h is set equal to a rewrite: 4(h + 1) − h = 3h + 4. Simplify both sides and classify the number of solutions for h.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37119,6 +37244,11 @@
             "sport": "softball",
             "prompt": "A pitcher's strikeout count k is modeled two ways and set equal: 5(k + 2) = 5k + 10. Simplify and classify the number of solutions for k.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37141,6 +37271,11 @@
             "sport": "softball",
             "prompt": "Two models for strikeouts k are set equal: 6k + 1 = 6(k + 3). Simplify and classify the number of solutions for k.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37163,6 +37298,11 @@
             "sport": "softball",
             "prompt": "A strikeout model reduces to 7k + 4 = 3k + 24. Simplify and classify the number of solutions for k.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "one solution"
@@ -37185,6 +37325,11 @@
             "sport": "softball",
             "prompt": "A strikeout projection is set equal to a rewrite: 2(3k + 4) = 6k + 9. Simplify and classify the number of solutions for k.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37207,6 +37352,11 @@
             "sport": "basketball",
             "prompt": "A scorer's point total p is modeled two ways and set equal: 3(p + 6) = 3p + 18. Simplify and classify the number of solutions for p.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37229,6 +37379,11 @@
             "sport": "basketball",
             "prompt": "Two models for points p are set equal: 4p + 7 = 4(p + 5). Simplify and classify the number of solutions for p.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37251,6 +37406,11 @@
             "sport": "basketball",
             "prompt": "A points model reduces to 9p + 5 = 4p + 45. Simplify and classify the number of solutions for p.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "one solution"
@@ -37273,6 +37433,11 @@
             "sport": "basketball",
             "prompt": "A points projection is set equal to a rewrite: 5(p + 2) − 2p = 3p + 10. Simplify both sides and classify the number of solutions for p.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37295,6 +37460,11 @@
             "sport": "soccer",
             "prompt": "A club's points total q is modeled two ways and set equal: 2(q + 9) = 2q + 18. Simplify and classify the number of solutions for q.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37317,6 +37487,11 @@
             "sport": "soccer",
             "prompt": "Two models for points q are set equal: 3q + 4 = 3(q + 6). Simplify and classify the number of solutions for q.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37339,6 +37514,11 @@
             "sport": "soccer",
             "prompt": "A points model reduces to 6q + 2 = 2q + 22. Simplify and classify the number of solutions for q.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "one solution"
@@ -37361,6 +37541,11 @@
             "sport": "soccer",
             "prompt": "A points projection is set equal to a rewrite: 4(q + 3) = 4q + 11. Simplify and classify the number of solutions for q.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37383,6 +37568,11 @@
             "sport": "football",
             "prompt": "A back's rushing yards y are modeled two ways and set equal: 10(y + 5) = 10y + 50. Simplify and classify the number of solutions for y.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37405,6 +37595,11 @@
             "sport": "football",
             "prompt": "Two models for rushing yards y are set equal: 8y + 15 = 8(y + 4). Simplify and classify the number of solutions for y.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37427,6 +37622,11 @@
             "sport": "football",
             "prompt": "A rushing-yards model reduces to 12y + 20 = 4y + 100. Simplify and classify the number of solutions for y.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "one solution"
@@ -37449,6 +37649,11 @@
             "sport": "football",
             "prompt": "A rushing projection is set equal to a rewrite: 3(2y + 5) = 6y + 14. Simplify and classify the number of solutions for y.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37471,6 +37676,11 @@
             "sport": "volleyball",
             "prompt": "A hitter's kill total c is modeled two ways and set equal: 4(c + 3) = 4c + 12. Simplify and classify the number of solutions for c.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37493,6 +37703,11 @@
             "sport": "volleyball",
             "prompt": "Two models for kills c are set equal: 5c + 6 = 5(c + 4). Simplify and classify the number of solutions for c.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37515,6 +37730,11 @@
             "sport": "volleyball",
             "prompt": "A kills model reduces to 8c + 3 = 3c + 28. Simplify and classify the number of solutions for c.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "one solution"
@@ -37537,6 +37757,11 @@
             "sport": "volleyball",
             "prompt": "A kills projection is set equal to a rewrite: 2(2c + 6) − c = 3c + 12. Simplify both sides and classify the number of solutions for c.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37669,6 +37894,11 @@
             "sport": "neutral",
             "prompt": "Classify the number of solutions: 2x + 5 = 2x + 5.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37691,6 +37921,11 @@
             "sport": "neutral",
             "prompt": "Classify the number of solutions: 3x + 7 = 3x + 2.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37713,6 +37948,11 @@
             "sport": "neutral",
             "prompt": "Classify the number of solutions: 6x − 1 = 2x + 11.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "one solution"
@@ -37735,6 +37975,11 @@
             "sport": "neutral",
             "prompt": "Simplify, then classify the number of solutions: 4(x + 2) = 4x + 8.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"
@@ -37757,6 +38002,11 @@
             "sport": "neutral",
             "prompt": "Simplify, then classify the number of solutions: 5(x + 3) = 5x + 9.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "no solution"
@@ -37779,6 +38029,11 @@
             "sport": "neutral",
             "prompt": "Simplify both sides, then classify the number of solutions: 3(2x + 1) − x = 5x + 3.",
             "visual": "balance",
+            "choices": [
+              "one solution",
+              "no solution",
+              "infinitely many solutions"
+            ],
             "answer": {
               "kind": "choice",
               "value": "infinitely many solutions"

@@ -124,6 +124,10 @@ export default async function PracticePage({
     hints: s.problem.hints,
     isProbe: s.isProbe,
     answerKind: s.problem.answer.kind,
+    // Multiple-choice options ride the same narrow DTO channel as `visual`;
+    // answer.value stays stripped (engine re-checks server-side). Omitted when
+    // the problem isn't a choice item. Covers normal items AND the probe.
+    ...(s.problem.choices ? { choices: s.problem.choices } : {}),
     // Compute keypad flags from the answer HERE; ship ONLY the booleans (the
     // answer value stays stripped). null → no keypad → omit the field.
     inputNotation: inputNotation(s.problem.answer) ?? undefined,

@@ -15,6 +15,8 @@ import { useRouter } from "next/navigation";
 import { Card } from "../../../../../components/ui/Card";
 import { Button } from "../../../../../components/ui/Button";
 import { Input } from "../../../../../components/ui/Input";
+import { ChoiceInput } from "../../../../../components/ui/ChoiceInput";
+import { widgetForKind } from "../../../../../components/learning/answer-widget";
 import { Progress } from "../../../../../components/ui/Progress";
 import { AlertPanel, InsetPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon, CheckIcon, CrossIcon } from "../../../../../components/ui/icons";
@@ -68,6 +70,12 @@ export interface ServedItem {
   hints: string[];
   isProbe: boolean;
   answerKind: AnswerSpec["kind"];
+  /**
+   * Multiple-choice options (only for answerKind === "choice"). Carries the
+   * option strings — NEVER the answer value (engine re-checks server-side).
+   * Absent for non-choice items.
+   */
+  choices?: string[];
   /**
    * Answer-FREE keypad flags computed server-side from the served problem's
    * answer (page.tsx). Only the booleans ship — never the answer value. Absent
@@ -176,10 +184,32 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
   const hintsAvailable = Math.min(2, item.hints.length);
   const canShowHint = hintsShown < hintsAvailable && !feedback;
   const visibleHints = item.hints.slice(0, hintsShown);
-  // Keypad shows ONLY when the served answer carries typeable notation. The
-  // flags are answer-free (computed server-side); the value never reached us.
-  const keypad = item.inputNotation ?? null;
+  const isChoice = widgetForKind(item.answerKind) === "choice";
+  // Keypad shows ONLY when the served answer carries typeable notation (never
+  // for choice items). The flags are answer-free (computed server-side).
+  const keypad = isChoice ? null : (item.inputNotation ?? null);
   const hint = keypad ? keypadHint(keypad) : null;
+
+  // Feedback-moment marks for the choice widget (R2): mark ONLY the chosen row
+  // and, if missed, the correct row. The correct option string is derivable
+  // here only at feedback time — server-confirmed via the response/correctness.
+  // We never receive answer.value; the chosen row is `submittedResponse`, and
+  // the correct row is supplied by the server feedback (result.correctChoice).
+  const choiceMarks: Record<string, "you-correct" | "you-wrong" | "correct"> | undefined =
+    feedback && isChoice
+      ? (() => {
+          const marks: Record<string, "you-correct" | "you-wrong" | "correct"> = {};
+          if (feedback.correct) {
+            marks[submittedResponse] = "you-correct";
+          } else {
+            marks[submittedResponse] = "you-wrong";
+            if (feedback.correctChoice && feedback.correctChoice !== submittedResponse) {
+              marks[feedback.correctChoice] = "correct";
+            }
+          }
+          return marks;
+        })()
+      : undefined;
 
   return (
     <div className="mx-auto max-w-[720px]">
@@ -256,7 +286,9 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
           {/* Integrated visual (no split-attention) — marked up AFTER submit only.
               Pre-submit there is nothing to show in the frame; the prompt carries
               the context. The bordered box appears only once feedback exists. */}
-          {item.visual && feedback && (
+          {/* Typed-answer marked-up comparison. Suppressed for choice items —
+              the chosen/correct rows are marked in the ChoiceInput itself (R2). */}
+          {item.visual && feedback && !isChoice && (
             <div className="mt-5 rounded-[10px] border border-border bg-inset px-4 py-4">
               <MarkedUpVisual
                 visual={item.visual}
@@ -274,6 +306,18 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
                 void submit();
               }}
             >
+              {isChoice ? (
+                // Multiple-choice → ChoiceInput. The chosen option's exact
+                // string becomes `value` (same submission path); keypad/format
+                // hint/live echo are suppressed. Enter submits via the form.
+                <ChoiceInput
+                  choices={item.choices ?? []}
+                  value={value}
+                  onChange={setValue}
+                  autoFocus
+                />
+              ) : (
+                <>
               {/* When the response IS the manipulable the Input is suppressed;
                   these banks are typed-answer, so the Input is the input. */}
               <Input
@@ -308,6 +352,8 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
                   {value.trim() ? <MathText>{value}</MathText> : " "}
                 </p>
               )}
+                </>
+              )}
               {visibleHints.length > 0 && (
                 <InsetPanel label="Hint" className="mt-4">
                   <div className="flex flex-col gap-2">
@@ -337,13 +383,29 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
               )}
             </form>
           ) : (
-            <Feedback
-              result={feedback}
-              isLast={isLast}
-              isProbe={item.isProbe}
-              onNext={next}
-              onTryAgain={tryAgain}
-            />
+            <>
+              {/* Choice feedback (R2): the options stay on screen, locked, with
+                  ONLY the chosen row marked (and the correct row if missed).
+                  Other distractors stay neutral. */}
+              {isChoice && (
+                <div className="mt-6">
+                  <ChoiceInput
+                    choices={item.choices ?? []}
+                    value={submittedResponse}
+                    onChange={() => {}}
+                    disabled
+                    markedRows={choiceMarks}
+                  />
+                </div>
+              )}
+              <Feedback
+                result={feedback}
+                isLast={isLast}
+                isProbe={item.isProbe}
+                onNext={next}
+                onTryAgain={tryAgain}
+              />
+            </>
           )}
         </Card>
       </div>

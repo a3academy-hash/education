@@ -50,6 +50,12 @@ export interface PracticeResult {
   phaseChanged: boolean;
   /** True when this attempt earned (or restored) mastery on the node. */
   masteredNow: boolean;
+  /**
+   * Multiple-choice items ONLY: the correct option string, for marking the
+   * correct row at the feedback moment (the options are already on screen).
+   * Absent for every non-choice kind — the typed value is never serialized.
+   */
+  correctChoice?: string;
 }
 
 export type SubmitPracticeResponse =

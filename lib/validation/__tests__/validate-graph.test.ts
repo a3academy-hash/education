@@ -42,6 +42,8 @@ const makeProblem = (
   phase: number,
   sport: string,
   misconceptionMap?: Record<string, string>,
+  // LB3: optional overrides so a fixture can craft choice items / unknown kinds.
+  overrides?: { answer?: unknown; choices?: unknown },
 ) => ({
   id,
   version: 1,
@@ -50,7 +52,8 @@ const makeProblem = (
   sport,
   prompt: "What is 1 + 1?",
   visual: null,
-  answer: { kind: "numeric", value: "2" },
+  ...(overrides && "choices" in overrides ? { choices: overrides.choices } : {}),
+  answer: overrides?.answer ?? { kind: "numeric", value: "2" },
   ...(misconceptionMap ? { misconceptionMap } : {}),
   hints: [],
   difficulty: 1,
@@ -264,6 +267,137 @@ describe("validateGraph — crafted fixtures", () => {
     );
     expect(warnings).toHaveLength(1);
     expect(warnings[0].message).toContain('"never-used"');
+  });
+
+  // -------------------------------------------------------------------------
+  // LB3 — choice integrity + kind↔widget contract (PROBLEM_MISMATCH).
+  // -------------------------------------------------------------------------
+
+  const validChoice = () => ({
+    answer: { kind: "choice", value: "no solution" },
+    choices: ["one solution", "no solution", "infinitely many solutions"],
+  });
+
+  it("PROBLEM_MISMATCH — a well-formed choice item passes", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem("P-ch-ok", "A", 1, "baseball", undefined, validChoice()),
+    );
+    const report = validateGraph(g);
+    expect(errorsOf(report.issues, "PROBLEM_MISMATCH")).toHaveLength(0);
+  });
+
+  it("PROBLEM_MISMATCH — choice with no choices[] fails", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem("P-ch-none", "A", 1, "baseball", undefined, {
+        answer: { kind: "choice", value: "no solution" },
+      }),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    expect(mismatches).toHaveLength(1);
+    expect(mismatches[0].message).toContain("at least 2 strings");
+  });
+
+  it("PROBLEM_MISMATCH — choice with fewer than 2 choices fails", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem("P-ch-short", "A", 1, "baseball", undefined, {
+        answer: { kind: "choice", value: "no solution" },
+        choices: ["no solution"],
+      }),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    expect(mismatches).toHaveLength(1);
+    expect(mismatches[0].message).toContain("at least 2 strings");
+  });
+
+  it("PROBLEM_MISMATCH — choice whose answer.value is not in choices fails", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem("P-ch-val", "A", 1, "baseball", undefined, {
+        answer: { kind: "choice", value: "two solutions" },
+        choices: ["one solution", "no solution"],
+      }),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    expect(mismatches).toHaveLength(1);
+    expect(mismatches[0].message).toContain("is not one of its choices");
+  });
+
+  it("PROBLEM_MISMATCH — duplicate choices fail", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem("P-ch-dup", "A", 1, "baseball", undefined, {
+        answer: { kind: "choice", value: "no solution" },
+        choices: ["no solution", "no solution", "one solution"],
+      }),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    expect(mismatches.some((i) => i.message.includes("duplicate choices"))).toBe(true);
+  });
+
+  it("PROBLEM_MISMATCH — all-correct (no distractor) fails", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem("P-ch-allcorrect", "A", 1, "baseball", undefined, {
+        answer: { kind: "choice", value: "no solution" },
+        choices: ["no solution", "no solution"],
+      }),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    // duplicate AND no-distractor both fire here — both are integrity errors.
+    expect(mismatches.some((i) => i.message.includes("no distractor"))).toBe(true);
+  });
+
+  it("PROBLEM_MISMATCH — misconceptionMap key not among choices fails", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem(
+        "P-ch-mapkey",
+        "A",
+        1,
+        "baseball",
+        { "two solutions": "tag-a" },
+        {
+          answer: { kind: "choice", value: "no solution" },
+          choices: ["one solution", "no solution", "infinitely many solutions"],
+        },
+      ),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    expect(mismatches.some((i) => i.message.includes("is not one of its choices"))).toBe(true);
+  });
+
+  it("PROBLEM_MISMATCH — misconceptionMap key equal to answer.value fails", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem(
+        "P-ch-mapself",
+        "A",
+        1,
+        "baseball",
+        { "no solution": "tag-a" },
+        {
+          answer: { kind: "choice", value: "no solution" },
+          choices: ["one solution", "no solution"],
+        },
+      ),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    expect(mismatches.some((i) => i.message.includes("equals answer.value"))).toBe(true);
+  });
+
+  it("PROBLEM_MISMATCH — an unknown answer.kind fails (kind↔widget contract)", () => {
+    const g = makeGraph();
+    g.nodes[0].problems.p1.push(
+      makeProblem("P-kind", "A", 1, "baseball", undefined, {
+        answer: { kind: "freeform", value: "anything" },
+      }),
+    );
+    const mismatches = errorsOf(validateGraph(g).issues, "PROBLEM_MISMATCH");
+    expect(mismatches).toHaveLength(1);
+    expect(mismatches[0].message).toContain("unknown answer.kind");
   });
 
   it("stats — roots, leaves, maxDepth", () => {
