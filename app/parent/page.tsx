@@ -13,7 +13,7 @@
 import { redirect } from "next/navigation";
 import { getAuthMode } from "../../lib/auth/mode";
 import { getCurrentParent, getRoster } from "../../lib/auth/parent";
-import { launchChild } from "./actions";
+import { AutoLaunchForm } from "./AutoLaunchForm";
 import { ParentShell } from "../../components/layout/ParentShell";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
@@ -74,29 +74,13 @@ export default async function ParentDashboardPage() {
   );
 }
 
-/** Auto-launch interstitial (P6): a server form auto-submitted client-side. */
+/** Auto-launch interstitial (P6): the auto-submit runs in a client component
+ *  (useEffect on mount) so it fires on client-side navigation too — an inline
+ *  RSC <script> does not execute on client nav. */
 function AutoLaunch({ studentId }: { studentId: string }) {
   return (
     <ParentShell parentName={null}>
-      <div className="fade-in flex min-h-[40vh] flex-col items-center justify-center text-center">
-        <p className="text-[14px] text-ink-500">Opening your student&rsquo;s course…</p>
-        <form action={launchChild} id="auto-launch">
-          <input type="hidden" name="studentId" value={studentId} />
-          <noscript>
-            <button
-              type="submit"
-              className="mt-4 inline-flex items-center justify-center rounded-[10px] bg-accent px-[22px] py-[11px] text-[14px] font-semibold text-white"
-            >
-              Continue
-            </button>
-          </noscript>
-        </form>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: "document.getElementById('auto-launch')?.requestSubmit();",
-          }}
-        />
-      </div>
+      <AutoLaunchForm studentId={studentId} />
     </ParentShell>
   );
 }
