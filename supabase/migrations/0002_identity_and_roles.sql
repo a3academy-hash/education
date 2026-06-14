@@ -119,9 +119,9 @@ returns uuid
 language sql
 stable
 security definer
-set search_path = pg_catalog, app
+set search_path = pg_catalog, public, app
 as $$
-  select campus_id from student_profiles where id = p_student;
+  select campus_id from public.student_profiles where id = p_student;
 $$;
 
 
@@ -187,10 +187,10 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = pg_catalog, app
+set search_path = pg_catalog, public, app
 as $$
   select exists (
-    select 1 from staff_profiles s where s.id = app.current_actor_id()
+    select 1 from public.staff_profiles s where s.id = app.current_actor_id()
   );
 $$;
 
@@ -203,11 +203,11 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = pg_catalog, app
+set search_path = pg_catalog, public, app
 as $$
   select exists (
     select 1
-    from staff_profiles s
+    from public.staff_profiles s
     where s.id = app.current_actor_id()
       and (
         s.role = 'super_admin'
@@ -233,12 +233,12 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = pg_catalog, app
+set search_path = pg_catalog, public, app
 as $$
   select exists (
     select 1
-    from parent_student_links l
-    join consent_events ce on ce.id = l.current_consent_event_id
+    from public.parent_student_links l
+    join public.consent_events ce on ce.id = l.current_consent_event_id
     where l.parent_id = app.current_actor_id()
       and l.student_id = p_student
       and l.status = 'active'
