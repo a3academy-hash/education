@@ -1,6 +1,6 @@
 // lib/auth/parent.ts — server-only resolution of the AUTHENTICATED PARENT and
 // their child roster (C2 P3/P5/P6). Mirrors lib/auth/session.ts for the parent
-// side: the verified parent uid (via userClient.auth.getUser(), never the raw
+// side: the verified parent uid (via userClient.auth.getClaims(), never the raw
 // cookie) plus the roster the parent is permitted to see.
 //
 // SECURITY:
@@ -42,14 +42,15 @@ export interface RosterChild {
 export async function getCurrentParent(): Promise<ParentIdentity | null> {
   try {
     const userClient = await createUserClient();
-    const { data, error } = await userClient.auth.getUser();
-    if (error || !data?.user) return null;
+    const { data, error } = await userClient.auth.getClaims();
+    if (error || !data?.claims) return null;
 
-    const claims = (data.user.app_metadata ?? {}) as Record<string, unknown>;
+    const claims = data.claims as Record<string, unknown>;
     const role = typeof claims.role === "string" ? claims.role : null;
     if (role !== "parent") return null;
 
-    const uid = data.user.id;
+    const uid = typeof claims.sub === "string" ? claims.sub : null;
+    if (!uid) return null;
     // Name from parent_profiles (the parent can read their own row via RLS).
     const { data: profile } = await userClient
       .from("parent_profiles")

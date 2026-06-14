@@ -51,14 +51,17 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // SERVER-VERIFIED refresh (do not use getSession in middleware).
+  // SERVER-VERIFIED refresh (do not use getSession in middleware). getUser()'s
+  // side effect performs the @supabase/ssr cookie refresh; keep it.
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const role =
-    user && typeof (user.app_metadata as Record<string, unknown> | undefined)?.role === "string"
-      ? ((user.app_metadata as Record<string, unknown>).role as string)
-      : null;
+
+  // Role comes from the verified getClaims() (the 0005-minted top-level JWT
+  // claim that RLS reads), NOT app_metadata.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const claims = (claimsData?.claims ?? {}) as Record<string, unknown>;
+  const role = typeof claims.role === "string" ? claims.role : null;
 
   const path = request.nextUrl.pathname;
   const isParent = path === "/parent" || path.startsWith("/parent/");

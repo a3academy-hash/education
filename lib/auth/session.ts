@@ -11,8 +11,9 @@
 //
 // SUPABASE MODE (Model B — S1/S2/S8/S9):
 //   identity = the SERVER-VERIFIED `student_id` JWT claim, read via
-//   userClient.auth.getUser() (a network call to the Auth server that VERIFIES
-//   the token — NEVER the raw, spoofable cookie). Then consent is enforced
+//   userClient.auth.getClaims() (validates the token — NEVER the raw, spoofable
+//   cookie — and is the single source of truth shared with RLS). Then consent
+//   is enforced
 //   server-side: the active child must have a CURRENTLY-granted parent link, or
 //   we fail closed (return null / paused) so no evidence surface loads
 //   (PRE-CONSENT EVIDENCE INVARIANT, S8). Mid-session revocation degrades to
@@ -83,22 +84,21 @@ export async function resolveStudentSession(): Promise<StudentSession> {
   // ── supabase mode (Model B) ───────────────────────────────────────────────
   try {
     const userClient = await createUserClient();
-    // SERVER-VERIFIED: getUser() validates the JWT with the Auth server. Do NOT
-    // use getSession() here (it trusts the cookie without verification).
-    const { data, error } = await userClient.auth.getUser();
-    if (error || !data?.user) return { studentId: null, status: "none" };
+    // SERVER-VERIFIED: getClaims() validates the JWT (asymmetric via JWKS, else
+    // network getUser fallback). Single source of truth with RLS — both read the
+    // claims minted by the 0005 access-token hook. Do NOT use getSession().
+    const { data, error } = await userClient.auth.getClaims();
+    if (error || !data?.claims) return { studentId: null, status: "none" };
 
-    // The student_id claim is minted by the 0005 hook from the student's OWN
-    // profile (Model B) — never client input. A non-student principal (parent/
-    // staff/unprovisioned) carries no student_id → no active student here.
-    const claims = (data.user.app_metadata ?? {}) as Record<string, unknown>;
+    const claims = data.claims as Record<string, unknown>;
+    const role = typeof claims.role === "string" ? claims.role : null;
     const claimStudentId =
       typeof claims.student_id === "string" ? claims.student_id : null;
-    // Fall back to the verified uid only when role === 'student' (Model B keeps
-    // student_id == auth uid); never accept a uid for a non-student principal.
-    const role = typeof claims.role === "string" ? claims.role : null;
-    const studentId =
-      claimStudentId ?? (role === "student" ? data.user.id : null);
+
+    // Model B: the hook mints student_id ONLY for a student principal, from that
+    // student's own profile. A non-student (parent/staff/unprovisioned) carries no
+    // student_id → no active student here.
+    const studentId = role === "student" ? claimStudentId : null;
     if (!studentId) return { studentId: null, status: "none" };
 
     // PRE-CONSENT / PAUSED ENFORCEMENT (S8/S9): the active child must have a
