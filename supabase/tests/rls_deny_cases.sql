@@ -464,6 +464,14 @@ do $$ begin raise notice '================ ALL DENY CASES PASSED ===============
 
 -- The whole suite is non-destructive: rollback discards the seed + every probe.
 rollback;
+
+-- Grid-visible pass signal. The Supabase SQL editor shows the LAST statement's
+-- result and is unreliable about surfacing RAISE NOTICE (the per-test "PASS [...]"
+-- lines + the banner above go to the Messages pane). Reaching this final SELECT
+-- means NO assertion raised — any failure aborts the batch earlier with a red
+-- "DENY-CASE FAIL" error and never gets here. Runs as a literal after rollback
+-- (touches no rolled-back rows), so the grid shows it ONLY on a fully clean run.
+select '================ ALL DENY CASES PASSED ================' as deny_suite_result;
 -- =============================================================================
 -- END rls_deny_cases.sql — NOT EXECUTED here; Matt runs after applying 0001→0004.
 -- =============================================================================
