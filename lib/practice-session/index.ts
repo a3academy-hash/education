@@ -112,6 +112,10 @@ export async function runPracticeAttempt(
   const node = graph.nodes.find((n) => n.id === raw.skillId);
   if (!node) throw new PracticeAttemptError("Unknown skill.");
 
+  // Parent-row guarantee before any evidence write (FK student_attempts/
+  // mastery_updates → sessions). Idempotent across the attempts of one session.
+  await repo.ensureSession({ id: raw.sessionId, studentId, kind: "practice" });
+
   const states = await repo.getSkillStates(studentId);
   const prev = states[raw.skillId] ?? blankState();
 

@@ -92,6 +92,18 @@ describe("InMemoryRepository — graph", () => {
   });
 });
 
+describe("InMemoryRepository — ensureSession", () => {
+  it("is idempotent: repeated calls with the same id do not throw", async () => {
+    const repo = new InMemoryRepository();
+    await expect(
+      repo.ensureSession({ id: "sess-1", studentId: "stu-1", kind: "practice" }),
+    ).resolves.toBeUndefined();
+    await expect(
+      repo.ensureSession({ id: "sess-1", studentId: "stu-1", kind: "practice" }),
+    ).resolves.toBeUndefined();
+  });
+});
+
 describe("InMemoryRepository — append-only evidence log", () => {
   it("appendAttempt assigns id + createdAt and the attempt becomes listable", async () => {
     const repo = new InMemoryRepository();

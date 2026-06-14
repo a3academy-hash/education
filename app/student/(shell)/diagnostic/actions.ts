@@ -110,6 +110,8 @@ export async function persistDiagnostic(
     // enters mastery/phase/routing math).
     const sessionId = crypto.randomUUID();
 
+    await repo.ensureSession({ id: sessionId, studentId, kind: "diagnostic" });
+
     // (a) append the immutable attempt rows — the accreditation evidence trail.
     const attemptIds: string[] = [];
     for (const c of checked) {

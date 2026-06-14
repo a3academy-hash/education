@@ -2,7 +2,7 @@
 // and the two end-to-end loop tests (spec §L). Runs the REAL graph through the
 // REAL engine via the InMemoryRepository. Deterministic nowIso throughout.
 
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 import { InMemoryRepository } from "../repository/in-memory";
 import { runPracticeAttempt, PracticeAttemptError } from "./index";
 import { computeMasteryAll } from "../mastery-engine";
@@ -98,6 +98,46 @@ describe("runPracticeAttempt — §H ordering + invariants", () => {
       expect(u.sessionId).toBe(SESSION);
       expect(u.trigger).toBe("attempt");
     }
+  });
+
+  it("ensures the parent session row BEFORE the first appendAttempt (FK ordering invariant)", async () => {
+    // Record the order of repo calls; ensureSession must precede appendAttempt so
+    // student_attempts.session_id never FK-violates against sessions (live bug).
+    const calls: string[] = [];
+    vi.spyOn(repo, "ensureSession").mockImplementation(async () => {
+      calls.push("ensureSession");
+    });
+    const realAppend = repo.appendAttempt.bind(repo);
+    vi.spyOn(repo, "appendAttempt").mockImplementation(async (a) => {
+      calls.push("appendAttempt");
+      return realAppend(a);
+    });
+
+    await runPracticeAttempt(
+      repo,
+      STUDENT,
+      graph,
+      SPORT,
+      {
+        skillId: SKILL,
+        problemId: "ALG-F11-p1-baseball-01",
+        response: "25",
+        timeMs: 30_000,
+        hintsUsed: 0,
+        phase: 1,
+        isProbe: false,
+        sessionId: SESSION,
+      },
+      T(2),
+    );
+
+    expect(repo.ensureSession).toHaveBeenCalledWith({
+      id: SESSION,
+      studentId: STUDENT,
+      kind: "practice",
+    });
+    expect(calls.indexOf("ensureSession")).toBeGreaterThanOrEqual(0);
+    expect(calls.indexOf("ensureSession")).toBeLessThan(calls.indexOf("appendAttempt"));
   });
 
   it("server re-checks: a wrong response logs correct=false regardless of any client claim", async () => {

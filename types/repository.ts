@@ -31,6 +31,16 @@ export interface A3Repository {
   updateStudentSport(studentId: string, sport: Sport): Promise<void>;
   getSkillStates(studentId: string): Promise<Record<string, StudentSkillState>>;
   setSkillState(studentId: string, skillId: string, state: StudentSkillState): Promise<void>;
+  /**
+   * Idempotently ensure the parent session row exists before any evidence
+   * (student_attempts / mastery_updates) references it via session_id FK.
+   * NOT append-only (no immutability trigger on `sessions`) → insert-or-noop is
+   * allowed. Provenance only; never enters mastery/phase/routing math.
+   *   - InMemory → records the id (no FK to satisfy).
+   *   - Supabase → userClient insert with on-conflict-do-nothing on the PK
+   *               (own-insert RLS: sessions_insert_own).
+   */
+  ensureSession(input: { id: string; studentId: string; kind: string }): Promise<void>;
   /** Append-only evidence log. No update/delete exists by design (accreditation trail). */
   appendAttempt(a: NewStudentAttempt): Promise<StudentAttempt>;
   appendMasteryUpdate(u: NewMasteryUpdate): Promise<MasteryUpdate>;

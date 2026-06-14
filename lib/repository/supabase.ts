@@ -323,6 +323,20 @@ export class SupabaseRepository implements A3Repository {
     if (error) fail("setSkillState", error);
   }
 
+  // Idempotent parent-row write (NOT append-only — `sessions` has no immutability
+  // trigger). userClient: sessions_insert_own RLS authorizes the student's own
+  // session insert (least-privilege; NOT service-role). on-conflict-do-nothing on
+  // the PK makes repeat calls within one session a no-op.
+  async ensureSession(input: { id: string; studentId: string; kind: string }): Promise<void> {
+    const { error } = await this.userClient
+      .from("sessions")
+      .upsert(
+        { id: input.id, student_id: input.studentId, kind: input.kind },
+        { onConflict: "id", ignoreDuplicates: true },
+      );
+    if (error) fail("ensureSession", error);
+  }
+
   // APPEND-ONLY (C-A1): INSERT, never upsert/update/delete. Central stamping
   // (C-G1/C-G2): graph_version + engine_version filled HERE, never by the caller.
   async appendAttempt(a: NewStudentAttempt): Promise<StudentAttempt> {

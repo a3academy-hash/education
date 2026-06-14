@@ -70,6 +70,7 @@ export class InMemoryRepository implements A3Repository {
   private readonly skillStates = new Map<string, Map<string, StudentSkillState>>();
   private readonly attempts: StudentAttempt[] = [];
   private readonly masteryUpdates: MasteryUpdate[] = [];
+  private readonly sessions = new Set<string>();
 
   constructor(seed?: InMemorySeed) {
     this.rawGraph = seed?.graph ?? (graphJson as unknown);
@@ -140,6 +141,10 @@ export class InMemoryRepository implements A3Repository {
     const map = this.skillStates.get(studentId) ?? new Map<string, StudentSkillState>();
     map.set(skillId, copyState(state));
     this.skillStates.set(studentId, map);
+  }
+
+  async ensureSession(input: { id: string; studentId: string; kind: string }): Promise<void> {
+    this.sessions.add(input.id); // idempotent; in-memory has no FK to satisfy
   }
 
   async appendAttempt(a: NewStudentAttempt): Promise<StudentAttempt> {
