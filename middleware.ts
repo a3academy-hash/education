@@ -57,11 +57,11 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Role comes from the verified getClaims() (the 0005-minted top-level JWT
-  // claim that RLS reads), NOT app_metadata.
+  // App role is the 0005-minted 'user_role' claim (NOT the reserved 'role' claim,
+  // which PostgREST SET ROLEs to and must stay 'authenticated').
   const { data: claimsData } = await supabase.auth.getClaims();
   const claims = (claimsData?.claims ?? {}) as Record<string, unknown>;
-  const role = typeof claims.role === "string" ? claims.role : null;
+  const role = typeof claims.user_role === "string" ? claims.user_role : null;
 
   const path = request.nextUrl.pathname;
   const isParent = path === "/parent" || path.startsWith("/parent/");

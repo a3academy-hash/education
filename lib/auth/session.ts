@@ -91,7 +91,9 @@ export async function resolveStudentSession(): Promise<StudentSession> {
     if (error || !data?.claims) return { studentId: null, status: "none" };
 
     const claims = data.claims as Record<string, unknown>;
-    const role = typeof claims.role === "string" ? claims.role : null;
+    // App role is 'user_role' — NOT the reserved 'role' claim, which PostgREST
+    // SET ROLEs to and must stay 'authenticated' (see migration 0005).
+    const role = typeof claims.user_role === "string" ? claims.user_role : null;
     const claimStudentId =
       typeof claims.student_id === "string" ? claims.student_id : null;
 

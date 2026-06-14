@@ -45,10 +45,18 @@
 --                            (We do NOT set actor_id; the JWT 'sub' = auth uid is
 --                            the actor, and parent_student_links.parent_id /
 --                            staff_profiles.id are keyed to that uid — C-C2.)
---   role claim 'role'        reads:
+--   app-role claim 'user_role' reads:
 --        - student → 'student'
 --        - parent  → 'parent'
 --        - staff   → the staff_profiles.role ('super_admin'|'campus_admin'|'coach')
+--   *** RESERVED CLAIM WARNING: the JWT 'role' claim is RESERVED by PostgREST,
+--   which does `SET ROLE <role-claim>` per request — it MUST stay one of the
+--   Postgres roles (authenticated/anon/service_role). We therefore put the app
+--   role under 'user_role' and NEVER overwrite 'role' (leaving the incoming
+--   'authenticated'); overwriting it with 'student'/'parent' caused PostgREST to
+--   `SET ROLE student` → "role student does not exist" on every user-client query.
+--   RLS gates on sub/student_id/campus_id (NOT on the app role), so leaving 'role'
+--   as 'authenticated' is correct and complete.
 --   NOTE: the 0002 staff path keys on app.current_actor_id() (= sub = auth uid)
 --   matched against staff_profiles.id, so for staff we set role + campus_id but
 --   rely on sub (not a separate actor_id) for is_staff()/can_access_campus()
@@ -112,7 +120,7 @@ begin
 
   if v_student_id is not null then
     v_claims := v_claims
-      || jsonb_build_object('role', 'student')
+      || jsonb_build_object('user_role', 'student')
       || jsonb_build_object('student_id', v_student_id::text);
     if v_campus_id is not null then
       v_claims := v_claims || jsonb_build_object('campus_id', v_campus_id::text);
@@ -129,7 +137,7 @@ begin
    where s.id = v_uid;
 
   if v_staff_role is not null then
-    v_claims := v_claims || jsonb_build_object('role', v_staff_role);
+    v_claims := v_claims || jsonb_build_object('user_role', v_staff_role);
     if v_staff_campus is not null then
       v_claims := v_claims || jsonb_build_object('campus_id', v_staff_campus::text);
     end if;
@@ -147,14 +155,14 @@ begin
    where p.id = v_uid;
 
   if v_is_parent then
-    v_claims := v_claims || jsonb_build_object('role', 'parent');
+    v_claims := v_claims || jsonb_build_object('user_role', 'parent');
     event := jsonb_set(event, '{claims}', v_claims);
     return event;
   end if;
 
   -- 4) UNPROVISIONED — no matching profile. Fail closed: a role that no helper
   --    admits and no scoping claims. (C2 provisioning has not run for this uid.)
-  v_claims := v_claims || jsonb_build_object('role', 'unprovisioned');
+  v_claims := v_claims || jsonb_build_object('user_role', 'unprovisioned');
   event := jsonb_set(event, '{claims}', v_claims);
   return event;
 end;
@@ -181,7 +189,7 @@ grant select on public.parent_profiles  to supabase_auth_admin;
 
 -- ── 3. COMMENT (carry the rationale into the live catalog) ───────────────────
 comment on function public.custom_access_token_hook(jsonb) is
-  'Supabase Auth custom access-token hook (Model B). Mints role + student_id/campus_id claims SERVER-READ from student/staff/parent profile tables keyed by the authenticating auth uid (never client input — forge prevention C-C2). Claims match the 0001/0002 RLS helpers exactly (C-C1): current_student_id<-student_id, current_campus_id<-campus_id, current_actor_id<-sub, role<-role. This is how Model B mints the stable parent-provisioned student_id. SECURITY DEFINER, pinned search_path; EXECUTE granted only to supabase_auth_admin.';
+  'Supabase Auth custom access-token hook (Model B). Mints user_role + student_id/campus_id claims SERVER-READ from student/staff/parent profile tables keyed by the authenticating auth uid (never client input — forge prevention C-C2). Does NOT touch the RESERVED ''role'' claim (PostgREST SET ROLEs to it; it stays ''authenticated''). Claims match the 0001/0002 RLS helpers (C-C1): current_student_id<-student_id, current_campus_id<-campus_id, current_actor_id<-sub; the app reads user_role. This is how Model B mints the stable parent-provisioned student_id. SECURITY DEFINER, pinned search_path; EXECUTE granted only to supabase_auth_admin.';
 
 commit;
 

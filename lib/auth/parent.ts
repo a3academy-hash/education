@@ -46,7 +46,9 @@ export async function getCurrentParent(): Promise<ParentIdentity | null> {
     if (error || !data?.claims) return null;
 
     const claims = data.claims as Record<string, unknown>;
-    const role = typeof claims.role === "string" ? claims.role : null;
+    // App role is 'user_role' (the reserved 'role' claim stays 'authenticated'
+    // for PostgREST — see migration 0005).
+    const role = typeof claims.user_role === "string" ? claims.user_role : null;
     if (role !== "parent") return null;
 
     const uid = typeof claims.sub === "string" ? claims.sub : null;
