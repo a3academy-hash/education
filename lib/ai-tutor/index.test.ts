@@ -4,9 +4,19 @@ import type {
   ContextHooks,
   MisconceptionRegistryEntry,
   SkillNode,
+  Sport,
   TutorBackend,
   TutorResponse,
 } from "@/types";
+
+const SPORTS: Exclude<Sport, "neutral">[] = [
+  "baseball",
+  "softball",
+  "basketball",
+  "soccer",
+  "football",
+  "volleyball",
+];
 
 const hooks: ContextHooks = {
   baseball: "Run differential: down 4 runs, score 7 — net is +3.",
@@ -66,7 +76,10 @@ describe("RuleBasedTutor", () => {
       node,
       "baseball",
     );
+    expect(response.reframe).toContain("The core idea, in ");
     expect(response.reframe).toContain(hooks.baseball);
+    // The bridge phrase and the neutral hook are NOT contiguous — assert each.
+    expect(response.bridgeToNeutral).toContain("Stripped of the baseball context");
     expect(response.bridgeToNeutral).toContain(hooks.neutral);
   });
 
@@ -76,13 +89,59 @@ describe("RuleBasedTutor", () => {
     expect(response.reframe).toContain(hooks.soccer);
   });
 
-  it("neutral-track students get the neutral hook in the reframe too", async () => {
+  it("neutral-track students get the neutral hook reframe and NO bridge (no duplicate, no 'without the game')", async () => {
     const response = await new RuleBasedTutor(registry).remediate(
       "sign-error-addition",
       node,
       "neutral",
     );
+    expect(response.reframe).toContain("The core idea for this skill:");
     expect(response.reframe).toContain(hooks.neutral);
+    expect(response.bridgeToNeutral).toBe("");
+  });
+
+  it("locks the skill-scoped framing exactly — the reframe cannot read as a claim about the on-screen problem", async () => {
+    const exampleHooks: ContextHooks = {
+      ...hooks,
+      baseball: "Stacking three at-bats the same way: ×3 of the same thing.",
+      neutral: "5³ = 5·5·5 = 125",
+    };
+    const exampleNode: SkillNode = { ...node, contextHooks: exampleHooks };
+
+    const neutral = await new RuleBasedTutor(registry).remediate(
+      "sign-error-addition",
+      exampleNode,
+      "neutral",
+    );
+    expect(neutral.reframe).toBe("The core idea for this skill: 5³ = 5·5·5 = 125");
+
+    const baseball = await new RuleBasedTutor(registry).remediate(
+      "sign-error-addition",
+      exampleNode,
+      "baseball",
+    );
+    expect(baseball.reframe).toBe(
+      "The core idea, in baseball terms: " + exampleHooks.baseball,
+    );
+  });
+
+  it("frames every sport with a bridge, and the neutral track with none", async () => {
+    for (const sport of SPORTS) {
+      const response = await new RuleBasedTutor(registry).remediate(
+        "sign-error-addition",
+        node,
+        sport,
+      );
+      expect(response.reframe).toContain(`The core idea, in ${sport} terms:`);
+      expect(response.bridgeToNeutral).not.toBe("");
+    }
+
+    const neutral = await new RuleBasedTutor(registry).remediate(
+      "sign-error-addition",
+      node,
+      "neutral",
+    );
+    expect(neutral.bridgeToNeutral).toBe("");
   });
 });
 

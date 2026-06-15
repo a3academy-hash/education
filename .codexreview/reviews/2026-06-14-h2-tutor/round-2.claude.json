@@ -1,0 +1,29 @@
+{
+  "phase": "plan",
+  "round": 2,
+  "decision": "converge_to_build",
+  "concerns": [
+    {
+      "id": "R4-BRIDGE-SUBSTRING",
+      "source": "informed",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Test guidance corrected: assert the sport bridge contains the lead-in phrase 'Stripped of the {sport} context' AND (separately) the neutral hook — not the non-contiguous 'Stripped of the ' + neutralHook."
+    },
+    {
+      "id": "node-hook-mismatch",
+      "source": "cold",
+      "severity": "blocking",
+      "disposition": "accept",
+      "action": "Operationalized: add an end-to-end string test that, for a hook carrying a concrete example, asserts the EXACT final reframe equals 'The core idea for this skill: <hook>' (and the sport variant 'The core idea, in baseball terms: <hook>'). This locks the acceptance criterion that the rendered line is skill-scoped, so it cannot be read as a claim about the on-screen problem. RESOLUTION basis: mr-kahn (the designated curriculum authority per CLAUDE.md) ruled concept-framing sufficient and de-exampling harmful (would strip memorable anchors); per-problem help remains the separate 'why'. Not deferred."
+    },
+    {
+      "id": "sport-copy-contract",
+      "source": "cold",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "pee-wee (UX/copy authority) confirmed all six sport enum values are lowercase single words that read naturally mid-sentence (no display-name table needed). Add a test iterating every non-neutral Sport asserting the reframe is well-formed ('The core idea, in {sport} terms:' present) and the bridge is non-empty; neutral asserts bridge ''."
+    }
+  ],
+  "note": "All round-2 concerns accepted with concrete actions; the round-1 blocking concern is resolved via the curriculum authority's binding ruling plus an operational exact-string test. No unresolved/deferred blocking concern remains -> converge to build."
+}

@@ -1,0 +1,42 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "revise_spec_resolve_preconditions_then_reconverge",
+  "concerns": [
+    {
+      "id": "node-hook-mismatch",
+      "source": "both",
+      "severity": "blocking",
+      "disposition": "accept",
+      "action": "D3 is no longer 'defer'. It becomes an mr-kahn PRECONDITION ruling resolved before implementation. Recommended path: concept-framing — reframe lead-in makes the line read as 'the core idea for this skill' so the embedded canonical example is illustrative, not a claim about the on-screen problem; this directly resolves the 'talking about a different problem' perception with no large content rewrite. If mr-kahn instead requires de-exampling hooks, that scoped content change is included as the implementation. Either way the symptom is addressed, not deferred."
+    },
+    {
+      "id": "empty-bridge-contract",
+      "source": "cold",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "Enumerated all consumers: produced in lib/ai-tutor (TutorResponse types/engine.ts:32); carried verbatim through TutorPanel (lib/practice-session/index.ts:68,244) and TutorPanelData (shared.ts:29); rendered ONLY in PracticeFlow.tsx:529 (show-gate) + 556-558 (truthiness-gated, OUTSIDE the aria-live region). Never serialized to DB, logged, or announced. '' is safe everywhere."
+    },
+    {
+      "id": "d2-framing",
+      "source": "both",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Resolve to ONE framing: DROP the UI 'In context:' label; keep the framing lead-in inside the lib reframe string (so the final display string is fully unit-tested in lib/ai-tutor). pee-wee confirms the exact lead-in copy. No React-render test (repo has no jsdom/RTL); coverage = lib output strings + the existing truthiness gate."
+    },
+    {
+      "id": "neutral-value-assumption",
+      "source": "cold",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Sport is a closed union (types/core.ts:3-10) incl 'neutral'; problem.sport is typed Sport so always valid. Branch the bridge on `sport !== \"neutral\"` (bridge present only for a real sport). Input contract stated; tests cover a sport (bridge present) and neutral (bridge '')."
+    },
+    {
+      "id": "doc-framing-conflict",
+      "source": "informed",
+      "severity": "low",
+      "disposition": "accept",
+      "action": "Add a binding addendum to docs/design/phase4-direction.md (the 'In context: {tutor.reframe}' line) noting the UI label is removed and the framing now lives in the lib reframe string; reiterate diagnosis is never rendered. Also touch phase4-spec.md if it implies otherwise."
+    }
+  ]
+}

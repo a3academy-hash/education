@@ -1,0 +1,12 @@
+{
+  "phase": "plan",
+  "round": 2,
+  "spec_file": "D:/a3_education/.codexreview/reviews/2026-06-14-h2-tutor/spec.md",
+  "dossier_file": "D:/a3_education/.codexreview/reviews/2026-06-14-h2-tutor/dossier.md",
+  "resume_thread_id": "019ec8d9-4a49-7e11-8a02-4dc7b2742500",
+  "prior_responses": [
+    {"id": "H2-NODE-HOOK", "disposition": "accept", "action": "D3 no longer deferred; mr-kahn ruled concept-framing (option a). Reframe lead-in now reads 'The core idea for this skill: / The core idea, in {sport} terms:' so the embedded canonical example is illustrative, not a claim about the on-screen problem. See REVISION R1 + R6 FINAL COPY."},
+    {"id": "D2-UI-UNTETESTED", "disposition": "accept", "action": "Framing moved fully into the lib reframe string (single framing; UI 'In context:' label deleted). Unit-tested in lib/ai-tutor (repo has no jsdom/RTL). See R2 + R4."},
+    {"id": "DOC-FRAMING-CONFLICT", "disposition": "accept", "action": "phase4-direction.md gets a binding addendum (label removed, framing in lib, diagnosis never rendered). See R5."}
+  ]
+}

@@ -549,9 +549,7 @@ function Feedback({
               contextHook-built reframe + bridge (student-appropriate) show. */}
           <div className="flex flex-col gap-2.5 px-4 py-3.5">
             {result.tutor.reframe && (
-              <p className="text-[14px] leading-[1.5] text-ink-700">
-                <span className="font-medium">In context:</span> {result.tutor.reframe}
-              </p>
+              <p className="text-[14px] leading-[1.5] text-ink-700">{result.tutor.reframe}</p>
             )}
             {result.tutor.bridgeToNeutral && (
               <p className="text-[13px] leading-[1.5] text-ink-500">

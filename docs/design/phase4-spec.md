@@ -10,7 +10,7 @@ Compose COMMITTED engines only — no new mastery/routing/phase logic. No new de
 
 ## B. "WHY" assembly (mr-kahn #1 — NO new per-problem explanation field; reconciles pee-wee's templates)
 pee-wee's feedback templates ({whatRight}.{whyItWorks}. / {whatYouDid}.{theFix}.) are filled from EXISTING content, never a new field:
-- WRONG + matched tag (State B): primary = misconceptionRegistry[tag].description, STUDENT-REPHRASED (item 5), + the tutorRemediation panel (diagnosis/reframe/bridgeToNeutral). theFix from the registry description's corrective clause.
+- WRONG + matched tag (State B): primary = misconceptionRegistry[tag].description, STUDENT-REPHRASED (item 5), + the tutorRemediation panel (diagnosis/reframe/bridgeToNeutral). theFix from the registry description's corrective clause. CLARIFICATION (2026-06-14): `diagnosis` is audit-only and NEVER student-facing — the panel renders only `reframe` (+ the sport-only `bridgeToNeutral`).
 - WRONG + no tag (State C): reveal the next progressive hint as the "why-not-yet" (never fabricate a misconception). Deeper fallback = the node's workedExample terminal reveal step. No tutor panel.
 - CORRECT (State A): whyItWorks = the terminal reveal step of the workedExample whose pattern matches the item ("this is the {worked example title} pattern"); whatRight = restated result. No generated prose, no new field.
 Binding: assemble "why" from {misconceptionRegistry[tag].description, hints[], workedExamples[].steps[].reveal, tutorRemediation()} — all existing in v1.6.0 graph.

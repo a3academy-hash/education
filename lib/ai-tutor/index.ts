@@ -33,9 +33,12 @@ export class RuleBasedTutor implements TutorBackend {
     const neutralHook = node.contextHooks.neutral;
     const reframe =
       sport === "neutral"
-        ? `Look at it this way: ${neutralHook}`
-        : `Think about it in ${sport} terms: ${sportHook}`;
-    const bridgeToNeutral = `The same idea works without the game: ${neutralHook}`;
+        ? `The core idea for this skill: ${neutralHook}`
+        : `The core idea, in ${sport} terms: ${sportHook}`;
+    const bridgeToNeutral =
+      sport === "neutral"
+        ? ""
+        : `Stripped of the ${sport} context, it's the same move: ${neutralHook}`;
     return { diagnosis, reframe, bridgeToNeutral };
   }
 }

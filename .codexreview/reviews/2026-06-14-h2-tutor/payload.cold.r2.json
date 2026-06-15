@@ -1,0 +1,12 @@
+{
+  "phase": "plan",
+  "round": 2,
+  "spec_file": "D:/a3_education/.codexreview/reviews/2026-06-14-h2-tutor/spec.md",
+  "resume_thread_id": "019ec8db-0b88-7940-beac-5725807963af",
+  "prior_responses": [
+    {"id": "d3-defer-mismatch", "disposition": "accept", "action": "D3 is no longer deferred. It is resolved IN THIS FIX via concept-framing: the reframe lead-in 'The core idea for this skill:' / 'The core idea, in {sport} terms:' scopes the line to the SKILL so an embedded canonical example reads as illustrative, not a claim about the on-screen problem. The per-problem help remains the separate 'why'. See REVISION R1 + R6."},
+    {"id": "empty-bridge-contract", "disposition": "accept", "action": "All consumers enumerated: produced in lib/ai-tutor, carried verbatim through TutorPanel/TutorPanelData DTOs, rendered ONLY in PracticeFlow (truthiness-gated, outside aria-live); never serialized/logged/announced. '' is safe. See R3."},
+    {"id": "d2-undecided-implementation", "disposition": "accept", "action": "Resolved to ONE framing: drop the UI label, keep the lead-in in the lib reframe string; exact strings fixed in R6 FINAL COPY."},
+    {"id": "neutral-value-assumption", "disposition": "accept", "action": "Sport is a closed union incl 'neutral'; bridge built only when sport !== 'neutral'. See R3."}
+  ]
+}
