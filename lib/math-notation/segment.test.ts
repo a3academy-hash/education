@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-import katex from "katex";
 import { segmentMath } from "./segment";
-import { toLatex } from "./to-latex";
+import { renderMathRun } from "../../components/ui/MathText";
 
 /** The live repro: ALG-F04 P1 single-elimination bracket word problem. */
 const F04_PROMPT =
@@ -138,22 +137,22 @@ describe("segmentMath — grading-safety literal-input is all prose", () => {
 
 // ---------------------------------------------------------------------------
 // Render-path assertion (the behavior MathText depends on). MathText maps each
-// MATH segment through katex.renderToString(toLatex(run)); PROSE segments are
-// plain React text. We assert the RENDERED math HTML for the F04 prompt never
-// contains a single .katex element wrapping the whole sentence, and that the
-// prose text (with spaces) is present. This exercises the exact data MathText
-// renders without needing a jsdom/.tsx harness.
+// MATH segment through the exported production helper renderMathRun (toLatex →
+// katex.renderToString → degrade probe); PROSE segments are plain React text.
+// The helper below calls that SAME production renderMathRun (not a duplicated
+// katex.renderToString), so it exercises the real render path. We assert the
+// RENDERED math HTML for the F04 prompt never contains a single .katex element
+// wrapping the whole sentence, that the prose text (with spaces) is present,
+// and that genuine notation carries the MathML a11y node — without needing a
+// jsdom/.tsx harness.
 // ---------------------------------------------------------------------------
 describe("MathText render path — F04 prompt is readable prose, not one KaTeX blob", () => {
   function renderLikeMathText(s: string): string {
     return segmentMath(s)
       .map((seg) => {
         if (!seg.math) return seg.text; // plain prose text node
-        return katex.renderToString(toLatex(seg.text), {
-          throwOnError: false,
-          displayMode: false,
-          output: "html",
-        });
+        // Degrade-to-raw on null mirrors MathText's DEGRADE path.
+        return renderMathRun(seg.text, false) ?? seg.text;
       })
       .join("");
   }
@@ -178,5 +177,12 @@ describe("MathText render path — F04 prompt is readable prose, not one KaTeX b
     expect(out).toContain("Evaluate "); // prose, untouched
     expect(out).toContain("and compare");
     expect(out).toContain('class="katex"'); // 4² did render via KaTeX
+  });
+
+  it("emits the MathML a11y node (katex-mathml + <math>) from production renderMathRun", () => {
+    const html = renderMathRun("x^2", false);
+    expect(html).not.toBeNull();
+    expect(html).toContain("katex-mathml");
+    expect(html).toContain("<math");
   });
 });

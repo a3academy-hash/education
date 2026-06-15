@@ -12,6 +12,10 @@
 // The plain-text → LaTeX step is the pure, total toLatex() in lib/math-notation.
 // This component performs NO grading and holds NO state — it is display-only.
 //
+// KaTeX output is "htmlAndMathml" (not "html"): alongside the visual .katex-html
+// span (aria-hidden) KaTeX emits a .katex-mathml <math> node that assistive tech
+// reads aloud (a11y). katex.css already clips .katex-mathml, so ZERO visual change.
+//
 // DEGRADE (pee-wee, NON-NEGOTIABLE): if KaTeX throws OR returns its error markup
 // for a math run, that run renders as its RAW ORIGINAL text in the host font
 // (inherit), ink-colored. NEVER a red error, NEVER KaTeX error text, NEVER visible
@@ -43,15 +47,22 @@ export interface MathTextProps {
 /** KaTeX leaves this class on its output when throwOnError:false swallows an error. */
 const KATEX_ERROR_CLASS = "katex-error";
 
+/**
+ * KaTeX output mode. "htmlAndMathml" emits the visual .katex-html span AND a
+ * .katex-mathml <math> node for assistive tech (a11y). katex.css visually clips
+ * the MathML, so there is ZERO visual change versus the old "html"-only mode.
+ */
+export const KATEX_OUTPUT_MODE = "htmlAndMathml" as const;
+
 /** Attempt a render of ONE math run; return KaTeX HTML, or null to degrade to plain. */
-function tryRender(raw: string, displayStyle: boolean): string | null {
+export function renderMathRun(raw: string, displayStyle: boolean): string | null {
   try {
     const latex = toLatex(raw, { displayStyle });
     const html = katex.renderToString(latex, {
       throwOnError: false,
       displayMode: false,
       // Keep output strictly inline; do not let KaTeX color/scale globally.
-      output: "html",
+      output: KATEX_OUTPUT_MODE,
     });
     // Suspenders: if throwOnError:false produced error markup, degrade instead
     // of surfacing red/parse text to a student.
@@ -84,7 +95,7 @@ export function MathText({
           // PROSE: plain host-font text, spaces and weight intact, no KaTeX.
           return <Fragment key={i}>{seg.text}</Fragment>;
         }
-        const html = tryRender(seg.text, displayStyle);
+        const html = renderMathRun(seg.text, displayStyle);
         if (html === null) {
           // DEGRADE: raw run text, host font + ink color, no delimiters, no red.
           return (

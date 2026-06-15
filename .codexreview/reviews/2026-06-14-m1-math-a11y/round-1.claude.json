@@ -1,0 +1,35 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "revise_spec_then_converge",
+  "concerns": [
+    {
+      "id": "test-production-path",
+      "source": "both",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Export a pure renderMathRun(raw, displayStyle) (the current private tryRender body) AND a KATEX_OUTPUT_MODE constant from components/ui/MathText.tsx; MathText uses them internally. Migrate lib/math-notation/segment.test.ts renderLikeMathText to call the exported renderMathRun (so it exercises the REAL path), and add an a11y assertion that renderMathRun('x^2', false) contains 'katex-mathml' and '<math'. This tests the production path, not a duplicated call."
+    },
+    {
+      "id": "at-mathml-support",
+      "source": "cold",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "Narrow the claim to: exposes math to the accessibility tree via MathML (KaTeX's standard a11y path). State target = modern Chromium (Chrome/Edge, the product's desktop-first target) + current NVDA/JAWS/VoiceOver, which support MathML. Document residual risk: some older AT/browser combos have weaker MathML; a future enhancement could add a speakable-text fallback if a target AT proves deficient. Verifiable here only at the Chrome accessibility-tree level (the method that found the bug); a full AT pass is a manual QA-matrix item."
+    },
+    {
+      "id": "css-context-unproven",
+      "source": "cold",
+      "severity": "medium",
+      "disposition": "rebut",
+      "action": "Evidence: katex.css is a GLOBAL root import at app/layout.tsx:4 ('katex/dist/katex.min.css'), which wraps every student surface. The EXISTING visual KaTeX rendering already depends on this CSS and works on Learn/Practice/diagnostic (verified live), so the CSS is provably global; the same stylesheet clips .katex-mathml. Therefore adding MathML is zero-visual-change everywhere. Documented in the spec."
+    },
+    {
+      "id": "downstream-html-shape",
+      "source": "cold",
+      "severity": "medium",
+      "disposition": "rebut",
+      "action": "Audited (grep katex-html|katex-mathml|querySelector|.katex|toMatchSnapshot|childElementCount|children.length across **/*.ts,tsx): the ONLY code inspecting KaTeX output is lib/math-notation/segment.test.ts (asserts class=\"katex\" presence) — which still holds under htmlAndMathml (the <span class=\"katex\"> wrapper persists) and is being migrated to the production helper anyway. No production consumer (component/sanitizer/parser/hydration) reads the output shape. No snapshot tests exist."
+    }
+  ]
+}
