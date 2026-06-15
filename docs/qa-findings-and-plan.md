@@ -20,6 +20,18 @@ persistence worked on every attempt.
 
 ---
 
+## Resolution status (2026-06-14)
+All seven findings below were fixed via the `/codexreview` adversarial chain (informed+cold
+plan review → mr-kahn/mr-gates/pee-wee gates → implement → diff review), committed:
+- **H1** `b2851b3` — summary split into 3 honest states + param-less recovery.
+- **H2** `d982eb1` — tutor neutral-bridge suppressed + skill-scoped reframe; double-framing removed.
+- **M1** `2ccf3ce` — KaTeX `htmlAndMathml` (math now exposed to assistive tech).
+- **M2/M3/L1/L2** `e140ae8` — neutral phase labels; Learn "In context" de-dup; Progress
+  practiced-vs-credited split (capped); "Active time on problems" relabel.
+Per-fix audit trails live under `.codexreview/reviews/2026-06-14-*`. Suite: 570 → 694 tests.
+Remaining: a real screen-reader (NVDA/JAWS/VoiceOver) pass for M1 is a manual QA-matrix item;
+plan sections B–F (E2E/axe automation, full matrix, perf) still open.
+
 ## Findings (severity-tagged)
 
 ### HIGH — correctness / trust
