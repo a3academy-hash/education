@@ -1,0 +1,49 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "revise_spec_then_converge",
+  "concerns": [
+    {
+      "id": "skill-only-mismatch",
+      "source": "informed",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "D2: when skillId present and sessionId absent, resolve the most recent session that contains a NON-retention attempt for that skillId (not the global latest). Add resolveSessionForSkill path."
+    },
+    {
+      "id": "latest-session-authorization",
+      "source": "cold",
+      "severity": "blocking",
+      "disposition": "accept",
+      "action": "Neutralized by construction + made explicit: studentId is the authenticated principal (getCurrentStudentId). resolveLatestSession derives sessionId ONLY from rows returned by listAttempts(studentId), which are that student's own attempts (Supabase RLS student_id = current_student_id() double-enforces). The resolved sessionId therefore cannot reference another student. Spec states this precondition; no cross-student render is possible."
+    },
+    {
+      "id": "error-taxonomy",
+      "source": "cold",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "Codify: NoSession = no studentId / no resolvable session / resolved session has 0 attempts / node missing (all EXPECTED, not errors). SummaryUnavailable = a thrown repo/engine error (caught, logged). This page uses no redirect()/notFound(), so nothing control-flow is swallowed."
+    },
+    {
+      "id": "ordering-contract",
+      "source": "cold",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "resolveLatestSession sorts attempts DEFENSIVELY by createdAt then id (does not trust input order) before taking the most recent; documented as the helper's own contract."
+    },
+    {
+      "id": "skill-heuristic-premise",
+      "source": "cold",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Helper treats ONLY source === 'retention' as a probe; missing/unknown source counts as practice. If a session has multiple distinct non-retention skillIds, pick the latest non-retention attempt's skillId (deterministic, documented)."
+    },
+    {
+      "id": "load-error-untested",
+      "source": "both",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Extract loadSummary(repo, studentId, skillId?, sessionId?) returning a discriminated union { kind:'ok'|'empty'|'error', ... }. Unit-test all three with a stub repo (throwing read -> 'error'; empty -> 'empty'; happy -> 'ok'), plus resolveLatestSession cases. The page becomes a thin renderer over the union."
+    }
+  ]
+}

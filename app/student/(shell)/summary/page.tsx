@@ -12,21 +12,38 @@ import { getRepository } from "../../../../lib/repository/server";
 import { computeMasteryAll } from "../../../../lib/mastery-engine";
 import { recommend } from "../../../../lib/adaptive-router";
 import { diagnosticCreditedSkills } from "../../../../lib/diagnostic-engine";
-import { deriveVerdict, firmUpStatement, VERDICT_COPY } from "../../../../lib/session-helpers";
+import {
+  deriveVerdict,
+  firmUpStatement,
+  resolveLatestSession,
+  VERDICT_COPY,
+  type VerdictCopy,
+} from "../../../../lib/session-helpers";
 import { getCurrentStudentId } from "../../../../lib/auth/session";
 import { Card } from "../../../../components/ui/Card";
 import { Progress } from "../../../../components/ui/Progress";
 import { StatusPill } from "../../../../components/ui/StatusPill";
 import { InsetPanel } from "../../../../components/ui/Panels";
 import { ArrowRightIcon } from "../../../../components/ui/icons";
-import type {
-  CurriculumGraph,
-  MasteryStatus,
-  MasteryUpdate,
-  Phase,
-  StudentAttempt,
-  StudentSkillState,
-} from "../../../../types";
+import type { MasteryStatus, Phase, SkillNode } from "../../../../types";
+
+type SummaryDirection = "up" | "held" | "dipped" | "mastered";
+
+interface SummaryData {
+  node: SkillNode;
+  stats: { label: string; value: string }[];
+  before: { status: MasteryStatus; mastery: number };
+  after: { status: MasteryStatus; mastery: number };
+  direction: SummaryDirection;
+  deltaSentence: Record<SummaryDirection, string>;
+  firmUp: string[];
+  copy: VerdictCopy;
+  isComplete: boolean;
+  nextTitle: string;
+  recReason: string;
+  primaryLabel: string;
+  primaryHref: string;
+}
 
 const STATUS_FILL: Record<MasteryStatus, string> = {
   unknown: "var(--color-status-unknown)",
@@ -97,45 +114,95 @@ function NoSession() {
   );
 }
 
+function SummaryUnavailable({ retryHref }: { retryHref: string }) {
+  return (
+    <div className="fade-in mx-auto max-w-[680px]">
+      <Card>
+        <h1 className="font-display text-[18px] font-semibold leading-[1.3] text-ink">
+          This is taking a second to load.
+        </h1>
+        <p className="mt-3 text-[13.5px] leading-[1.5] text-ink-700">
+          Your work is saved &mdash; this is just a display hiccup. Try again in a moment.
+        </p>
+        <div className="mt-5 flex flex-col items-start gap-3">
+          <Link href={retryHref} className={LINK_PRIMARY} autoFocus>
+            Try again
+          </Link>
+          <Link href="/student" className={LINK_QUIET}>
+            Back to home
+          </Link>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default async function SummaryPage({
   searchParams,
 }: {
   searchParams: Promise<{ skill?: string; session?: string }>;
 }) {
-  const { skill: skillId, session: sessionId } = await searchParams;
+  const { skill: skillIdParam, session: sessionIdParam } = await searchParams;
   const studentId = await getCurrentStudentId();
-  if (!studentId || !skillId || !sessionId) return <NoSession />;
 
-  let graph: CurriculumGraph;
-  let states: Record<string, StudentSkillState>;
-  let allAttempts: StudentAttempt[];
-  let allUpdates: MasteryUpdate[];
-  let credited: string[];
-  try {
-    const repo = await getRepository();
-    const student = await repo.getStudent(studentId);
-    if (!student) return <NoSession />;
-    [graph, states, allAttempts, allUpdates] = await Promise.all([
-      repo.getGraph(),
-      repo.getSkillStates(studentId),
-      repo.listAttempts(studentId),
-      repo.listMasteryUpdates(studentId),
-    ]);
-    credited = diagnosticCreditedSkills(allUpdates);
+  // Reconstruct the same URL for the SummaryUnavailable "Try again" affordance.
+  const retryParams = new URLSearchParams();
+  if (skillIdParam) retryParams.set("skill", skillIdParam);
+  if (sessionIdParam) retryParams.set("session", sessionIdParam);
+  const retryHref = retryParams.toString()
+    ? `/student/summary?${retryParams.toString()}`
+    : "/student/summary";
 
-    // Scope to THIS session via sessionId (provenance only).
-    const sessionAttempts = allAttempts.filter((a) => a.sessionId === sessionId);
-    if (sessionAttempts.length === 0) return <NoSession />;
-    const sessionUpdates = allUpdates
-      .filter((u) => u.sessionId === sessionId && u.skillId === skillId)
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
+  if (!studentId) return <NoSession />;
+  const sid: string = studentId;
 
-    const node = graph.nodes.find((n) => n.id === skillId);
-    if (!node) return <NoSession />;
+  // All reads + the single engine run live inside build(); its own scoped
+  // try/catch is the ONLY error swallow. The JSX render is OUTSIDE the try, so
+  // a render-time throw is never masked as "no session" (mr-gates).
+  async function build(): Promise<
+    | { kind: "ok"; data: SummaryData }
+    | { kind: "empty" }
+    | { kind: "error" }
+  > {
+    try {
+      const repo = await getRepository();
+      const student = await repo.getStudent(sid);
+      if (!student) return { kind: "empty" };
+      const [graph, states, allAttempts, allUpdates] = await Promise.all([
+        repo.getGraph(),
+        repo.getSkillStates(sid),
+        repo.listAttempts(sid),
+        repo.listMasteryUpdates(sid),
+      ]);
+      const credited = diagnosticCreditedSkills(allUpdates);
+
+      // Resolve which session to show (display provenance only).
+      let skillId: string;
+      let sessionId: string;
+      if (sessionIdParam) {
+        sessionId = sessionIdParam;
+        skillId = skillIdParam ?? "";
+      } else {
+        const resolved = resolveLatestSession(allAttempts, skillIdParam);
+        if (!resolved) return { kind: "empty" };
+        sessionId = resolved.sessionId;
+        skillId = resolved.skillId;
+      }
+      if (!skillId) return { kind: "empty" };
+
+      // Scope to THIS session via sessionId (provenance only).
+      const sessionAttempts = allAttempts.filter((a) => a.sessionId === sessionId);
+      if (sessionAttempts.length === 0) return { kind: "empty" };
+      const sessionUpdates = allUpdates
+        .filter((u) => u.sessionId === sessionId && u.skillId === skillId)
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
+
+      const node = graph.nodes.find((n) => n.id === skillId);
+      if (!node) return { kind: "empty" };
 
     // Engine — ONCE per request (post-session truth + routing).
     const nowIso = new Date().toISOString();
-    const batch = computeMasteryAll(studentId, states, graph, nowIso);
+    const batch = computeMasteryAll(sid, states, graph, nowIso);
     const rec = recommend(batch.results, states, graph, { justCredited: credited });
 
     const practicedStatus = batch.results[skillId]?.status;
@@ -223,7 +290,51 @@ export default async function SummaryPage({
       { label: "Phase reached", value: PHASE_LABEL[phaseReached] },
     ];
 
-    return (
+      return {
+        kind: "ok",
+        data: {
+          node,
+          stats,
+          before,
+          after,
+          direction,
+          deltaSentence,
+          firmUp,
+          copy,
+          isComplete,
+          nextTitle,
+          recReason: rec.reason,
+          primaryLabel,
+          primaryHref,
+        },
+      };
+    } catch (e) {
+      console.error("summary load failed", e);
+      return { kind: "error" };
+    }
+  }
+
+  const out = await build();
+  if (out.kind === "error") return <SummaryUnavailable retryHref={retryHref} />;
+  if (out.kind === "empty") return <NoSession />;
+
+  const {
+    node,
+    stats,
+    before,
+    after,
+    direction,
+    deltaSentence,
+    firmUp,
+    copy,
+    isComplete,
+    nextTitle,
+    recReason,
+    primaryLabel,
+    primaryHref,
+  } = out.data;
+
+  return (
       <div className="fade-in mx-auto max-w-[680px]">
         {/* Header */}
         <div className="mb-7">
@@ -310,7 +421,7 @@ export default async function SummaryPage({
               <p className="font-display text-[18px] font-semibold leading-[1.3] text-ink">
                 {deAmp(nextTitle)}
               </p>
-              <p className="mt-1 text-[13px] leading-[1.5] text-ink-500">{deAmp(rec.reason)}</p>
+              <p className="mt-1 text-[13px] leading-[1.5] text-ink-500">{deAmp(recReason)}</p>
             </div>
           )}
         </InsetPanel>
@@ -327,8 +438,5 @@ export default async function SummaryPage({
           )}
         </div>
       </div>
-    );
-  } catch {
-    return <NoSession />;
-  }
+  );
 }

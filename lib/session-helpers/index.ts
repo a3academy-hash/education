@@ -5,3 +5,4 @@
 
 export * from "./verdict";
 export * from "./why";
+export * from "./latest-session";

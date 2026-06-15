@@ -1,0 +1,14 @@
+{
+  "phase": "diff",
+  "round": 1,
+  "decision": "accept_and_fix",
+  "concerns": [
+    {
+      "id": "diagnostic-summary-selection",
+      "source": "informed",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "resolveLatestSession now excludes source==='diagnostic' as well as 'retention' from practice candidates (isPractice). The no-skillId branch picks the latest PRACTICE attempt's session (not the latest attempt overall, which may be diagnostic); returns null when only diagnostic/retention rows exist. Added 2 regression tests: newer-diagnostic-doesn't-win, only-diagnostic->null."
+    }
+  ]
+}
