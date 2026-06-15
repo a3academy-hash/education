@@ -153,6 +153,7 @@ export default async function PracticePage({
       skillId={skillId}
       title={node.title}
       phase={phase}
+      sport={sport}
       items={items}
       sessionId={sessionId}
     />

@@ -106,6 +106,14 @@ export function buildProgressDigest(
     }))
     .sort((a, b) => b.at.localeCompare(a.at) || a.skillId.localeCompare(b.skillId));
 
+  // ---- Split practiced vs credited by the per-row `credited` boolean (L1).
+  // Mastery is sticky, so a credited skill later practiced emits no new mastered
+  // update; isCreditedNotTaught already excludes credited rows that have a
+  // newer source="practice" attempt. The split therefore matches the per-row
+  // CreditedTag exactly. Both arrays preserve the recency sort above.
+  const learnedThisWeek = masteredThisWeek.filter((m) => !m.credited);
+  const creditedThisWeek = masteredThisWeek.filter((m) => m.credited);
+
   // ---- Current focus + verbatim reason (no engine jargon; reason is already
   // written for a 12-year-old).
   const rec = recommend(batch.results, states, graph);
@@ -153,6 +161,8 @@ export function buildProgressDigest(
     windowStart,
     generatedAt: nowIso,
     masteredThisWeek,
+    learnedThisWeek,
+    creditedThisWeek,
     currentFocus,
     courseComplete,
     timeOnTask: humanizeMs(timeMs),

@@ -79,26 +79,24 @@ export default async function ProgressPage() {
       {/* Hero digest Card. */}
       <Card className="mb-5">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
-          {/* Left: mastered this week + current focus. */}
+          {/* Left: learned through practice (uncapped) + credited (capped) +
+              current focus. */}
           <div>
             <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.4px] text-accent">
-              Learned this week
+              Learned through practice
             </p>
-            {digest.masteredThisWeek.length === 0 ? (
+            {digest.learnedThisWeek.length === 0 ? (
               <InsetPanel>
-                Nothing newly mastered in the last week yet — steady practice this
-                week will get there.
+                No skills learned through practice this week yet — steady practice
+                this week will get there.
               </InsetPanel>
             ) : (
               <ul className="grid gap-2.5">
-                {digest.masteredThisWeek.map((m) => (
+                {digest.learnedThisWeek.map((m) => (
                   <li key={m.skillId} className="flex items-start gap-2.5">
                     <CheckIcon className="mt-[3px] shrink-0 text-[var(--color-status-mastered)]" />
                     <div className="min-w-0">
-                      <p className="text-[14px] font-medium text-ink">
-                        {deAmp(m.title)}
-                        {m.credited && <CreditedTag className="ml-2 align-middle" />}
-                      </p>
+                      <p className="text-[14px] font-medium text-ink">{deAmp(m.title)}</p>
                       {m.helpsUnlock.length > 0 && (
                         <p className="mt-0.5 text-[12.5px] leading-[1.5] text-ink-500">
                           Helps unlock {deAmp(m.helpsUnlock.slice(0, 2).join(", "))}
@@ -109,6 +107,39 @@ export default async function ProgressPage() {
                   </li>
                 ))}
               </ul>
+            )}
+
+            {/* Credited set — diagnostic placement + earlier skills. Same Card,
+                separated by spacing only (no hard rule), capped at 6. */}
+            {digest.creditedThisWeek.length > 0 && (
+              <div className="mt-6">
+                <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
+                  Credited from your diagnostic and earlier skills
+                </p>
+                <ul className="grid gap-2.5">
+                  {digest.creditedThisWeek.slice(0, 6).map((m) => (
+                    <li key={m.skillId} className="flex items-start gap-2.5">
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-medium text-ink">
+                          {deAmp(m.title)}
+                          <CreditedTag className="ml-2 align-middle" />
+                        </p>
+                        {m.helpsUnlock.length > 0 && (
+                          <p className="mt-0.5 text-[12.5px] leading-[1.5] text-ink-500">
+                            Helps unlock {deAmp(m.helpsUnlock.slice(0, 2).join(", "))}
+                            {m.helpsUnlock.length > 2 ? ", and more" : ""}.
+                          </p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {digest.creditedThisWeek.length > 6 && (
+                  <p className="mt-2 text-[12.5px] text-ink-500">
+                    and {digest.creditedThisWeek.length - 6} more
+                  </p>
+                )}
+              </div>
             )}
 
             <div className="mt-6">
@@ -146,10 +177,13 @@ export default async function ProgressPage() {
             </p>
             <dl className="grid gap-3.5">
               <div>
-                <dt className="text-[12.5px] text-ink-500">Time on task</dt>
+                <dt className="text-[12.5px] text-ink-500">Active time on problems</dt>
                 <dd className="mt-0.5 text-[18px] font-semibold text-ink">
                   {digest.timeOnTask}
                 </dd>
+                <p className="mt-0.5 text-[11.5px] text-ink-400">
+                  Focused time spent answering, not counting breaks.
+                </p>
               </div>
               <div>
                 <dt className="text-[12.5px] text-ink-500">Problems worked</dt>

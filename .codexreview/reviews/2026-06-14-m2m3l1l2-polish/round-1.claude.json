@@ -1,0 +1,56 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "resolve_gate_decisions_fold_exact_copy_then_reconverge",
+  "concerns": [
+    {
+      "id": "l1-credit-provenance",
+      "source": "both",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "credited = isCreditedNotTaught = MasteryUpdate.trigger in {diagnostic, credit-propagation} (NOT just diagnostic). So the credited heading must be provenance-NEUTRAL ('Credited — not yet practiced') OR the split must preserve trigger. mr-kahn (trust-layer authority) rules the exact honest heading; default to provenance-neutral. Define credited via the latest mastered update's trigger."
+    },
+    {
+      "id": "m3-objective-duplication",
+      "source": "informed",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Option A (THE IDEA = node.objective) is REJECTED: objective is already rendered in the lesson header (LearnClient.tsx:167-168). Choose Option B (display de-dup: IN CONTEXT stops repeating the hook THE IDEA already shows) OR a lightly reframed student concept string distinct from both header-objective and the hook. mr-kahn picks."
+    },
+    {
+      "id": "m3-no-selected-option",
+      "source": "cold",
+      "severity": "blocking",
+      "disposition": "accept",
+      "action": "mr-kahn selects ONE concrete M3 approach (Option B or reframed-string or explicit defer to E1). Exact P1/P2/P3 render rules folded into the spec before build."
+    },
+    {
+      "id": "gated-wording-not-spec",
+      "source": "cold",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "Resolve the gate copy decisions NOW (mr-kahn + pee-wee), fold EXACT strings + cap N into the spec as the acceptance target (same pattern as H2). The spec becomes complete before implementation."
+    },
+    {
+      "id": "undefined-domain-types",
+      "source": "cold",
+      "severity": "blocking",
+      "disposition": "accept",
+      "action": "Pin the contract: Phase = 1|2|3 (types Phase); Sport = closed union baseball|softball|basketball|soccer|football|volleyball|neutral (types/core.ts:3-10); neutral IS a Sport member; student.sport/problem.sport always a valid member. phaseLabel only special-cases sport==='neutral'; every other value gets the sport labels (total over the closed unions). Fold into spec."
+    },
+    {
+      "id": "digest-credit-source-assumption",
+      "source": "cold",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "Dedup of l1-credit-provenance: define credited from MasteryUpdate.trigger (the latest mastered update per skill in-window). diagnostic|credit-propagation -> credited; attempt -> learned. Unit-test both, plus a credit-propagation row specifically."
+    },
+    {
+      "id": "scope-claim-untested-ui",
+      "source": "cold",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Extract the M3 card-content selection into a PURE helper (inputs: phase, sport, hooks, objective; output: what THE IDEA vs IN CONTEXT show) and unit-test P1/P2/P3 x neutral/sport so no card repeats another's string. L2 stays reading-only (single label change)."
+    }
+  ]
+}

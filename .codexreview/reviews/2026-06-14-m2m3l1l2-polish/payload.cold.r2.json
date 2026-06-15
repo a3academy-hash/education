@@ -1,0 +1,13 @@
+{
+  "phase": "plan",
+  "round": 2,
+  "spec_file": "D:/a3_education/.codexreview/reviews/2026-06-14-m2m3l1l2-polish/spec.md",
+  "resume_thread_id": "019ec8fe-8ff3-7a03-826d-28f7167a3f9f",
+  "prior_responses": [
+    {"id": "undefined-domain-types", "disposition": "accept", "action": "Contract pinned in FINAL: Phase=1|2|3; Sport closed union incl neutral; helper total; neutral special-cased, all else gets sport labels."},
+    {"id": "gated-wording-not-spec", "disposition": "accept", "action": "All gate copy resolved by mr-kahn + pee-wee and folded as EXACT strings in the FINAL section (neutral labels, IN CONTEXT strings, L1 headings + cap N=6 + 'and X more', L2 label + sub-caption)."},
+    {"id": "m3-no-selected-option", "disposition": "accept", "action": "Option B selected with concrete P1/P2/P3 x sport/neutral render rules + a pure selector + null-when-empty. See FINAL M3."},
+    {"id": "digest-credit-source-assumption", "disposition": "accept", "action": "credited defined from the LATEST mastered update's trigger (diagnostic|credit-propagation); learned = attempt. Unit tests incl a credit-propagation row and a credited-then-practiced->learned case. See FINAL L1."},
+    {"id": "scope-claim-untested-ui", "disposition": "accept", "action": "M3 card-selection extracted to a PURE tested helper (P1/P2/P3 x sport/neutral, never repeats THE IDEA, none for neutral). L2 is a single label+caption change (reading-only)."}
+  ]
+}

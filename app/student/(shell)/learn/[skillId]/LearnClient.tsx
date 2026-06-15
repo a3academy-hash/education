@@ -23,6 +23,8 @@ import { StepReveal } from "../../../../../components/learning/StepReveal";
 import { MathText } from "../../../../../components/ui/MathText";
 import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
 import { BalanceScale } from "../../../../../components/learning/BalanceScale";
+import { phaseLabel } from "../../../../../lib/session-helpers";
+import { selectInContext } from "../../../../../lib/learn-content/in-context";
 import type { Equation } from "../../../../../components/learning/balance-scale-math";
 import type {
   ContextHooks,
@@ -67,22 +69,6 @@ const STATUS_FILL: Record<MasteryStatus, string> = {
   mastered: "var(--color-status-mastered)",
   needs_review: "var(--color-status-needs-review)",
   prerequisite_gap: "var(--color-status-prerequisite-gap)",
-};
-
-const PHASE_LABEL: Record<Phase, string> = {
-  1: "Sports context",
-  2: "Blended",
-  3: "Neutral transfer",
-};
-
-const SPORT_LABEL: Record<Sport, string> = {
-  baseball: "Baseball",
-  softball: "Softball",
-  basketball: "Basketball",
-  soccer: "Soccer",
-  football: "Football",
-  volleyball: "Volleyball",
-  neutral: "Standard",
 };
 
 const deAmp = (s: string): string => s.replace(/\s*&\s*/g, " and ");
@@ -185,7 +171,7 @@ export function LearnClient(props: LearnClientProps) {
           <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.4px] text-ink-500">
             Context phase
           </p>
-          <p className="text-[13.5px] font-medium text-ink-700">{PHASE_LABEL[phase]}</p>
+          <p className="text-[13.5px] font-medium text-ink-700">{phaseLabel(phase, sport)}</p>
         </Card>
       </div>
 
@@ -539,64 +525,40 @@ function ContextBridge({
   sport: Sport;
   phase: Phase;
 }) {
-  const sportHook = contextHooks[sport];
-  const neutralHook = contextHooks.neutral;
-  const sportName = SPORT_LABEL[sport].toUpperCase();
+  // M3 de-dup (Option B): IN CONTEXT shows ONLY what THE IDEA card did not.
+  // The pure selector drops anything equal to THE IDEA's concept and returns
+  // "none" when nothing distinct remains (then this card renders nothing — no
+  // filler). THE IDEA card itself is unchanged.
+  const view = selectInContext(phase, sport, contextHooks);
+  if (view.kind === "none") return null;
 
-  // P3 (or neutral-track): only the neutral half, at full emphasis. For a
-  // sport learner at P3, a faded breadcrumb back to where they first met the
-  // idea (mr-kahn #3, direction §1.6) — decorative, muted; teaching stays
-  // neutral. Suppressed on the neutral track (there is no prior sport framing).
-  if (phase >= 3 || sport === "neutral") {
-    const showBreadcrumb = phase >= 3 && sport !== "neutral";
+  if (view.kind === "breadcrumb") {
+    // Sport P3: THE IDEA already showed the neutral hook. A faded breadcrumb
+    // back to where the student first met the idea (mr-kahn #3) — muted only.
     return (
       <Card>
         <p className="mb-3.5 text-[12px] font-semibold uppercase tracking-[0.4px] text-accent">
           In context
         </p>
-        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.4px] text-ink-500">
-          Standard notation
+        <p className="text-[12.5px] leading-[1.5] text-ink-500">
+          You first saw this as: <MathText>{view.sportHook}</MathText>
         </p>
-        <p className="text-[14px] leading-[1.55] text-ink-800">
-          <MathText>{neutralHook}</MathText>
-        </p>
-        {showBreadcrumb && (
-          <p className="mt-3.5 text-[12.5px] leading-[1.5] text-ink-500">
-            You first saw this as: <MathText>{sportHook}</MathText>
-          </p>
-        )}
       </Card>
     );
   }
 
-  // P1: sport prominent (ink-800) → neutral muted (ink-500).
-  // P2: both halves at parity (ink-700); sport label drops to "EXAMPLE".
-  const parity = phase === 2;
+  // Sport P1/P2: THE IDEA showed the sport hook; IN CONTEXT shows the standard
+  // notation it bridges to.
   return (
     <Card>
       <p className="mb-3.5 text-[12px] font-semibold uppercase tracking-[0.4px] text-accent">
         In context
       </p>
       <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.4px] text-ink-500">
-        {parity ? "Example" : `${sportName} example`}
-      </p>
-      <p
-        className={`text-[14px] leading-[1.55] ${parity ? "text-ink-700" : "text-ink-800"}`}
-      >
-        <MathText>{sportHook}</MathText>
-      </p>
-      <div className="my-3.5 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.4px] text-ink-400">
-        <span className="h-px flex-1 bg-selected" />
-        transfers to
-        <span className="h-px flex-1 bg-selected" />
-      </div>
-      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.4px] text-ink-500">
         Standard notation
       </p>
-      <p
-        className={`text-[13.5px] leading-[1.55] ${parity ? "text-ink-700" : "text-ink-500"}`}
-      >
-        <MathText>{neutralHook}</MathText>
+      <p className="text-[14px] leading-[1.55] text-ink-800">
+        <MathText>{view.body}</MathText>
       </p>
     </Card>
   );

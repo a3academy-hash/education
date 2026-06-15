@@ -167,6 +167,100 @@ describe("buildProgressDigest", () => {
     expect(b?.credited).toBe(false); // earned by practice trigger
   });
 
+  it("splits practiced vs credited masteries (L1): attempt→learned, diagnostic→credited", () => {
+    const states = {
+      a: masteredState("2026-06-05T09:00:00.000Z"),
+      b: masteredState("2026-06-06T09:00:00.000Z"),
+    };
+    const updates = [
+      update({
+        id: "mu-a",
+        skillId: "a",
+        createdAt: "2026-06-05T09:00:00.000Z",
+        trigger: "diagnostic",
+        newStatus: "mastered",
+      }),
+      update({
+        id: "mu-b",
+        skillId: "b",
+        createdAt: "2026-06-06T09:00:00.000Z",
+        trigger: "attempt",
+        newStatus: "mastered",
+      }),
+    ];
+    const digest = buildProgressDigest(graph, profile(), states, updates, [], null, NOW);
+    expect(digest.learnedThisWeek.map((m) => m.skillId)).toEqual(["b"]);
+    expect(digest.creditedThisWeek.map((m) => m.skillId)).toEqual(["a"]);
+  });
+
+  it("routes a credit-propagation mastery to creditedThisWeek (L1)", () => {
+    const states = { a: masteredState("2026-06-05T09:00:00.000Z") };
+    const updates = [
+      update({
+        id: "mu-a",
+        skillId: "a",
+        createdAt: "2026-06-05T09:00:00.000Z",
+        trigger: "credit-propagation",
+        newStatus: "mastered",
+      }),
+    ];
+    const digest = buildProgressDigest(graph, profile(), states, updates, [], null, NOW);
+    expect(digest.creditedThisWeek.map((m) => m.skillId)).toEqual(["a"]);
+    expect(digest.learnedThisWeek).toHaveLength(0);
+  });
+
+  it("routes a diagnostic-mastered skill with a newer practice attempt to learnedThisWeek (sticky mastery, L1)", () => {
+    const states = { a: masteredState("2026-06-05T09:00:00.000Z") };
+    const updates = [
+      update({
+        id: "mu-a",
+        skillId: "a",
+        createdAt: "2026-06-05T09:00:00.000Z",
+        trigger: "diagnostic",
+        newStatus: "mastered",
+      }),
+    ];
+    // A later source="practice" attempt with NO later mastered update — the
+    // sticky-mastery case: isCreditedNotTaught returns false → learned.
+    const attempts = [
+      attempt({
+        id: "at-a",
+        skillId: "a",
+        createdAt: "2026-06-06T09:00:00.000Z",
+        source: "practice",
+      }),
+    ];
+    const digest = buildProgressDigest(graph, profile(), states, updates, attempts, null, NOW);
+    expect(digest.learnedThisWeek.map((m) => m.skillId)).toEqual(["a"]);
+    expect(digest.creditedThisWeek).toHaveLength(0);
+  });
+
+  it("respects the window when splitting practiced vs credited (L1)", () => {
+    const states = {
+      a: masteredState("2026-06-05T09:00:00.000Z"),
+      b: masteredState("2026-05-20T09:00:00.000Z"),
+    };
+    const updates = [
+      update({
+        id: "mu-a",
+        skillId: "a",
+        createdAt: "2026-06-05T09:00:00.000Z",
+        trigger: "attempt",
+        newStatus: "mastered",
+      }),
+      update({
+        id: "mu-b",
+        skillId: "b",
+        createdAt: "2026-05-20T09:00:00.000Z",
+        trigger: "attempt",
+        newStatus: "mastered",
+      }),
+    ];
+    const digest = buildProgressDigest(graph, profile(), states, updates, [], null, NOW);
+    expect(digest.learnedThisWeek.map((m) => m.skillId)).toEqual(["a"]);
+    expect(digest.creditedThisWeek).toHaveLength(0);
+  });
+
   it("excludes masteries earned before the window", () => {
     const states = { a: masteredState("2026-05-20T09:00:00.000Z") };
     const updates = [

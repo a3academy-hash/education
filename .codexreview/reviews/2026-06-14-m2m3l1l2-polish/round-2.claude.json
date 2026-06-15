@@ -1,0 +1,29 @@
+{
+  "phase": "plan",
+  "round": 2,
+  "decision": "converge_to_build",
+  "concerns": [
+    {
+      "id": "l1-latest-trigger",
+      "source": "both",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "CORRECTED: do NOT split by raw latest-trigger (regresses credited-then-practiced under sticky mastery). Split by the EXISTING credited boolean already computed per masteredThisWeek row via isCreditedNotTaught(skillId, attempts, updates) (progress-digest.ts:100-102; decision-timeline.ts:247-267 — it excludes credited rows that have a newer source='practice' attempt). learnedThisWeek = rows with credited===false; creditedThisWeek = credited===true. This matches the per-row CreditedTag exactly. Test: diagnostic mastered update + a NEWER source='practice' attempt with no new mastered update -> isCreditedNotTaught false -> learnedThisWeek."
+    },
+    {
+      "id": "profile-sport-authority",
+      "source": "cold",
+      "severity": "high",
+      "disposition": "accept",
+      "action": "Documented precondition: a student has exactly ONE track = student.sport; the practice server selects problems via selectProblems(node, state, student.sport), so all rendered content IS in that track, and the P1/P2/P3 phase already captures the scaffolding. There is no per-route/per-session sport override (retention probes still render in the student's sport). Therefore student.sport is the authoritative source for the LABEL SET; phase picks the word within it. No divergence to reconcile."
+    },
+    {
+      "id": "latest-trigger-event-premise",
+      "source": "cold",
+      "severity": "medium",
+      "disposition": "accept",
+      "action": "Resolved by the same correction as l1-latest-trigger: classification uses isCreditedNotTaught (which consults attempt history for newer practice), not the assumption that practice emits a new mastered update."
+    }
+  ],
+  "note": "Both high concerns reduce to reusing the repo's existing, correct isCreditedNotTaught classifier (reviewer-recommended) + documenting that student.sport is the track authority. No blocking concern remains -> converge to build."
+}

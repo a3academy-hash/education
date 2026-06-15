@@ -1,0 +1,15 @@
+{
+  "phase": "diff",
+  "round": 1,
+  "decision": "accept_and_fix",
+  "concerns": [
+    {
+      "id": "progress-empty-copy",
+      "source": "informed",
+      "severity": "low",
+      "disposition": "accept",
+      "action": "Reworded the 'Learned through practice' empty state from 'Nothing newly mastered in the last week yet' to 'No skills learned through practice this week yet — steady practice this week will get there.' so it is practice-specific and stays true even when credited skills render below it. (Also mr-gates' same NIT.) Copy-only; 694 tests green."
+    }
+  ],
+  "note": "mr-gates diff review APPROVE. Codex diff review: one low concern, fixed. Converged."
+}

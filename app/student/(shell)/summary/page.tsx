@@ -15,6 +15,7 @@ import { diagnosticCreditedSkills } from "../../../../lib/diagnostic-engine";
 import {
   deriveVerdict,
   firmUpStatement,
+  phaseLabel,
   resolveLatestSession,
   VERDICT_COPY,
   type VerdictCopy,
@@ -63,12 +64,6 @@ const STATUS_LABEL: Record<MasteryStatus, string> = {
   mastered: "Mastered",
   needs_review: "Needs review",
   prerequisite_gap: "Prerequisite gap",
-};
-
-const PHASE_LABEL: Record<Phase, string> = {
-  1: "Sports context",
-  2: "Blended",
-  3: "Neutral transfer",
 };
 
 // Status ordinal for the up/held/dipped delta direction (display only — never
@@ -287,7 +282,7 @@ export default async function SummaryPage({
       { label: "Problems", value: String(attempted) },
       { label: "Accuracy", value: `${correctCount} of ${attempted}` },
       { label: "Hints", value: String(hintsUsed) },
-      { label: "Phase reached", value: PHASE_LABEL[phaseReached] },
+      { label: "Phase reached", value: phaseLabel(phaseReached, student.sport) },
     ];
 
       return {

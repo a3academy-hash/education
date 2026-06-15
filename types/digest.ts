@@ -43,6 +43,10 @@ export interface ProgressDigest {
   windowStart: string;
   generatedAt: string;
   masteredThisWeek: DigestMasteredSkill[];
+  /** masteredThisWeek rows earned by practice/teaching (credited === false). */
+  learnedThisWeek: DigestMasteredSkill[];
+  /** masteredThisWeek rows credited from diagnostic/propagation (credited === true). */
+  creditedThisWeek: DigestMasteredSkill[];
   /** Current focus skill (recommend); null when the course is complete. */
   currentFocus: {
     skillId: string;

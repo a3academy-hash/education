@@ -22,10 +22,12 @@ import {
   diagnosticTaken,
 } from "../../../lib/diagnostic-engine";
 import { getCurrentStudentId } from "../../../lib/auth/session";
+import { phaseLabel } from "../../../lib/session-helpers";
 import type {
   CurriculumGraph,
   MasteryUpdate,
   Phase,
+  Sport,
   StudentAttempt,
   StudentSkillState,
 } from "../../../types";
@@ -41,12 +43,6 @@ const LINK_BTN_BASE =
 const LINK_BTN_PRIMARY = `${LINK_BTN_BASE} bg-accent text-white font-semibold hover:bg-accent-hover text-[14px] px-[22px] py-[11px]`;
 const LINK_BTN_SECONDARY = `${LINK_BTN_BASE} bg-surface border border-border-strong text-ink font-medium hover:bg-hover text-[14px] px-[22px] py-[11px]`;
 const LINK_BTN_QUIET = `${LINK_BTN_BASE} bg-transparent text-ink-500 font-medium hover:bg-hover text-[14px] px-2 py-1`;
-
-const PHASE_LABEL: Record<Phase, string> = {
-  1: "Sports context",
-  2: "Blended",
-  3: "Neutral transfer",
-};
 
 const deAmp = (label: string): string => label.replace(/\s*&\s*/g, " and ");
 
@@ -76,10 +72,12 @@ export default async function StudentHomePage() {
   let states: Record<string, StudentSkillState>;
   let updates: MasteryUpdate[];
   let attempts: StudentAttempt[];
+  let sport: Sport;
   try {
     const repo = await getRepository();
     const student = await repo.getStudent(studentId);
     if (!student) return <NoStudent />;
+    sport = student.sport;
     [graph, states, updates, attempts] = await Promise.all([
       repo.getGraph(),
       repo.getSkillStates(studentId),
@@ -232,7 +230,7 @@ export default async function StudentHomePage() {
                 </Link>
                 <p className="text-[12.5px] text-ink-500">
                   Current phase:{" "}
-                  <span className="font-medium text-ink-700">{PHASE_LABEL[recPhase]}</span>
+                  <span className="font-medium text-ink-700">{phaseLabel(recPhase, sport)}</span>
                 </p>
               </div>
             </>

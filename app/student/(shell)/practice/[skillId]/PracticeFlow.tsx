@@ -24,6 +24,7 @@ import { ProblemVisual } from "../../../../../components/learning/ProblemVisual"
 import { MathText } from "../../../../../components/ui/MathText";
 import { MathKeypad } from "../../../../../components/learning/MathKeypad";
 import { keypadHint } from "../../../../../components/learning/math-keypad-hint";
+import { phaseLabel } from "../../../../../lib/session-helpers";
 import type { InputNotation } from "../../../../../lib/math-notation/input-notation";
 import { submitPractice } from "./actions";
 import type { PracticeResult } from "./shared";
@@ -37,12 +38,6 @@ import type {
 
 const FADE: React.CSSProperties = {
   animation: "a3-fade-in var(--duration-base) var(--ease-calm) both",
-};
-
-const PHASE_LABEL: Record<Phase, string> = {
-  1: "Sports context",
-  2: "Blended",
-  3: "Neutral transfer",
 };
 
 const LINK_QUIET =
@@ -88,11 +83,13 @@ export interface PracticeFlowProps {
   skillId: string;
   title: string;
   phase: Phase;
+  /** The student's track — picks the phase-chip label set (M2). */
+  sport: Sport;
   items: ServedItem[];
   sessionId: string;
 }
 
-export function PracticeFlow({ skillId, title, phase, items, sessionId }: PracticeFlowProps) {
+export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }: PracticeFlowProps) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState("");
@@ -223,7 +220,7 @@ export function PracticeFlow({ skillId, title, phase, items, sessionId }: Practi
           <ArrowLeftIcon aria-hidden />
           {title}
         </button>
-        <span className="text-[13px] text-ink-500">{PHASE_LABEL[phase]}</span>
+        <span className="text-[13px] text-ink-500">{phaseLabel(phase, sport)}</span>
       </div>
       <Progress value={progress} height={4} label="Practice progress" className="mb-6" />
 
