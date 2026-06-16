@@ -1,0 +1,15 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "adopt_all_enrich_audit_then_execute",
+  "concerns": [
+    {"id": "diag-routing-validity", "source": "informed", "severity": "high", "disposition": "accept", "action": "ADD a Diagnostic-Flow audit domain (D8): current diagnostic routing/anchor/stopping/4-labels/seed-write + the missing simulation + validity-metric machinery (DIAGNOSTIC §4/§13)."},
+    {"id": "a11y-interaction-gap", "source": "informed", "severity": "high", "disposition": "accept", "action": "ADD an Accessibility audit domain (D9): keyboard + screen-reader for construct/coordinate/structured-math inputs, reduced-motion, ARIA on rings (STYLE_GUIDE §9, DIAGNOSTIC §10, SECURITY §17 504/WCAG)."},
+    {"id": "calibration-telemetry", "source": "informed", "severity": "medium", "disposition": "accept", "action": "ADD a Telemetry/Calibration audit row: item_versions/calibration_runs/item_exposure tables + A/B-testable thresholds wired to telemetry (CLAUDE §3/§9.7, DIAGNOSTIC §14, AI_ADAPTIVE §10)."},
+    {"id": "spec-source", "source": "cold", "severity": "blocking", "disposition": "accept", "action": "State inputs + precedence explicitly in AUDIT.md: specs = new_plan/*.md (v0.2); precedence = GOAL.md non-negotiables > binding specs > Codex (PLAN.md). Conflicts logged."},
+    {"id": "static-latency", "source": "cold", "severity": "high", "disposition": "accept", "action": "Mark latency conclusions PROVISIONAL (in-memory vs supabase); but the architecture-level violations (no optimistic UI; 7-9 serial round-trips; per-request 4.5MB graph validation) are static-certain. Live profiling stays the Phase 4 gate."},
+    {"id": "stack-deferral", "source": "cold", "severity": "high", "disposition": "accept", "action": "Split AUDIT findings into stack-INVARIANT (engine/items/compliance/interactivity/visual — most) vs stack-CONTINGENT (latency arch, build tooling). Stack fork is itself a Phase-1 codexreviewed decision; it does not bias the invariant findings."},
+    {"id": "agent-consistency", "source": "cold", "severity": "medium", "disposition": "accept", "action": "Normalize all domain findings to one severity rubric (BLOCKER/HIGH/MED/LOW) in synthesis; reconcile counts."},
+    {"id": "security-static-gap", "source": "cold", "severity": "medium", "disposition": "accept", "action": "Already done: the security agent traced call-sites (service-role server-only, client-trusting grading) and grep'd hmac/nonce/params_hash (zero). Note runtime tracing in AUDIT.md."}
+  ]
+}
