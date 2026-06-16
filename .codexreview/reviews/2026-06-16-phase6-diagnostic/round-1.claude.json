@@ -1,0 +1,15 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "converged-to-v3",
+  "rationale": "Codex (informed+cold) on the v2 plan surfaced 6 concerns; all ADOPTED into plan v3. Two are load-bearing corrections to v2: the credit-propagation block (excluding from demonstrated[] is insufficient — creditFromDiagnostic propagates to ancestors) and the BKT likelihood-ratio posterior (the Beta-mean model could not reach .85 on 2 items, contradicting the READY rule). No blocking concern left unresolved. mr-kahn REJECT (round 0) already fixed in v2; these refine v2.",
+  "dispositions": [
+    {"id": "hi-credit-propagation", "source": "informed", "severity": "blocking", "disposition": "accept", "action": "Extend creditFromDiagnostic with a `blocked` node set (unresolved high-impact + NEEDS_WORK + UNCERTAIN); ancestor propagation stops at / skips blocked nodes so an UNCERTAIN high-impact node is never credited via a demonstrated descendant."},
+    {"id": "posterior-threshold-mismatch", "source": "cold", "severity": "high", "disposition": "accept", "action": "Replace Beta-mean with a BKT likelihood-ratio posterior: odds *= (1-slip)/guess per direct correct, *= slip/(1-guess) per direct incorrect, from a prior set by inference state (untouched 0.5, inferred 0.4 skeptical). 2 direct-correct → ~0.95 ≥ .85; 1 → ~0.82 (UNCERTAIN); resolves the READY/≥2-direct contradiction. CI = rough Wilson on the binary count, labelled rough."},
+    {"id": "two-direct-model", "source": "informed", "severity": "high", "disposition": "accept", "action": "Track direct evidence PER SERVE (responses may repeat a skillId); a high-impact node with 1 direct-correct and posterior<.85 is re-served ONCE with a distinct neutral-P3 item (count-indexed) to reach 2-direct; settle never auto-consumes a corroboration re-probe. If 2-direct unreachable → UNCERTAIN."},
+    {"id": "direct-probe-availability", "source": "cold", "severity": "blocking", "disposition": "accept", "action": "Build/test assert every HIGH_IMPACT_NODE_ID has >=2 eligible neutral-P3 items; fallback when <2 = the node can reach at most 1 direct -> conservatively UNCERTAIN (logged, never falsely READY)."},
+    {"id": "coverage-vs-goal", "source": "cold", "severity": "high", "disposition": "accept", "action": "Narrow Phase 6 acceptance to the curated high-impact nodes actually covered; the simulation marks uncovered bridge gaps (ordered-pair-as-solution; decimal/fraction split) as UNMEASURED, not merely logged."},
+    {"id": "fatigue-evidence", "source": "informed", "severity": "medium", "disposition": "accept", "action": "Compute fatigueRisk read-side from StudentAttempt rows (timeMs + order) post-persistence, or from last-K vs first-K accuracy on matched difficulty tier (min sample 4); if insufficient post-pause items, do NOT set the flag. The pure session carries only pauseDue (ordinal)."},
+    {"id": "fatigue-matched-items", "source": "cold", "severity": "medium", "disposition": "accept", "action": "Define 'matched' = same difficulty tier; min sample 4 each side of the pause; undefined-when-insufficient. Documented in the quality-flag contract + tests."}
+  ]
+}

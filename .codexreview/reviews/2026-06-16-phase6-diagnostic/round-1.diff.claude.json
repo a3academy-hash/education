@@ -1,0 +1,13 @@
+{
+  "phase": "diff",
+  "round": 1,
+  "decision": "converged",
+  "rationale": "mr-gates diff review APPROVE (firewall sound, determinism preserved, all flagged decisions sound, changed tests legitimate; 1 non-blocking audit nit deferred). Codex diff: 4 concerns (2 medium, 2 low), all applied. tsc clean, 817 tests, contrast 39/39, build green after fixes.",
+  "dispositions": [
+    {"id": "inferred-ready-threshold", "source": "informed", "severity": "medium", "disposition": "accept-clarify", "action": "Removed the vestigial inferredReadyThreshold (inference cannot move the BKT posterior so a posterior gate is unreachable; INFERRED_READY is topology-gated by design). Codex's literal 'gate on it' fix would make INFERRED_READY unreachable under the skeptical prior — documented instead of mis-applied."},
+    {"id": "fatigue-prepause", "source": "informed", "severity": "medium", "disposition": "accept", "action": "fatigueRiskOf now splits the matched band at fatiguePauseAt; trailing window = post-pause only; requires >=K each side, else null."},
+    {"id": "sim-test-writes", "source": "informed", "severity": "low", "disposition": "accept", "action": "Report file write guarded behind DIAG_SIM_REPORT env flag; default vitest run is read-only."},
+    {"id": "provisional-direct-uncertain", "source": "informed", "severity": "low", "disposition": "accept", "action": "Clarified the DiagnosticNodeLabel.provisional contract: true for INFERRED_READY and every UNCERTAIN (not a confirmed lock; course confirms) — aligns code with the cold-start consumer."},
+    {"id": "mr-gates: attemptRefFor first-id only", "source": "informed", "severity": "nit", "disposition": "defer", "action": "Re-served node records only its first attempt id — audit-completeness, not firewall/correctness. Deferred to a future audit pass (logged in verify)."}
+  ]
+}

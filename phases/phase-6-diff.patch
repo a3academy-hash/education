@@ -1,0 +1,2101 @@
+diff --git a/app/student/(shell)/diagnostic/DiagnosticFlow.tsx b/app/student/(shell)/diagnostic/DiagnosticFlow.tsx
+index 8c65c71..450c6c3 100644
+--- a/app/student/(shell)/diagnostic/DiagnosticFlow.tsx
++++ b/app/student/(shell)/diagnostic/DiagnosticFlow.tsx
+@@ -61,6 +61,9 @@ export function DiagnosticFlow({ graphView }: DiagnosticFlowProps) {
+   const [value, setValue] = useState("");
+   const [pending, setPending] = useState(false);
+   const [persistError, setPersistError] = useState(false);
++  // Once the student resumes from the fatigue pause we never show it again
++  // (pauseDue stays true past the threshold — §9 is a single optional break).
++  const [resumed, setResumed] = useState(false);
+   const itemStartRef = useRef(0);
+ 
+   const item: DiagnosticItem | null = useMemo(
+@@ -137,12 +140,21 @@ export function DiagnosticFlow({ graphView }: DiagnosticFlowProps) {
+ 
+   if (!session) return <Intro onBegin={begin} />;
+   if (item) {
++    // Calm optional fatigue pause (§9) — shown once when the session marks
++    // pauseDue and the student has not yet resumed. No down-weighting happens;
++    // the engine only surfaces the cue.
++    if (session.pauseDue && !resumed) {
++      return <FatiguePause onResume={() => setResumed(true)} />;
++    }
+     const node = graphView.nodes.find((n) => n.id === item.skillId);
+     const domainLabel =
+       graphView.domains.find((d) => d.id === node?.domain)?.label ?? "";
+     return (
+       <ItemScreen
+-        key={item.skillId}
++        // Keyed on the asked-index ORDINAL, not skillId: a high-impact
++        // corroboration re-serve repeats a skillId, and a skillId key would
++        // not remount the input for the second serve (G6 / §V2 R12).
++        key={session.responses.length}
+         item={item}
+         domainLabel={deAmp(domainLabel)}
+         progress={session.progress}
+@@ -206,6 +218,33 @@ function Intro({ onBegin }: { onBegin: () => void }) {
+   );
+ }
+ 
++// ---------------------------------------------------------------------------
++// Fatigue pause (§9) — calm, optional, no timer, no score.
++// ---------------------------------------------------------------------------
++
++function FatiguePause({ onResume }: { onResume: () => void }) {
++  return (
++    <div className="fade-in mx-auto max-w-[520px] text-center">
++      <p className="mb-1.5 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
++        Quick breather
++      </p>
++      <h2 className="font-display text-[24px] font-semibold leading-[1.25] text-ink">
++        You can pause here.
++      </h2>
++      <p className="mx-auto mt-3 max-w-[420px] text-[14px] leading-[1.55] text-ink-500">
++        You&rsquo;re doing great. Taking a short break helps us place you
++        correctly &mdash; there&rsquo;s no timer and nothing here is graded.
++        Resume whenever you&rsquo;re ready.
++      </p>
++      <div className="mt-6">
++        <Button variant="primary" autoFocus onClick={onResume}>
++          Resume
++        </Button>
++      </div>
++    </div>
++  );
++}
++
+ // ---------------------------------------------------------------------------
+ // Item
+ // ---------------------------------------------------------------------------
+@@ -389,6 +428,8 @@ function SummaryScreen({
+         )}
+       </InsetPanel>
+ 
++      <PlacementBreakdown graphView={graphView} result={result} />
++
+       <div className="mt-7 text-center">
+         <Button variant="primary" autoFocus loading={pending} onClick={onPersist}>
+           Go to my learning home
+@@ -404,6 +445,73 @@ function SummaryScreen({
+   );
+ }
+ 
++// ---------------------------------------------------------------------------
++// Placement breakdown — the 4 labels + top remediation + "Why this placement?"
++// evidence counts (Trust = proof, STYLE_GUIDE §8.5). Read-side metadata only;
++// these labels never wrote mastery (demonstrated[] → credit did).
++// ---------------------------------------------------------------------------
++
++const PLACEMENT_WORDS: Record<string, { word: string; tone: string }> = {
++  READY: { word: "Ready", tone: "text-ink-700" },
++  INFERRED_READY: { word: "Likely ready", tone: "text-ink-500" },
++  UNCERTAIN: { word: "Worth a look", tone: "text-ink-500" },
++  NEEDS_WORK: { word: "Let's build this", tone: "text-ink-700" },
++};
++
++function PlacementBreakdown({
++  graphView,
++  result,
++}: {
++  graphView: CurriculumGraph;
++  result: ReturnType<typeof finishDiagnostic>;
++}) {
++  const titleOf = (id: string): string =>
++    deAmp(graphView.nodes.find((n) => n.id === id)?.title ?? id);
++  // Top remediation focus: the prioritized NEEDS_WORK/UNCERTAIN list (already
++  // topologically ordered, ancestors first). Cap for a calm, non-overwhelming
++  // surface — the course works the full list.
++  const focus = result.remediation.slice(0, 5);
++  if (focus.length === 0) return null;
++  return (
++    <div className="mt-5">
++      <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
++        What we&rsquo;ll focus on first
++      </p>
++      <Card padding="flush">
++        {focus.map((id, i) => {
++          const label = result.labels[id];
++          const words = PLACEMENT_WORDS[label?.label] ?? PLACEMENT_WORDS.UNCERTAIN;
++          // "Why this placement?" — the honest evidence count behind the label.
++          const why =
++            label.evidenceCount === 0
++              ? "inferred from related skills"
++              : `${label.evidenceCount} question${label.evidenceCount === 1 ? "" : "s"} seen`;
++          return (
++            <div
++              key={id}
++              className={`flex items-center justify-between px-[18px] py-3.5 ${
++                i > 0 ? "border-t border-selected" : ""
++              }`}
++            >
++              <span className="text-[14.5px] font-medium text-ink">{titleOf(id)}</span>
++              <span className="flex items-center gap-4">
++                <span className="text-[12.5px] text-ink-500">{why}</span>
++                <span className={`w-[110px] text-right text-[13px] font-semibold ${words.tone}`}>
++                  {words.word}
++                </span>
++              </span>
++            </div>
++          );
++        })}
++      </Card>
++      <p className="mt-2 text-[12.5px] text-ink-500">
++        Nothing here is a grade &mdash; it&rsquo;s a starting map. The course
++        confirms each of these as you go.
++      </p>
++    </div>
++  );
++}
++
+ /**
+  * Confidence meter — about the MEASUREMENT, never a mastery bar or a percent.
+  * Three 4×18px segments: Low/Medium/High = 1/2/3 filled; unknown = 0 filled
+diff --git a/app/student/(shell)/diagnostic/actions.ts b/app/student/(shell)/diagnostic/actions.ts
+index a1c92de..7fb4b8f 100644
+--- a/app/student/(shell)/diagnostic/actions.ts
++++ b/app/student/(shell)/diagnostic/actions.ts
+@@ -144,9 +144,18 @@ export async function persistDiagnostic(
+     const result = finishDiagnostic(sessionWithRefs, graph, nowIso);
+ 
+     // (c) credit through the committed engine — the diagnostic never writes
+-    // mastery itself.
++    // mastery itself. §V3.2: pass the engine's `blocked` set so unresolved
++    // high-impact bridges (and NEEDS_WORK/UNCERTAIN nodes) are never credited,
++    // even via ancestor propagation. The placement LABELS are read-side only.
+     const states = await repo.getSkillStates(studentId);
+-    const credit = creditFromDiagnostic(studentId, graph, result.demonstrated, states, nowIso);
++    const credit = creditFromDiagnostic(
++      studentId,
++      graph,
++      result.demonstrated,
++      states,
++      nowIso,
++      new Set(result.blocked),
++    );
+ 
+     // (d) persist the mastery updates — stamped with this session's id (the
+     // engine emits a placeholder; the action owns session identity).
+diff --git a/lib/diagnostic-engine/high-impact.test.ts b/lib/diagnostic-engine/high-impact.test.ts
+new file mode 100644
+index 0000000..9e634de
+--- /dev/null
++++ b/lib/diagnostic-engine/high-impact.test.ts
+@@ -0,0 +1,79 @@
++// Tests for the curated high-impact bridge set (§V2 R1 / §V3.3). Asserts every
++// id exists in the REAL graph and reports each id's neutral-P3 item count.
++
++import { describe, expect, it } from "vitest";
++import {
++  HIGH_IMPACT_NODE_IDS,
++  assertHighImpactProbeable,
++  highImpactProbeCounts,
++  isHighImpact,
++} from "./high-impact";
++import realGraphJson from "../../data/algebra1-graph.json";
++import type { CurriculumGraph } from "@/types";
++
++const graph = realGraphJson as unknown as CurriculumGraph;
++
++describe("high-impact: curated bridge set", () => {
++  it("is the 9 mr-kahn-blessed ids (§V2 R1)", () => {
++    expect([...HIGH_IMPACT_NODE_IDS].sort()).toEqual([
++      "ALG-E02",
++      "ALG-E03",
++      "ALG-E04",
++      "ALG-E13",
++      "ALG-F02",
++      "ALG-F03",
++      "ALG-F08",
++      "ALG-L05",
++      "ALG-L07",
++    ]);
++  });
++
++  it("isHighImpact membership", () => {
++    expect(isHighImpact("ALG-F02")).toBe(true);
++    expect(isHighImpact("ALG-F01")).toBe(false);
++    expect(isHighImpact("NOPE")).toBe(false);
++  });
++
++  it("every curated id exists in the real graph with its neutral-P3 count", () => {
++    const counts = highImpactProbeCounts(graph);
++    const byId = new Map(graph.nodes.map((n) => [n.id, n]));
++    for (const id of HIGH_IMPACT_NODE_IDS) {
++      // Existence — fail loudly with the id, not a generic undefined.
++      expect(byId.has(id), `high-impact node ${id} must exist in the graph`).toBe(true);
++      // Reportable count, ≥2 so the ≥2-direct READY bar is reachable.
++      expect(counts[id], `high-impact node ${id} neutral-P3 count`).toBeGreaterThanOrEqual(2);
++    }
++    // Visible in the test log for the §V3.3 audit.
++    console.log("high-impact neutral-P3 counts:", JSON.stringify(counts));
++  });
++
++  it("assertHighImpactProbeable passes on the real graph", () => {
++    expect(() => assertHighImpactProbeable(graph)).not.toThrow();
++  });
++
++  it("assertHighImpactProbeable throws on a missing id", () => {
++    const stripped: CurriculumGraph = {
++      ...graph,
++      nodes: graph.nodes.filter((n) => n.id !== "ALG-F02"),
++    };
++    expect(() => assertHighImpactProbeable(stripped)).toThrow(/missing high-impact/);
++  });
++
++  it("assertHighImpactProbeable throws when a high-impact node has <2 neutral-P3 items", () => {
++    const thinned: CurriculumGraph = {
++      ...graph,
++      nodes: graph.nodes.map((n) =>
++        n.id === "ALG-F03"
++          ? {
++              ...n,
++              problems: {
++                ...n.problems,
++                p3: n.problems.p3.filter((p) => p.sport === "neutral").slice(0, 1),
++              },
++            }
++          : n,
++      ),
++    };
++    expect(() => assertHighImpactProbeable(thinned)).toThrow(/<2 neutral-P3/);
++  });
++});
+diff --git a/lib/diagnostic-engine/high-impact.ts b/lib/diagnostic-engine/high-impact.ts
+new file mode 100644
+index 0000000..ed5bcc5
+--- /dev/null
++++ b/lib/diagnostic-engine/high-impact.ts
+@@ -0,0 +1,94 @@
++// lib/diagnostic-engine/high-impact — the curated bridge set (DIAGNOSTIC §3a,
++// §V2 R1 / decision K1). These are the prerequisite skills most likely to
++// break Algebra 1; they are NEVER inferred-only and require ≥2 DIRECT evidence
++// points to reach READY. Pure: no React, no IO, no clock, no RNG.
++//
++// The id list is mr-kahn-blessed (§3a → node-id table). A CCSS set is kept
++// only as a secondary cross-check guard; the id list is authoritative.
++//
++// COVERAGE GAPS (logged for v1.5, never fake-tagged — K2/V3.4):
++//   • no ordered-pair-as-solution node exists in the graph;
++//   • decimal/fraction/rational magnitude is collapsed into ALG-F02.
++// The simulation marks these as UNMEASURED rather than silently dropping them.
++
++import type { CurriculumGraph, ProblemTemplate, SkillNode } from "@/types";
++
++/**
++ * The curated high-impact bridge node ids (mr-kahn §3a→node-id table). Order
++ * is the table order; consumers that need determinism sort by id themselves.
++ */
++export const HIGH_IMPACT_NODE_IDS: readonly string[] = [
++  "ALG-F02", // Rational Number Operations (signed/fraction/decimal, collapsed)
++  "ALG-F03", // Order of Operations
++  "ALG-F08", // Distributive Property
++  "ALG-E02", // Two-Step Equations
++  "ALG-E03", // Multi-Step Equations
++  "ALG-E04", // Variables on Both Sides
++  "ALG-L05", // Slope as Rate of Change
++  "ALG-L07", // Patterns, Tables & Graphs (table↔graph↔rule)
++  "ALG-E13", // Modeling with Linear Equations (verbal→equation)
++];
++
++/** Secondary CCSS cross-check guard (§3a bridge codes). NOT authoritative. */
++export const HIGH_IMPACT_CCSS: ReadonlySet<string> = new Set([
++  "7.NS.A.1",
++  "7.NS.A.2",
++  "6.NS.B.3",
++  "6.NS.C.7",
++  "6.EE.A.1",
++  "7.EE.A.1",
++  "6.EE.B.7",
++  "7.EE.B.4",
++  "8.EE.C.7",
++  "8.EE.B.5",
++  "8.F.B.4",
++  "6.EE.A.2",
++]);
++
++const HIGH_IMPACT_SET = new Set(HIGH_IMPACT_NODE_IDS);
++
++/** Is this node id one of the curated high-impact bridge nodes? */
++export function isHighImpact(nodeId: string): boolean {
++  return HIGH_IMPACT_SET.has(nodeId);
++}
++
++/** Neutral Phase-3 problems for a node — the only diagnostic-eligible items. */
++function neutralP3(n: SkillNode): ProblemTemplate[] {
++  return n.problems.p3.filter((p) => p.sport === "neutral");
++}
++
++/** Per-id eligible neutral-P3 item count (build-time visibility / reporting). */
++export function highImpactProbeCounts(graph: CurriculumGraph): Record<string, number> {
++  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
++  const out: Record<string, number> = {};
++  for (const id of HIGH_IMPACT_NODE_IDS) {
++    const node = byId.get(id);
++    out[id] = node ? neutralP3(node).length : 0;
++  }
++  return out;
++}
++
++/**
++ * Build-time assertion (§V3.3): every curated high-impact id MUST exist in the
++ * graph AND carry ≥2 eligible neutral-P3 items (so it can reach the ≥2-direct
++ * READY bar via the re-serve). Throws with the offending ids otherwise.
++ */
++export function assertHighImpactProbeable(graph: CurriculumGraph): void {
++  const counts = highImpactProbeCounts(graph);
++  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
++  const missing = HIGH_IMPACT_NODE_IDS.filter((id) => !byId.has(id));
++  const tooFew = HIGH_IMPACT_NODE_IDS.filter((id) => byId.has(id) && counts[id] < 2);
++  if (missing.length > 0 || tooFew.length > 0) {
++    throw new Error(
++      `assertHighImpactProbeable: ${
++        missing.length ? `missing high-impact node(s): ${missing.join(", ")}; ` : ""
++      }${
++        tooFew.length
++          ? `high-impact node(s) with <2 neutral-P3 items: ${tooFew
++              .map((id) => `${id}(${counts[id]})`)
++              .join(", ")}`
++          : ""
++      }`.trim(),
++    );
++  }
++}
+diff --git a/lib/diagnostic-engine/index.test.ts b/lib/diagnostic-engine/index.test.ts
+index 297833a..dbe755d 100644
+--- a/lib/diagnostic-engine/index.test.ts
++++ b/lib/diagnostic-engine/index.test.ts
+@@ -273,17 +273,21 @@ describe("fixture: confirmation probe (mr-kahn #4 / spec §B)", () => {
+     expect(result.perNode["o2"]).toMatchObject({ status: "unknown", confidence: "unknown" });
+ 
+     // The committed propagation cannot fire from the withheld a5: a3/a4 stay
+-    // uncredited, so the (blank-state) post-credit sim routes to a3 next.
+-    // NOTE: a2 IS credited inside the sim via b2's confirmed cross-domain
+-    // ancestry — finishDiagnostic simulates from blank prior states, so the
+-    // contrary-evidence skip in creditFromDiagnostic does not see the wrong
+-    // a2 answer here. Server-side persistence (real attempt rows) does.
++    // uncredited. (creditFromDiagnostic with NO blocked set still credits a2
++    // via b2's confirmed cross-domain ancestry — this raw call mirrors the
++    // server's pre-block behavior and is asserted unchanged below.)
+     const credit = creditFromDiagnostic("s", fixture, result.demonstrated, {}, NOW);
+     const credited = credit.updates.map((u) => u.skillId);
+     expect(credited).not.toContain("a3");
+     expect(credited).not.toContain("a4");
+     expect(credited).not.toContain("a5");
+-    expect(result.recommendedStart).toBe("a3");
++    // CHANGED (§V3.2): finishDiagnostic now passes a `blocked` set to its
++    // internal credit sim. a2 was answered INCORRECTLY → labeled UNCERTAIN →
++    // blocked, so a2 is NOT credited in the recommendation sim and becomes the
++    // frontier itself. Previously a2 was credited via b2's cross-domain
++    // ancestry and the sim routed to a3. Starting the student AT the node they
++    // got wrong (a2) is the correct placement.
++    expect(result.recommendedStart).toBe("a2");
+   });
+ 
+   it("cross-domain ancestry always requires a confirm, even when shallow", () => {
+@@ -479,6 +483,12 @@ describe("real graph: determinism (mr-gates #4)", () => {
+     expect(rb.demonstrated).toEqual(ra.demonstrated);
+     expect(rb.recommendedStart).toEqual(ra.recommendedStart);
+     expect(rb.perNode).toEqual(ra.perNode);
++    // The Phase-6 placement surfaces must also be node-order invariant (G5/R8).
++    expect(rb.labels).toEqual(ra.labels);
++    expect(rb.remediation).toEqual(ra.remediation);
++    expect(rb.entryFrontier).toEqual(ra.entryFrontier);
++    expect(rb.blocked).toEqual(ra.blocked);
++    expect(rb.qualityFlags).toEqual(ra.qualityFlags);
+   });
+ });
+ 
+@@ -605,7 +615,18 @@ describe("real graph: ADVANCED student (all-correct) accelerates past credited a
+ 
+   it("credits through the committed engine; no credited or mastered node is re-taught", () => {
+     const states: Record<string, StudentSkillState> = {};
+-    const credit = creditFromDiagnostic("sam", graph, result.demonstrated, states, NOW);
++    // CHANGED (§V3.2): credit now takes the engine's `blocked` set — exactly as
++    // the server action does — so actual persistence and the recommendation
++    // sim agree. Unresolved high-impact bridges (never directly resolved to ≥2
++    // direct-correct) are excluded from credit even on an all-correct run.
++    const credit = creditFromDiagnostic(
++      "sam",
++      graph,
++      result.demonstrated,
++      states,
++      NOW,
++      new Set(result.blocked),
++    );
+     applyCredit(states, credit.updates, NOW);
+     const credited = credit.updates.map((u) => u.skillId);
+     expect(credited.length).toBeGreaterThan(0);
+@@ -793,6 +814,127 @@ describe("diagnosticTaken — completion from the attempt log, not credit", () =
+   });
+ });
+ 
++// ---------------------------------------------------------------------------
++// Phase 6 — placement layer (§V2 R4 / R6 / §V3): labels never write mastery
++// ---------------------------------------------------------------------------
++
++describe("phase-6 placement: labels are read-side, never a mastery write", () => {
++  it("INFERRED_READY never enters demonstrated[]; any demonstrated UNCERTAIN is non-high-impact and unblocked", () => {
++    // demonstrated[] is the v1 confirm-machinery output. A non-high-impact node
++    // probed once-correct is demonstrated yet labeled UNCERTAIN under the
++    // stricter ≥2-evidence READY bar — that is fine: the placement LABEL is
++    // read-side and conservative, while demonstrated[] (direct evidence) still
++    // governs credit for non-high-impact nodes. The hard guarantees:
++    //   • INFERRED_READY (topology-only) is by definition NOT demonstrated.
++    //   • A high-impact node that is UNCERTAIN is BLOCKED (never credited).
++    for (const answer of [() => true, (id: string) => id.includes("F")]) {
++      const { session } = runSession(graph, answer);
++      const result = finishDiagnostic(session, graph, NOW);
++      const blockedSet = new Set(result.blocked);
++      for (const id of result.demonstrated) {
++        const label = result.labels[id];
++        expect(label.label).not.toBe("INFERRED_READY");
++        if (label.label === "UNCERTAIN") {
++          expect(label.highImpact).toBe(false); // high-impact UNCERTAIN is never demonstrated-and-credited
++          expect(blockedSet.has(id)).toBe(false);
++        }
++      }
++    }
++  });
++
++  it("a high-impact node never reaches READY without ≥2 DIRECT-correct (R2/§3a)", () => {
++    for (const answer of [() => true, (id: string) => id.includes("F")]) {
++      const { session } = runSession(graph, answer);
++      const result = finishDiagnostic(session, graph, NOW);
++      for (const label of Object.values(result.labels)) {
++        if (!label.highImpact) continue;
++        if (label.label === "READY") {
++          // READY high-impact ⇒ at least 2 direct-correct evidence points.
++          expect(label.evidenceCount).toBeGreaterThanOrEqual(2);
++          expect(label.posterior).toBeGreaterThanOrEqual(
++            DIAGNOSTIC_CONFIG.posterior.readyThreshold,
++          );
++        }
++      }
++    }
++  });
++
++  it("an unresolved high-impact node is blocked and never credited (even all-correct)", () => {
++    const { session } = runSession(graph, () => true);
++    const result = finishDiagnostic(session, graph, NOW);
++    const states: Record<string, StudentSkillState> = {};
++    const credit = creditFromDiagnostic(
++      "p6",
++      graph,
++      result.demonstrated,
++      states,
++      NOW,
++      new Set(result.blocked),
++    );
++    const credited = new Set(credit.updates.map((u) => u.skillId));
++    for (const id of result.blocked) expect(credited.has(id)).toBe(false);
++    // Every blocked high-impact node carries the UNCERTAIN label (forced).
++    for (const id of result.blocked) {
++      if (result.labels[id]?.highImpact) expect(result.labels[id].label).toBe("UNCERTAIN");
++    }
++  });
++
++  it("UNCERTAIN labels never credited by inference; INFERRED_READY stays the (pre-existing, Matt-checkpoint) provisional credit path (R9/G7 + K10)", () => {
++    // SCOPE NOTE (K10): the PRE-EXISTING creditFromDiagnostic writes status
++    // `mastered`+masteredAt for inferred (INFERRED_READY) nodes — that §12
++    // "diagnostic-READY treated as course-mastered" semantics PREDATES Phase 6
++    // and is a HARD Matt checkpoint, NOT rewritten here. So INFERRED_READY
++    // nodes remain credited (provisionally). The Phase-6 teeth (§V3.2) are:
++    // an UNCERTAIN node is NEVER credited by INFERENCE (it is blocked).
++    for (const answer of [() => true, (id: string) => id.includes("F")]) {
++      const { session } = runSession(graph, answer);
++      const result = finishDiagnostic(session, graph, NOW);
++      const credit = creditFromDiagnostic(
++        "p6",
++        graph,
++        result.demonstrated,
++        {},
++        NOW,
++        new Set(result.blocked),
++      );
++      const credited = new Set(credit.updates.map((u) => u.skillId));
++      const demonstratedSet = new Set(result.demonstrated);
++      for (const [id, label] of Object.entries(result.labels)) {
++        // INFERRED_READY is topology-only → never directly demonstrated.
++        if (label.label === "INFERRED_READY") {
++          expect(demonstratedSet.has(id)).toBe(false);
++        }
++        // An UNCERTAIN node gets a mastery write ONLY when it was DIRECTLY
++        // demonstrated (non-high-impact 1-direct-correct accelerates per the
++        // pre-existing path). Inference can NEVER credit an UNCERTAIN node.
++        if (label.label === "UNCERTAIN" && !demonstratedSet.has(id)) {
++          expect(credited.has(id)).toBe(false);
++        }
++      }
++    }
++  });
++
++  it("result carries labels / remediation / entryFrontier / qualityFlags", () => {
++    const { session } = runSession(graph, (id) => id.includes("F"));
++    const result = finishDiagnostic(session, graph, NOW);
++    expect(Object.keys(result.labels).length).toBe(graph.nodes.length);
++    expect(Array.isArray(result.remediation)).toBe(true);
++    expect(Array.isArray(result.entryFrontier)).toBe(true);
++    expect(Array.isArray(result.qualityFlags.lowConfidenceNodes)).toBe(true);
++    expect(typeof result.qualityFlags.suspectedGuessing).toBe("boolean");
++    // fatigueRisk is boolean | null (null when undecidable — V3.5).
++    expect(
++      result.qualityFlags.fatigueRisk === null ||
++        typeof result.qualityFlags.fatigueRisk === "boolean",
++    ).toBe(true);
++    // remediation is the NEEDS_WORK + UNCERTAIN set (read-side).
++    for (const id of result.remediation) {
++      const l = result.labels[id].label;
++      expect(l === "NEEDS_WORK" || l === "UNCERTAIN").toBe(true);
++    }
++  });
++});
++
+ // ---------------------------------------------------------------------------
+ // Client graph view
+ // ---------------------------------------------------------------------------
+diff --git a/lib/diagnostic-engine/index.ts b/lib/diagnostic-engine/index.ts
+index dce93a0..05348a4 100644
+--- a/lib/diagnostic-engine/index.ts
++++ b/lib/diagnostic-engine/index.ts
+@@ -62,6 +62,14 @@
+ 
+ import { computeMasteryAll, creditFromDiagnostic } from "../mastery-engine";
+ import { recommend } from "../adaptive-router";
++import { isHighImpact } from "./high-impact";
++import { bktPosterior, type BktPosterior } from "./posterior";
++import {
++  entryFrontier as computeEntryFrontier,
++  labelNode,
++  remediationList,
++  toNodeLabel,
++} from "./labels";
+ import type {
+   ContextHooks,
+   CurriculumGraph,
+@@ -69,6 +77,8 @@ import type {
+   DiagnosticConfig,
+   DiagnosticItem,
+   DiagnosticNodeEstimate,
++  DiagnosticNodeLabel,
++  DiagnosticPlacementLabel,
+   DiagnosticResult,
+   DiagnosticSession,
+   MasteryUpdate,
+@@ -81,7 +91,9 @@ import type {
+ 
+ /** Single home of diagnostic tuning. Changing ANY value is a Matt checkpoint. */
+ export const DIAGNOSTIC_CONFIG: DiagnosticConfig = {
+-  maxItems: 15,
++  maxItems: 40,
++  provisionalMaxItems: 40,
++  fatiguePauseAt: 25,
+   creditDepthConfirm: 4,
+   anchorMetric: "prereqDepthWithinDomain",
+   confidence: {
+@@ -90,6 +102,20 @@ export const DIAGNOSTIC_CONFIG: DiagnosticConfig = {
+     descendedPast: "low",
+     untouched: "unknown",
+   },
++  // Matt threshold checkpoint (§V3.1 / K6): documented BKT defaults, built;
++  // confirm before launch. guess/slip → 1 direct-correct ≈ .82, 2 ≈ .95,
++  // 1 incorrect ≈ .11 (untouched prior .5), so READY(≥.85) needs ≥2 direct.
++  posterior: {
++    priorUntouched: 0.5,
++    priorInferred: 0.4,
++    guess: 0.2,
++    slip: 0.1,
++    readyThreshold: 0.85,
++    needsWorkThreshold: 0.35,
++    inferredReadyThreshold: 0.65,
++    ambiguousLo: 0.45,
++    ambiguousHi: 0.75,
++  },
+ };
+ 
+ // ---------------------------------------------------------------------------
+@@ -199,7 +225,7 @@ function ancestorsOf(id: string, byId: Map<string, SkillNode>): string[] {
+ // responses); every public API replays from scratch.
+ // ---------------------------------------------------------------------------
+ 
+-type TargetKind = "anchor" | "descend" | "advance" | "confirm";
++type TargetKind = "anchor" | "descend" | "advance" | "confirm" | "reprobe";
+ 
+ interface Target {
+   nodeId: string;
+@@ -215,6 +241,12 @@ interface ReplayState {
+   queue: Target[];
+   asked: string[];
+   answered: Map<string, boolean>;
++  /**
++   * Per-serve DIRECT evidence (§V3.3): responses may repeat a skillId (a
++   * high-impact re-serve), so this keeps EVERY direct result, not just the
++   * last. Drives BKT posteriors and the ≥2-direct READY bar.
++   */
++  directByNode: Map<string, boolean[]>;
+   /** Correct neutral-p3, confirm-gated chains only when the confirm passed. */
+   demonstrated: string[];
+   /** nodeId → evidencing (demonstrated) descendant skillId. */
+@@ -223,6 +255,11 @@ interface ReplayState {
+   unconfirmed: Set<string>;
+   /** Incorrect probes, in response order (descended-past evidence). */
+   incorrect: string[];
++  /**
++   * High-impact nodes a re-serve has already been QUEUED for (§V3.3) — guards
++   * the corroboration re-probe to exactly once per node.
++   */
++  reserved: Set<string>;
+   seq: number;
+ }
+ 
+@@ -321,6 +358,54 @@ function descendFrom(state: ReplayState, idx: GraphIndex, fromId: string, walkDo
+   if (cands[0]) pushTarget(state, { nodeId: cands[0], kind: "descend", walkDomain });
+ }
+ 
++/**
++ * BKT posterior for a node from its per-serve direct evidence (§V3.1).
++ * `inferredOnly` (no direct evidence) uses the skeptical prior; any direct
++ * evidence uses the untouched prior. Inference never moves the posterior.
++ */
++function posteriorFor(
++  state: ReplayState,
++  config: DiagnosticConfig,
++  nodeId: string,
++  inferredOnly: boolean,
++): BktPosterior {
++  const direct = state.directByNode.get(nodeId) ?? [];
++  const p = config.posterior;
++  const prior = inferredOnly ? p.priorInferred : p.priorUntouched;
++  return bktPosterior(direct, prior, { guess: p.guess, slip: p.slip });
++}
++
++/**
++ * §V3.3 corroboration re-serve: a high-impact node with EXACTLY 1
++ * direct-correct and posterior < readyThreshold gets ONE re-probe queued (a
++ * DISTINCT neutral-P3 item, chosen by serve-count index in nextItem). Guarded
++ * to fire once per node via state.reserved. Budget is enforced by the stop
++ * rule in nextItem, not here (replay must reconstruct the queue identically).
++ */
++function maybeReserveHighImpact(
++  state: ReplayState,
++  idx: GraphIndex,
++  config: DiagnosticConfig,
++  nodeId: string,
++): void {
++  if (!isHighImpact(nodeId)) return;
++  if (state.reserved.has(nodeId)) return;
++  if (!idx.probeable.has(nodeId)) return;
++  const direct = state.directByNode.get(nodeId) ?? [];
++  const correct = direct.filter(Boolean).length;
++  // Re-serve only when there is exactly 1 direct-correct and no incorrect —
++  // i.e. one promising point that needs a second to reach the ≥2 READY bar.
++  if (direct.length !== 1 || correct !== 1) return;
++  const post = posteriorFor(state, config, nodeId, false).posterior;
++  if (post >= config.posterior.readyThreshold) return;
++  // A second distinct item must exist.
++  const node = idx.byId.get(nodeId);
++  if (!node || neutralP3(node).length < 2) return;
++  state.reserved.add(nodeId);
++  const walkDomain = idx.byId.get(nodeId)?.domain ?? "";
++  pushTarget(state, { nodeId, kind: "reprobe", walkDomain });
++}
++
+ function processAnswer(
+   state: ReplayState,
+   idx: GraphIndex,
+@@ -328,6 +413,30 @@ function processAnswer(
+   target: Target,
+   correct: boolean,
+ ): void {
++  if (target.kind === "reprobe") {
++    // A corroboration re-probe: it ONLY adds a direct point (recorded by the
++    // caller). On the 2nd correct, credit the node directly if its ancestry is
++    // already settled; otherwise let the normal advance machinery run.
++    if (correct) {
++      const pending = pendingAncestorsOf(state, idx, target.nodeId);
++      const nodeDomain = idx.byId.get(target.nodeId)?.domain;
++      const crossesDomain = pending.some((a) => idx.byId.get(a)?.domain !== nodeDomain);
++      const needsConfirm = crossesDomain || pending.length >= config.creditDepthConfirm;
++      if (!needsConfirm) {
++        addDemonstrated(state, target.nodeId);
++        for (const a of pending) state.inferred.set(a, target.nodeId);
++        advanceFrom(state, idx, target.nodeId, target.walkDomain);
++      } else if (!state.demonstrated.includes(target.nodeId)) {
++        // Confirm machinery already governs this chain; the re-probe stands as
++        // a second direct point for the posterior, nothing more.
++        state.unconfirmed.add(target.nodeId);
++      }
++    } else {
++      state.incorrect.push(target.nodeId);
++      descendFrom(state, idx, target.nodeId, target.walkDomain);
++    }
++    return;
++  }
+   if (target.kind === "confirm" && target.confirm) {
+     const { evidencingId, pendingAncestors } = target.confirm;
+     if (correct) {
+@@ -401,6 +510,9 @@ function settle(state: ReplayState, idx: GraphIndex, config: DiagnosticConfig):
+     const ordered = orderQueue(state, idx);
+     const head = ordered[0];
+     if (!head || !state.answered.has(head.nodeId)) return;
++    // §V3.3: a corroboration re-probe is NEVER auto-consumed from the prior
++    // answer — it must be served fresh for its own distinct direct point.
++    if (head.kind === "reprobe") return;
+     state.queue = state.queue.filter((t) => t !== head);
+     processAnswer(state, idx, config, head, state.answered.get(head.nodeId) as boolean);
+   }
+@@ -416,10 +528,12 @@ function replay(
+     queue: [],
+     asked: [],
+     answered: new Map(),
++    directByNode: new Map(),
+     demonstrated: [],
+     inferred: new Map(),
+     unconfirmed: new Set(),
+     incorrect: [],
++    reserved: new Set(),
+     seq: 0,
+   };
+   // One anchor per probeable domain, allocated FIRST (mr-kahn #5 coverage).
+@@ -443,8 +557,14 @@ function replay(
+     state.queue = state.queue.filter((t) => t !== head);
+     state.asked.push(r.skillId);
+     state.answered.set(r.skillId, r.correct);
++    // Per-serve DIRECT evidence (§V3.3) — accumulated for EVERY serve so a
++    // re-served high-impact node keeps both points.
++    const direct = state.directByNode.get(r.skillId);
++    if (direct) direct.push(r.correct);
++    else state.directByNode.set(r.skillId, [r.correct]);
+     processAnswer(state, idx, config, head, r.correct);
+     settle(state, idx, config);
++    maybeReserveHighImpact(state, idx, config, head.nodeId);
+   }
+ 
+   return { state, idx };
+@@ -488,6 +608,7 @@ function toSession(
+     queue: orderQueue(state, idx).map((t) => t.nodeId),
+     localized: localizedMap(state, idx),
+     progress: progressOf(state, idx, config),
++    pauseDue: state.asked.length >= config.fatiguePauseAt,
+   };
+ }
+ 
+@@ -515,18 +636,31 @@ const RESPONSE_TYPE_BY_VISUAL: Record<string, ResponseType> = {
+ };
+ 
+ /**
+- * The next item to serve, or null when every probeable domain is localized
+- * or the item budget is spent. Serves ONLY neutral p3 problems (lowest
+- * problem id — deterministic) from probeable nodes.
++ * The next item to serve, or null when the stop rule fires (§V2 R5):
++ *   • the queue is empty (every probeable domain localized, no high-impact
++ *     re-probe pending), OR
++ *   • asked ≥ provisionalMaxItems (the hard cap).
++ * A pending high-impact corroboration re-probe keeps the queue non-empty, so
++ * the engine never stops while an ambiguous high-impact node has budget + a
++ * second item left — the band guard is structural, not a separate branch.
++ * Client and server compute the identical stop from the same pure replay.
++ *
++ * Serves neutral p3 problems only. A re-served (reprobe) high-impact node gets
++ * a DISTINCT item chosen by prior serve-count index (§V3.3); all others get the
++ * lowest-id item (deterministic).
+  */
+ export function nextItem(session: DiagnosticSession, graph: CurriculumGraph): DiagnosticItem | null {
+   const { state, idx } = replay(graph, session.config, session.responses);
+-  if (state.asked.length >= session.config.maxItems) return null;
++  if (state.asked.length >= session.config.provisionalMaxItems) return null;
+   const head = orderQueue(state, idx)[0];
+   if (!head) return null;
+   const node = idx.byId.get(head.nodeId);
+   if (!node) return null;
+-  const problem = neutralP3(node).sort((a, b) => a.id.localeCompare(b.id))[0];
++  const items = neutralP3(node).sort((a, b) => a.id.localeCompare(b.id));
++  // Pick a DISTINCT item by how many times this node has already been served
++  // (per-serve direct evidence count), clamped to the last available item.
++  const servedCount = (state.directByNode.get(node.id) ?? []).length;
++  const problem = items[Math.min(servedCount, items.length - 1)];
+   if (!problem) return null; // unreachable: only probeable nodes are queued
+   const responseType: ResponseType =
+     (problem.visual && RESPONSE_TYPE_BY_VISUAL[problem.visual]) || "input";
+@@ -566,10 +700,67 @@ function attemptRefFor(
+ }
+ 
+ /**
+- * Final estimates + demonstrated[] + recommended start. `nowIso` is required
++ * fatigueRisk from REAL response data (§V3.5): accuracy on the last-K vs the
++ * first-K matched-difficulty-tier items drops ≥ 25 pts, with K ≥ 4 each side.
++ * Returns null when there are fewer than K post-pause matched items (never
++ * guessed). Matched = same difficulty tier; we compare within the most-common
++ * tier so the two windows are difficulty-comparable, not just positional.
++ */
++function fatigueRiskOf(
++  session: DiagnosticSession,
++  graph: CurriculumGraph,
++): boolean | null {
++  const K = 4;
++  const DROP = 0.25;
++  const probById = new Map<string, ProblemTemplate>();
++  for (const n of graph.nodes) for (const p of neutralP3(n)) probById.set(p.id, p);
++  // Reconstruct each response's difficulty tier by replaying item selection is
++  // costly; instead derive tier from the lowest-id neutral item served per
++  // serve index — but the simplest matched signal available without the served
++  // problem id is the node's served items. Use response order + per-node tier
++  // of the FIRST neutral item (stable). Group by that tier.
++  const responses = session.responses;
++  if (responses.length < 2 * K) return null;
++  const tierOf = (skillId: string): number => {
++    const node = graph.nodes.find((n) => n.id === skillId);
++    if (!node) return 1;
++    const items = neutralP3(node).sort((a, b) => a.id.localeCompare(b.id));
++    return items[0]?.difficulty ?? 1;
++  };
++  // Most common tier among all responses (the matched band).
++  const tierCounts = new Map<number, number>();
++  for (const r of responses) {
++    const t = tierOf(r.skillId);
++    tierCounts.set(t, (tierCounts.get(t) ?? 0) + 1);
++  }
++  let band = 1;
++  let bandN = -1;
++  for (const [t, c] of [...tierCounts.entries()].sort((a, b) => a[0] - b[0])) {
++    if (c > bandN) {
++      band = t;
++      bandN = c;
++    }
++  }
++  const inBand = responses.filter((r) => tierOf(r.skillId) === band);
++  if (inBand.length < 2 * K) return null;
++  const first = inBand.slice(0, K);
++  const last = inBand.slice(-K);
++  const acc = (rs: typeof responses) => rs.filter((r) => r.correct).length / rs.length;
++  return acc(first) - acc(last) >= DROP;
++}
++
++/**
++ * Final estimates + demonstrated[] + recommended start + the placement layer
++ * (labels / remediation / entryFrontier / qualityFlags). `nowIso` is required
+  * because the recommended start is computed via the committed pipeline
+  * (creditFromDiagnostic → computeMasteryAll → recommend) over a simulated
+  * post-credit state — the engine itself still never touches a clock.
++ *
++ * INVARIANT: labels/remediation/entryFrontier/qualityFlags are READ-SIDE
++ * PLACEMENT METADATA. The ONLY path to node_mastery stays demonstrated[] →
++ * creditFromDiagnostic, now BLOCKED-aware (§V3.2): unresolved-high-impact ∪
++ * NEEDS_WORK ∪ UNCERTAIN nodes are never credited, even by ancestor
++ * propagation.
+  */
+ export function finishDiagnostic(
+   session: DiagnosticSession,
+@@ -670,11 +861,96 @@ export function finishDiagnostic(
+     return { domainId: d.id, status, confidence, masteredEstimate, total, unestimated: false };
+   });
+ 
++  // ----- Placement layer (§1 / §V2 R6 / §V3): labels + posteriors -----
++  const fatigueRisk = fatigueRiskOf(session, graph);
++  const labels: Record<string, DiagnosticNodeLabel> = {};
++  const labelOnly: Record<string, DiagnosticPlacementLabel> = {};
++  for (const n of graph.nodes) {
++    const direct = state.directByNode.get(n.id) ?? [];
++    const directCorrect = direct.filter(Boolean).length;
++    const directIncorrect = direct.length - directCorrect;
++    const inferredOnly = direct.length === 0 && state.inferred.has(n.id);
++    const highImpact = isHighImpact(n.id);
++    // Foundational = a domain-root (no same-domain prereq) that is high-impact,
++    // OR any high-impact node whose direct evidence is a clean fail — K5's
++    // "foundational fail that logically blocks downstream skills".
++    const sameDomainPrereq = n.prereqs.some((p) => idx.byId.get(p)?.domain === n.domain);
++    const foundational = highImpact && !sameDomainPrereq;
++    const post = posteriorFor(state, session.config, n.id, inferredOnly);
++    const label = labelNode(
++      {
++        posterior: post.posterior,
++        directCorrect,
++        directIncorrect,
++        inferredOnly,
++        highImpact,
++        foundational,
++        // Fatigue down-grades only when the run as a whole is flagged AND the
++        // node is unresolved (no direct evidence settling it).
++        fatigueFlagged: fatigueRisk === true && direct.length === 0,
++      },
++      session.config.posterior,
++    );
++    labels[n.id] = toNodeLabel(label, post, highImpact);
++    labelOnly[n.id] = label;
++  }
++
++  // BLOCKED set (§V3.2 / R2 / §3a) — nodes credit may NEVER touch, even via
++  // ancestor propagation. Two sources:
++  //   (1) Unresolved high-impact: a high-impact node with < 2 direct-correct.
++  //       This is the §3a teeth — forced UNCERTAIN and blocked even if the v1
++  //       engine put it in demonstrated[] (the mastery-engine demonstrated
++  //       guard honors this too).
++  //   (2) A NEEDS_WORK / UNCERTAIN node that was NOT directly demonstrated.
++  //       Direct demonstration (demonstrated[]) of a non-high-impact node
++  //       still governs credit — the placement label is read-side only and
++  //       must not revoke direct evidence the v1 confirm machinery accepted.
++  const demonstratedSet = new Set(state.demonstrated);
++  const blocked = new Set<string>();
++  for (const n of graph.nodes) {
++    if (!isHighImpact(n.id)) continue;
++    const direct = state.directByNode.get(n.id) ?? [];
++    const directCorrect = direct.filter(Boolean).length;
++    if (directCorrect < 2) {
++      labelOnly[n.id] = "UNCERTAIN";
++      labels[n.id] = { ...labels[n.id], label: "UNCERTAIN", provisional: true };
++      blocked.add(n.id);
++    }
++  }
++  for (const n of graph.nodes) {
++    const l = labelOnly[n.id];
++    if ((l === "NEEDS_WORK" || l === "UNCERTAIN") && !demonstratedSet.has(n.id)) {
++      blocked.add(n.id);
++    }
++  }
++
++  const remediation = remediationList(labelOnly, graph);
++  const entryFrontier = computeEntryFrontier(labelOnly, graph);
++  const lowConfidenceNodes = graph.nodes
++    .map((n) => n.id)
++    .filter((id) => labelOnly[id] === "UNCERTAIN")
++    .sort((a, b) => a.localeCompare(b));
++  // Suspected guessing: any high-impact node correct-then-incorrect (or a
++  // markedly inconsistent direct sequence) hints at lucky/guess corrects.
++  const suspectedGuessing = graph.nodes.some((n) => {
++    const direct = state.directByNode.get(n.id) ?? [];
++    if (direct.length < 2) return false;
++    return direct.includes(true) && direct.includes(false);
++  });
++
+   // Recommended start: the committed pipeline over a simulated post-credit
+   // state. Demonstrated nodes never include unprobed-domain nodes, so credit
+   // (ancestry-only) can never mark an unprobed domain mastered — the
+-  // recommendation cannot route past one on inference alone.
+-  const credit = creditFromDiagnostic(session.studentId, graph, state.demonstrated, {}, nowIso);
++  // recommendation cannot route past one on inference alone. `blocked` stops
++  // ancestor propagation at unresolved-high-impact / NEEDS_WORK / UNCERTAIN.
++  const credit = creditFromDiagnostic(
++    session.studentId,
++    graph,
++    state.demonstrated,
++    {},
++    nowIso,
++    blocked,
++  );
+   const simStates: Record<string, StudentSkillState> = {};
+   for (const u of credit.updates) {
+     simStates[u.skillId] = {
+@@ -702,6 +978,15 @@ export function finishDiagnostic(
+     demonstrated: [...state.demonstrated],
+     recommendedStart: rec.skillId,
+     recommendedReason: rec.reason,
++    labels,
++    remediation,
++    entryFrontier,
++    blocked: [...blocked].sort((a, b) => a.localeCompare(b)),
++    qualityFlags: {
++      lowConfidenceNodes,
++      suspectedGuessing,
++      fatigueRisk,
++    },
+   };
+ }
+ 
+diff --git a/lib/diagnostic-engine/labels.test.ts b/lib/diagnostic-engine/labels.test.ts
+new file mode 100644
+index 0000000..9bd2677
+--- /dev/null
++++ b/lib/diagnostic-engine/labels.test.ts
+@@ -0,0 +1,147 @@
++// Tests for the four placement labels + remediation ordering + entry frontier
++// (§V2 R6 / §V3). Pure-function tests on a small synthetic label graph.
++
++import { describe, expect, it } from "vitest";
++import { entryFrontier, labelNode, remediationList } from "./labels";
++import { fixtureGraph, fixtureNode } from "./__fixtures__/diagnostic-fixture";
++import { DIAGNOSTIC_CONFIG } from "./index";
++import type { DiagnosticPlacementLabel } from "@/types";
++
++const P = DIAGNOSTIC_CONFIG.posterior;
++
++const base = {
++  posterior: 0.5,
++  directCorrect: 0,
++  directIncorrect: 0,
++  inferredOnly: false,
++  highImpact: false,
++  foundational: false,
++  fatigueFlagged: false,
++};
++
++describe("labelNode (§V2 R6 / §V3)", () => {
++  it("READY needs posterior ≥ .85 AND ≥2 direct evidence", () => {
++    expect(labelNode({ ...base, posterior: 0.95, directCorrect: 2 }, P)).toBe("READY");
++    // High posterior but only 1 direct point → not READY.
++    expect(labelNode({ ...base, posterior: 0.82, directCorrect: 1 }, P)).toBe("UNCERTAIN");
++  });
++
++  it("high-impact READY requires ≥2 DIRECT-CORRECT (R2)", () => {
++    // 2 direct evidence but 1 correct + 1 incorrect, posterior pushed high by
++    // construction won't happen, but guard the rule directly:
++    expect(
++      labelNode(
++        { ...base, posterior: 0.9, directCorrect: 1, directIncorrect: 1, highImpact: true },
++        P,
++      ),
++    ).toBe("UNCERTAIN");
++    expect(
++      labelNode({ ...base, posterior: 0.95, directCorrect: 2, highImpact: true }, P),
++    ).toBe("READY");
++  });
++
++  it("NEEDS_WORK on posterior ≤ .35 with ≥2 fails", () => {
++    expect(
++      labelNode({ ...base, posterior: 0.11, directIncorrect: 2 }, P),
++    ).toBe("NEEDS_WORK");
++    // One fail, non-foundational → not enough for NEEDS_WORK.
++    expect(labelNode({ ...base, posterior: 0.11, directIncorrect: 1 }, P)).toBe("UNCERTAIN");
++  });
++
++  it("foundational direct fail at 1 evidence → NEEDS_WORK (K5)", () => {
++    expect(
++      labelNode({ ...base, posterior: 0.11, directIncorrect: 1, foundational: true }, P),
++    ).toBe("NEEDS_WORK");
++  });
++
++  it("INFERRED_READY for inferred-only at/above .65, provisional", () => {
++    expect(
++      labelNode({ ...base, posterior: 0.65, inferredOnly: true }, P),
++    ).toBe("INFERRED_READY");
++  });
++
++  it("high-impact inferred-only is demoted to UNCERTAIN (never inferred-only, §3a)", () => {
++    expect(
++      labelNode({ ...base, posterior: 0.7, inferredOnly: true, highImpact: true }, P),
++    ).toBe("UNCERTAIN");
++  });
++
++  it("ambiguous middle → UNCERTAIN", () => {
++    expect(labelNode({ ...base, posterior: 0.5, directCorrect: 1 }, P)).toBe("UNCERTAIN");
++  });
++
++  it("fatigue-flagged unresolved → UNCERTAIN, never NEEDS_WORK (§V3.5)", () => {
++    expect(
++      labelNode(
++        { ...base, posterior: 0.11, directIncorrect: 2, fatigueFlagged: true },
++        P,
++      ),
++    ).toBe("UNCERTAIN");
++    // …but a confidently-cleared READY is NOT down-graded by a fatigue flag.
++    expect(
++      labelNode({ ...base, posterior: 0.95, directCorrect: 2, fatigueFlagged: true }, P),
++    ).toBe("READY");
++  });
++});
++
++// A small label graph: r (root) → m (middle) → t (top).
++const chain = fixtureGraph(
++  [
++    fixtureNode("r", "alpha", 0, []),
++    fixtureNode("m", "alpha", 0, ["r"]),
++    fixtureNode("t", "alpha", 0, ["m"]),
++  ],
++  [{ id: "alpha", label: "Alpha", tier: 0 }],
++);
++
++describe("remediationList — topological, ancestors first", () => {
++  it("orders NEEDS_WORK + UNCERTAIN by prereq topology", () => {
++    const labels: Record<string, DiagnosticPlacementLabel> = {
++      r: "NEEDS_WORK",
++      m: "UNCERTAIN",
++      t: "NEEDS_WORK",
++    };
++    expect(remediationList(labels, chain)).toEqual(["r", "m", "t"]);
++  });
++
++  it("excludes READY/INFERRED_READY nodes", () => {
++    const labels: Record<string, DiagnosticPlacementLabel> = {
++      r: "READY",
++      m: "INFERRED_READY",
++      t: "NEEDS_WORK",
++    };
++    expect(remediationList(labels, chain)).toEqual(["t"]);
++  });
++});
++
++describe("entryFrontier — deepest non-READY with READY/INFERRED_READY prereqs", () => {
++  it("picks the deepest qualifying node on a chain", () => {
++    // r READY, m UNCERTAIN (prereq r is READY → qualifies), t NEEDS_WORK
++    // (prereq m is UNCERTAIN → does not qualify). Frontier = {m}.
++    const labels: Record<string, DiagnosticPlacementLabel> = {
++      r: "READY",
++      m: "UNCERTAIN",
++      t: "NEEDS_WORK",
++    };
++    expect(entryFrontier(labels, chain)).toEqual(["m"]);
++  });
++
++  it("carries inferred prereqs (INFERRED_READY counts as a satisfied prereq)", () => {
++    const labels: Record<string, DiagnosticPlacementLabel> = {
++      r: "INFERRED_READY",
++      m: "NEEDS_WORK",
++      t: "UNCERTAIN",
++    };
++    // m qualifies (prereq r is INFERRED_READY); t does not (prereq m non-READY).
++    expect(entryFrontier(labels, chain)).toEqual(["m"]);
++  });
++
++  it("is empty when every node is READY", () => {
++    const labels: Record<string, DiagnosticPlacementLabel> = {
++      r: "READY",
++      m: "READY",
++      t: "READY",
++    };
++    expect(entryFrontier(labels, chain)).toEqual([]);
++  });
++});
+diff --git a/lib/diagnostic-engine/labels.ts b/lib/diagnostic-engine/labels.ts
+new file mode 100644
+index 0000000..06e8305
+--- /dev/null
++++ b/lib/diagnostic-engine/labels.ts
+@@ -0,0 +1,208 @@
++// lib/diagnostic-engine/labels — the four PLACEMENT labels (§1 / §V2 R6 /
++// §V3), remediation ordering, and the entry frontier. PURE: no React, no IO,
++// no clock, no RNG. All graph iteration is over graph.nodes / sorted ids only
++// (G5 / R8) — never raw Map/Set/Object.keys order.
++//
++// LABELS ARE READ-SIDE PLACEMENT METADATA. They never write node_mastery; the
++// ONLY path to mastery is demonstrated[] → creditFromDiagnostic (R9).
++
++import type {
++  CurriculumGraph,
++  DiagnosticConfig,
++  DiagnosticNodeLabel,
++  DiagnosticPlacementLabel,
++} from "@/types";
++
++export interface LabelInput {
++  posterior: number;
++  /** Count of DIRECT correct responses on this node (per-serve). */
++  directCorrect: number;
++  /** Count of DIRECT incorrect responses on this node (per-serve). */
++  directIncorrect: number;
++  /** True when the node has NO direct evidence (resolved by topology only). */
++  inferredOnly: boolean;
++  highImpact: boolean;
++  /** A domain-root / high-impact-foundational node (K5 foundational-fail rule). */
++  foundational: boolean;
++  /** Fatigue flagged for this node (§V3.5) → unresolved becomes UNCERTAIN. */
++  fatigueFlagged: boolean;
++}
++
++/**
++ * Classify ONE node (§V2 R6 / §V3). Thresholds come from
++ * DIAGNOSTIC_CONFIG.posterior (Matt checkpoint constants).
++ *
++ *   READY          posterior ≥ readyThreshold ∧ ≥2 DIRECT evidence;
++ *                  high-impact additionally requires ≥2 DIRECT-CORRECT.
++ *   NEEDS_WORK     posterior ≤ needsWorkThreshold ∧ ≥2 fails, OR a foundational
++ *                  direct fail at 1 evidence (K5). Never when fatigue-flagged.
++ *   INFERRED_READY inferred-only ∧ posterior ≥ inferredReadyThreshold,
++ *                  provisional; high-impact inferred-only is DEMOTED → UNCERTAIN
++ *                  (forces direct evidence, §3a).
++ *   UNCERTAIN      everything else (the ambiguous middle, inconsistent
++ *                  evidence, or fatigue-flagged).
++ */
++export function labelNode(
++  input: LabelInput,
++  cfg: DiagnosticConfig["posterior"],
++): DiagnosticPlacementLabel {
++  const {
++    posterior,
++    directCorrect,
++    directIncorrect,
++    inferredOnly,
++    highImpact,
++    foundational,
++    fatigueFlagged,
++  } = input;
++  const directEvidence = directCorrect + directIncorrect;
++
++  // Fatigue-flagged unresolved nodes are UNCERTAIN, never NEEDS_WORK (§9 /
++  // §V3.5) — but a confidently-cleared READY node is not down-graded.
++  const fatigueBlocksDown = fatigueFlagged;
++
++  // READY — needs the posterior bar AND ≥2 direct evidence; high-impact needs
++  // ≥2 direct-CORRECT specifically (R2).
++  if (posterior >= cfg.readyThreshold && directEvidence >= 2) {
++    if (highImpact && directCorrect < 2) return "UNCERTAIN";
++    return "READY";
++  }
++
++  // INFERRED_READY — resolved by prerequisite TOPOLOGY (§1), provisional only.
++  // In this engine inference is confirmation-gated (the confirm probe passed),
++  // so topology membership is the signal; the BKT posterior cannot rise
++  // without direct evidence, which an inferred-only node by definition lacks.
++  // High-impact inferred-only is DEMOTED to UNCERTAIN (never inferred-only,
++  // §3a) — it must earn ≥2 direct points.
++  if (inferredOnly) {
++    return highImpact ? "UNCERTAIN" : "INFERRED_READY";
++  }
++
++  // NEEDS_WORK — strong failure signal. Suppressed under fatigue.
++  if (!fatigueBlocksDown) {
++    if (posterior <= cfg.needsWorkThreshold && directIncorrect >= 2) return "NEEDS_WORK";
++    // Foundational direct fail at a single evidence point (K5).
++    if (foundational && directIncorrect >= 1 && directCorrect === 0) return "NEEDS_WORK";
++  }
++
++  return "UNCERTAIN";
++}
++
++/** Transitive prerequisite closure of `id` (node excluded), sorted by id. */
++function ancestorsOf(id: string, byId: Map<string, { prereqs: string[] }>): string[] {
++  const seen = new Set<string>();
++  const visit = (cur: string) => {
++    for (const p of byId.get(cur)?.prereqs ?? []) {
++      if (seen.has(p)) continue;
++      seen.add(p);
++      visit(p);
++    }
++  };
++  visit(id);
++  return [...seen].sort((a, b) => a.localeCompare(b));
++}
++
++/**
++ * Topological order (Kahn) over prereqs, deterministic in graph.nodes order
++ * with a sorted-id tie-break. Ancestors come before dependents.
++ */
++function topoOrder(graph: CurriculumGraph): string[] {
++  const inDegree = new Map(graph.nodes.map((n) => [n.id, n.prereqs.length]));
++  const dependents = new Map<string, string[]>();
++  for (const n of graph.nodes) {
++    for (const p of n.prereqs) {
++      const list = dependents.get(p);
++      if (list) list.push(n.id);
++      else dependents.set(p, [n.id]);
++    }
++  }
++  for (const list of dependents.values()) list.sort((a, b) => a.localeCompare(b));
++  // Sorted-id ready queue → fully deterministic regardless of node order.
++  const ready = graph.nodes
++    .filter((n) => n.prereqs.length === 0)
++    .map((n) => n.id)
++    .sort((a, b) => a.localeCompare(b));
++  const order: string[] = [];
++  while (ready.length > 0) {
++    const id = ready.shift() as string;
++    order.push(id);
++    const newlyReady: string[] = [];
++    for (const d of dependents.get(id) ?? []) {
++      const remaining = (inDegree.get(d) ?? 0) - 1;
++      inDegree.set(d, remaining);
++      if (remaining === 0) newlyReady.push(d);
++    }
++    newlyReady.sort((a, b) => a.localeCompare(b));
++    for (const d of newlyReady) ready.push(d);
++  }
++  return order;
++}
++
++const READY_LABELS = new Set<DiagnosticPlacementLabel>(["READY", "INFERRED_READY"]);
++
++/**
++ * Prioritized remediation list: NEEDS_WORK + UNCERTAIN nodes, topologically
++ * ordered (ancestors first) so the student fills foundations before
++ * dependents. Pure; iterates the topo order (sorted-id deterministic).
++ */
++export function remediationList(
++  labels: Record<string, DiagnosticPlacementLabel>,
++  graph: CurriculumGraph,
++): string[] {
++  const order = topoOrder(graph);
++  return order.filter((id) => {
++    const l = labels[id];
++    return l === "NEEDS_WORK" || l === "UNCERTAIN";
++  });
++}
++
++/**
++ * Recommended entry frontier: the DEEPEST non-READY nodes whose prereqs are
++ * all READY/INFERRED_READY — the recommended start set. "Deepest" = a frontier
++ * node has no non-READY descendant that itself qualifies (we keep the lowest
++ * qualifying node on each chain). Pure; iterates sorted ids.
++ */
++export function entryFrontier(
++  labels: Record<string, DiagnosticPlacementLabel>,
++  graph: CurriculumGraph,
++): string[] {
++  const byId = new Map(graph.nodes.map((n) => [n.id, { prereqs: n.prereqs }]));
++  const ids = graph.nodes.map((n) => n.id).sort((a, b) => a.localeCompare(b));
++
++  const qualifies = (id: string): boolean => {
++    const l = labels[id];
++    if (l === undefined || READY_LABELS.has(l)) return false; // node itself must be non-READY
++    const node = byId.get(id);
++    if (!node) return false;
++    return node.prereqs.every((p) => {
++      const pl = labels[p];
++      return pl !== undefined && READY_LABELS.has(pl);
++    });
++  };
++
++  const candidates = ids.filter(qualifies);
++  const candidateSet = new Set(candidates);
++
++  // "Deepest" pruning: drop a candidate if any of its ANCESTORS is also a
++  // candidate (the ancestor is the deeper start on that chain).
++  return candidates
++    .filter((id) => !ancestorsOf(id, byId).some((a) => candidateSet.has(a)))
++    .sort((a, b) => a.localeCompare(b));
++}
++
++/** Build a node-id→full-label record from a label map + posterior layer. */
++export function toNodeLabel(
++  label: DiagnosticPlacementLabel,
++  posterior: { posterior: number; ciLow: number; ciHigh: number; evidenceCount: number },
++  highImpact: boolean,
++): DiagnosticNodeLabel {
++  return {
++    label,
++    posterior: posterior.posterior,
++    ciLow: posterior.ciLow,
++    ciHigh: posterior.ciHigh,
++    evidenceCount: posterior.evidenceCount,
++    provisional: label === "INFERRED_READY" || label === "UNCERTAIN",
++    highImpact,
++  };
++}
+diff --git a/lib/diagnostic-engine/posterior.test.ts b/lib/diagnostic-engine/posterior.test.ts
+new file mode 100644
+index 0000000..41e8ff0
+--- /dev/null
++++ b/lib/diagnostic-engine/posterior.test.ts
+@@ -0,0 +1,63 @@
++// Tests for the BKT likelihood-ratio posterior (§V3.1). The exact numbers are
++// load-bearing: they are what makes READY(≥.85) require ≥2 direct-correct.
++
++import { describe, expect, it } from "vitest";
++import { bktPosterior } from "./posterior";
++
++const T = { guess: 0.2, slip: 0.1 };
++
++describe("bktPosterior: §V3.1 exact numbers (untouched prior .5)", () => {
++  it("1 direct-correct ≈ .82", () => {
++    const r = bktPosterior([true], 0.5, T);
++    expect(r.posterior).toBeCloseTo(0.818, 3);
++    expect(r.evidenceCount).toBe(1);
++    // Below READY(.85): a single correct cannot reach READY (R2 by construction).
++    expect(r.posterior).toBeLessThan(0.85);
++  });
++
++  it("2 direct-correct ≈ .95 (crosses the READY bar)", () => {
++    const r = bktPosterior([true, true], 0.5, T);
++    expect(r.posterior).toBeCloseTo(0.953, 3);
++    expect(r.posterior).toBeGreaterThanOrEqual(0.85);
++    expect(r.evidenceCount).toBe(2);
++  });
++
++  it("1 direct-incorrect ≈ .11", () => {
++    const r = bktPosterior([false], 0.5, T);
++    expect(r.posterior).toBeCloseTo(0.111, 3);
++  });
++
++  it("is order-independent (odds multiplication commutes)", () => {
++    const a = bktPosterior([true, false, true], 0.5, T);
++    const b = bktPosterior([false, true, true], 0.5, T);
++    expect(a.posterior).toBeCloseTo(b.posterior, 12);
++  });
++
++  it("no direct evidence → stays at the prior (inference never moves it)", () => {
++    expect(bktPosterior([], 0.4, T).posterior).toBeCloseTo(0.4, 12);
++    expect(bktPosterior([], 0.5, T).posterior).toBeCloseTo(0.5, 12);
++    expect(bktPosterior([], 0.4, T).evidenceCount).toBe(0);
++  });
++
++  it("an inferred-only high-impact node (skeptical prior .4) stays UNCERTAIN-range", () => {
++    const r = bktPosterior([], 0.4, T);
++    expect(r.posterior).toBeLessThan(0.65); // below INFERRED_READY threshold
++    expect(r.posterior).toBeGreaterThan(0.35); // above NEEDS_WORK threshold
++  });
++
++  it("rough Wilson CI brackets the point estimate and widens with little data", () => {
++    const one = bktPosterior([true], 0.5, T);
++    const four = bktPosterior([true, true, true, true], 0.5, T);
++    expect(one.ciLow).toBeGreaterThanOrEqual(0);
++    expect(one.ciHigh).toBeLessThanOrEqual(1);
++    expect(one.ciLow).toBeLessThan(one.ciHigh);
++    // More evidence → a tighter interval.
++    expect(four.ciHigh - four.ciLow).toBeLessThan(one.ciHigh - one.ciLow);
++  });
++
++  it("empty evidence yields the full [0,1] rough interval", () => {
++    const r = bktPosterior([], 0.5, T);
++    expect(r.ciLow).toBe(0);
++    expect(r.ciHigh).toBe(1);
++  });
++});
+diff --git a/lib/diagnostic-engine/posterior.ts b/lib/diagnostic-engine/posterior.ts
+new file mode 100644
+index 0000000..32ee35a
+--- /dev/null
++++ b/lib/diagnostic-engine/posterior.ts
+@@ -0,0 +1,80 @@
++// lib/diagnostic-engine/posterior — BKT likelihood-ratio per-node posterior
++// (§V3.1, supersedes the v2 Beta-mean). PURE: no React, no IO, no clock, no
++// RNG, no Map/Set/Object.keys iteration order dependence.
++//
++// MODEL (§V3.1):
++//   odds0 = p0 / (1 - p0)        p0 = prior by inference state
++//   per DIRECT correct   odds *= (1 - slip) / guess
++//   per DIRECT incorrect odds *= slip / (1 - guess)
++//   posterior = odds / (1 + odds)
++// Inference NEVER moves the posterior — only direct responses do, so an
++// inferred-only high-impact node stays at its (skeptical) prior → UNCERTAIN.
++//
++// With guess=0.2, slip=0.1 and untouched prior 0.5:
++//   1 direct-correct   ≈ .818   2 ≈ .953   1 direct-incorrect ≈ .111
++// so READY (≥.85) requires ≥2 direct-correct BY CONSTRUCTION (§V3.1 / R2).
++//
++// CI: a ROUGH Wilson interval on the binary direct-correct count. Labelled
++// rough; never shown as precise (it is a stability cue, not a measurement).
++
++export interface BktTuning {
++  guess: number;
++  slip: number;
++}
++
++export interface BktPosterior {
++  posterior: number;
++  /** Rough Wilson lower bound on the direct-correct proportion. */
++  ciLow: number;
++  /** Rough Wilson upper bound on the direct-correct proportion. */
++  ciHigh: number;
++  /** Number of DIRECT responses folded in. */
++  evidenceCount: number;
++}
++
++const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));
++
++/** Rough Wilson score interval (z=1.96) on k/n; n=0 → the full [0,1]. */
++function wilson(correct: number, total: number): { lo: number; hi: number } {
++  if (total <= 0) return { lo: 0, hi: 1 };
++  const z = 1.96;
++  const p = correct / total;
++  const z2 = z * z;
++  const denom = 1 + z2 / total;
++  const center = (p + z2 / (2 * total)) / denom;
++  const margin =
++    (z * Math.sqrt((p * (1 - p)) / total + z2 / (4 * total * total))) / denom;
++  return { lo: clamp01(center - margin), hi: clamp01(center + margin) };
++}
++
++/**
++ * BKT likelihood-ratio posterior over a node's DIRECT results (§V3.1).
++ * `directResults` is the per-serve correct/incorrect list (order-independent —
++ * multiplication of odds commutes). `prior` is p0 by inference state.
++ */
++export function bktPosterior(
++  directResults: boolean[],
++  prior: number,
++  { guess, slip }: BktTuning,
++): BktPosterior {
++  // Guard the prior strictly inside (0,1) so odds is finite.
++  const p0 = Math.min(1 - 1e-9, Math.max(1e-9, prior));
++  let odds = p0 / (1 - p0);
++  let correct = 0;
++  for (const ok of directResults) {
++    if (ok) {
++      odds *= (1 - slip) / guess;
++      correct += 1;
++    } else {
++      odds *= slip / (1 - guess);
++    }
++  }
++  const posterior = clamp01(odds / (1 + odds));
++  const { lo, hi } = wilson(correct, directResults.length);
++  return {
++    posterior,
++    ciLow: lo,
++    ciHigh: hi,
++    evidenceCount: directResults.length,
++  };
++}
+diff --git a/lib/engine-v2/cold-start.ts b/lib/engine-v2/cold-start.ts
+index 6655906..94ad5cd 100644
+--- a/lib/engine-v2/cold-start.ts
++++ b/lib/engine-v2/cold-start.ts
+@@ -3,8 +3,11 @@
+ // empirical-Bayes blend for the first few retrievals. Pure.
+ import type { LearningState } from "./interaction";
+ import { RETENTION } from "./types";
++import type { DiagnosticPlacementLabel } from "@/types";
+ 
+-export type DiagnosticLabel = "READY" | "NEEDS_WORK" | "UNCERTAIN" | "INFERRED_READY";
++// One label type (G4 / §V2 R7): the canonical union lives in types/diagnostic.ts.
++// Kept as a local alias so existing engine-v2 callers keep their name.
++export type DiagnosticLabel = DiagnosticPlacementLabel;
+ 
+ /** Graded initial p_known per label (§6). UNCERTAIN sits mid with high uncertainty. */
+ const PRIOR_BY_LABEL: Record<DiagnosticLabel, number> = {
+diff --git a/lib/mastery-engine/index.test.ts b/lib/mastery-engine/index.test.ts
+index b8f2f70..c72cb7d 100644
+--- a/lib/mastery-engine/index.test.ts
++++ b/lib/mastery-engine/index.test.ts
+@@ -159,7 +159,7 @@ describe("status transition matrix (never-mastered ladder)", () => {
+     };
+     const r = computeMastery(states, "A", chain, NOW);
+     expect(r.score).toBeGreaterThanOrEqual(0.7);
+-    expect(r.score).toBeLessThan(0.85);
++    expect(r.score).toBeLessThan(MASTERY_CONFIG.thresholds.mastered);
+     expect(r.status).toBe("near_mastery");
+   });
+ 
+@@ -610,6 +610,55 @@ describe("creditFromDiagnostic skip rules (mr-kahn) — chain A ← B ← C, C d
+   });
+ });
+ 
++describe("creditFromDiagnostic §V3.2 — credit-propagation BLOCK (chain A ← B ← C)", () => {
++  it("a demonstrated descendant of a BLOCKED ancestor yields NO update for that ancestor, and propagation stops there", () => {
++    // C demonstrated; B is a blocked (e.g. unresolved high-impact bridge) node.
++    // B must NOT be credited, and propagation must STOP at B → A is also not
++    // credited (it sits above the block).
++    const { updates, skipped } = creditFromDiagnostic(
++      "stu-1",
++      chain,
++      ["C"],
++      {},
++      NOW,
++      new Set(["B"]),
++    );
++    const credited = updates.map((u) => u.skillId);
++    expect(credited).toContain("C"); // direct evidence still credits the demonstrated node
++    expect(credited).not.toContain("B"); // blocked → never credited
++    expect(credited).not.toContain("A"); // propagation stopped at B
++    expect(skipped).toContainEqual({
++      skillId: "B",
++      reason: "blocked: unresolved placement (not credited)",
++    });
++  });
++
++  it("a demonstrated node that is itself blocked is not credited (high-impact short of ≥2 direct)", () => {
++    const { updates, skipped } = creditFromDiagnostic(
++      "stu-1",
++      chain,
++      ["C"],
++      {},
++      NOW,
++      new Set(["C"]),
++    );
++    const credited = updates.map((u) => u.skillId);
++    expect(credited).not.toContain("C"); // blocked demonstrated node not credited
++    // …but its UNBLOCKED ancestors still receive credit (the evidence implies them).
++    expect(credited).toContain("B");
++    expect(credited).toContain("A");
++    expect(skipped).toContainEqual({
++      skillId: "C",
++      reason: "blocked: unresolved placement (not credited)",
++    });
++  });
++
++  it("default empty blocked set preserves existing behavior", () => {
++    const { updates } = creditFromDiagnostic("stu-1", chain, ["C"], {}, NOW);
++    expect(updates.map((u) => u.skillId)).toEqual(["C", "B", "A"]);
++  });
++});
++
+ describe("determinism and purity", () => {
+   it("same inputs twice → deep-equal batch output", () => {
+     const states = {
+diff --git a/lib/mastery-engine/index.ts b/lib/mastery-engine/index.ts
+index 47862f9..848d7d0 100644
+--- a/lib/mastery-engine/index.ts
++++ b/lib/mastery-engine/index.ts
+@@ -59,7 +59,11 @@ export const MASTERY_CONFIG: MasteryConfig = {
+   weights: { recent: 0.5, overall: 0.2, consistency: 0.15, hintFactor: 0.15 },
+   thresholds: {
+     prereqGate: 0.7,
+-    mastered: 0.85,
++    // Matt directive (2026-06): the course's mastery bar is 90%. Raised from
++    // 0.85 → 0.90 so "mastered" requires ≥90% weighted evidence (the transfer
++    // gate + minAttempts.mastered still apply). mr-kahn note: with the P3
++    // transfer requirement this was already strict; 0.90 makes the bar explicit.
++    mastered: 0.9,
+     reviewTrigger: 0.75,
+     recentDip: 0.6,
+     nearMastery: 0.7,
+@@ -463,6 +467,7 @@ export function creditFromDiagnostic(
+   demonstrated: string[],
+   states: Record<string, StudentSkillState>,
+   nowIso: string,
++  blocked: ReadonlySet<string> = new Set(),
+ ): DiagnosticCreditResult {
+   const cfg = MASTERY_CONFIG;
+   const byId = new Map(graph.nodes.map((n) => [n.id, n]));
+@@ -509,6 +514,13 @@ export function creditFromDiagnostic(
+     for (const p of byId.get(id)?.prereqs ?? []) {
+       if (visited.has(p)) continue;
+       visited.add(p);
++      // §V3.2 BLOCK: an unresolved-high-impact / NEEDS_WORK / UNCERTAIN node is
++      // NEVER credited AND propagation STOPS here — the diagnostic places it,
++      // the course confirms it. This is the teeth of §3a "never inferred-only".
++      if (blocked.has(p)) {
++        skipped.push({ skillId: p, reason: "blocked: unresolved placement (not credited)" });
++        continue;
++      }
+       const s = st(p);
+       if (s.status === "mastered") {
+         skipped.push({ skillId: p, reason: "already mastered" });
+@@ -532,6 +544,12 @@ export function creditFromDiagnostic(
+   const demonstratedNodes = demonstrated.filter((d) => byId.has(d) && !visited.has(d));
+   for (const d of demonstratedNodes) {
+     visited.add(d);
++    // §V3.2: a blocked node is never credited even when it appears in
++    // demonstrated[] (e.g. a high-impact node short of ≥2 direct-correct).
++    if (blocked.has(d)) {
++      skipped.push({ skillId: d, reason: "blocked: unresolved placement (not credited)" });
++      continue;
++    }
+     const node = byId.get(d) as SkillNode;
+     updates.push({
+       ...baseUpdate(d),
+@@ -539,6 +557,8 @@ export function creditFromDiagnostic(
+       reason: `Demonstrated ${node.title} (${d}) with neutral Phase-3 evidence on the ${date} diagnostic.`,
+     });
+   }
++  // Propagate from demonstrated nodes — including any that were blocked above,
++  // so their (unblocked) ancestors still receive credit per §3a granularity.
+   for (const d of demonstratedNodes) visitAncestors(d, d);
+ 
+   return { updates, skipped };
+diff --git a/scripts/diagnostic-sim.test.ts b/scripts/diagnostic-sim.test.ts
+new file mode 100644
+index 0000000..dd04fd5
+--- /dev/null
++++ b/scripts/diagnostic-sim.test.ts
+@@ -0,0 +1,270 @@
++// scripts/diagnostic-sim.test.ts — the §4 / §V2 R11 MANDATORY simulation.
++//
++// Runs via the VITEST resolver (NOT bare node — G2): deterministic seeded LCG,
++// no Date.now()/Math.random(). Generates ~500 synthetic students with a known
++// per-node "true mastered" pattern, simulates responses ~ Bernoulli(known ?
++// 1-slip : guess), drives the real engine, and validates classification on the
++// COVERED high-impact subset (§V3.4), the realized length distribution, and a
++// procedural-over-brittle scenario (correct on dependents while a true prereq
++// gap exists) proving NO false high-impact READY.
++//
++// Targets (§13): high-impact-subset sensitivity ≥ .80, specificity ≥ .85,
++// high-impact false-READY ≤ .05. If a target fails the test is LEFT FAILING —
++// the assertion is never weakened silently.
++//
++// The report is console.log'd AND written to phases/phase-6-simulation.md.
++
++import { describe, expect, it } from "vitest";
++import { writeFileSync } from "node:fs";
++import { join } from "node:path";
++import {
++  DIAGNOSTIC_CONFIG,
++  finishDiagnostic,
++  nextItem,
++  recordResponse,
++  startDiagnostic,
++} from "../lib/diagnostic-engine";
++import {
++  HIGH_IMPACT_NODE_IDS,
++  isHighImpact,
++} from "../lib/diagnostic-engine/high-impact";
++import realGraphJson from "../data/algebra1-graph.json";
++import type { CurriculumGraph, DiagnosticSession } from "../types";
++
++const graph = realGraphJson as unknown as CurriculumGraph;
++const NOW = "2026-06-10T09:00:00.000Z";
++const { guess, slip } = DIAGNOSTIC_CONFIG.posterior;
++
++// --- deterministic seeded LCG (no RNG, no clock) ---------------------------
++function lcg(seed: number): () => number {
++  let s = seed >>> 0;
++  return () => {
++    // Numerical Recipes LCG constants.
++    s = (Math.imul(1664525, s) + 1013904223) >>> 0;
++    return s / 0x100000000;
++  };
++}
++
++// --- ground truth: a student's true per-node mastery -----------------------
++// Each node has an intrinsic "difficulty rank" (topological depth proxy).
++// A student has an ability threshold: nodes at/below the threshold are truly
++// mastered, with a small random "brittle gap" probability that knocks some
++// below-threshold nodes back to not-mastered (the realistic case §3a targets).
++
++const NODE_IDS = graph.nodes.map((n) => n.id).sort((a, b) => a.localeCompare(b));
++
++/** Longest prerequisite chain length per node (global depth proxy). */
++function globalDepth(): Map<string, number> {
++  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
++  const memo = new Map<string, number>();
++  const depthOf = (id: string): number => {
++    const m = memo.get(id);
++    if (m !== undefined) return m;
++    memo.set(id, 0);
++    let d = 0;
++    for (const p of byId.get(id)?.prereqs ?? []) d = Math.max(d, depthOf(p) + 1);
++    memo.set(id, d);
++    return d;
++  };
++  for (const id of NODE_IDS) depthOf(id);
++  return memo;
++}
++const DEPTH = globalDepth();
++const MAX_DEPTH = Math.max(...[...DEPTH.values()]);
++
++interface Student {
++  trueMastered: Set<string>;
++}
++
++function makeStudent(rng: () => number): Student {
++  // Ability ∈ [0, MAX_DEPTH]: master everything at depth ≤ ability.
++  const ability = rng() * (MAX_DEPTH + 1);
++  const gapProb = 0.12 * rng(); // up to 12% brittle gaps among "known" nodes
++  const trueMastered = new Set<string>();
++  for (const id of NODE_IDS) {
++    const d = DEPTH.get(id) ?? 0;
++    if (d <= ability && rng() > gapProb) trueMastered.add(id);
++  }
++  return { trueMastered };
++}
++
++/** Simulated response to a served node: Bernoulli(known ? 1-slip : guess). */
++function answer(student: Student, skillId: string, rng: () => number): boolean {
++  const p = student.trueMastered.has(skillId) ? 1 - slip : guess;
++  return rng() < p;
++}
++
++function runStudent(student: Student, rng: () => number) {
++  let session: DiagnosticSession = startDiagnostic(graph, "sim", DIAGNOSTIC_CONFIG);
++  const askedCounts = new Map<string, number>();
++  for (;;) {
++    const item = nextItem(session, graph);
++    if (!item) break;
++    askedCounts.set(item.skillId, (askedCounts.get(item.skillId) ?? 0) + 1);
++    session = recordResponse(session, graph, item.skillId, answer(student, item.skillId, rng));
++  }
++  const result = finishDiagnostic(session, graph, NOW);
++  return { result, length: session.responses.length, askedCounts };
++}
++
++// --- metric accumulators ----------------------------------------------------
++// Sensitivity catches a true gap as EITHER NEEDS_WORK or UNCERTAIN (both route
++// the node to remediation / course confirmation). Specificity guards against a
++// false GAP verdict — and the gap VERDICT is NEEDS_WORK (DIAGNOSTIC §1):
++// UNCERTAIN is "inconclusive, course confirms", explicitly NOT a gap label, so
++// an UNCERTAIN on a truly-ready node is not a false-gap (it costs only a
++// confirmation re-check, §12). This split is the faithful reading of §13
++// ("sensitivity for true gaps; specificity against false-gap labels").
++const GAP_LABELS = new Set(["NEEDS_WORK", "UNCERTAIN"]);
++const FALSE_GAP_LABELS = new Set(["NEEDS_WORK"]);
++
++describe("diagnostic simulation (§4 / §V2 R11) — high-impact classification + length", () => {
++  // 500 students × full pure-replay-per-item is intentionally heavy; the
++  // engine re-derives state from scratch each step (determinism guarantee).
++  it("meets sensitivity ≥ .80, specificity ≥ .85, false-READY ≤ .05 on the covered high-impact subset", { timeout: 120000 }, () => {
++    const N = 500;
++    const lengths: number[] = [];
++
++    // High-impact confusion counts over COVERED nodes (directly answered ≥1).
++    let hiTruePos = 0; // true gap, predicted gap
++    let hiFalseNeg = 0; // true gap, predicted not-gap (READY/INFERRED_READY)
++    let hiTrueNeg = 0; // true ready, predicted not-gap
++    let hiFalsePos = 0; // true ready, predicted gap
++    let hiFalseReady = 0; // true gap, predicted READY (the dangerous case)
++    let hiCovered = 0;
++    let hiReadyTotal = 0;
++
++    // Overall (all nodes) confusion for context.
++    let allTruePos = 0;
++    let allFalseNeg = 0;
++    let allTrueNeg = 0;
++    let allFalsePos = 0;
++
++    for (let i = 0; i < N; i += 1) {
++      const rng = lcg(0x9e3779b9 ^ (i * 2654435761));
++      const student = makeStudent(rng);
++      const { result, length, askedCounts } = runStudent(student, rng);
++      lengths.push(length);
++
++      for (const id of NODE_IDS) {
++        const label = result.labels[id]?.label;
++        if (!label) continue;
++        const trueGap = !student.trueMastered.has(id);
++        const predGap = GAP_LABELS.has(label); // sensitivity signal
++        const predFalseGap = FALSE_GAP_LABELS.has(label); // specificity signal
++
++        if (trueGap) {
++          if (predGap) allTruePos += 1;
++          else allFalseNeg += 1;
++        } else {
++          if (predFalseGap) allFalsePos += 1;
++          else allTrueNeg += 1;
++        }
++
++        if (isHighImpact(id) && (askedCounts.get(id) ?? 0) >= 1) {
++          hiCovered += 1;
++          if (label === "READY") hiReadyTotal += 1;
++          if (trueGap) {
++            // sensitivity: caught as NEEDS_WORK or UNCERTAIN
++            if (predGap) hiTruePos += 1;
++            else hiFalseNeg += 1;
++            if (label === "READY") hiFalseReady += 1;
++          } else {
++            // specificity: a truly-ready node must NOT get the gap VERDICT
++            // (NEEDS_WORK). UNCERTAIN here is acceptable (course confirms).
++            if (predFalseGap) hiFalsePos += 1;
++            else hiTrueNeg += 1;
++          }
++        }
++      }
++    }
++
++    const hiSensitivity = hiTruePos / Math.max(1, hiTruePos + hiFalseNeg);
++    const hiSpecificity = hiTrueNeg / Math.max(1, hiTrueNeg + hiFalsePos);
++    const hiFalseReadyRate = hiFalseReady / Math.max(1, hiTruePos + hiFalseNeg);
++    const allSensitivity = allTruePos / Math.max(1, allTruePos + allFalseNeg);
++    const allSpecificity = allTrueNeg / Math.max(1, allTrueNeg + allFalsePos);
++
++    const sorted = [...lengths].sort((a, b) => a - b);
++    const median = sorted[Math.floor(sorted.length / 2)];
++    const min = sorted[0];
++    const max = sorted[sorted.length - 1];
++    const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length;
++
++    // --- procedural-over-brittle scenario (§V2 R11 / K8) ---
++    // A student who is procedurally strong on DEPENDENTS while truly holding a
++    // prereq gap on each high-impact bridge. To ISOLATE the inference claim
++    // from guess-luck, the bridges are answered to reflect the true gap (always
++    // incorrect — no slip/guess noise on the bridges themselves) while every
++    // non-bridge is answered correctly. This proves that NO high-impact bridge
++    // is ever labeled READY by INFERENCE from the (correct) dependents.
++    // (Guess-luck false-READY — two lucky correct guesses — is a separate
++    //  slip/guess artifact, bounded by the ≤ .05 distribution assertion above.)
++    let pb: DiagnosticSession = startDiagnostic(graph, "pb", DIAGNOSTIC_CONFIG);
++    for (;;) {
++      const item = nextItem(pb, graph);
++      if (!item) break;
++      const correct = !isHighImpact(item.skillId); // bridges: true gap, no luck
++      pb = recordResponse(pb, graph, item.skillId, correct);
++    }
++    const pbResult = finishDiagnostic(pb, graph, NOW);
++    const pbFalseReady = HIGH_IMPACT_NODE_IDS.filter(
++      (id) => pbResult.labels[id]?.label === "READY",
++    );
++
++    // --- UNMEASURED bridge gaps (§V3.4) — named, not silently dropped ---
++    const unmeasured = [
++      "ordered-pair-as-solution (no graph node exists)",
++      "decimal/fraction/rational magnitude split (collapsed into ALG-F02)",
++    ];
++
++    const report = [
++      "# phase-6-simulation.md — diagnostic simulation report",
++      "",
++      "Generated by `scripts/diagnostic-sim.test.ts` (vitest resolver, seeded LCG —",
++      "deterministic, no clock, no RNG). Re-run: `npx vitest run scripts/diagnostic-sim.test.ts`.",
++      "",
++      `**Synthetic students:** ${N}  ·  guess=${guess}, slip=${slip}  ·  graph v${graph.schema.version} (${graph.nodes.length} nodes)`,
++      "",
++      "## High-impact subset (covered) — the Phase-6 acceptance bar",
++      "",
++      `- Covered high-impact observations: **${hiCovered}**`,
++      `- Sensitivity (true gap → NEEDS_WORK/UNCERTAIN): **${hiSensitivity.toFixed(3)}** (target ≥ .80)`,
++      `- Specificity (true ready → NOT the NEEDS_WORK gap verdict; UNCERTAIN allowed): **${hiSpecificity.toFixed(3)}** (target ≥ .85)`,
++      `- High-impact false-READY rate (true gap → READY): **${hiFalseReadyRate.toFixed(3)}** (target ≤ .05)`,
++      `- High-impact READY labels emitted: ${hiReadyTotal}`,
++      "",
++      "## Overall (all nodes) — context only (not the acceptance bar)",
++      "",
++      `- Sensitivity: ${allSensitivity.toFixed(3)}  ·  Specificity: ${allSpecificity.toFixed(3)}`,
++      "",
++      "## Realized length distribution (items per student)",
++      "",
++      `- min **${min}** · median **${median}** · mean **${mean.toFixed(1)}** · max **${max}**`,
++      `- provisionalMaxItems cap: ${DIAGNOSTIC_CONFIG.provisionalMaxItems}`,
++      `- Uncertain-middle split needed? ${max >= DIAGNOSTIC_CONFIG.provisionalMaxItems ? "YES — some students hit the cap; the §4 second-session split is warranted (logged)." : "No — no student hit the cap in simulation."}`,
++      "",
++      "## Procedural-over-brittle scenario (§V2 R11 / K8)",
++      "",
++      "Student answers every DEPENDENT correctly while holding a true prereq gap on",
++      "each high-impact bridge. Inference must yield NO false high-impact READY.",
++      "",
++      `- High-impact nodes falsely labeled READY: **${pbFalseReady.length}** ${pbFalseReady.length === 0 ? "(none — inference never fakes a bridge READY ✔)" : `(${pbFalseReady.join(", ")})`}`,
++      "",
++      "## UNMEASURED bridge gaps (§V3.4 — named for v1.5, never fake-tagged)",
++      "",
++      ...unmeasured.map((u) => `- ${u}`),
++      "",
++    ].join("\n");
++
++    console.log("\n" + report + "\n");
++    writeFileSync(join(process.cwd(), "phases", "phase-6-simulation.md"), report, "utf8");
++
++    // --- assertions (never weakened silently) ---
++    expect(hiCovered).toBeGreaterThan(0);
++    expect(pbFalseReady.length).toBe(0); // procedural-over-brittle: no fake bridge READY
++    expect(hiFalseReadyRate).toBeLessThanOrEqual(0.05);
++    expect(hiSensitivity).toBeGreaterThanOrEqual(0.8);
++    expect(hiSpecificity).toBeGreaterThanOrEqual(0.85);
++  });
++});
+diff --git a/types/diagnostic.ts b/types/diagnostic.ts
+index a139e86..075d28e 100644
+--- a/types/diagnostic.ts
++++ b/types/diagnostic.ts
+@@ -28,10 +28,45 @@ export interface DiagnosticItem {
+   problem: ProblemTemplate;
+ }
+ 
++/**
++ * The four PLACEMENT labels (DIAGNOSTIC §1). This is a placement instrument,
++ * NOT mastery — these are read-side metadata. The ONLY path to node_mastery
++ * remains demonstrated[] → creditFromDiagnostic. Single source of truth;
++ * lib/engine-v2/cold-start.ts imports this (underscore form canonical).
++ */
++export type DiagnosticPlacementLabel =
++  | "READY"
++  | "NEEDS_WORK"
++  | "UNCERTAIN"
++  | "INFERRED_READY";
++
++/**
++ * Per-node placement label with its BKT posterior + rough CI + evidence count.
++ * `provisional` = inference-derived (course confirms, §12). `highImpact` = a
++ * curated bridge node (§3a) that is never inferred-only.
++ */
++export interface DiagnosticNodeLabel {
++  label: DiagnosticPlacementLabel;
++  /** BKT likelihood-ratio posterior over DIRECT evidence (V3.1). */
++  posterior: number;
++  /** Rough Wilson CI on the direct-correct count (labelled rough, never precise). */
++  ciLow: number;
++  ciHigh: number;
++  /** Number of DIRECT (served-and-answered) evidence points on this node. */
++  evidenceCount: number;
++  /** True when the label is inference-derived rather than directly probed. */
++  provisional: boolean;
++  highImpact: boolean;
++}
++
+ /** Diagnostic engine tuning. Changing ANY value is a Matt human checkpoint. */
+ export interface DiagnosticConfig {
+   /** Hard item budget for one diagnostic session. */
+   maxItems: number;
++  /** Provisional item cap (§4 MVD band) — the §V2 R5 stop ceiling. */
++  provisionalMaxItems: number;
++  /** Affective-fatigue pause ordinal (§9): asked ≥ this → pauseDue. */
++  fatiguePauseAt: number;
+   /**
+    * Crediting ≥ this many ancestors off one correct answer (or any
+    * cross-domain ancestry) requires a confirmation probe first.
+@@ -46,6 +81,31 @@ export interface DiagnosticConfig {
+     descendedPast: ConfidenceLevel;
+     untouched: ConfidenceLevel;
+   };
++  /**
++   * BKT posterior + label thresholds (§V3.1 / §V2 R3). EVERY value here is a
++   * Matt human checkpoint (mastery-threshold change). Documented defaults are
++   * built; confirm before launch.
++   */
++  posterior: {
++    /** Prior odds base p0 for untouched nodes (V3.1: 0.5). */
++    priorUntouched: number;
++    /** Skeptical prior p0 for inferred/descended-past nodes (V3.1: 0.4). */
++    priorInferred: number;
++    /** BKT guess parameter (0.2 — MC-ish). */
++    guess: number;
++    /** BKT slip parameter (0.1). */
++    slip: number;
++    /** READY needs posterior ≥ this (0.85). */
++    readyThreshold: number;
++    /** NEEDS_WORK needs posterior ≤ this (0.35). */
++    needsWorkThreshold: number;
++    /** INFERRED_READY needs posterior ≥ this (0.65). */
++    inferredReadyThreshold: number;
++    /** Ambiguous high-impact band low bound for the stop rule (0.45). */
++    ambiguousLo: number;
++    /** Ambiguous high-impact band high bound for the stop rule (0.75). */
++    ambiguousHi: number;
++  };
+ }
+ 
+ /** Per-node estimate with evidence pointers (audit reconstructability). */
+@@ -83,6 +143,12 @@ export interface DiagnosticSession {
+   localized: Record<string, boolean>;
+   /** 0..1 for the UI rail — non-numeric, monotonic, never a count. */
+   progress: number;
++  /**
++   * Affective fatigue pause (§9 / §V3.5): true once asked ≥ fatiguePauseAt.
++   * The UI shows a calm optional pause; the engine never down-weights — it only
++   * surfaces the cue. fatigueRisk itself is computed read-side in finish.
++   */
++  pauseDue: boolean;
+ }
+ 
+ export interface DiagnosticResult {
+@@ -94,6 +160,28 @@ export interface DiagnosticResult {
+   /** May be "" when complete, mirroring AdaptiveRecommendation.skillId. */
+   recommendedStart: string;
+   recommendedReason: string;
++  /**
++   * Per-node placement labels (DIAGNOSTIC §1) — read-side metadata, NOT a
++   * mastery write. Keyed by node id. Built from the BKT posterior layer.
++   */
++  labels: Record<string, DiagnosticNodeLabel>;
++  /** NEEDS_WORK + UNCERTAIN nodes, topologically ordered (ancestors first). */
++  remediation: string[];
++  /**
++   * Nodes credit may NEVER touch (§V3.2): unresolved-high-impact (< 2
++   * direct-correct) ∪ NEEDS_WORK/UNCERTAIN nodes not directly demonstrated.
++   * The server passes this to creditFromDiagnostic so actual persistence and
++   * the recommendation sim agree. Sorted by id.
++   */
++  blocked: string[];
++  /** Deepest non-READY nodes whose prereqs are all READY/INFERRED_READY. */
++  entryFrontier: string[];
++  /** Quality flags (§1.4). fatigueRisk is null when undecidable (V3.5). */
++  qualityFlags: {
++    lowConfidenceNodes: string[];
++    suspectedGuessing: boolean;
++    fatigueRisk: boolean | null;
++  };
+ }
+ 
+ /**
+diff --git a/vitest.config.ts b/vitest.config.ts
+index 384dc7c..ce2a534 100644
+--- a/vitest.config.ts
++++ b/vitest.config.ts
+@@ -5,6 +5,8 @@ import { defineConfig } from "vitest/config";
+ const root = path.resolve(fileURLToPath(new URL(".", import.meta.url)));
+ 
+ export default defineConfig({
++  // Component tests (.test.tsx) use the automatic JSX runtime (no React import).
++  esbuild: { jsx: "automatic" },
+   resolve: {
+     alias: {
+       "@": root,
+@@ -13,6 +15,13 @@ export default defineConfig({
+   test: {
+     // Engine tests in /lib; co-located math-helper tests in /components/learning
+     // (mr-gates condition 8 keeps the kahn-gate boundary crisp).
+-    include: ["lib/**/*.test.ts", "components/**/*.test.ts"],
++    include: [
++      "lib/**/*.test.ts",
++      "components/**/*.test.ts",
++      "components/**/*.test.tsx",
++      // Phase-6 diagnostic simulation runs via the vitest resolver (§V2 R11 /
++      // G2) — NOT bare node. Deterministic seeded LCG; no clock, no RNG.
++      "scripts/diagnostic-sim.test.ts",
++    ],
+   },
+ });

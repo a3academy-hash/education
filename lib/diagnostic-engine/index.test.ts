@@ -273,17 +273,21 @@ describe("fixture: confirmation probe (mr-kahn #4 / spec §B)", () => {
     expect(result.perNode["o2"]).toMatchObject({ status: "unknown", confidence: "unknown" });
 
     // The committed propagation cannot fire from the withheld a5: a3/a4 stay
-    // uncredited, so the (blank-state) post-credit sim routes to a3 next.
-    // NOTE: a2 IS credited inside the sim via b2's confirmed cross-domain
-    // ancestry — finishDiagnostic simulates from blank prior states, so the
-    // contrary-evidence skip in creditFromDiagnostic does not see the wrong
-    // a2 answer here. Server-side persistence (real attempt rows) does.
+    // uncredited. (creditFromDiagnostic with NO blocked set still credits a2
+    // via b2's confirmed cross-domain ancestry — this raw call mirrors the
+    // server's pre-block behavior and is asserted unchanged below.)
     const credit = creditFromDiagnostic("s", fixture, result.demonstrated, {}, NOW);
     const credited = credit.updates.map((u) => u.skillId);
     expect(credited).not.toContain("a3");
     expect(credited).not.toContain("a4");
     expect(credited).not.toContain("a5");
-    expect(result.recommendedStart).toBe("a3");
+    // CHANGED (§V3.2): finishDiagnostic now passes a `blocked` set to its
+    // internal credit sim. a2 was answered INCORRECTLY → labeled UNCERTAIN →
+    // blocked, so a2 is NOT credited in the recommendation sim and becomes the
+    // frontier itself. Previously a2 was credited via b2's cross-domain
+    // ancestry and the sim routed to a3. Starting the student AT the node they
+    // got wrong (a2) is the correct placement.
+    expect(result.recommendedStart).toBe("a2");
   });
 
   it("cross-domain ancestry always requires a confirm, even when shallow", () => {
@@ -479,6 +483,12 @@ describe("real graph: determinism (mr-gates #4)", () => {
     expect(rb.demonstrated).toEqual(ra.demonstrated);
     expect(rb.recommendedStart).toEqual(ra.recommendedStart);
     expect(rb.perNode).toEqual(ra.perNode);
+    // The Phase-6 placement surfaces must also be node-order invariant (G5/R8).
+    expect(rb.labels).toEqual(ra.labels);
+    expect(rb.remediation).toEqual(ra.remediation);
+    expect(rb.entryFrontier).toEqual(ra.entryFrontier);
+    expect(rb.blocked).toEqual(ra.blocked);
+    expect(rb.qualityFlags).toEqual(ra.qualityFlags);
   });
 });
 
@@ -605,7 +615,18 @@ describe("real graph: ADVANCED student (all-correct) accelerates past credited a
 
   it("credits through the committed engine; no credited or mastered node is re-taught", () => {
     const states: Record<string, StudentSkillState> = {};
-    const credit = creditFromDiagnostic("sam", graph, result.demonstrated, states, NOW);
+    // CHANGED (§V3.2): credit now takes the engine's `blocked` set — exactly as
+    // the server action does — so actual persistence and the recommendation
+    // sim agree. Unresolved high-impact bridges (never directly resolved to ≥2
+    // direct-correct) are excluded from credit even on an all-correct run.
+    const credit = creditFromDiagnostic(
+      "sam",
+      graph,
+      result.demonstrated,
+      states,
+      NOW,
+      new Set(result.blocked),
+    );
     applyCredit(states, credit.updates, NOW);
     const credited = credit.updates.map((u) => u.skillId);
     expect(credited.length).toBeGreaterThan(0);
@@ -790,6 +811,127 @@ describe("diagnosticTaken — completion from the attempt log, not credit", () =
     expect(
       diagnosticTaken([attempt(0, true, "practice"), attempt(1, true, "diagnostic")]),
     ).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 — placement layer (§V2 R4 / R6 / §V3): labels never write mastery
+// ---------------------------------------------------------------------------
+
+describe("phase-6 placement: labels are read-side, never a mastery write", () => {
+  it("INFERRED_READY never enters demonstrated[]; any demonstrated UNCERTAIN is non-high-impact and unblocked", () => {
+    // demonstrated[] is the v1 confirm-machinery output. A non-high-impact node
+    // probed once-correct is demonstrated yet labeled UNCERTAIN under the
+    // stricter ≥2-evidence READY bar — that is fine: the placement LABEL is
+    // read-side and conservative, while demonstrated[] (direct evidence) still
+    // governs credit for non-high-impact nodes. The hard guarantees:
+    //   • INFERRED_READY (topology-only) is by definition NOT demonstrated.
+    //   • A high-impact node that is UNCERTAIN is BLOCKED (never credited).
+    for (const answer of [() => true, (id: string) => id.includes("F")]) {
+      const { session } = runSession(graph, answer);
+      const result = finishDiagnostic(session, graph, NOW);
+      const blockedSet = new Set(result.blocked);
+      for (const id of result.demonstrated) {
+        const label = result.labels[id];
+        expect(label.label).not.toBe("INFERRED_READY");
+        if (label.label === "UNCERTAIN") {
+          expect(label.highImpact).toBe(false); // high-impact UNCERTAIN is never demonstrated-and-credited
+          expect(blockedSet.has(id)).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("a high-impact node never reaches READY without ≥2 DIRECT-correct (R2/§3a)", () => {
+    for (const answer of [() => true, (id: string) => id.includes("F")]) {
+      const { session } = runSession(graph, answer);
+      const result = finishDiagnostic(session, graph, NOW);
+      for (const label of Object.values(result.labels)) {
+        if (!label.highImpact) continue;
+        if (label.label === "READY") {
+          // READY high-impact ⇒ at least 2 direct-correct evidence points.
+          expect(label.evidenceCount).toBeGreaterThanOrEqual(2);
+          expect(label.posterior).toBeGreaterThanOrEqual(
+            DIAGNOSTIC_CONFIG.posterior.readyThreshold,
+          );
+        }
+      }
+    }
+  });
+
+  it("an unresolved high-impact node is blocked and never credited (even all-correct)", () => {
+    const { session } = runSession(graph, () => true);
+    const result = finishDiagnostic(session, graph, NOW);
+    const states: Record<string, StudentSkillState> = {};
+    const credit = creditFromDiagnostic(
+      "p6",
+      graph,
+      result.demonstrated,
+      states,
+      NOW,
+      new Set(result.blocked),
+    );
+    const credited = new Set(credit.updates.map((u) => u.skillId));
+    for (const id of result.blocked) expect(credited.has(id)).toBe(false);
+    // Every blocked high-impact node carries the UNCERTAIN label (forced).
+    for (const id of result.blocked) {
+      if (result.labels[id]?.highImpact) expect(result.labels[id].label).toBe("UNCERTAIN");
+    }
+  });
+
+  it("UNCERTAIN labels never credited by inference; INFERRED_READY stays the (pre-existing, Matt-checkpoint) provisional credit path (R9/G7 + K10)", () => {
+    // SCOPE NOTE (K10): the PRE-EXISTING creditFromDiagnostic writes status
+    // `mastered`+masteredAt for inferred (INFERRED_READY) nodes — that §12
+    // "diagnostic-READY treated as course-mastered" semantics PREDATES Phase 6
+    // and is a HARD Matt checkpoint, NOT rewritten here. So INFERRED_READY
+    // nodes remain credited (provisionally). The Phase-6 teeth (§V3.2) are:
+    // an UNCERTAIN node is NEVER credited by INFERENCE (it is blocked).
+    for (const answer of [() => true, (id: string) => id.includes("F")]) {
+      const { session } = runSession(graph, answer);
+      const result = finishDiagnostic(session, graph, NOW);
+      const credit = creditFromDiagnostic(
+        "p6",
+        graph,
+        result.demonstrated,
+        {},
+        NOW,
+        new Set(result.blocked),
+      );
+      const credited = new Set(credit.updates.map((u) => u.skillId));
+      const demonstratedSet = new Set(result.demonstrated);
+      for (const [id, label] of Object.entries(result.labels)) {
+        // INFERRED_READY is topology-only → never directly demonstrated.
+        if (label.label === "INFERRED_READY") {
+          expect(demonstratedSet.has(id)).toBe(false);
+        }
+        // An UNCERTAIN node gets a mastery write ONLY when it was DIRECTLY
+        // demonstrated (non-high-impact 1-direct-correct accelerates per the
+        // pre-existing path). Inference can NEVER credit an UNCERTAIN node.
+        if (label.label === "UNCERTAIN" && !demonstratedSet.has(id)) {
+          expect(credited.has(id)).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("result carries labels / remediation / entryFrontier / qualityFlags", () => {
+    const { session } = runSession(graph, (id) => id.includes("F"));
+    const result = finishDiagnostic(session, graph, NOW);
+    expect(Object.keys(result.labels).length).toBe(graph.nodes.length);
+    expect(Array.isArray(result.remediation)).toBe(true);
+    expect(Array.isArray(result.entryFrontier)).toBe(true);
+    expect(Array.isArray(result.qualityFlags.lowConfidenceNodes)).toBe(true);
+    expect(typeof result.qualityFlags.suspectedGuessing).toBe("boolean");
+    // fatigueRisk is boolean | null (null when undecidable — V3.5).
+    expect(
+      result.qualityFlags.fatigueRisk === null ||
+        typeof result.qualityFlags.fatigueRisk === "boolean",
+    ).toBe(true);
+    // remediation is the NEEDS_WORK + UNCERTAIN set (read-side).
+    for (const id of result.remediation) {
+      const l = result.labels[id].label;
+      expect(l === "NEEDS_WORK" || l === "UNCERTAIN").toBe(true);
+    }
   });
 });
 

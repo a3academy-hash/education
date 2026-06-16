@@ -59,7 +59,11 @@ export const MASTERY_CONFIG: MasteryConfig = {
   weights: { recent: 0.5, overall: 0.2, consistency: 0.15, hintFactor: 0.15 },
   thresholds: {
     prereqGate: 0.7,
-    mastered: 0.85,
+    // Matt directive (2026-06): the course's mastery bar is 90%. Raised from
+    // 0.85 → 0.90 so "mastered" requires ≥90% weighted evidence (the transfer
+    // gate + minAttempts.mastered still apply). mr-kahn note: with the P3
+    // transfer requirement this was already strict; 0.90 makes the bar explicit.
+    mastered: 0.9,
     reviewTrigger: 0.75,
     recentDip: 0.6,
     nearMastery: 0.7,
@@ -463,6 +467,7 @@ export function creditFromDiagnostic(
   demonstrated: string[],
   states: Record<string, StudentSkillState>,
   nowIso: string,
+  blocked: ReadonlySet<string> = new Set(),
 ): DiagnosticCreditResult {
   const cfg = MASTERY_CONFIG;
   const byId = new Map(graph.nodes.map((n) => [n.id, n]));
@@ -509,6 +514,13 @@ export function creditFromDiagnostic(
     for (const p of byId.get(id)?.prereqs ?? []) {
       if (visited.has(p)) continue;
       visited.add(p);
+      // §V3.2 BLOCK: an unresolved-high-impact / NEEDS_WORK / UNCERTAIN node is
+      // NEVER credited AND propagation STOPS here — the diagnostic places it,
+      // the course confirms it. This is the teeth of §3a "never inferred-only".
+      if (blocked.has(p)) {
+        skipped.push({ skillId: p, reason: "blocked: unresolved placement (not credited)" });
+        continue;
+      }
       const s = st(p);
       if (s.status === "mastered") {
         skipped.push({ skillId: p, reason: "already mastered" });
@@ -532,6 +544,12 @@ export function creditFromDiagnostic(
   const demonstratedNodes = demonstrated.filter((d) => byId.has(d) && !visited.has(d));
   for (const d of demonstratedNodes) {
     visited.add(d);
+    // §V3.2: a blocked node is never credited even when it appears in
+    // demonstrated[] (e.g. a high-impact node short of ≥2 direct-correct).
+    if (blocked.has(d)) {
+      skipped.push({ skillId: d, reason: "blocked: unresolved placement (not credited)" });
+      continue;
+    }
     const node = byId.get(d) as SkillNode;
     updates.push({
       ...baseUpdate(d),
@@ -539,6 +557,8 @@ export function creditFromDiagnostic(
       reason: `Demonstrated ${node.title} (${d}) with neutral Phase-3 evidence on the ${date} diagnostic.`,
     });
   }
+  // Propagate from demonstrated nodes — including any that were blocked above,
+  // so their (unblocked) ancestors still receive credit per §3a granularity.
   for (const d of demonstratedNodes) visitAncestors(d, d);
 
   return { updates, skipped };

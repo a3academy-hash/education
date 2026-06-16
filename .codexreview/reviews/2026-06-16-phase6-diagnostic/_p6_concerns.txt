@@ -1,0 +1,23 @@
+==== INFORMED ====
+- [blocking] hi-credit-propagation (0.92)
+  Demoting an unresolved high-impact node to UNCERTAIN and excluding that node from `demonstrated[]` is not enough to prevent mastery credit; `creditFromDiagnostic` will still credit it as an ancestor of any demonstrated descendant.
+  FIX: Make the credit handoff label-aware despite R9: either pass a blocked/unresolved-high-impact set into `creditFromDiagnostic` and stop/skip propagation at those nodes, or build the demonstrated credit roots only after cutting prerequisite tr
+- [high] two-direct-model (0.9)
+  The current replay model is node-keyed, so the plan's “≥2 DIRECT evidence” and “corroboration can re-serve a node” requirement needs a deeper data-model change than the plan specifies.
+  FIX: Explicitly revise the engine state to track direct evidence per served attempt, not per node: include problemId/ordinal in responses, choose distinct neutral P3 items for repeated probes, prevent `settle` from auto-consuming intentional hig
+- [medium] fatigue-evidence (0.83)
+  The fatigue flag is underspecified and not verifiable from the planned engine inputs because the pure diagnostic session drops timing and has no pause/resume segment marker.
+  FIX: Define the fatigue metric in terms of data the engine actually receives. Add pause/resume segment or ordinal metadata to `DiagnosticSession.responses`, or compute `fatigueRisk` after persistence from `StudentAttempt` rows. Also specify what
+==== COLD ====
+- [blocking] direct-probe-availability (0.88)
+  The plan requires high-impact nodes to receive direct evidence, but it only asserts graph-node existence, not that direct probe items exist and can be routed for every high-impact node within the budget.
+  FIX: Make probeability an explicit precondition: add a build/test assertion that every `HIGH_IMPACT_NODE_IDS` entry has at least two eligible direct items or direct probe opportunities, and define the fallback label/quality flag when fewer than 
+- [high] coverage-vs-goal (0.86)
+  The plan defers known bridge-gap coverage holes while the gate still claims the diagnostic finds the Algebra 1 break gaps; that makes the acceptance target broader than the implemented scope.
+  FIX: Either narrow the Phase 6 acceptance criteria to the curated high-impact nodes actually covered, or add the missing nodes/items now. The simulation report should separately mark omitted bridge gaps as unmeasured, not merely logged.
+- [high] posterior-threshold-mismatch (0.92)
+  The stated Bayesian updates make the READY threshold hard to reconcile with the '≥2 direct evidence' rule; two direct-correct responses from the stated priors do not approach posterior ≥ .85, so the rule may systematically label high-impact nodes UNCERTAIN despite satisfying the direct-evidence requirement.
+  FIX: Work through the posterior math in the plan and specify the minimum direct-correct count needed for READY under each prior. Then align `maxItems`, corroboration count, and acceptance wording with that count, or lower/calibrate the threshold
+- [medium] fatigue-matched-items (0.74)
+  The fatigue rule depends on 'matched items' without defining matching or guaranteeing comparable post-pause evidence exists, so the flag can be arbitrary or impossible to compute.
+  FIX: Define the matching criteria, minimum sample size, and behavior when there are too few matched post-pause items. Add that to the quality-flag contract and tests.

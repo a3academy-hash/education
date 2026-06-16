@@ -3,8 +3,11 @@
 // empirical-Bayes blend for the first few retrievals. Pure.
 import type { LearningState } from "./interaction";
 import { RETENTION } from "./types";
+import type { DiagnosticPlacementLabel } from "@/types";
 
-export type DiagnosticLabel = "READY" | "NEEDS_WORK" | "UNCERTAIN" | "INFERRED_READY";
+// One label type (G4 / §V2 R7): the canonical union lives in types/diagnostic.ts.
+// Kept as a local alias so existing engine-v2 callers keep their name.
+export type DiagnosticLabel = DiagnosticPlacementLabel;
 
 /** Graded initial p_known per label (§6). UNCERTAIN sits mid with high uncertainty. */
 const PRIOR_BY_LABEL: Record<DiagnosticLabel, number> = {

@@ -144,9 +144,18 @@ export async function persistDiagnostic(
     const result = finishDiagnostic(sessionWithRefs, graph, nowIso);
 
     // (c) credit through the committed engine — the diagnostic never writes
-    // mastery itself.
+    // mastery itself. §V3.2: pass the engine's `blocked` set so unresolved
+    // high-impact bridges (and NEEDS_WORK/UNCERTAIN nodes) are never credited,
+    // even via ancestor propagation. The placement LABELS are read-side only.
     const states = await repo.getSkillStates(studentId);
-    const credit = creditFromDiagnostic(studentId, graph, result.demonstrated, states, nowIso);
+    const credit = creditFromDiagnostic(
+      studentId,
+      graph,
+      result.demonstrated,
+      states,
+      nowIso,
+      new Set(result.blocked),
+    );
 
     // (d) persist the mastery updates — stamped with this session's id (the
     // engine emits a placeholder; the action owns session identity).

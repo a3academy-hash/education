@@ -1,0 +1,13 @@
+file adversarial_reviewer.informed.round-1.raw.jsonl
+- [medium] inferred-ready-threshold (0.89)
+  Non-high-impact inferred-only nodes are labeled INFERRED_READY without checking the configured inferred-ready posterior threshold, so the new threshold is effectively ignored.
+  FIX: Gate the inferredOnly branch on posterior >= cfg.inferredReadyThreshold, returning UNCERTAIN below that threshold, and add a regression test for inferredOnly posterior below 0.65.
+- [medium] fatigue-prepause (0.82)
+  fatigueRisk can be computed from pre-pause data because it compares the first and last matched-tier responses across the whole session instead of requiring post-pause matched items as documented.
+  FIX: Restrict the trailing comparison window to responses at or after fatiguePauseAt and return null unless that post-pause matched window has at least K items.
+- [low] sim-test-writes (0.9)
+  The new Vitest suite mutates the working tree by writing a report file during a normal test run, which makes tests non-read-only and can dirty local/CI checkouts.
+  FIX: Do not write from the default test path; either assert the generated report in memory, write only behind an explicit env flag, or move report generation to a separate script outside the default Vitest
+- [low] provisional-direct-uncertain (0.76)
+  Directly probed UNCERTAIN nodes are marked provisional even though the type contract says provisional means inference-derived rather than directly probed.
+  FIX: Base provisional on inference state rather than label alone, or update the type contract if UNCERTAIN is intentionally always provisional.

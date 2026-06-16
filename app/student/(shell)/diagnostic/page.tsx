@@ -7,6 +7,7 @@ import { getRepository } from "../../../../lib/repository/server";
 import { toDiagnosticGraphView } from "../../../../lib/diagnostic-engine";
 import { getCurrentStudentId } from "../../../../lib/auth/session";
 import { DiagnosticFlow } from "./DiagnosticFlow";
+import { SurfacePanel } from "../../../../components/layout/SurfacePanel";
 
 export default async function DiagnosticPage() {
   const studentId = await getCurrentStudentId();
@@ -14,9 +15,17 @@ export default async function DiagnosticPage() {
   const student = studentId ? await repo.getStudent(studentId) : null;
 
   if (!student) {
-    return <DiagnosticFlow graphView={null} />;
+    return (
+      <SurfacePanel surface="test">
+        <DiagnosticFlow graphView={null} />
+      </SurfacePanel>
+    );
   }
 
   const graph = await repo.getGraph();
-  return <DiagnosticFlow graphView={toDiagnosticGraphView(graph)} />;
+  return (
+    <SurfacePanel surface="test">
+      <DiagnosticFlow graphView={toDiagnosticGraphView(graph)} />
+    </SurfacePanel>
+  );
 }

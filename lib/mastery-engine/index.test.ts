@@ -159,7 +159,7 @@ describe("status transition matrix (never-mastered ladder)", () => {
     };
     const r = computeMastery(states, "A", chain, NOW);
     expect(r.score).toBeGreaterThanOrEqual(0.7);
-    expect(r.score).toBeLessThan(0.85);
+    expect(r.score).toBeLessThan(MASTERY_CONFIG.thresholds.mastered);
     expect(r.status).toBe("near_mastery");
   });
 
@@ -607,6 +607,55 @@ describe("creditFromDiagnostic skip rules (mr-kahn) — chain A ← B ← C, C d
       newStatus: "mastered",
     });
     expect(skipped.map((s) => s.skillId)).not.toContain("C");
+  });
+});
+
+describe("creditFromDiagnostic §V3.2 — credit-propagation BLOCK (chain A ← B ← C)", () => {
+  it("a demonstrated descendant of a BLOCKED ancestor yields NO update for that ancestor, and propagation stops there", () => {
+    // C demonstrated; B is a blocked (e.g. unresolved high-impact bridge) node.
+    // B must NOT be credited, and propagation must STOP at B → A is also not
+    // credited (it sits above the block).
+    const { updates, skipped } = creditFromDiagnostic(
+      "stu-1",
+      chain,
+      ["C"],
+      {},
+      NOW,
+      new Set(["B"]),
+    );
+    const credited = updates.map((u) => u.skillId);
+    expect(credited).toContain("C"); // direct evidence still credits the demonstrated node
+    expect(credited).not.toContain("B"); // blocked → never credited
+    expect(credited).not.toContain("A"); // propagation stopped at B
+    expect(skipped).toContainEqual({
+      skillId: "B",
+      reason: "blocked: unresolved placement (not credited)",
+    });
+  });
+
+  it("a demonstrated node that is itself blocked is not credited (high-impact short of ≥2 direct)", () => {
+    const { updates, skipped } = creditFromDiagnostic(
+      "stu-1",
+      chain,
+      ["C"],
+      {},
+      NOW,
+      new Set(["C"]),
+    );
+    const credited = updates.map((u) => u.skillId);
+    expect(credited).not.toContain("C"); // blocked demonstrated node not credited
+    // …but its UNBLOCKED ancestors still receive credit (the evidence implies them).
+    expect(credited).toContain("B");
+    expect(credited).toContain("A");
+    expect(skipped).toContainEqual({
+      skillId: "C",
+      reason: "blocked: unresolved placement (not credited)",
+    });
+  });
+
+  it("default empty blocked set preserves existing behavior", () => {
+    const { updates } = creditFromDiagnostic("stu-1", chain, ["C"], {}, NOW);
+    expect(updates.map((u) => u.skillId)).toEqual(["C", "B", "A"]);
   });
 });
 

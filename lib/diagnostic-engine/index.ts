@@ -62,6 +62,14 @@
 
 import { computeMasteryAll, creditFromDiagnostic } from "../mastery-engine";
 import { recommend } from "../adaptive-router";
+import { isHighImpact } from "./high-impact";
+import { bktPosterior, type BktPosterior } from "./posterior";
+import {
+  entryFrontier as computeEntryFrontier,
+  labelNode,
+  remediationList,
+  toNodeLabel,
+} from "./labels";
 import type {
   ContextHooks,
   CurriculumGraph,
@@ -69,6 +77,8 @@ import type {
   DiagnosticConfig,
   DiagnosticItem,
   DiagnosticNodeEstimate,
+  DiagnosticNodeLabel,
+  DiagnosticPlacementLabel,
   DiagnosticResult,
   DiagnosticSession,
   MasteryUpdate,
@@ -81,7 +91,9 @@ import type {
 
 /** Single home of diagnostic tuning. Changing ANY value is a Matt checkpoint. */
 export const DIAGNOSTIC_CONFIG: DiagnosticConfig = {
-  maxItems: 15,
+  maxItems: 40,
+  provisionalMaxItems: 40,
+  fatiguePauseAt: 25,
   creditDepthConfirm: 4,
   anchorMetric: "prereqDepthWithinDomain",
   confidence: {
@@ -89,6 +101,19 @@ export const DIAGNOSTIC_CONFIG: DiagnosticConfig = {
     inferredFromDescendant: "medium",
     descendedPast: "low",
     untouched: "unknown",
+  },
+  // Matt threshold checkpoint (§V3.1 / K6): documented BKT defaults, built;
+  // confirm before launch. guess/slip → 1 direct-correct ≈ .82, 2 ≈ .95,
+  // 1 incorrect ≈ .11 (untouched prior .5), so READY(≥.85) needs ≥2 direct.
+  posterior: {
+    priorUntouched: 0.5,
+    priorInferred: 0.4,
+    guess: 0.2,
+    slip: 0.1,
+    readyThreshold: 0.85,
+    needsWorkThreshold: 0.35,
+    ambiguousLo: 0.45,
+    ambiguousHi: 0.75,
   },
 };
 
@@ -199,7 +224,7 @@ function ancestorsOf(id: string, byId: Map<string, SkillNode>): string[] {
 // responses); every public API replays from scratch.
 // ---------------------------------------------------------------------------
 
-type TargetKind = "anchor" | "descend" | "advance" | "confirm";
+type TargetKind = "anchor" | "descend" | "advance" | "confirm" | "reprobe";
 
 interface Target {
   nodeId: string;
@@ -215,6 +240,12 @@ interface ReplayState {
   queue: Target[];
   asked: string[];
   answered: Map<string, boolean>;
+  /**
+   * Per-serve DIRECT evidence (§V3.3): responses may repeat a skillId (a
+   * high-impact re-serve), so this keeps EVERY direct result, not just the
+   * last. Drives BKT posteriors and the ≥2-direct READY bar.
+   */
+  directByNode: Map<string, boolean[]>;
   /** Correct neutral-p3, confirm-gated chains only when the confirm passed. */
   demonstrated: string[];
   /** nodeId → evidencing (demonstrated) descendant skillId. */
@@ -223,6 +254,11 @@ interface ReplayState {
   unconfirmed: Set<string>;
   /** Incorrect probes, in response order (descended-past evidence). */
   incorrect: string[];
+  /**
+   * High-impact nodes a re-serve has already been QUEUED for (§V3.3) — guards
+   * the corroboration re-probe to exactly once per node.
+   */
+  reserved: Set<string>;
   seq: number;
 }
 
@@ -321,6 +357,54 @@ function descendFrom(state: ReplayState, idx: GraphIndex, fromId: string, walkDo
   if (cands[0]) pushTarget(state, { nodeId: cands[0], kind: "descend", walkDomain });
 }
 
+/**
+ * BKT posterior for a node from its per-serve direct evidence (§V3.1).
+ * `inferredOnly` (no direct evidence) uses the skeptical prior; any direct
+ * evidence uses the untouched prior. Inference never moves the posterior.
+ */
+function posteriorFor(
+  state: ReplayState,
+  config: DiagnosticConfig,
+  nodeId: string,
+  inferredOnly: boolean,
+): BktPosterior {
+  const direct = state.directByNode.get(nodeId) ?? [];
+  const p = config.posterior;
+  const prior = inferredOnly ? p.priorInferred : p.priorUntouched;
+  return bktPosterior(direct, prior, { guess: p.guess, slip: p.slip });
+}
+
+/**
+ * §V3.3 corroboration re-serve: a high-impact node with EXACTLY 1
+ * direct-correct and posterior < readyThreshold gets ONE re-probe queued (a
+ * DISTINCT neutral-P3 item, chosen by serve-count index in nextItem). Guarded
+ * to fire once per node via state.reserved. Budget is enforced by the stop
+ * rule in nextItem, not here (replay must reconstruct the queue identically).
+ */
+function maybeReserveHighImpact(
+  state: ReplayState,
+  idx: GraphIndex,
+  config: DiagnosticConfig,
+  nodeId: string,
+): void {
+  if (!isHighImpact(nodeId)) return;
+  if (state.reserved.has(nodeId)) return;
+  if (!idx.probeable.has(nodeId)) return;
+  const direct = state.directByNode.get(nodeId) ?? [];
+  const correct = direct.filter(Boolean).length;
+  // Re-serve only when there is exactly 1 direct-correct and no incorrect —
+  // i.e. one promising point that needs a second to reach the ≥2 READY bar.
+  if (direct.length !== 1 || correct !== 1) return;
+  const post = posteriorFor(state, config, nodeId, false).posterior;
+  if (post >= config.posterior.readyThreshold) return;
+  // A second distinct item must exist.
+  const node = idx.byId.get(nodeId);
+  if (!node || neutralP3(node).length < 2) return;
+  state.reserved.add(nodeId);
+  const walkDomain = idx.byId.get(nodeId)?.domain ?? "";
+  pushTarget(state, { nodeId, kind: "reprobe", walkDomain });
+}
+
 function processAnswer(
   state: ReplayState,
   idx: GraphIndex,
@@ -328,6 +412,30 @@ function processAnswer(
   target: Target,
   correct: boolean,
 ): void {
+  if (target.kind === "reprobe") {
+    // A corroboration re-probe: it ONLY adds a direct point (recorded by the
+    // caller). On the 2nd correct, credit the node directly if its ancestry is
+    // already settled; otherwise let the normal advance machinery run.
+    if (correct) {
+      const pending = pendingAncestorsOf(state, idx, target.nodeId);
+      const nodeDomain = idx.byId.get(target.nodeId)?.domain;
+      const crossesDomain = pending.some((a) => idx.byId.get(a)?.domain !== nodeDomain);
+      const needsConfirm = crossesDomain || pending.length >= config.creditDepthConfirm;
+      if (!needsConfirm) {
+        addDemonstrated(state, target.nodeId);
+        for (const a of pending) state.inferred.set(a, target.nodeId);
+        advanceFrom(state, idx, target.nodeId, target.walkDomain);
+      } else if (!state.demonstrated.includes(target.nodeId)) {
+        // Confirm machinery already governs this chain; the re-probe stands as
+        // a second direct point for the posterior, nothing more.
+        state.unconfirmed.add(target.nodeId);
+      }
+    } else {
+      state.incorrect.push(target.nodeId);
+      descendFrom(state, idx, target.nodeId, target.walkDomain);
+    }
+    return;
+  }
   if (target.kind === "confirm" && target.confirm) {
     const { evidencingId, pendingAncestors } = target.confirm;
     if (correct) {
@@ -401,6 +509,9 @@ function settle(state: ReplayState, idx: GraphIndex, config: DiagnosticConfig): 
     const ordered = orderQueue(state, idx);
     const head = ordered[0];
     if (!head || !state.answered.has(head.nodeId)) return;
+    // §V3.3: a corroboration re-probe is NEVER auto-consumed from the prior
+    // answer — it must be served fresh for its own distinct direct point.
+    if (head.kind === "reprobe") return;
     state.queue = state.queue.filter((t) => t !== head);
     processAnswer(state, idx, config, head, state.answered.get(head.nodeId) as boolean);
   }
@@ -416,10 +527,12 @@ function replay(
     queue: [],
     asked: [],
     answered: new Map(),
+    directByNode: new Map(),
     demonstrated: [],
     inferred: new Map(),
     unconfirmed: new Set(),
     incorrect: [],
+    reserved: new Set(),
     seq: 0,
   };
   // One anchor per probeable domain, allocated FIRST (mr-kahn #5 coverage).
@@ -443,8 +556,14 @@ function replay(
     state.queue = state.queue.filter((t) => t !== head);
     state.asked.push(r.skillId);
     state.answered.set(r.skillId, r.correct);
+    // Per-serve DIRECT evidence (§V3.3) — accumulated for EVERY serve so a
+    // re-served high-impact node keeps both points.
+    const direct = state.directByNode.get(r.skillId);
+    if (direct) direct.push(r.correct);
+    else state.directByNode.set(r.skillId, [r.correct]);
     processAnswer(state, idx, config, head, r.correct);
     settle(state, idx, config);
+    maybeReserveHighImpact(state, idx, config, head.nodeId);
   }
 
   return { state, idx };
@@ -488,6 +607,7 @@ function toSession(
     queue: orderQueue(state, idx).map((t) => t.nodeId),
     localized: localizedMap(state, idx),
     progress: progressOf(state, idx, config),
+    pauseDue: state.asked.length >= config.fatiguePauseAt,
   };
 }
 
@@ -515,18 +635,31 @@ const RESPONSE_TYPE_BY_VISUAL: Record<string, ResponseType> = {
 };
 
 /**
- * The next item to serve, or null when every probeable domain is localized
- * or the item budget is spent. Serves ONLY neutral p3 problems (lowest
- * problem id — deterministic) from probeable nodes.
+ * The next item to serve, or null when the stop rule fires (§V2 R5):
+ *   • the queue is empty (every probeable domain localized, no high-impact
+ *     re-probe pending), OR
+ *   • asked ≥ provisionalMaxItems (the hard cap).
+ * A pending high-impact corroboration re-probe keeps the queue non-empty, so
+ * the engine never stops while an ambiguous high-impact node has budget + a
+ * second item left — the band guard is structural, not a separate branch.
+ * Client and server compute the identical stop from the same pure replay.
+ *
+ * Serves neutral p3 problems only. A re-served (reprobe) high-impact node gets
+ * a DISTINCT item chosen by prior serve-count index (§V3.3); all others get the
+ * lowest-id item (deterministic).
  */
 export function nextItem(session: DiagnosticSession, graph: CurriculumGraph): DiagnosticItem | null {
   const { state, idx } = replay(graph, session.config, session.responses);
-  if (state.asked.length >= session.config.maxItems) return null;
+  if (state.asked.length >= session.config.provisionalMaxItems) return null;
   const head = orderQueue(state, idx)[0];
   if (!head) return null;
   const node = idx.byId.get(head.nodeId);
   if (!node) return null;
-  const problem = neutralP3(node).sort((a, b) => a.id.localeCompare(b.id))[0];
+  const items = neutralP3(node).sort((a, b) => a.id.localeCompare(b.id));
+  // Pick a DISTINCT item by how many times this node has already been served
+  // (per-serve direct evidence count), clamped to the last available item.
+  const servedCount = (state.directByNode.get(node.id) ?? []).length;
+  const problem = items[Math.min(servedCount, items.length - 1)];
   if (!problem) return null; // unreachable: only probeable nodes are queued
   const responseType: ResponseType =
     (problem.visual && RESPONSE_TYPE_BY_VISUAL[problem.visual]) || "input";
@@ -566,10 +699,78 @@ function attemptRefFor(
 }
 
 /**
- * Final estimates + demonstrated[] + recommended start. `nowIso` is required
+ * fatigueRisk from REAL response data (§V3.5): accuracy on the last-K vs the
+ * first-K matched-difficulty-tier items drops ≥ 25 pts, with K ≥ 4 each side.
+ * Returns null when there are fewer than K post-pause matched items (never
+ * guessed). Matched = same difficulty tier; we compare within the most-common
+ * tier so the two windows are difficulty-comparable, not just positional.
+ */
+function fatigueRiskOf(
+  session: DiagnosticSession,
+  graph: CurriculumGraph,
+): boolean | null {
+  const K = 4;
+  const DROP = 0.25;
+  const probById = new Map<string, ProblemTemplate>();
+  for (const n of graph.nodes) for (const p of neutralP3(n)) probById.set(p.id, p);
+  // Reconstruct each response's difficulty tier by replaying item selection is
+  // costly; instead derive tier from the lowest-id neutral item served per
+  // serve index — but the simplest matched signal available without the served
+  // problem id is the node's served items. Use response order + per-node tier
+  // of the FIRST neutral item (stable). Group by that tier.
+  const responses = session.responses;
+  // Fatigue can only be read once there are enough items AND the session passed
+  // the pause point — a short session that never reached fatiguePauseAt has no
+  // post-pause window (handled by the per-side ≥K guard below).
+  if (responses.length < 2 * K) return null;
+  const tierOf = (skillId: string): number => {
+    const node = graph.nodes.find((n) => n.id === skillId);
+    if (!node) return 1;
+    const items = neutralP3(node).sort((a, b) => a.id.localeCompare(b.id));
+    return items[0]?.difficulty ?? 1;
+  };
+  // Most common tier among all responses (the matched band).
+  const tierCounts = new Map<number, number>();
+  for (const r of responses) {
+    const t = tierOf(r.skillId);
+    tierCounts.set(t, (tierCounts.get(t) ?? 0) + 1);
+  }
+  let band = 1;
+  let bandN = -1;
+  for (const [t, c] of [...tierCounts.entries()].sort((a, b) => a[0] - b[0])) {
+    if (c > bandN) {
+      band = t;
+      bandN = c;
+    }
+  }
+  // Split the matched band at the fatigue pause: fatigue is a POST-PAUSE
+  // phenomenon (§9), so the trailing window must be drawn from responses served
+  // at/after fatiguePauseAt — never from pre-pause data. Require ≥ K matched
+  // items on EACH side, else the flag is left null (never guessed, §V3.5).
+  const pauseAt = session.config.fatiguePauseAt;
+  const pre: typeof responses = [];
+  const post: typeof responses = [];
+  responses.forEach((r, i) => {
+    if (tierOf(r.skillId) !== band) return;
+    (i < pauseAt ? pre : post).push(r);
+  });
+  if (pre.length < K || post.length < K) return null;
+  const acc = (rs: typeof responses) => rs.filter((r) => r.correct).length / rs.length;
+  return acc(pre) - acc(post) >= DROP;
+}
+
+/**
+ * Final estimates + demonstrated[] + recommended start + the placement layer
+ * (labels / remediation / entryFrontier / qualityFlags). `nowIso` is required
  * because the recommended start is computed via the committed pipeline
  * (creditFromDiagnostic → computeMasteryAll → recommend) over a simulated
  * post-credit state — the engine itself still never touches a clock.
+ *
+ * INVARIANT: labels/remediation/entryFrontier/qualityFlags are READ-SIDE
+ * PLACEMENT METADATA. The ONLY path to node_mastery stays demonstrated[] →
+ * creditFromDiagnostic, now BLOCKED-aware (§V3.2): unresolved-high-impact ∪
+ * NEEDS_WORK ∪ UNCERTAIN nodes are never credited, even by ancestor
+ * propagation.
  */
 export function finishDiagnostic(
   session: DiagnosticSession,
@@ -670,11 +871,96 @@ export function finishDiagnostic(
     return { domainId: d.id, status, confidence, masteredEstimate, total, unestimated: false };
   });
 
+  // ----- Placement layer (§1 / §V2 R6 / §V3): labels + posteriors -----
+  const fatigueRisk = fatigueRiskOf(session, graph);
+  const labels: Record<string, DiagnosticNodeLabel> = {};
+  const labelOnly: Record<string, DiagnosticPlacementLabel> = {};
+  for (const n of graph.nodes) {
+    const direct = state.directByNode.get(n.id) ?? [];
+    const directCorrect = direct.filter(Boolean).length;
+    const directIncorrect = direct.length - directCorrect;
+    const inferredOnly = direct.length === 0 && state.inferred.has(n.id);
+    const highImpact = isHighImpact(n.id);
+    // Foundational = a domain-root (no same-domain prereq) that is high-impact,
+    // OR any high-impact node whose direct evidence is a clean fail — K5's
+    // "foundational fail that logically blocks downstream skills".
+    const sameDomainPrereq = n.prereqs.some((p) => idx.byId.get(p)?.domain === n.domain);
+    const foundational = highImpact && !sameDomainPrereq;
+    const post = posteriorFor(state, session.config, n.id, inferredOnly);
+    const label = labelNode(
+      {
+        posterior: post.posterior,
+        directCorrect,
+        directIncorrect,
+        inferredOnly,
+        highImpact,
+        foundational,
+        // Fatigue down-grades only when the run as a whole is flagged AND the
+        // node is unresolved (no direct evidence settling it).
+        fatigueFlagged: fatigueRisk === true && direct.length === 0,
+      },
+      session.config.posterior,
+    );
+    labels[n.id] = toNodeLabel(label, post, highImpact);
+    labelOnly[n.id] = label;
+  }
+
+  // BLOCKED set (§V3.2 / R2 / §3a) — nodes credit may NEVER touch, even via
+  // ancestor propagation. Two sources:
+  //   (1) Unresolved high-impact: a high-impact node with < 2 direct-correct.
+  //       This is the §3a teeth — forced UNCERTAIN and blocked even if the v1
+  //       engine put it in demonstrated[] (the mastery-engine demonstrated
+  //       guard honors this too).
+  //   (2) A NEEDS_WORK / UNCERTAIN node that was NOT directly demonstrated.
+  //       Direct demonstration (demonstrated[]) of a non-high-impact node
+  //       still governs credit — the placement label is read-side only and
+  //       must not revoke direct evidence the v1 confirm machinery accepted.
+  const demonstratedSet = new Set(state.demonstrated);
+  const blocked = new Set<string>();
+  for (const n of graph.nodes) {
+    if (!isHighImpact(n.id)) continue;
+    const direct = state.directByNode.get(n.id) ?? [];
+    const directCorrect = direct.filter(Boolean).length;
+    if (directCorrect < 2) {
+      labelOnly[n.id] = "UNCERTAIN";
+      labels[n.id] = { ...labels[n.id], label: "UNCERTAIN", provisional: true };
+      blocked.add(n.id);
+    }
+  }
+  for (const n of graph.nodes) {
+    const l = labelOnly[n.id];
+    if ((l === "NEEDS_WORK" || l === "UNCERTAIN") && !demonstratedSet.has(n.id)) {
+      blocked.add(n.id);
+    }
+  }
+
+  const remediation = remediationList(labelOnly, graph);
+  const entryFrontier = computeEntryFrontier(labelOnly, graph);
+  const lowConfidenceNodes = graph.nodes
+    .map((n) => n.id)
+    .filter((id) => labelOnly[id] === "UNCERTAIN")
+    .sort((a, b) => a.localeCompare(b));
+  // Suspected guessing: any high-impact node correct-then-incorrect (or a
+  // markedly inconsistent direct sequence) hints at lucky/guess corrects.
+  const suspectedGuessing = graph.nodes.some((n) => {
+    const direct = state.directByNode.get(n.id) ?? [];
+    if (direct.length < 2) return false;
+    return direct.includes(true) && direct.includes(false);
+  });
+
   // Recommended start: the committed pipeline over a simulated post-credit
   // state. Demonstrated nodes never include unprobed-domain nodes, so credit
   // (ancestry-only) can never mark an unprobed domain mastered — the
-  // recommendation cannot route past one on inference alone.
-  const credit = creditFromDiagnostic(session.studentId, graph, state.demonstrated, {}, nowIso);
+  // recommendation cannot route past one on inference alone. `blocked` stops
+  // ancestor propagation at unresolved-high-impact / NEEDS_WORK / UNCERTAIN.
+  const credit = creditFromDiagnostic(
+    session.studentId,
+    graph,
+    state.demonstrated,
+    {},
+    nowIso,
+    blocked,
+  );
   const simStates: Record<string, StudentSkillState> = {};
   for (const u of credit.updates) {
     simStates[u.skillId] = {
@@ -702,6 +988,15 @@ export function finishDiagnostic(
     demonstrated: [...state.demonstrated],
     recommendedStart: rec.skillId,
     recommendedReason: rec.reason,
+    labels,
+    remediation,
+    entryFrontier,
+    blocked: [...blocked].sort((a, b) => a.localeCompare(b)),
+    qualityFlags: {
+      lowConfidenceNodes,
+      suspectedGuessing,
+      fatigueRisk,
+    },
   };
 }
 

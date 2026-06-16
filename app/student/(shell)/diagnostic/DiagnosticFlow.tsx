@@ -61,6 +61,9 @@ export function DiagnosticFlow({ graphView }: DiagnosticFlowProps) {
   const [value, setValue] = useState("");
   const [pending, setPending] = useState(false);
   const [persistError, setPersistError] = useState(false);
+  // Once the student resumes from the fatigue pause we never show it again
+  // (pauseDue stays true past the threshold — §9 is a single optional break).
+  const [resumed, setResumed] = useState(false);
   const itemStartRef = useRef(0);
 
   const item: DiagnosticItem | null = useMemo(
@@ -137,12 +140,21 @@ export function DiagnosticFlow({ graphView }: DiagnosticFlowProps) {
 
   if (!session) return <Intro onBegin={begin} />;
   if (item) {
+    // Calm optional fatigue pause (§9) — shown once when the session marks
+    // pauseDue and the student has not yet resumed. No down-weighting happens;
+    // the engine only surfaces the cue.
+    if (session.pauseDue && !resumed) {
+      return <FatiguePause onResume={() => setResumed(true)} />;
+    }
     const node = graphView.nodes.find((n) => n.id === item.skillId);
     const domainLabel =
       graphView.domains.find((d) => d.id === node?.domain)?.label ?? "";
     return (
       <ItemScreen
-        key={item.skillId}
+        // Keyed on the asked-index ORDINAL, not skillId: a high-impact
+        // corroboration re-serve repeats a skillId, and a skillId key would
+        // not remount the input for the second serve (G6 / §V2 R12).
+        key={session.responses.length}
         item={item}
         domainLabel={deAmp(domainLabel)}
         progress={session.progress}
@@ -202,6 +214,33 @@ function Intro({ onBegin }: { onBegin: () => void }) {
         </Button>
       </div>
       <p className="mt-4 text-[12.5px] text-ink-500">Nothing here is graded.</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Fatigue pause (§9) — calm, optional, no timer, no score.
+// ---------------------------------------------------------------------------
+
+function FatiguePause({ onResume }: { onResume: () => void }) {
+  return (
+    <div className="fade-in mx-auto max-w-[520px] text-center">
+      <p className="mb-1.5 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
+        Quick breather
+      </p>
+      <h2 className="font-display text-[24px] font-semibold leading-[1.25] text-ink">
+        You can pause here.
+      </h2>
+      <p className="mx-auto mt-3 max-w-[420px] text-[14px] leading-[1.55] text-ink-500">
+        You&rsquo;re doing great. Taking a short break helps us place you
+        correctly &mdash; there&rsquo;s no timer and nothing here is graded.
+        Resume whenever you&rsquo;re ready.
+      </p>
+      <div className="mt-6">
+        <Button variant="primary" autoFocus onClick={onResume}>
+          Resume
+        </Button>
+      </div>
     </div>
   );
 }
@@ -389,6 +428,8 @@ function SummaryScreen({
         )}
       </InsetPanel>
 
+      <PlacementBreakdown graphView={graphView} result={result} />
+
       <div className="mt-7 text-center">
         <Button variant="primary" autoFocus loading={pending} onClick={onPersist}>
           Go to my learning home
@@ -400,6 +441,73 @@ function SummaryScreen({
           </AlertPanel>
         )}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Placement breakdown — the 4 labels + top remediation + "Why this placement?"
+// evidence counts (Trust = proof, STYLE_GUIDE §8.5). Read-side metadata only;
+// these labels never wrote mastery (demonstrated[] → credit did).
+// ---------------------------------------------------------------------------
+
+const PLACEMENT_WORDS: Record<string, { word: string; tone: string }> = {
+  READY: { word: "Ready", tone: "text-ink-700" },
+  INFERRED_READY: { word: "Likely ready", tone: "text-ink-500" },
+  UNCERTAIN: { word: "Worth a look", tone: "text-ink-500" },
+  NEEDS_WORK: { word: "Let's build this", tone: "text-ink-700" },
+};
+
+function PlacementBreakdown({
+  graphView,
+  result,
+}: {
+  graphView: CurriculumGraph;
+  result: ReturnType<typeof finishDiagnostic>;
+}) {
+  const titleOf = (id: string): string =>
+    deAmp(graphView.nodes.find((n) => n.id === id)?.title ?? id);
+  // Top remediation focus: the prioritized NEEDS_WORK/UNCERTAIN list (already
+  // topologically ordered, ancestors first). Cap for a calm, non-overwhelming
+  // surface — the course works the full list.
+  const focus = result.remediation.slice(0, 5);
+  if (focus.length === 0) return null;
+  return (
+    <div className="mt-5">
+      <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
+        What we&rsquo;ll focus on first
+      </p>
+      <Card padding="flush">
+        {focus.map((id, i) => {
+          const label = result.labels[id];
+          const words = PLACEMENT_WORDS[label?.label] ?? PLACEMENT_WORDS.UNCERTAIN;
+          // "Why this placement?" — the honest evidence count behind the label.
+          const why =
+            label.evidenceCount === 0
+              ? "inferred from related skills"
+              : `${label.evidenceCount} question${label.evidenceCount === 1 ? "" : "s"} seen`;
+          return (
+            <div
+              key={id}
+              className={`flex items-center justify-between px-[18px] py-3.5 ${
+                i > 0 ? "border-t border-selected" : ""
+              }`}
+            >
+              <span className="text-[14.5px] font-medium text-ink">{titleOf(id)}</span>
+              <span className="flex items-center gap-4">
+                <span className="text-[12.5px] text-ink-500">{why}</span>
+                <span className={`w-[110px] text-right text-[13px] font-semibold ${words.tone}`}>
+                  {words.word}
+                </span>
+              </span>
+            </div>
+          );
+        })}
+      </Card>
+      <p className="mt-2 text-[12.5px] text-ink-500">
+        Nothing here is a grade &mdash; it&rsquo;s a starting map. The course
+        confirms each of these as you go.
+      </p>
     </div>
   );
 }
