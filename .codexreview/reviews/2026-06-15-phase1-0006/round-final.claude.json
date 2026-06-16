@@ -1,0 +1,19 @@
+{
+  "phase": "diff",
+  "rounds": 5,
+  "decision": "converged_clean",
+  "summary": "0006 went through 5 security-review rounds before commit (untestable SQL -> codexreview is the safety net). All concerns fixed:",
+  "fixed": [
+    "r1 BLOCKING forge-attempt: submit_attempt/issue_attempt_nonce -> service_role-only; removed client p_secret (app.hmac_secret() server-side); p_correct server-computed only.",
+    "r1 BLOCKING erase-update-noop: BEFORE UPDATE returns NEW; dedicated forbid_mutation_erasable on student_attempts only.",
+    "r1 append-only-bypass-scope: legal/audit tables keep strict forbid_mutation.",
+    "r1 staff-breakglass-denied: read_student_record authorizes via can_read_raw_evidence.",
+    "r1 session-student-mismatch: issue_attempt_nonce verifies session belongs to student.",
+    "r2 BLOCKING service-role-actor-deny: explicit p_actor vouched by the trusted server.",
+    "r2 erasable-trigger-broad-update: jsonb-diff guard -> only response->'[erased]' permitted.",
+    "r3 BLOCKING comment-function-syntax: full signature on COMMENT ON FUNCTION submit_attempt.",
+    "r3 service-role-actor-deny(consent): actor-explicit is_parent_of(p_actor,p_student) overload.",
+    "r4 view-only-submit: assert_can_submit_for_student (student or education_admin only; view_only/billing/restricted denied)."
+  ],
+  "round5": "security_reviewer: clean, no concerns -> converged."
+}

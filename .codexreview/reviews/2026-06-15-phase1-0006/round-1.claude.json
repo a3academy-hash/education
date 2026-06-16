@@ -1,0 +1,13 @@
+{
+  "phase": "diff",
+  "round": 1,
+  "decision": "accept_all_fix_then_reverify",
+  "concerns": [
+    {"id": "client-hmac-secret/forge-attempt", "source": "both", "severity": "blocking", "disposition": "accept", "action": "submit_attempt + issue_attempt_nonce REVOKEd from authenticated, GRANTed service_role-only (trusted server action is sole caller). Removed p_secret param; HMAC verified against app.hmac_secret() (private app.app_secrets, definer-only, value set out-of-band/never committed). p_correct now only suppliable by the service-role server, which computed it via the lib grader — not client-forgeable."},
+    {"id": "erase-update-noop", "source": "security", "severity": "blocking", "disposition": "accept", "action": "Split out app.forbid_mutation_erasable (student_attempts only), TG_OP-aware: BEFORE UPDATE returns NEW so the anonymizing SET persists (returning OLD no-ops). Re-pointed the student_attempts trigger; forbid_mutation stays strict."},
+    {"id": "append-only-bypass-scope", "source": "adversarial", "severity": "medium", "disposition": "accept", "action": "Erase exception isolated to the dedicated forbid_mutation_erasable on student_attempts ONLY; mastery_updates/messages/consent_events/record_access_log/tutor_exchanges keep the strict shared forbid_mutation -> legal/audit tables remain strictly append-only during an erase."},
+    {"id": "staff-breakglass-denied", "source": "adversarial", "severity": "high", "disposition": "accept", "action": "read_student_record authorizes via can_read_raw_evidence(student_campus) (campus_admin/super_admin) instead of the guardian-only assert; reason required; audits before returning."},
+    {"id": "session-student-mismatch", "source": "adversarial", "severity": "medium", "disposition": "accept", "action": "issue_attempt_nonce now requires exists(sessions where id=p_session and student_id=p_student) before issuing; the nonce row binds student+session, so submit consumes only a session that belongs to the student."}
+  ],
+  "note": "Codexreview caught 2 blocking forgery/correctness bugs in untestable SQL before commit -- the intended safety net. All 5 fixed; re-verifying round 2."
+}
