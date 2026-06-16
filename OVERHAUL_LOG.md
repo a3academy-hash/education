@@ -30,7 +30,13 @@ Started: 2026-06-15.
   delayed/unseen lock gate (perfect in-session NEVER locks) + single-step DAG propagation + graded
   cold-start. 22 tests; 757 total. codexreview specified the exact math (7 plan concerns) + fixed the
   per-dimension count (1 code concern). LIVE CUTOVER (wire engine-v2, retire v0.1 in-session lock) = Phase 4.
-- [ ] Phase 4 — Interactivity + speed (predict/construct→resolve, <800ms)
+- [~] **Phase 4 — Interactivity + speed** — PARTIAL (both BLOCKING concerns closed + tested).
+  lib/atoms (predict→resolve typed invariant, 6 tests) + lib/engine-v2/session.ts (D5 cutover:
+  updateNode never locks; evaluateLock takes DelayedCheck[] only; firewall test: 20 perfect
+  in-session attempts don't lock). 767 tests. **CONTINUATION (do next):** lib/engine-v2/selector.ts
+  (contract adjudicated in round-1.claude.json) + worked-example UI cutover (wire StepReveal/
+  LearnClient advance to canAdvance, remove the exampleSeen/'read through' bypasses) — see
+  phase-4-verify.md.
 - [ ] Phase 5 — Visual system (one instrument system, AA contrast, rings, baseball-native)
 - [ ] Phase 6 — Diagnostic (multistage routing, 4 labels, seed write)
 - [ ] Phase 7 — Reporting + compliance (VPC, dashboards, NCAA export, 70/20/10)
