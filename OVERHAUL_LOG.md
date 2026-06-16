@@ -43,6 +43,27 @@ Started: 2026-06-15.
 - [ ] Phase 8 — Engagement guardrails + motivation
 - [ ] Phase 9 — Full verification (prove DONE)
 
+## RESUME POINT (next context window — continue here, unbroken)
+Phases 0-3 COMPLETE; Phase 4 ~80% (atoms + D5 session cutover + selector done; commits 121f4a7,
+29ec0c6). Branch overhaul/v0.2, 12 commits, 774 tests green, tsc clean. Continue in order:
+1. **Finish Phase 4:** worked-example UI cutover — extract a pure `canStartPractice` gate; wire
+   StepReveal/LearnClient "Start practice" to `lib/atoms` canAdvance; REMOVE the bypasses
+   (LearnClient exampleSeen-on-any-pointer/key ~:484-497; the "I've read through" shortcut ~:287-290;
+   the :136 unlock). Verify live via chrome-devtools (no jsdom). Then phase-4 full PASS.
+2. **Phase 5 — Visual system** (STYLE_GUIDE): tokens resolve-by-surface (on-light/on-dark), dark
+   Focus canvas #0B0F17, 3 rings (Focus/Mastery+gold-cap/Retrieval dashed) hue+icon+pattern+ARIA,
+   baseball instrumentation, fonts (Source Serif 4 + Plex Sans + Plex Mono), mode indicator, AA
+   contrast audit. (AUDIT D6 ~15-20% compliant.)
+3. **Phase 6 — Diagnostic** (DIAGNOSTIC.md): multistage routing + posterior/SEM stop + 4 labels +
+   seed write + the simulation. (AUDIT D8; build the diag_items bank — D3.1.)
+4. **Phase 7 — Reporting + compliance** (SECURITY): VPC flow UI + ordering, parent/admin/coach
+   dashboards (n>=5), NCAA export + 70/20/10, finish the family-tenancy policy sweep + read-audit
+   wiring (D7.6-D7.10 ship-gates).
+5. **Phase 8 — Engagement guardrails** (AI_ADAPTIVE §8): success band live, review cap, fast-but-
+   fragile flag, retained-mastery surfacing, Training/Boost mode.
+6. **Phase 9 — Full verification:** every GOAL checkbox + perf/contrast/dedup/solver/a11y/e2e reports.
+Every code commit through codexreview (security pass on anything privileged). Loop, don't halt.
+
 ## Standing decisions (autonomous, logged)
 - **Branch strategy:** work on `overhaul/v0.2`; `master` keeps the v0.1 baseline as an implicit
   full backup of the old system (the question bank snapshot in Phase 2 is the explicit one).
