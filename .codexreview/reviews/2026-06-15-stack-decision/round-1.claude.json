@@ -1,0 +1,13 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "keep_nextjs_with_hardening_conditions",
+  "concerns": [
+    {"id": "binding-stack", "source": "both", "severity": "blocking", "disposition": "accept", "action": "Wrote ADR-0001 as the formal adjudication; added a non-destructive pointer to the 3 spec 'Stack:' headers. Override is governed + auditable, not asserted. Precedence invoked: GOAL non-negotiables (framework-agnostic) > the stack-header default."},
+    {"id": "rpc-equivalence", "source": "both", "severity": "high", "disposition": "accept", "action": "Binding rule: server actions = thin auth wrappers; every privileged mutation is a Postgres SECURITY DEFINER RPC w/ explicit student_id + assert_can_access_student first + pinned search_path + no dynamic SQL. Becomes a Phase-1 deliverable (closes AUDIT D7)."},
+    {"id": "perf-premise", "source": "cold", "severity": "high", "disposition": "accept", "action": "Latency budget: perceived (optimistic <16ms paint) vs authoritative (grade RPC <300ms; model/retention update async non-blocking); end-to-end <800ms measured under load in Phase 4."},
+    {"id": "effort-equivalence", "source": "cold", "severity": "medium", "disposition": "accept", "action": "Portability inventory in ADR: lib/data/migrations/types/components portable; only app/ routing+actions+middleware is Next-specific -> most overhaul work is stack-invariant."},
+    {"id": "reversible-claim", "source": "cold", "severity": "medium", "disposition": "accept", "action": "Binding rule: domain logic stays in framework-neutral lib/; App Router only orchestrates -> reversibility preserved by construction."}
+  ],
+  "note": "Informed reviewer confirmed NO spec requirement forces Vite. Decision STANDS (keep Next.js) with all 5 concerns adopted as binding architecture rules. Blocking concern resolved via ADR + amendment -> converged."
+}

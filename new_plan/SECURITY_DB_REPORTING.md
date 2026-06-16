@@ -3,6 +3,10 @@
 **Version:** v0.2 (post board-review: Claude / Grok / ChatGPT)
 **Companion to:** CLAUDE.md (course), DIAGNOSTIC.md, STYLE_GUIDE.md.
 **Stack:** React 19 + Vite + Supabase (Postgres, RLS, RPC), Vercel.
+> *Stack adjudication (ADR-0001, 2026-06-15): React-19 host = **Next.js App Router**; "Vite"
+> superseded as a default. Every privileged mutation stays a Postgres `SECURITY DEFINER` RPC with
+> `assert_can_access_student`; server actions are thin auth wrappers. See
+> `docs/adr/0001-stack-next-over-vite.md`.*
 **Delivered as a HOMESCHOOL CREDIT.** Parent is the homeschool administrator of record.
 
 > **ATTORNEY-PENDING:** every legal value here (consent method, retention timers, FERPA stance,

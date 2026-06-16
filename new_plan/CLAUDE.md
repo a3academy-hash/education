@@ -3,6 +3,10 @@
 **Version:** v0.2 (post board-review: Claude / Grok / ChatGPT)
 **Status:** Authoritative roadmap-driving document. Decisions here are committed unless a section is flagged `MUST-VALIDATE`.
 **Stack:** React 19 + Vite + Supabase (Postgres, RLS, RPC), Vercel.
+> *Stack adjudication (ADR-0001, 2026-06-15): the React-19 host is **Next.js App Router** (server
+> actions are thin wrappers over Postgres `SECURITY DEFINER` RPCs); "Vite" is superseded as an
+> implementation default. All RLS/RPC/server-grading behaviors remain binding. See
+> `docs/adr/0001-stack-next-over-vite.md`.*
 
 ---
 

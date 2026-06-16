@@ -4,6 +4,9 @@
 **Parent project:** Adaptive Math Course (see CLAUDE.md). This diagnostic SEEDS the course
 knowledge graph; standalone build, own review cycle.
 **Stack:** React 19 + Vite + Supabase (Postgres, RLS, RPC), Vercel.
+> *Stack adjudication (ADR-0001, 2026-06-15): React-19 host = **Next.js App Router**; "Vite"
+> superseded as a default. RLS/RPC/server-grading behaviors remain binding. See
+> `docs/adr/0001-stack-next-over-vite.md`.*
 **One-line purpose:** Before a student starts Algebra 1, reliably find the prerequisite gaps
 most likely to break Algebra 1 — and place the student on the graph — as a PROVISIONAL seed
 the course will confirm. It places; the course confirms.
