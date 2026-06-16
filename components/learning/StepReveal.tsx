@@ -1,20 +1,20 @@
-// StepReveal (§C). Worked-example stepper: steps hidden; a secondary button
-// reveals one at a time (fade 250ms + 4px rise; instant under reduced-motion).
-// Label → "Show result" before the final. Then a success-tinted result chip +
-// the caller's continue action. blankStepIndex = completion mode (that step is
-// an inline math Input gating the next reveal). Focus stays on the button.
+// StepReveal (§C) — worked-example stepper. Steps reveal one at a time; some
+// steps can be INTERACTIVE: a "fill" step asks the student to type a short token
+// before it reveals, and a "predict" step asks them to choose what happens next
+// from 2–3 options. With no `interactions` (and no legacy blankStepIndex) every
+// step is a plain reveal — today's behavior, unchanged. Focus stays usable; the
+// reveal fade is 250ms (neutralized under reduced-motion via globals.css).
 
 "use client";
 
-import { useId, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { MathText } from "../ui/MathText";
 import {
-  initRevealState,
-  isComplete,
-  nextButtonLabel,
-  revealNext,
+  buildInteractions,
+  normalizeAnswer,
+  type StepInteraction,
 } from "./step-reveal-logic";
 
 export interface StepRevealProps {
@@ -23,16 +23,24 @@ export interface StepRevealProps {
   steps: string[];
   /** Final result text shown in the success chip. */
   result: string;
-  /** Index of the step rendered as a fill-in input (completion mode). */
+  /** Legacy single fill-in step (case/space-insensitive). Superseded by `interactions`. */
   blankStepIndex?: number | null;
-  /** Expected answer for the blank step (case/space-insensitive). */
   blankAnswer?: string;
+  /**
+   * Optional per-step interactions aligned to `steps`. Each entry is reveal /
+   * fill / predict; a null/missing entry is a plain reveal. Overrides the legacy
+   * blankStepIndex/blankAnswer when provided.
+   */
+  interactions?: (StepInteraction | null)[];
   /** Continue affordance rendered after the result chip. */
   continueAction?: ReactNode;
-}
-
-function normalize(s: string): string {
-  return s.replace(/\s+/g, "").toLowerCase();
+  /**
+   * Fires ONCE when the student has stepped/committed all the way to the result
+   * (revealed >= total). The §7 no-slideshow gate hangs off genuine completion —
+   * NOT any stray pointer/key event. For nodes with fill/predict interactions,
+   * reaching completion required committing those answers.
+   */
+  onComplete?: () => void;
 }
 
 export function StepReveal({
@@ -41,46 +49,65 @@ export function StepReveal({
   result,
   blankStepIndex = null,
   blankAnswer = "",
+  interactions,
   continueAction,
+  onComplete,
 }: StepRevealProps) {
-  const [state, setState] = useState(() =>
-    initRevealState(steps.length, blankStepIndex),
+  const eff = useMemo(
+    () => buildInteractions(steps.length, interactions, blankStepIndex, blankAnswer),
+    [steps.length, interactions, blankStepIndex, blankAnswer],
   );
-  const [blankValue, setBlankValue] = useState("");
-  const [blankError, setBlankError] = useState<string | null>(null);
+
+  const [revealed, setRevealed] = useState(0);
+  const [fillValue, setFillValue] = useState("");
+  const [fillError, setFillError] = useState<string | null>(null);
+  const [predictError, setPredictError] = useState<string | null>(null);
   const liveId = useId();
 
-  const blankSatisfied = useMemo(() => {
-    if (state.blankStepIndex === null) return true;
-    return normalize(blankValue) === normalize(blankAnswer) && blankAnswer !== "";
-  }, [state.blankStepIndex, blankValue, blankAnswer]);
+  const total = steps.length;
+  const complete = revealed >= total;
+  const active: StepInteraction | null = revealed < total ? eff[revealed] : null;
 
-  const complete = isComplete(state);
-
-  const checkBlankAndAdvance = () => {
-    if (state.blankStepIndex !== null && state.revealed === state.blankStepIndex) {
-      if (!blankSatisfied) {
-        setBlankError("Not quite — match the worked step above.");
-        return;
-      }
-      setBlankError(null);
+  // Fire onComplete ONCE, when the student genuinely reaches the result (not on a
+  // stray interaction, and not re-fired if the parent recreates the callback). §7.
+  const completeFiredRef = useRef(false);
+  useEffect(() => {
+    if (complete && !completeFiredRef.current) {
+      completeFiredRef.current = true;
+      onComplete?.();
     }
-    setState((s) => revealNext(s, true));
+  }, [complete, onComplete]);
+
+  const revealStep = () => {
+    setPredictError(null);
+    setFillError(null);
+    setRevealed((r) => Math.min(total, r + 1));
   };
 
-  const handleAdvance = () => {
-    if (state.blankStepIndex !== null && state.revealed === state.blankStepIndex) {
-      checkBlankAndAdvance();
+  const checkFill = () => {
+    if (active?.kind !== "fill") return;
+    if (active.answer !== "" && normalizeAnswer(fillValue) === normalizeAnswer(active.answer)) {
+      setFillValue("");
+      revealStep(); // reveal shows the step's full worked reasoning
     } else {
-      setState((s) => revealNext(s, blankSatisfied));
+      setFillError("Not quite — match the worked step above.");
     }
   };
+
+  const choosePredict = (opt: string) => {
+    if (active?.kind !== "predict") return;
+    if (normalizeAnswer(opt) === normalizeAnswer(active.answer)) {
+      revealStep();
+    } else {
+      setPredictError("Not quite — picture the move and try again.");
+    }
+  };
+
+  const advanceLabel = revealed >= total - 1 ? "Show result" : "Show next step";
 
   return (
     <div className="flex flex-col gap-4">
-      {/* problem strip — mono host kept for the literal echo; notation renders
-          via MathText (displayStyle: standalone equation line → \dfrac / tall
-          radicals). The raw `problem` string is unchanged. */}
+      {/* problem strip */}
       <div className="rounded-[10px] border border-track bg-inset px-[14px] py-3 font-mono text-[15px] text-ink">
         <MathText displayStyle>{problem}</MathText>
       </div>
@@ -88,8 +115,7 @@ export function StepReveal({
       {/* revealed steps */}
       <ol className="flex flex-col gap-3">
         {steps.map((text, i) => {
-          if (i >= state.revealed) return null;
-          const isBlank = state.blankStepIndex === i;
+          if (i >= revealed) return null;
           return (
             <li key={i} className="fade-in flex items-start gap-3">
               <span
@@ -98,48 +124,64 @@ export function StepReveal({
               >
                 {i + 1}
               </span>
-              {isBlank ? (
-                <span className="text-[14px] leading-[1.5] text-ink-800">
-                  {/* satisfied blank shows the confirmed (raw) answer; notation
-                      renders inline at the step size/ink (size+color inherit). */}
-                  <MathText>{blankValue || text}</MathText>
-                </span>
-              ) : (
-                <span className="text-[14px] leading-[1.5] text-ink-800">
-                  <MathText>{text}</MathText>
-                </span>
-              )}
+              <span className="text-[14px] leading-[1.5] text-ink-800">
+                <MathText>{text}</MathText>
+              </span>
             </li>
           );
         })}
 
-        {/* active blank (completion mode), shown when it's the next step */}
-        {state.blankStepIndex !== null && state.revealed === state.blankStepIndex && (
+        {/* active interactive step (fill / predict) shown before it reveals */}
+        {active && active.kind !== "reveal" && (
           <li className="fade-in flex items-start gap-3">
             <span
               aria-hidden
               className="mt-0.5 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-chip font-mono text-[12px] font-semibold text-accent"
             >
-              {state.blankStepIndex + 1}
+              {revealed + 1}
             </span>
             <div className="flex-1">
-              <Input
-                fieldMode="math"
-                label="Your step"
-                placeholder="Fill in this step"
-                value={blankValue}
-                onChange={(e) => {
-                  setBlankValue(e.target.value);
-                  setBlankError(null);
-                }}
-                errorText={blankError ?? undefined}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    checkBlankAndAdvance();
-                  }
-                }}
-              />
+              {active.kind === "fill" ? (
+                <Input
+                  fieldMode="math"
+                  label="Your step"
+                  placeholder="Fill in this step"
+                  value={fillValue}
+                  onChange={(e) => {
+                    setFillValue(e.target.value);
+                    setFillError(null);
+                  }}
+                  errorText={fillError ?? undefined}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      checkFill();
+                    }
+                  }}
+                />
+              ) : (
+                <div>
+                  <p className="mb-2 text-[14px] font-medium text-ink-800">
+                    {active.prompt ?? "What happens next?"}
+                  </p>
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Predict the next step">
+                    {active.options.map((opt) => (
+                      <Button
+                        key={opt}
+                        variant="secondary"
+                        size="sm"
+                        type="button"
+                        onClick={() => choosePredict(opt)}
+                      >
+                        <MathText>{opt}</MathText>
+                      </Button>
+                    ))}
+                  </div>
+                  {predictError && (
+                    <p className="mt-2 text-[13px] text-error-ink">{predictError}</p>
+                  )}
+                </div>
+              )}
             </div>
           </li>
         )}
@@ -154,7 +196,6 @@ export function StepReveal({
             style={{ background: "var(--color-status-mastered)" }}
           />
           <span className="font-mono text-[14px] text-ink">
-            {/* result chip — mono host kept; notation renders inline at host size+ink. */}
             <MathText>{result}</MathText>
           </span>
         </div>
@@ -162,19 +203,24 @@ export function StepReveal({
 
       {/* controls */}
       <div className="flex items-center gap-3">
-        {!complete ? (
-          <Button variant="secondary" onClick={handleAdvance}>
-            {nextButtonLabel(state)}
-          </Button>
-        ) : (
+        {complete ? (
           continueAction
-        )}
+        ) : active?.kind === "reveal" ? (
+          <Button variant="secondary" onClick={revealStep}>
+            {advanceLabel}
+          </Button>
+        ) : active?.kind === "fill" ? (
+          <Button variant="secondary" onClick={checkFill}>
+            Check step
+          </Button>
+        ) : null}
+        {/* predict has no advance button — choosing the right option advances. */}
       </div>
 
       <span id={liveId} className="sr-only" aria-live="polite">
         {complete
           ? `All steps revealed. Result: ${result}.`
-          : `Step ${state.revealed} of ${steps.length} revealed.`}
+          : `Step ${revealed} of ${total} revealed.`}
       </span>
     </div>
   );

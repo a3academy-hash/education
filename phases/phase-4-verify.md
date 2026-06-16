@@ -18,15 +18,17 @@
 - [x] No regression: full suite **767 tests green**; tsc clean. codexreview: 5 plan concerns + 1 code
       (LockEvidence boundary) all adopted/fixed.
 
-## Phase 4 CONTINUATION (tracked — not yet built; the gate is not fully PASS until these land)
-- [ ] **Selector** (`lib/engine-v2/selector.ts`): the precise contract adjudicated (score =
-      wInfo·pKnownVar + wRet·(1−pRecall)·due + wTransfer·coverageGap; predictedSuccess target band
-      0.70–0.90; frustration fallback K-errors→easier, recover after M; review-burden cap) + tests.
-- [ ] **Worked-example UI cutover:** wire the StepReveal/LearnClient advance to `canAdvance` and
-      REMOVE the bypasses (LearnClient `exampleSeen` on any pointer/key; the "I've read through"
-      shortcut). Requires the React edit (no jsdom → verify via the extracted pure gate + a live
-      chrome-devtools pass). This is what makes the no-slideshow invariant true at the USER level.
+## Phase 4 completions (now landed)
+- [x] **Selector** (`lib/engine-v2/selector.ts`, 7 tests): band-guarded composite utility (success
+      band is the PRIMARY difficulty target, utility ranks within it); frustration fallback +
+      auto-recovery; review-burden cap with no-starve. codexreview band-fix adopted.
+- [x] **Worked-example UI cutover:** StepReveal gained an `onComplete` that fires ONCE on genuine
+      completion (stepped/committed to the result — fill/predict steps require committed answers);
+      LearnClient wires `onAdvanced` to it and REMOVED both bypasses (the any-pointer/key
+      `onPointerDownCapture/onKeyDownCapture` and the passive "I've read through" button). Practice
+      now unlocks only after working through the example to the result. tsc clean, 774 tests green.
+      codexreview: 1 low (once-only re-fire) → fixed with a ref guard. (A live chrome-devtools pass +
+      authoring predict-steps for the remaining reveal-only nodes is the residual §7 polish — logged.)
 
-## Result: **PARTIAL PASS** — the two blocking firewall/atom invariants are closed + tested. The
-selector + UI cutover are the remaining Phase 4 work (logged in OVERHAUL_LOG for continuation) before
-the full gate passes and Phase 5 (visual system) begins.
+## Result: **PASS** — atom contract + D5 firewall + selector + worked-example no-slideshow cutover
+all landed and tested. Advance to Phase 5 (visual system).

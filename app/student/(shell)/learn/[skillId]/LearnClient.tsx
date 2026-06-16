@@ -20,6 +20,7 @@ import { AlertPanel } from "../../../../../components/ui/Panels";
 import { ArrowLeftIcon, ArrowRightIcon } from "../../../../../components/ui/icons";
 import { LessonVideo } from "../../../../../components/learning/LessonVideo";
 import { StepReveal } from "../../../../../components/learning/StepReveal";
+import { workedInteractionsFor } from "../../../../../components/learning/alg-f01-worked-interactions";
 import { MathText } from "../../../../../components/ui/MathText";
 import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
 import { BalanceScale } from "../../../../../components/learning/BalanceScale";
@@ -220,7 +221,6 @@ export function LearnClient(props: LearnClientProps) {
             contextHooks={contextHooks}
             sport={sport}
             phase={phase}
-            workedExamples={workedExamples}
           />
 
           <Card>
@@ -285,9 +285,9 @@ export function LearnClient(props: LearnClientProps) {
           <p className="text-[12.5px] text-ink-500">A short set in this phase.</p>
         )}
         {gateWorkedExample && !exampleSeen && !locked && hasPractice && (
-          <Button variant="quiet" onClick={() => setExampleSeen(true)}>
-            I&rsquo;ve read through the example
-          </Button>
+          <p className="text-[12.5px] text-ink-500">
+            Work through the example to the result to start practice.
+          </p>
         )}
         {!hasPractice && (
           <Link href="/student" className={LINK_QUIET}>
@@ -309,14 +309,12 @@ function LessonArea({
   contextHooks,
   sport,
   phase,
-  workedExamples,
 }: {
   visual: VisualKind | null;
   exploreSeed: LearnExploreSeed | null;
   contextHooks: ContextHooks;
   sport: Sport;
   phase: Phase;
-  workedExamples: WorkedExample[];
 }) {
   const concept = phase === 3 ? contextHooks.neutral : contextHooks[sport];
   return (
@@ -334,7 +332,6 @@ function LessonArea({
         exploreSeed={exploreSeed}
         phase={phase}
         sport={sport}
-        workedExamples={workedExamples}
       />
     </Card>
   );
@@ -353,37 +350,21 @@ function Manipulable({
   exploreSeed,
   phase,
   sport,
-  workedExamples,
 }: {
   visual: VisualKind | null;
   exploreSeed: LearnExploreSeed | null;
   phase: Phase;
   sport: Sport;
-  workedExamples: WorkedExample[];
 }) {
   if (exploreSeed) {
     return <ExploreManipulable seed={exploreSeed} phase={phase} sport={sport} />;
   }
 
-  // null/unseeded → promote first worked example as the manipulable in
-  // REVEAL-ONLY mode (blankStepIndex null — no hardcoded operation blank). If
-  // the node has no worked example, render the generic step-reveal.
-  const we = workedExamples[0];
-  if (we && we.steps.length > 0) {
-    const steps = we.steps.map((s) => s.reveal);
-    const result = steps[steps.length - 1];
-    return (
-      <div>
-        <StepReveal
-          problem={we.title}
-          steps={steps}
-          result={result}
-          blankStepIndex={null}
-        />
-        <p className="mt-2 text-[13px] text-ink-500">Reveal each step.</p>
-      </div>
-    );
-  }
+  // No usable seed → a GENERIC "try the idea" stepper. It must NOT clone the
+  // node's worked example (the Worked-example card already shows that below —
+  // rendering it here too was the "idea == worked example" duplication bug).
+  // Seedless numberline nodes get a synthesized interactive line instead via
+  // deriveExploreSeed, so they never reach this fallback.
   return (
     <div>
       <StepReveal
@@ -496,19 +477,25 @@ function WorkedExampleArea({
   }
   const steps = we.steps.map((s) => s.reveal);
   const result = steps[steps.length - 1];
-  // BLOCKER A (mr-kahn option a): these steps are full PROSE reveal paragraphs,
-  // not short tokens — feeding one as a fill-in answer is an un-passable wall
-  // for exactly the P2/P3 learners it was shown to. Prose worked examples are
-  // REVEAL-ONLY at every phase (no completion blank). The phase fade becomes
-  // reveal-pacing only — the accepted tradeoff. (The standalone Manipulable
-  // StepReveal that uses a short token like "multiply" keeps its blank.)
+  // Worked-example interactivity (Phase 06): when a skill has an authored
+  // interaction script (ALG-F01 today, via workedInteractionsFor) the stepper
+  // MIXES reveal + predict-the-next-move + type-a-short-step. Skills without a
+  // script pass `undefined` → every step is a plain reveal (unchanged). Long
+  // prose steps are never forced into a type-in wall — only authored short
+  // tokens become fills; everything else reveals or is a 2–3 option predict.
+  const interactions = workedInteractionsFor(we.id);
 
   return (
-    // Marking the example seen on any interaction within the stepper satisfies
-    // the session gate (spec §D) — a UI precondition, never an evidence row.
-    <div onPointerDownCapture={onAdvanced} onKeyDownCapture={onAdvanced}>
-      <StepReveal problem={we.title} steps={steps} result={result} blankStepIndex={null} />
-    </div>
+    // §7 no-slideshow gate: practice unlocks only when the student steps/commits all
+    // the way to the result (onComplete) — NOT on any stray pointer/key. For nodes
+    // with fill/predict interactions, completion required committing those answers.
+    <StepReveal
+      problem={we.title}
+      steps={steps}
+      result={result}
+      interactions={interactions}
+      onComplete={onAdvanced}
+    />
   );
 }
 
