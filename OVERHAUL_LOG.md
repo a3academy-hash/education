@@ -25,7 +25,11 @@ Started: 2026-06-15.
   cross-bucket coverage). 4,123 structural families. 735 tests. codexreview rescoped it honestly
   (no prose-CAS, no destructive deletion, flag-don't-fabricate). misconceptionMap 283 gaps flagged
   for authoring.
-- [ ] Phase 3 — Adaptive engine (BKT + FSRS retention + damped KST + selector)
+- [x] **Phase 3 — Adaptive engine** — DONE (module-level D5 closed). lib/engine-v2: BKT (closed-form)
+  + FSRS retention (clamped; massed success = 0 durability) + no-double-count interaction + airtight
+  delayed/unseen lock gate (perfect in-session NEVER locks) + single-step DAG propagation + graded
+  cold-start. 22 tests; 757 total. codexreview specified the exact math (7 plan concerns) + fixed the
+  per-dimension count (1 code concern). LIVE CUTOVER (wire engine-v2, retire v0.1 in-session lock) = Phase 4.
 - [ ] Phase 4 — Interactivity + speed (predict/construct→resolve, <800ms)
 - [ ] Phase 5 — Visual system (one instrument system, AA contrast, rings, baseball-native)
 - [ ] Phase 6 — Diagnostic (multistage routing, 4 labels, seed write)
