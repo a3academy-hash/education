@@ -41,6 +41,13 @@ export interface ProblemVisualProps {
    */
   explore?: boolean;
   /**
+   * Baseball-native visual (STYLE_GUIDE §6): draw the strike-zone grid behind a
+   * coordinate plane. Defaults to the Learn/explore context (the immersive
+   * lesson surface), OFF in assess (Diagnostic/Practice) where it would add
+   * noise to a graded item. Pass explicitly to override.
+   */
+  strikeZone?: boolean;
+  /**
    * Interactive sink for placed/dragged geometry. Only consulted when the spec
    * is interactive (the engine still grades server-side; this is the response
    * surface). Display specs ignore it.
@@ -64,6 +71,7 @@ export function ProblemVisual({
   sport,
   phase,
   explore = false,
+  strikeZone,
   onChange,
 }: ProblemVisualProps): React.ReactElement | null {
   // sport/phase are part of the documented mapper contract and feed axis
@@ -79,7 +87,12 @@ export function ProblemVisual({
   switch (visualSpec.kind) {
     case "coordinate":
       return (
-        <CoordinatePlaneFromSpec spec={visualSpec} explore={explore} onChange={onChange} />
+        <CoordinatePlaneFromSpec
+          spec={visualSpec}
+          explore={explore}
+          strikeZone={strikeZone ?? explore}
+          onChange={onChange}
+        />
       );
     case "numberline":
       return <NumberLineFromSpec spec={visualSpec} onChange={onChange} />;
@@ -99,12 +112,14 @@ export function ProblemVisual({
 function CoordinatePlaneFromSpec({
   spec,
   explore,
+  strikeZone,
   onChange,
 }: {
   spec: CoordinateSpec;
   /** Explore is decided by the CALLER's context (Learn lesson area), NOT by the
    * spec's affordances — so per-item plot problems never append a stray point. */
   explore: boolean;
+  strikeZone?: boolean;
   onChange?: (spec: VisualSpec) => void;
 }) {
   const points: LabeledPoint[] = (spec.points ?? []).map((p) => ({
@@ -126,6 +141,7 @@ function CoordinatePlaneFromSpec({
       lines={spec.lines}
       segments={spec.segments}
       snap={spec.snap}
+      strikeZone={strikeZone}
       xLabel={spec.xLabel}
       yLabel={spec.yLabel}
       onChange={

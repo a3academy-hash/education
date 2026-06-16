@@ -1,21 +1,27 @@
 @import "tailwindcss";
 
 /* =====================================================================
-   A3 ACADEMY — Phase 2 design tokens (pee-wee binding direction §A)
-   Tailwind 4 @theme. Fonts are wired via next/font/google in app/layout.tsx
-   and exposed as --font-display / --font-sans / --font-mono CSS variables.
+   A3 ACADEMY — Phase 5 visual system (STYLE_GUIDE.md)
+   ONE instrument system, tokens that RESOLVE BY SURFACE. The @theme block
+   is the Trust / on-light default (:root). Dark Focus and faint-navy Test
+   surfaces re-scope the SAME semantic tokens under [data-surface="…"] so
+   components written against bg-surface / text-ink / --color-mastery adapt
+   with zero per-component dark variants. Fonts wired via next/font in
+   app/layout.tsx → --font-*-src.
+   AA: every pairing is gated by scripts/contrast-audit.mjs (prebuild).
    ===================================================================== */
 @theme {
-  /* surfaces */
+  /* surfaces (on-light) */
   --color-canvas: #fbfbfc;
   --color-surface: #ffffff;
+  --color-surface-test: #f8fafc; /* §2 faint navy-tint white for gated tests */
   --color-inset: #f7f8fa;
   --color-hover: #f3f5f8;
   --color-selected: #f0f2f6;
   --color-track: #eef0f4;
   --color-chip: #eef1f6;
 
-  /* ink ramp */
+  /* ink ramp (on-light) */
   --color-ink: #16202e;
   --color-ink-800: #2a3340;
   --color-ink-700: #3a4250;
@@ -24,8 +30,9 @@
   --color-ink-300: #aab1bd;
 
   /* borders */
-  --color-border: #e7e9ee;
+  --color-border: #e7e9ee; /* decorative hairline */
   --color-border-strong: #d7dbe2;
+  --color-border-meaningful: #7c8aa0; /* §2 input/UI boundary, ≥3:1 on white */
   --color-axis: #c2c8d2;
   --color-axis-soft: #cdd2db;
 
@@ -34,22 +41,40 @@
   --color-accent-hover: #1f3860;
   --color-accent-tint: #f4f6fa;
 
-  /* mastery statuses — keys match the MasteryStatus union exactly */
+  /* semantic action / ring colors (on-light). Ring strokes are UI (≥3:1);
+     text uses the darker status-* / success below. Resolve by surface. */
+  --color-focus: #2563eb; /* Focus ring (blue) */
+  --color-mastery: #168a4a; /* Mastery ring (green) */
+  --color-retrieval: #d97706; /* Retrieval ring (amber) — UI/stroke only on light */
+  --color-gold: #b45309; /* Earned (gold) — text-safe on light */
+  --color-success: #0f7a40; /* success TEXT (AA on white) */
+  --color-error: #b4543f; /* error TEXT (AA on white) */
+
+  /* mastery statuses — keys match the MasteryStatus union exactly. Spec-aligned
+     on-light values, all AA-verified as label text. */
   --color-status-unknown: #9aa3b0;
   --color-status-introduced: #6b7280;
-  --color-status-developing: #b07d00;
-  --color-status-near-mastery: #2b6cb0;
-  --color-status-mastered: #2f7d5b; /* doubles as success */
+  --color-status-developing: #b45309; /* gold-on-light (was brown #b07d00) */
+  --color-status-near-mastery: #2160c9; /* blue-on-light */
+  --color-status-mastered: #0f7a40; /* green-on-light; doubles as success */
   --color-status-needs-review: #9a5b3f;
   --color-status-prerequisite-gap: #b4543f; /* doubles as error */
 
-  /* tint pairs (only two; other statuses are dot + label, no fills) */
+  /* tint pairs (on-light) */
   --color-success-bg: #eef6f1;
   --color-success-border: #d4e8db;
   --color-error-bg: #fbf0ec;
   --color-error-border: #f0d9d1;
   --color-error-bg-soft: #fdf7f5;
   --color-error-ink: #7a4030;
+
+  /* highlighter set (used on the dark Focus canvas; all pass §9 on #0B0F17).
+     Same values everywhere — they only appear on dark. Use 1–2 per frame. */
+  --color-mark-chalk: #f2f5f8;
+  --color-mark-cyan: #2dd4ef;
+  --color-mark-lime: #b6f23a; /* correct/growth */
+  --color-mark-amber: #ffc23d; /* key step */
+  --color-mark-magenta: #ff4d8d; /* misconception */
 
   /* radii */
   --radius-sm: 7px;
@@ -61,11 +86,13 @@
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-raised: 0 4px 12px rgba(16, 24, 40, 0.08);
 
-  /* motion — ease-calm only, hard ceiling 400ms */
+  /* motion — ease-calm; STYLE_GUIDE §7 timings */
   --ease-calm: cubic-bezier(0.2, 0.7, 0.2, 1);
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 400ms;
+  --duration-ring: 800ms; /* ring sweep 600–900ms */
+  --duration-burst: 680ms; /* burst ≤700ms */
 
   /* type families (next/font injects --font-*-src on <html>) */
   --font-display: var(--font-display-src), Georgia, serif;
@@ -73,11 +100,101 @@
   --font-mono: var(--font-mono-src), ui-monospace, monospace;
 }
 
+/* =====================================================================
+   SURFACE RE-SCOPE — IMPORTANT: these are PLAIN, UNLAYERED selectors.
+   Do NOT move them into @theme or @layer theme. Tailwind 4 emits its
+   theme custom properties in @layer theme :root; an unlayered selector
+   here outranks that layer regardless of specificity, so the re-scoped
+   tokens win inside the subtree and every var()-backed utility re-resolves.
+   (Verified against this repo's @tailwindcss/postcss build.)
+   ===================================================================== */
+
+/* FOCUS — immersive dark canvas for interactive lessons (§8.2). Re-scopes
+   EVERY semantic token a lesson descendant consumes so nothing ships as a
+   light value on #0B0F17. */
+[data-surface="focus"] {
+  --color-canvas: #0b0f17; /* blue-black, not #000 */
+  --color-surface: #1e293b; /* raised */
+  --color-surface-test: #1e293b;
+  --color-inset: #131b2a;
+  --color-hover: #1b2738;
+  --color-selected: #22324a;
+  --color-track: #243248;
+  --color-chip: #1c2942;
+
+  --color-ink: #f2f5f8; /* chalk */
+  --color-ink-800: #e2e8f0;
+  --color-ink-700: #cbd5e1;
+  --color-ink-500: #94a3b8;
+  --color-ink-400: #64748b;
+  --color-ink-300: #475569;
+
+  --color-border: #334155;
+  --color-border-strong: #586781; /* raised boundary, ≥3:1 on canvas */
+  --color-border-meaningful: #586781;
+  --color-axis: #475569;
+  --color-axis-soft: #3a485c;
+
+  /* accent stays a mid-blue so white button text passes AND the outline reads */
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-tint: #16243d;
+
+  /* on-dark fills */
+  --color-focus: #3d7bf2;
+  --color-mastery: #2fbf71;
+  --color-retrieval: #d97706;
+  --color-gold: #f4b528;
+  --color-success: #2fbf71;
+  --color-error: #ff4d8d;
+
+  --color-status-unknown: #94a3b8;
+  --color-status-introduced: #94a3b8;
+  --color-status-developing: #f4b528;
+  --color-status-near-mastery: #3d7bf2;
+  --color-status-mastered: #2fbf71;
+  --color-status-needs-review: #f9a8a0;
+  --color-status-prerequisite-gap: #ff4d8d;
+
+  --color-success-bg: #122418;
+  --color-success-border: #1f3a2a;
+  --color-error-bg: #2a141b;
+  --color-error-border: #3a1f28;
+  --color-error-bg-soft: #1e1216;
+  --color-error-ink: #fca5b5; /* light rose on dark, ≥4.5 */
+}
+
+/* TEST — faint-navy white, rewards STRUCTURALLY muted (§8.3, firewall is a
+   surface rule, not a caller prop). An inactive progress instrument is
+   allowed; active rings/points/streaks/feedback/bursts are banned. */
+[data-surface="test"] {
+  --color-canvas: var(--color-surface-test);
+}
+/* Backstop: nothing rewarding renders inside a gated test even if a caller
+   forgets a prop. Ring fills collapse to the neutral track; sweeps/bursts off. */
+[data-surface="test"] .a3-ring-fill {
+  stroke: var(--color-track) !important;
+}
+[data-surface="test"] .a3-ring-fill,
+[data-surface="test"] .a3-burst,
+[data-surface="test"] .a3-ring-sweep {
+  animation: none !important;
+  transition: none !important;
+}
+[data-surface="test"] .a3-reward,
+[data-surface="test"] .a3-burst,
+[data-surface="test"] .a3-streak {
+  display: none !important;
+}
+
 /* ---------------------------------------------------------------------
    Base
    --------------------------------------------------------------------- */
 html {
   background: var(--color-canvas);
+  /* SurfacePanel full-bleeds with w-screen (100vw); guard the scrollbar-gutter
+     difference so a tall dark lesson never shows a horizontal scrollbar. */
+  overflow-x: hidden;
 }
 
 body {
@@ -88,14 +205,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Focus discipline: never remove an outline without a replacement (§B). */
+/* Surface paints its own canvas (so a focus/test subtree fills its region). */
+[data-surface] {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+/* Focus discipline: never remove an outline without a replacement (§B). On the
+   dark Focus canvas the navy accent is invisible, so re-scope the outline. */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+[data-surface="focus"] :focus-visible {
+  outline-color: var(--color-focus); /* #3D7BF2 reads on #0B0F17 */
+}
 
 /* ---------------------------------------------------------------------
-   Motion utilities (§A). Hard ceiling 400ms; reduced-motion neutralizes.
+   Motion utilities (§7). Hard ceiling honored; reduced-motion neutralizes.
    --------------------------------------------------------------------- */
 @keyframes a3-fade-in {
   from {
@@ -128,16 +255,36 @@ body {
   animation-delay: 180ms;
 }
 
+/* Reward burst — radial gold, ≤700ms, tied to the mastery-lock event only
+   (§5). Reduced-motion collapses it to a static state below. */
+@keyframes a3-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  35% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+.a3-burst {
+  animation: a3-burst var(--duration-burst) var(--ease-calm) both;
+}
+
 /* =====================================================================
-   KaTeX inline math — size/color inherit (pee-wee, Phase 8/C).
-   KaTeX's stylesheet sets .katex { font-size: 1.21em; color: ... } and may
-   scale fonts; force the rendered math to match the host text size and ink
-   color exactly so it sits in prompts/feedback as if it were prose.
+   KaTeX — styled per surface (§4). Inline math inherits host size + ink so
+   it sits in prose; on the dark Focus canvas it inherits chalk automatically.
    ===================================================================== */
 .a3-mathtext .katex {
   font-size: inherit;
   color: inherit;
   line-height: inherit;
+}
+[data-surface="focus"] .katex {
+  color: inherit; /* chalk on dark */
 }
 
 /* 600ms spinner rotation is exempt from the ceiling (§B Button loading). */
@@ -158,5 +305,10 @@ body {
   .stagger > * {
     animation: none;
     transform: none;
+  }
+  /* Burst degrades to a static badge, not a flash (§7 vestibular safety). */
+  .a3-burst {
+    animation: none;
+    opacity: 0;
   }
 }

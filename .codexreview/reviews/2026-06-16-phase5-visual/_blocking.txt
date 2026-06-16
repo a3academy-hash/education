@@ -1,0 +1,28 @@
+### [blocking] mode-firewall-path (informed) — 0.88
+CLAIM: The plan does not define a working data path for diagnostic measurement mode or muted rings to reach the shared student chrome, and it leaves the test reward firewall as caller intent rather than a hardcoded surface rule.
+FIX: Specify a concrete route-aware mechanism for `Chrome` mode/rings, such as a diagnostic route layout or client chrome that derives mode from the selected route segment. Also make the test firewall structural under `[data-surface="test"]` or an equivalent non-optional guard so reward/streak/fill components cannot appear because a caller forgot `mutedRings`.
+
+### [high] focus-token-scope (informed) — 0.93
+CLAIM: The Focus surface re-scope is incomplete for existing lesson/practice code, so wrapping those screens in `data-surface="focus"` can leave low-contrast accent, status, and feedback colors on the dark canvas.
+FIX: Expand the Focus re-scope to every semantic variable used by lesson/practice descendants: accent/accent-hover/accent-tint, status colors, success/error bg/border/ink, axis/grid colors, and focus outline colors. Then make the contrast audit scan actual token usages on Focus screens, not only the new planned pairings.
+
+### [high] contrast-token-fails (informed) — 0.98
+CLAIM: Several colors listed as exact plan additions do not meet the plan’s own AA/non-text thresholds, so the phase gate is internally inconsistent unless alternatives are chosen up front.
+FIX: Do not label these as AA-verified exact additions. Pick darker on-light text colors, separate UI-only colors from text colors, use a darker/lighter meaningful border that actually reaches 3:1 on its surface, and clarify whether raised fill itself or its border must satisfy non-text contrast.
+
+### [blocking] token-rescope-utilities (cold) — 0.91
+CLAIM: The plan assumes re-scoping CSS custom properties will automatically update all existing semantic utility classes, but it never establishes that those utilities are actually backed by runtime CSS variables rather than compile-time values. If `bg-surface`, `text-ink`, or action color utilities resolve statically, the central architecture decision fails.
+FIX: Add an explicit precondition or implementation step proving the CSS framework emits these semantic colors as `var(--color-...)` at runtime, or define the required utility/token mapping changes so `data-surface` re-scoping demonstrably affects every intended class.
+
+### [blocking] test-ring-firewall (cold) — 0.88
+CLAIM: The plan conflicts with the binding spec's hard firewall for gated tests: it both says tests must have no rings and also plans to show muted rings/progress instruments during diagnostic measurement. The plan needs a precise distinction between allowed inactive instrumentation and prohibited rings/points/streaks, otherwise implementation can violate the gate.
+FIX: Resolve the contradiction explicitly. Either remove ring rendering entirely from gated diagnostic tests, or quote and codify the governing requirement that permits an inactive progress instrument while banning active rings/points/streaks, with a hardcoded test-mode branch that cannot show rewards.
+
+### [high] zero-churn-shells (cold) — 0.84
+CLAIM: The plan assumes three existing shells can be converted into thin wrappers over a new shared Chrome with zero call-site churn, but provides no compatibility contract for their current props, layout responsibilities, route differences, or children structure. This is a major unproven migration premise.
+FIX: Add an inventory step for each shell's current public props and responsibilities, then define adapter mappings and acceptance checks for each role before committing to zero churn.
+
+### [high] contrast-script-coverage (cold) — 0.8
+CLAIM: The contrast gate depends on a new script computing every required pairing, but the plan does not specify the authoritative list of pairings or how it will discover actual rendered token usage. A hand-maintained script can pass while missing real combinations introduced by components.
+FIX: Define the exact pairing manifest in the plan, including text, UI, border, highlighter, and surface combinations, and state whether the script audits only that manifest or also scans rendered CSS/components for unlisted token pairings.
+

@@ -1,11 +1,12 @@
-// AppShell (§E). 60px white sticky header with 1px bottom border; brand block
-// (28px accent square + "Algebra 1" over "A3 ACADEMY · ADAPTIVE"); right-side
-// nav (Phase 2 = Learning Home only) + divider + first name + initials avatar.
-// Container max 1140, 28px gutters, main pad 36 top / 80 bottom. No mastery in
-// the chrome. Body bg = canvas (set globally).
+// AppShell — the STUDENT adapter over the shared Chrome (§1). Same public
+// signature as before (displayName, workingAs) so the (shell) layout call site
+// is unchanged. Adds the persistent mode indicator; nav = Learning Home /
+// Momentum / Progress. No mastery in the chrome. The dark Focus lesson surface
+// is painted by SurfacePanel inside <main>, so the chrome stays Trust/white.
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Chrome } from "./Chrome";
 import { NavLink } from "./NavLink";
 
 export interface AppShellProps {
@@ -15,15 +16,14 @@ export interface AppShellProps {
   /**
    * Parent-context chrome (C2 P6): when true (supabase mode, a parent has
    * launched a child), the identity reads "Working as {name}" and a quiet
-   * parent-gated "Manage students" entry appears. NOT auth chrome — no
-   * "session/logged in" language. Defaults false (memory dev/test path is the
-   * plain student identity, unchanged).
+   * parent-gated "Manage students" entry appears. Defaults false.
    */
   workingAs?: boolean;
 }
 
 const NAV = [
   { href: "/student", label: "Learning Home", exact: true },
+  { href: "/student/momentum", label: "Momentum" },
   { href: "/student/progress", label: "Progress" },
 ];
 
@@ -36,64 +36,52 @@ function initials(name: string | null): string {
 }
 
 export function AppShell({ children, displayName, workingAs = false }: AppShellProps) {
+  const nav = (
+    <>
+      {NAV.map((item) => (
+        <NavLink key={item.href} href={item.href} exact={item.exact}>
+          {item.label}
+        </NavLink>
+      ))}
+      {workingAs && (
+        <Link
+          href="/parent"
+          className="rounded-[7px] px-3 py-2 text-[13px] font-medium text-ink-500 transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          Manage students
+        </Link>
+      )}
+    </>
+  );
+
+  const trailing = (
+    <>
+      {displayName && (
+        <span className="flex flex-col leading-tight">
+          {workingAs && (
+            <span className="text-[10.5px] uppercase tracking-[0.3px] text-ink-400">Working as</span>
+          )}
+          <span className="text-[13.5px] font-medium text-ink-700">{displayName}</span>
+        </span>
+      )}
+      <span
+        aria-hidden
+        className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-track text-[12.5px] font-semibold text-ink-500"
+      >
+        {initials(displayName)}
+      </span>
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-canvas">
-      <header className="sticky top-0 z-10 border-b border-border bg-surface">
-        <div className="mx-auto flex h-[60px] max-w-[1140px] items-center justify-between px-7">
-          <Link href="/student" className="flex items-center gap-3 rounded-[7px]">
-            <span className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-accent">
-              <span className="font-display text-[15px] font-semibold text-white">A</span>
-            </span>
-            <span className="flex flex-col">
-              <span className="font-display text-[16.5px] font-semibold leading-none text-ink">
-                Algebra 1
-              </span>
-              <span className="mt-0.5 text-[11px] tracking-[0.3px] text-ink-500">
-                A3 ACADEMY · ADAPTIVE
-              </span>
-            </span>
-          </Link>
-
-          <nav className="flex items-center gap-1">
-            {NAV.map((item) => (
-              <NavLink key={item.href} href={item.href} exact={item.exact}>
-                {item.label}
-              </NavLink>
-            ))}
-            {workingAs && (
-              <Link
-                href="/parent"
-                className="rounded-[7px] px-3 py-2 text-[13px] font-medium text-ink-500 transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              >
-                Manage students
-              </Link>
-            )}
-            <span aria-hidden className="mx-2 h-6 w-px bg-border" />
-            <div className="flex items-center gap-2.5 pl-1">
-              {displayName && (
-                <span className="flex flex-col leading-tight">
-                  {workingAs && (
-                    <span className="text-[10.5px] uppercase tracking-[0.3px] text-ink-400">
-                      Working as
-                    </span>
-                  )}
-                  <span className="text-[13.5px] font-medium text-ink-700">
-                    {displayName}
-                  </span>
-                </span>
-              )}
-              <span
-                aria-hidden
-                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-track text-[12.5px] font-semibold text-ink-500"
-              >
-                {initials(displayName)}
-              </span>
-            </div>
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-[1140px] px-7 pb-20 pt-9">{children}</main>
-    </div>
+    <Chrome
+      homeHref="/student"
+      eyebrow="A3 ACADEMY · ADAPTIVE"
+      nav={nav}
+      trailing={trailing}
+      showModeIndicator
+    >
+      {children}
+    </Chrome>
   );
 }

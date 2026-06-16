@@ -1,0 +1,4 @@
+# Raw codexreview adapter dumps — keep only the structured audit (round-*.json + *.md).
+reviews/**/*.raw.jsonl
+reviews/**/*.prompt.txt
+reviews/**/*.stderr.txt

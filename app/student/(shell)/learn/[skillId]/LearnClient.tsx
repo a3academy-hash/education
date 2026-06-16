@@ -23,6 +23,7 @@ import { StepReveal } from "../../../../../components/learning/StepReveal";
 import { workedInteractionsFor } from "../../../../../components/learning/alg-f01-worked-interactions";
 import { MathText } from "../../../../../components/ui/MathText";
 import { ProblemVisual } from "../../../../../components/learning/ProblemVisual";
+import { StatPanel, type StatRow } from "../../../../../components/learning/StatPanel";
 import { BalanceScale } from "../../../../../components/learning/BalanceScale";
 import { phaseLabel } from "../../../../../lib/session-helpers";
 import { selectInContext } from "../../../../../lib/learn-content/in-context";
@@ -432,16 +433,24 @@ function ExplorePlane({
 }) {
   const seedSpec: VisualSpec = { ...seed.spec, mode: "interactive" };
   const [live, setLive] = useState<VisualSpec>(seedSpec);
+  // Baseball-native readout (§6): a coordinate/slope explore reads like a
+  // launch-angle panel — slope + rise/run update live as the points move.
+  const launch = seed.kind === "coordinate" ? launchReadout(live) : null;
   return (
     <div>
-      <ProblemVisual
-        visual={seed.kind}
-        visualSpec={live}
-        sport={sport}
-        phase={phase}
-        explore
-        onChange={setLive}
-      />
+      <div className="flex flex-wrap items-start gap-5">
+        <ProblemVisual
+          visual={seed.kind}
+          visualSpec={live}
+          sport={sport}
+          phase={phase}
+          explore
+          onChange={setLive}
+        />
+        {launch && (
+          <StatPanel title="Launch" rows={launch} className="min-w-[150px]" />
+        )}
+      </div>
       <div className="mt-2 flex items-center justify-between gap-3">
         <p className="text-[13px] text-ink-500">
           {seed.kind === "coordinate"
@@ -454,6 +463,26 @@ function ExplorePlane({
       </div>
     </div>
   );
+}
+
+/** Live launch/slope readout for a coordinate explore (StatPanel rows). Derives
+ * slope + rise/run from the first two points; pure, returns null when not a
+ * coordinate spec or fewer than two points are placed. */
+function launchReadout(spec: VisualSpec): StatRow[] | null {
+  if (spec.kind !== "coordinate") return null;
+  const pts = spec.points ?? [];
+  if (pts.length < 2) {
+    return [{ label: "Slope", value: "place 2 pts" }];
+  }
+  const [a, b] = pts;
+  const run = b.x - a.x;
+  const rise = b.y - a.y;
+  const slope = run === 0 ? "undef" : (rise / run).toFixed(2).replace(/\.00$/, "");
+  return [
+    { label: "Slope", value: slope, accent: true },
+    { label: "Rise Δy", value: `${rise}` },
+    { label: "Run Δx", value: `${run}` },
+  ];
 }
 
 // ---------------------------------------------------------------------------

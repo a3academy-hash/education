@@ -83,6 +83,12 @@ export interface CoordinatePlaneProps {
   /** Max rendered size in px (clamped 320..420). */
   size?: number;
   caption?: string;
+  /**
+   * Baseball-native visual (STYLE_GUIDE §6): draw a restrained strike-zone grid
+   * behind the plane so a coordinate/slope problem reads like a strike-zone
+   * readout. Purely decorative (aria-hidden); never changes the math or ticks.
+   */
+  strikeZone?: boolean;
 }
 
 const PAD = 28;
@@ -103,6 +109,7 @@ export function CoordinatePlane({
   yLabel = "y",
   size = 320,
   caption,
+  strikeZone = false,
 }: CoordinatePlaneProps) {
   const interactive = mode === "interactive";
   const clampedSize = Math.max(320, Math.min(420, size));
@@ -346,6 +353,9 @@ export function CoordinatePlane({
             strokeWidth={1}
           />
         ))}
+
+        {/* baseball strike-zone overlay (§6) — restrained, decorative */}
+        {strikeZone && <StrikeZone fr={fallbackFrame} px={px} py={py} />}
 
         {/* axes — drawn AT ZERO when 0 ∈ frame, so the four quadrants read */}
         <line
@@ -596,6 +606,56 @@ function readoutFor({
   }
   // display + explore: surface the equation when a line is present.
   return line ? equationReadout(line) : "";
+}
+
+/** Restrained strike-zone grid (3×3) + home-plate notch behind the plane (§6).
+ * Drawn in the central region of the frame; decorative only. */
+function StrikeZone({
+  fr,
+  px,
+  py,
+}: {
+  fr: Frame;
+  px: (x: number) => number;
+  py: (y: number) => number;
+}) {
+  const xSpan = fr.xMax - fr.xMin;
+  const ySpan = fr.yMax - fr.yMin;
+  const zx0 = fr.xMin + xSpan * 0.3;
+  const zx1 = fr.xMin + xSpan * 0.7;
+  const zy0 = fr.yMin + ySpan * 0.3;
+  const zy1 = fr.yMin + ySpan * 0.7;
+  const v1 = fr.xMin + xSpan * (0.3 + 0.4 / 3);
+  const v2 = fr.xMin + xSpan * (0.3 + (0.4 * 2) / 3);
+  const h1 = fr.yMin + ySpan * (0.3 + 0.4 / 3);
+  const h2 = fr.yMin + ySpan * (0.3 + (0.4 * 2) / 3);
+  const stroke = "var(--color-axis-soft)";
+  const mx = (px(zx0) + px(zx1)) / 2;
+  const plateTop = py(zy0) + 8;
+  return (
+    <g aria-hidden opacity={0.55}>
+      <rect
+        x={px(zx0)}
+        y={py(zy1)}
+        width={px(zx1) - px(zx0)}
+        height={py(zy0) - py(zy1)}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={1.25}
+      />
+      <line x1={px(v1)} y1={py(zy0)} x2={px(v1)} y2={py(zy1)} stroke={stroke} strokeWidth={0.75} />
+      <line x1={px(v2)} y1={py(zy0)} x2={px(v2)} y2={py(zy1)} stroke={stroke} strokeWidth={0.75} />
+      <line x1={px(zx0)} y1={py(h1)} x2={px(zx1)} y2={py(h1)} stroke={stroke} strokeWidth={0.75} />
+      <line x1={px(zx0)} y1={py(h2)} x2={px(zx1)} y2={py(h2)} stroke={stroke} strokeWidth={0.75} />
+      {/* home-plate notch under the zone */}
+      <polygon
+        points={`${mx - 10},${plateTop} ${mx + 10},${plateTop} ${mx + 10},${plateTop + 7} ${mx},${plateTop + 14} ${mx - 10},${plateTop + 7}`}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={1}
+      />
+    </g>
+  );
 }
 
 function RiseRun({

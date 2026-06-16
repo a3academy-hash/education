@@ -20,6 +20,7 @@ import { ArrowLeftIcon } from "../../../../../components/ui/icons";
 import {
   coordinateSeedFromProblems,
   numberlineSeedFromProblems,
+  synthesizeNumberlineSeed,
   equationSeedFromNode,
   flattenProblems,
 } from "../../../../../components/learning/learn-explore-seed";
@@ -29,6 +30,7 @@ import {
   type LearnExploreSeed,
   type LearnVideo,
 } from "./LearnClient";
+import { SurfacePanel } from "../../../../../components/layout/SurfacePanel";
 import type {
   CurriculumGraph,
   MasteryStatus,
@@ -81,7 +83,9 @@ function deriveExploreSeed(node: SkillNode): LearnExploreSeed | null {
     if (spec) return { kind: "coordinate", spec };
   }
   if (node.visual === "numberline") {
-    const spec = numberlineSeedFromProblems(problems);
+    // Prefer an authored problem spec; otherwise synthesize a sensible default
+    // so "The idea" is a real interactive number line (not a worked-example clone).
+    const spec = numberlineSeedFromProblems(problems) ?? synthesizeNumberlineSeed(node);
     if (spec) return { kind: "numberline", spec };
   }
   if (node.visual === "balance") {
@@ -221,24 +225,26 @@ export default async function LearnPage({
   }
 
   return (
-    <LearnClient
-      skillId={skillId}
-      title={node.title}
-      objective={node.objective}
-      domainLabel={domain?.label ?? node.domain}
-      status={status}
-      phase={phase}
-      mastery={mastery}
-      visual={node.visual}
-      exploreSeed={exploreSeed}
-      contextHooks={node.contextHooks}
-      workedExamples={node.workedExamples}
-      sport={sport}
-      prereqs={prereqs}
-      weakPrereq={weakPrereq}
-      gateWorkedExample={requiresWorkedExample(phase, status)}
-      hasPractice={hasPractice}
-      videos={videos}
-    />
+    <SurfacePanel surface="focus">
+      <LearnClient
+        skillId={skillId}
+        title={node.title}
+        objective={node.objective}
+        domainLabel={domain?.label ?? node.domain}
+        status={status}
+        phase={phase}
+        mastery={mastery}
+        visual={node.visual}
+        exploreSeed={exploreSeed}
+        contextHooks={node.contextHooks}
+        workedExamples={node.workedExamples}
+        sport={sport}
+        prereqs={prereqs}
+        weakPrereq={weakPrereq}
+        gateWorkedExample={requiresWorkedExample(phase, status)}
+        hasPractice={hasPractice}
+        videos={videos}
+      />
+    </SurfacePanel>
   );
 }

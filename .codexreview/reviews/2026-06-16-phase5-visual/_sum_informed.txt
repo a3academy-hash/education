@@ -1,0 +1,5 @@
+verdict: (none)
+- [blocking] mode-firewall-path
+- [high] focus-token-scope
+- [high] contrast-token-fails
+- [medium] baseball-not-wired

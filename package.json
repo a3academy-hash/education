@@ -8,13 +8,15 @@
   },
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/contrast-audit.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "contrast": "node scripts/contrast-audit.mjs",
     "validate:graph": "node scripts/validate-graph.ts",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run contrast"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

@@ -1,0 +1,16 @@
+{
+  "phase": "plan",
+  "round": 1,
+  "decision": "converged",
+  "rationale": "All blocking/high concerns from both Codex reviewers (informed + cold) plus the two CLAUDE.md gates (pee-wee, mr-gates) are ACCEPTED and folded into plan v2. No blocking concern left deferred. Per binding new_plan/PLAN.md the chair adjudicates autonomously and proceeds (no human menu); the codexreview default human-escalation is overridden by that mandate for this self-driving overhaul. Audit trail preserved.",
+  "dispositions": [
+    {"id": "mode-firewall-path / test-ring-firewall", "source": "both", "disposition": "accept", "action": "Structural firewall under [data-surface=test]: CSS forces ring fill->track, burst/sweep keyframes none, streak neutralized; codify §8.3 inactive-instrument-allowed vs active-rewards-banned."},
+    {"id": "focus-token-scope / token-rescope-utilities", "source": "both", "disposition": "accept", "action": "Comprehensive unlayered [data-surface=focus] re-scope of every semantic token; Tailwind var-backing proven by mr-gates repro."},
+    {"id": "contrast-token-fails", "source": "informed", "disposition": "accept", "action": "Darken failing on-light TEXT tokens to >=4.5; split UI-only vs text; canvas-border lightened to >=3:1; audit proves all."},
+    {"id": "contrast-script-coverage", "source": "cold", "disposition": "accept", "action": "contrast-audit.mjs parses actual globals.css tokens + explicit manifest (text/UI/border/highlighter/dark); non-zero exit on fail; wired via prebuild."},
+    {"id": "zero-churn-shells", "source": "cold", "disposition": "accept", "action": "Per-shell prop inventory + Chrome adapter mapping documented; NavLink boundary confirmed sound."},
+    {"id": "baseball-not-wired", "source": "informed", "disposition": "accept", "action": "Wire strikeZone through ProblemVisual->CoordinatePlane, ON for coordinate visuals; add StatPanel to a real lesson."},
+    {"id": "reward-throttle-state", "source": "cold", "disposition": "accept", "action": "Component-local per-session throttle ref; single burst on multi-lock; reduced-motion static. No persistence layer (over-eng for gate)."}
+  ],
+  "also_adopted_from_gates": ["focussurface-bleed (AppShell mainSurface prop)", "practice stays Trust (subtract dark practice)", "momentum RingTrio reconciliation", "gold-cap geometry + reduced-motion", "focus-ring-on-dark re-scope+audit", "ring component unit tests", "training/boost deferred to Phase 8 per PLAN.md"]
+}

@@ -1,0 +1,57 @@
+# Dialectic/codexreview config for THIS repo (a3_education).
+# Auto-scaffolded by scaffold_project.py. Overrides the global default at
+# ~/.claude/skills/review-chain/config/agent-chain.default.yaml. Same shape.
+
+# Codexreview review chain — DEFAULT role/provider map.
+# A project overrides this by creating <repo>/.codexreview/agent-chain.yaml (same shape).
+# The adapter walks up from cwd to find that file; if none, it uses this default.
+
+version: 1
+
+defaults:
+  max_rounds: 3
+  timeout_seconds: 900
+  diff_strategy: embed                 # embed | codex_self_fetch
+  diff_self_fetch_threshold_lines: 1500
+  # Dual reviewer ("circle of knowledge"). Plan review runs both an informed reviewer (repo + dossier)
+  # and a sealed cold reviewer (bare plan only). Set to [informed] to disable the cold pass.
+  plan_review_modes: [informed, cold]
+  diff_review_modes: [informed]        # diff review is informed-only (cold has no code to reason over)
+
+roles:
+  # Claude (this session) handles these — no subprocess. Listed for swappability/documentation.
+  architect: { provider: claude }
+  builder: { provider: claude }
+
+  # Read-only adversarial reviewer. `model` left unset => Codex's built-in default.
+  # Pin a specific reviewer model here if desired, e.g. model: gpt-5.1-codex
+  adversarial_reviewer:
+    provider: codex
+    sandbox: read-only
+
+  qa_reviewer:
+    provider: codex
+    sandbox: read-only
+
+  security_reviewer:
+    provider: codex
+    sandbox: read-only
+    extra_prompt: config/prompts/security.md
+
+  # Human is the final gate — never auto-satisfied.
+  release_gate: { provider: human }
+
+providers:
+  claude:
+    kind: in_session                   # Claude does this in the current session; no subprocess
+
+  codex:
+    kind: cli
+    command: codex
+    # NOTE: no --ask-for-approval here — `codex exec` is non-interactive and rejects that flag.
+    base_args: ["exec", "--json"]
+    auth_env: CODEX_API_KEY            # or ~/.codex/auth.json from `codex login`
+    output_schema: schemas/concern.schema.json   # resolved relative to the skill root
+
+  human:
+    kind: human
