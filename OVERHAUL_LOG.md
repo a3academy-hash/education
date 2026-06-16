@@ -74,6 +74,27 @@ Started: 2026-06-15.
   R2 flag-gated erase (not trigger whitelist); R3 DB-backed assert_can_access_student; R4
   anonymize-in-place (FK RESTRICT graph); R5 durable model_update_outbox; R6 served_attempt_nonces +
   session binding; R7 read_student_record(reason_code) audited break-glass.
+### 2026-06-15 — Phase 1: migration 0006 DONE (committed 18a7c2a)
+- Wrote supabase/migrations/0006_overhaul_spine.sql (generated, NOT executed — human SQL gate) to
+  plan-v2 R1-R7: data_classes/retention_policies; families/guardians(role enum + flags)/students
+  dob+family_id+compliance_path; family_id+data_class_id on evidence; current_family_id();
+  assert_can_access_student (READ) + assert_can_submit_for_student (WRITE) DB-backed; R1 coach raw
+  read removed via can_read_raw_evidence; R2/R4 strict forbid_mutation + scoped
+  forbid_mutation_erasable (jsonb-diff, response-only) + anonymize-in-place erase RPC; R5
+  model_update_outbox; R6 served_attempt_nonces + submit_attempt/issue_attempt_nonce (service_role
+  only, server-side HMAC, p_actor vouched); R7 read_student_record(reason_code); D5/D10 substrates.
+- **codexreview security: 5 rounds.** Caught + fixed before commit: 2 BLOCKING forgery bugs
+  (client HMAC secret + p_correct; erase UPDATE no-op), append-only scope leak, staff-break-glass
+  denial, session-student mismatch, service-role actor denial, COMMENT syntax error, consent-actor
+  gap, view-only->write escalation. Round 5 clean. Trail: .codexreview/reviews/2026-06-15-phase1-0006/.
+
+- **RESUME / CONTINUE (remaining Phase 1):**
+  - [next] `lib/engine-loop/` framework-neutral gradeAttempt (sync, authoritative) / applyModelUpdate
+    (async, durable per R5) split + tests (closes D2.1 optimistic skeleton).
+  - `supabase/tests/rls_overhaul_deny.sql` deny-suite: coach raw-read DENIED (R1), nonce replay/
+    expiry/wrong-session, view-only submit denied, cross-family read, erase-non-operational blocked.
+  - Phase 1 VERIFY gate (phase-1-verify.md) + OVERHAUL_LOG, then Phase 2 (item bank: snapshot first).
+- (superseded resume note below — 0006 now done)
 - **RESUME HERE (next context window):** implement to phase-1-plan.md REVISION v2:
   1. `supabase/migrations/0006_overhaul_spine.sql` (generated, NOT executed — human SQL gate): data_
      classes + retention_policies (seed §3, ATTORNEY-PENDING); families + guardians(role enum,
