@@ -15,9 +15,10 @@ Started: 2026-06-15.
 - [x] **Phase 0 — AUDIT** — DONE. AUDIT.md (10 domains, normalized severity). Loop artifacts in
   phases/phase-0-*. Codex methodology review added domains D8 (diagnostic-flow), D9 (a11y), D10
   (telemetry). Single most-fatal: D5 engine split + in-session mastery lock.
-- [~] **Phase 1 — The Spine** — PLANNED + REVIEWED + HARDENED (v2); implementation pending. Stack
-  fork resolved (ADR-0001: keep Next.js). phase-1-plan.md REVISION R1–R7 binding. NEXT STEP =
-  implement migration `0006_overhaul_spine.sql` + `rls_overhaul_deny.sql` + `lib/engine-loop/` to v2.
+- [x] **Phase 1 — The Spine** — DONE (gate met at buildable/reviewed level; commits 5ef8036,
+  18a7c2a, b3f0d97). 0006 migration (5-round security-reviewed, clean) + rls_overhaul_deny.sql +
+  lib/engine-loop (717 tests). Stack = Next.js (ADR-0001). Deferred (logged): full family-tenancy
+  policy sweep + graph reconciliation -> Phase 2; submit_attempt client wiring -> Phase 4.
 - [ ] Phase 2 — Item-bank remediation (snapshot → dedup → solver → tag/certify)
 - [ ] Phase 3 — Adaptive engine (BKT + FSRS retention + damped KST + selector)
 - [ ] Phase 4 — Interactivity + speed (predict/construct→resolve, <800ms)
