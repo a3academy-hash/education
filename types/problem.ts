@@ -55,4 +55,18 @@ export interface ProblemTemplate {
   misconceptionMap?: Record<string, string>;
   hints: string[];
   difficulty: 1 | 2 | 3;
+  /**
+   * Structural family signature (overhaul Phase 2; CLAUDE §9.5). Groups
+   * re-skinned/number-swapped variants of the same structure so a cross-context
+   * score delta is interpretable as transfer, not difficulty drift. STRUCTURAL,
+   * not yet calibrated — pilot data refines it. Derived by item-certification.
+   */
+  equivalenceClass?: string;
+  /**
+   * Calculator policy (overhaul Phase 2; DIAGNOSTIC §10). numeric computation =
+   * no_calculator; reasoning/structured items kept arithmetic-light =
+   * calc_neutral_arithmetic_light; calculator_allowed reserved for authored
+   * modeling items. Derived by item-certification.
+   */
+  calculatorFlag?: "no_calculator" | "calculator_allowed" | "calc_neutral_arithmetic_light";
 }
