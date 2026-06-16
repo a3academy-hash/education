@@ -19,7 +19,12 @@ Started: 2026-06-15.
   18a7c2a, b3f0d97). 0006 migration (5-round security-reviewed, clean) + rls_overhaul_deny.sql +
   lib/engine-loop (717 tests). Stack = Next.js (ADR-0001). Deferred (logged): full family-tenancy
   policy sweep + graph reconciliation -> Phase 2; submit_attempt client wiring -> Phase 4.
-- [ ] Phase 2 — Item-bank remediation (snapshot → dedup → solver → tag/certify)
+- [~] **Phase 2 — Item-bank remediation** — STARTED. Mandatory snapshot DONE
+  (backups/question-bank-2026-06-15.json, byte-identical 4,529,150 — purge now reversible).
+  NEXT: phase-2-plan (against DIAGNOSTIC §9 + CLAUDE §9) → codexreview → dedup (536 near-dups →
+  parameterized families; 33 exact) → build a real solver/CAS verification pass → tag the missing
+  fields (equivalence_class 0%, calculator_flag 0%, misconception_map 283) → certification pipeline.
+  Each item edit codexreviewed; restore-by-diff against the snapshot if a threshold over-deletes.
 - [ ] Phase 3 — Adaptive engine (BKT + FSRS retention + damped KST + selector)
 - [ ] Phase 4 — Interactivity + speed (predict/construct→resolve, <800ms)
 - [ ] Phase 5 — Visual system (one instrument system, AA contrast, rings, baseball-native)
