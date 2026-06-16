@@ -15,7 +15,9 @@ Started: 2026-06-15.
 - [x] **Phase 0 — AUDIT** — DONE. AUDIT.md (10 domains, normalized severity). Loop artifacts in
   phases/phase-0-*. Codex methodology review added domains D8 (diagnostic-flow), D9 (a11y), D10
   (telemetry). Single most-fatal: D5 engine split + in-session mastery lock.
-- [ ] Phase 1 — The Spine (schema/RLS/identity/data-class + fast-interaction skeleton + graph)
+- [~] **Phase 1 — The Spine** — PLANNED + REVIEWED + HARDENED (v2); implementation pending. Stack
+  fork resolved (ADR-0001: keep Next.js). phase-1-plan.md REVISION R1–R7 binding. NEXT STEP =
+  implement migration `0006_overhaul_spine.sql` + `rls_overhaul_deny.sql` + `lib/engine-loop/` to v2.
 - [ ] Phase 2 — Item-bank remediation (snapshot → dedup → solver → tag/certify)
 - [ ] Phase 3 — Adaptive engine (BKT + FSRS retention + damped KST + selector)
 - [ ] Phase 4 — Interactivity + speed (predict/construct→resolve, <800ms)
@@ -57,3 +59,33 @@ Started: 2026-06-15.
 - NEXT: Phase 1 loop. FIRST a dedicated codexreview of the stack fork (Next-stays vs Vite-migrate),
   then the SECURITY §2 data-class/retention-first schema + family/guardian model + fast-interaction
   skeleton + knowledge-graph spine.
+
+### 2026-06-15 — Stack decision (Phase 1 gate) DONE → ADR-0001
+- Codexreview (informed+cold). Informed (repo-aware): NO spec requirement Next can't meet that Vite
+  can. DECISION: keep Next.js (App Router). 5 hardening rules adopted (RPC boundary; framework-neutral
+  lib/; latency budget). Governed override: ADR-0001 + non-destructive pointer on the 3 spec headers.
+  Committed 219ee24.
+
+### 2026-06-15 — Phase 1 spine PLAN reviewed + hardened to v2 (implementation pending)
+- phase-1-plan.md written (SECURITY §2 build-order: data-class/retention FIRST → family/guardian →
+  RLS + assert_can_access_student RPC → telemetry + engine substrate → fast skeleton → graph).
+- Codexreview (adversarial + SECURITY reviewer): 8 concerns, ALL adopted (2 blocking). Folded as
+  REVISION R1–R7. Key hardening: R1 drop/rewrite legacy RLS (OR-combine bypass) + coach severity-only;
+  R2 flag-gated erase (not trigger whitelist); R3 DB-backed assert_can_access_student; R4
+  anonymize-in-place (FK RESTRICT graph); R5 durable model_update_outbox; R6 served_attempt_nonces +
+  session binding; R7 read_student_record(reason_code) audited break-glass.
+- **RESUME HERE (next context window):** implement to phase-1-plan.md REVISION v2:
+  1. `supabase/migrations/0006_overhaul_spine.sql` (generated, NOT executed — human SQL gate): data_
+     classes + retention_policies (seed §3, ATTORNEY-PENDING); families + guardians(role enum,
+     court_order_flag, dual_consent) + students.{family_id,dob,age_band,compliance_path}; family_id on
+     evidence tables; current_family_id() + assert_can_access_student() (DB-backed); DROP/rewrite
+     legacy campus/staff/parent SELECT policies (R1); revised forbid_mutation + erase_student_
+     operational_data (R2/R4); served_attempt_nonces + submit_attempt + issue_attempt_nonce (R6);
+     model_update_outbox (R5); read_student_record(reason_code) (R7); item_versions/calibration_runs/
+     item_exposure + thresholds (D10); node_mastery p_known/stability/halflife/next_review_at (D5).
+  2. `supabase/tests/rls_overhaul_deny.sql` deny-suite (flip coach raw-access cases to DENY).
+  3. `lib/engine-loop/` framework-neutral grade/applyModelUpdate split (optimistic skeleton).
+  4. codexreview the migration + lib CODE (per user directive: all committed code), keep tests green,
+     commit, then Phase 1 VERIFY gate.
+- NOTE: migrations are GENERATED + syntactically validated here; execution against Supabase is infra
+  (human runs SQL), consistent with the prior phase-11 workflow.
