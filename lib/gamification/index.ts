@@ -17,7 +17,37 @@
 // such in the UI.
 
 import { MASTERY_CONFIG } from "../mastery-engine";
-import type { CurriculumGraph, StudentAttempt, StudentSkillState } from "@/types";
+import type {
+  CurriculumGraph,
+  MasteryUpdate,
+  StudentAttempt,
+  StudentSkillState,
+} from "@/types";
+
+/**
+ * Count skills mastered THROUGH PRACTICE — the latest mastered-making update has
+ * trigger "attempt". Diagnostic-credited placement (trigger "diagnostic"/
+ * "credit-propagation") recognises prior knowledge; it is NOT platform-saved time,
+ * so it must not inflate "time given back" (trust-layer rule: distinguish credited
+ * vs practiced). Pure; mirrors the Phase-7 grade's locked-by-transfer provenance.
+ */
+function practicedMasteredCount(
+  states: Record<string, StudentSkillState>,
+  updates: MasteryUpdate[],
+): number {
+  const latestMasteredTrigger = new Map<string, MasteryUpdate["trigger"]>();
+  const ordered = [...updates].sort(
+    (a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id),
+  );
+  for (const u of ordered) {
+    if (u.newStatus === "mastered") latestMasteredTrigger.set(u.skillId, u.trigger);
+  }
+  let n = 0;
+  for (const [skillId, st] of Object.entries(states)) {
+    if (st.masteredAt !== null && latestMasteredTrigger.get(skillId) === "attempt") n += 1;
+  }
+  return n;
+}
 
 export const GAMIFICATION_CONFIG = {
   /** 1 XP == 1 minute of productive learning (Alpha convention). */
@@ -86,6 +116,9 @@ export function computeMomentum(
   attempts: StudentAttempt[],
   nowIso: string,
   cfg: GamificationConfig = GAMIFICATION_CONFIG,
+  /** MasteryUpdate log — when supplied, "time given back" counts only
+   * practice-earned mastery (excludes diagnostic credit). Optional/back-compat. */
+  updates?: MasteryUpdate[],
 ): MomentumSummary {
   const stateList = Object.values(states);
 
@@ -109,9 +142,17 @@ export function computeMomentum(
       ? 0
       : assessed.reduce((s, st) => s + (st.mastery || 0), 0) / assessed.length;
 
+  // "Time given back" is the time SAVED by mastering efficiently — so it counts
+  // only skills earned THROUGH PRACTICE. Diagnostic-credited placement is prior
+  // knowledge, not platform-saved time, and must not show a brand-new student
+  // "100+ hours given back" right after a ten-minute diagnostic (smoke-test B3).
+  // Falls back to all mastered when no provenance log is supplied (back-compat).
+  const timeBackBasis = updates
+    ? practicedMasteredCount(states, updates)
+    : masteredCount;
   const timeGivenBackMinutes = Math.max(
     0,
-    masteredCount * cfg.baselineMinutesPerMasteredSkill - productiveMinutes,
+    timeBackBasis * cfg.baselineMinutesPerMasteredSkill - productiveMinutes,
   );
 
   const dailyGoalFraction = cfg.dailyXpGoal > 0 ? clamp01(todayMinutes / cfg.dailyXpGoal) : 0;

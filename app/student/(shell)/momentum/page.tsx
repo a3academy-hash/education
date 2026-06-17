@@ -69,7 +69,7 @@ export default async function MomentumPage() {
   ]);
 
   const nowIso = new Date().toISOString();
-  const momentum = computeMomentum(states, graph, attempts, nowIso);
+  const momentum = computeMomentum(states, graph, attempts, nowIso, undefined, updates);
   const batch = computeMasteryAll(studentId, states, graph, nowIso);
   const rec = recommend(batch.results, states, graph);
 

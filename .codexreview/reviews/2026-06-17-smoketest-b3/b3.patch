@@ -1,0 +1,143 @@
+diff --git a/app/student/(shell)/momentum/page.tsx b/app/student/(shell)/momentum/page.tsx
+index 8c81e35..50e8a78 100644
+--- a/app/student/(shell)/momentum/page.tsx
++++ b/app/student/(shell)/momentum/page.tsx
+@@ -69,7 +69,7 @@ export default async function MomentumPage() {
+   ]);
+ 
+   const nowIso = new Date().toISOString();
+-  const momentum = computeMomentum(states, graph, attempts, nowIso);
++  const momentum = computeMomentum(states, graph, attempts, nowIso, undefined, updates);
+   const batch = computeMasteryAll(studentId, states, graph, nowIso);
+   const rec = recommend(batch.results, states, graph);
+ 
+diff --git a/lib/gamification/index.test.ts b/lib/gamification/index.test.ts
+index 93b9fd6..58977ba 100644
+--- a/lib/gamification/index.test.ts
++++ b/lib/gamification/index.test.ts
+@@ -5,7 +5,12 @@ import {
+   humanizeMinutes,
+   masteryRingFraction,
+ } from "./index";
+-import type { CurriculumGraph, StudentAttempt, StudentSkillState } from "@/types";
++import type {
++  CurriculumGraph,
++  MasteryUpdate,
++  StudentAttempt,
++  StudentSkillState,
++} from "@/types";
+ 
+ // Minimal builders — computeMomentum only reads the fields set here; the casts
+ // keep the test focused without hand-authoring every unrelated schema field.
+@@ -104,6 +109,39 @@ describe("computeMomentum", () => {
+     expect(m.timeGivenBackMinutes).toBe(0);
+   });
+ 
++  it("time given back counts only PRACTICE-earned mastery, not diagnostic credit (B3)", () => {
++    const states = {
++      A: state({ timeMs: 600_000, attempts: 4, masteredAt: now }), // practiced
++      B: state({ timeMs: 0, attempts: 0, masteredAt: now }), // diagnostic-credited only
++    };
++    const mk = (skillId: string, trigger: "attempt" | "diagnostic") =>
++      ({
++        id: `u-${skillId}`,
++        studentId: "s",
++        skillId,
++        attemptId: null,
++        trigger,
++        prevMastery: 0,
++        newMastery: 0.95,
++        prevStatus: "developing",
++        newStatus: "mastered",
++        prevPhase: 1,
++        newPhase: 3,
++        reason: "",
++        engineVersion: "t",
++        sessionId: "x",
++        graphVersion: "1",
++        createdAt: now,
++      }) as unknown as MasteryUpdate;
++    const updates = [mk("A", "attempt"), mk("B", "diagnostic")];
++    // Without the log: both count (back-compat) → 2 × 180 − 10 = 350.
++    expect(computeMomentum(states, graphWith(5), [], now).timeGivenBackMinutes).toBe(2 * 180 - 10);
++    // With the log: only A (practiced) counts → 1 × 180 − 10 = 170. B is excluded.
++    expect(
++      computeMomentum(states, graphWith(5), [], now, undefined, updates).timeGivenBackMinutes,
++    ).toBe(1 * 180 - 10);
++  });
++
+   it("handles an empty student with no division-by-zero", () => {
+     const m = computeMomentum({}, graphWith(0), [], now);
+     expect(m.productiveMinutes).toBe(0);
+diff --git a/lib/gamification/index.ts b/lib/gamification/index.ts
+index d0045a6..55ff61d 100644
+--- a/lib/gamification/index.ts
++++ b/lib/gamification/index.ts
+@@ -17,7 +17,37 @@
+ // such in the UI.
+ 
+ import { MASTERY_CONFIG } from "../mastery-engine";
+-import type { CurriculumGraph, StudentAttempt, StudentSkillState } from "@/types";
++import type {
++  CurriculumGraph,
++  MasteryUpdate,
++  StudentAttempt,
++  StudentSkillState,
++} from "@/types";
++
++/**
++ * Count skills mastered THROUGH PRACTICE — the latest mastered-making update has
++ * trigger "attempt". Diagnostic-credited placement (trigger "diagnostic"/
++ * "credit-propagation") recognises prior knowledge; it is NOT platform-saved time,
++ * so it must not inflate "time given back" (trust-layer rule: distinguish credited
++ * vs practiced). Pure; mirrors the Phase-7 grade's locked-by-transfer provenance.
++ */
++function practicedMasteredCount(
++  states: Record<string, StudentSkillState>,
++  updates: MasteryUpdate[],
++): number {
++  const latestMasteredTrigger = new Map<string, MasteryUpdate["trigger"]>();
++  const ordered = [...updates].sort(
++    (a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id),
++  );
++  for (const u of ordered) {
++    if (u.newStatus === "mastered") latestMasteredTrigger.set(u.skillId, u.trigger);
++  }
++  let n = 0;
++  for (const [skillId, st] of Object.entries(states)) {
++    if (st.masteredAt !== null && latestMasteredTrigger.get(skillId) === "attempt") n += 1;
++  }
++  return n;
++}
+ 
+ export const GAMIFICATION_CONFIG = {
+   /** 1 XP == 1 minute of productive learning (Alpha convention). */
+@@ -86,6 +116,9 @@ export function computeMomentum(
+   attempts: StudentAttempt[],
+   nowIso: string,
+   cfg: GamificationConfig = GAMIFICATION_CONFIG,
++  /** MasteryUpdate log — when supplied, "time given back" counts only
++   * practice-earned mastery (excludes diagnostic credit). Optional/back-compat. */
++  updates?: MasteryUpdate[],
+ ): MomentumSummary {
+   const stateList = Object.values(states);
+ 
+@@ -109,9 +142,17 @@ export function computeMomentum(
+       ? 0
+       : assessed.reduce((s, st) => s + (st.mastery || 0), 0) / assessed.length;
+ 
++  // "Time given back" is the time SAVED by mastering efficiently — so it counts
++  // only skills earned THROUGH PRACTICE. Diagnostic-credited placement is prior
++  // knowledge, not platform-saved time, and must not show a brand-new student
++  // "100+ hours given back" right after a ten-minute diagnostic (smoke-test B3).
++  // Falls back to all mastered when no provenance log is supplied (back-compat).
++  const timeBackBasis = updates
++    ? practicedMasteredCount(states, updates)
++    : masteredCount;
+   const timeGivenBackMinutes = Math.max(
+     0,
+-    masteredCount * cfg.baselineMinutesPerMasteredSkill - productiveMinutes,
++    timeBackBasis * cfg.baselineMinutesPerMasteredSkill - productiveMinutes,
+   );
+ 
+   const dailyGoalFraction = cfg.dailyXpGoal > 0 ? clamp01(todayMinutes / cfg.dailyXpGoal) : 0;

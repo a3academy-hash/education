@@ -5,7 +5,12 @@ import {
   humanizeMinutes,
   masteryRingFraction,
 } from "./index";
-import type { CurriculumGraph, StudentAttempt, StudentSkillState } from "@/types";
+import type {
+  CurriculumGraph,
+  MasteryUpdate,
+  StudentAttempt,
+  StudentSkillState,
+} from "@/types";
 
 // Minimal builders — computeMomentum only reads the fields set here; the casts
 // keep the test focused without hand-authoring every unrelated schema field.
@@ -102,6 +107,39 @@ describe("computeMomentum", () => {
     const states = { A: state({ timeMs: 60_000_000, attempts: 50, masteredAt: now }) }; // 1000 min
     const m = computeMomentum(states, graphWith(3), [], now);
     expect(m.timeGivenBackMinutes).toBe(0);
+  });
+
+  it("time given back counts only PRACTICE-earned mastery, not diagnostic credit (B3)", () => {
+    const states = {
+      A: state({ timeMs: 600_000, attempts: 4, masteredAt: now }), // practiced
+      B: state({ timeMs: 0, attempts: 0, masteredAt: now }), // diagnostic-credited only
+    };
+    const mk = (skillId: string, trigger: "attempt" | "diagnostic") =>
+      ({
+        id: `u-${skillId}`,
+        studentId: "s",
+        skillId,
+        attemptId: null,
+        trigger,
+        prevMastery: 0,
+        newMastery: 0.95,
+        prevStatus: "developing",
+        newStatus: "mastered",
+        prevPhase: 1,
+        newPhase: 3,
+        reason: "",
+        engineVersion: "t",
+        sessionId: "x",
+        graphVersion: "1",
+        createdAt: now,
+      }) as unknown as MasteryUpdate;
+    const updates = [mk("A", "attempt"), mk("B", "diagnostic")];
+    // Without the log: both count (back-compat) → 2 × 180 − 10 = 350.
+    expect(computeMomentum(states, graphWith(5), [], now).timeGivenBackMinutes).toBe(2 * 180 - 10);
+    // With the log: only A (practiced) counts → 1 × 180 − 10 = 170. B is excluded.
+    expect(
+      computeMomentum(states, graphWith(5), [], now, undefined, updates).timeGivenBackMinutes,
+    ).toBe(1 * 180 - 10);
   });
 
   it("handles an empty student with no division-by-zero", () => {
