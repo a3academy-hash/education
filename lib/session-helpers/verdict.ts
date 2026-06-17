@@ -29,20 +29,35 @@ export type SessionVerdict = "advance" | "continue" | "review" | "remediate";
 export function deriveVerdict(
   rec: AdaptiveRecommendation,
   practicedStatus: MasteryStatus | undefined,
+  practicedSkillId?: string,
 ): SessionVerdict {
   if (practicedStatus === "mastered") return "advance";
-  switch (rec.kind) {
-    case "accelerate":
-    case "complete":
-      return "advance";
-    case "review":
-      return "review";
-    case "remediate":
-      return "remediate";
-    case "continue":
-    default:
-      return "continue";
+  const base: SessionVerdict = (() => {
+    switch (rec.kind) {
+      case "accelerate":
+      case "complete":
+        return "advance";
+      case "review":
+        return "review";
+      case "remediate":
+        return "remediate";
+      case "continue":
+      default:
+        return "continue";
+    }
+  })();
+  // The router's "accelerate"/"complete" framing describes WHICH skill to serve
+  // next (e.g. starting here having skipped credited prereqs) — it does NOT mean
+  // the just-practiced skill is finished. When the recommendation points back at
+  // the SAME skill just practiced and that skill is not mastered, "Advance —
+  // you're moving on" contradicts the Developing/Continue state shown right above
+  // it (smoke-test bug B4). ONLY the advance verdict contradicts a same-skill
+  // continuation — review/remediate already describe staying on the skill, so
+  // they pass through unchanged.
+  if (base === "advance" && practicedSkillId && rec.skillId === practicedSkillId) {
+    return "continue";
   }
+  return base;
 }
 
 export interface VerdictCopy {

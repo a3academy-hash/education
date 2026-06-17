@@ -1,0 +1,3 @@
+verdict: 
+- [medium] same-skill-review-remediate (0.91): Same-skill `review` or `remediate` recommendations are now mislabeled as `continue`, so a student who should see Review/Remediate can get Continue copy and a forward-styl
+  FIX: Scope the same-skill override to the intended router kind, e.g. only `rec.kind === "accelerate"` when the practiced skill is not mastered, and add tests for same-skill `r

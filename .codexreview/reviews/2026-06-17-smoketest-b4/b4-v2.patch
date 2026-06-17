@@ -1,0 +1,95 @@
+diff --git a/app/student/(shell)/summary/page.tsx b/app/student/(shell)/summary/page.tsx
+index 46662a5..2554bee 100644
+--- a/app/student/(shell)/summary/page.tsx
++++ b/app/student/(shell)/summary/page.tsx
+@@ -201,7 +201,10 @@ export default async function SummaryPage({
+     const rec = recommend(batch.results, states, graph, { justCredited: credited });
+ 
+     const practicedStatus = batch.results[skillId]?.status;
+-    const verdict = deriveVerdict(rec, practicedStatus);
++    // Pass the just-practiced skillId so the verdict never reads "Advance —
++    // you're moving on" when the router is actually recommending the SAME,
++    // not-yet-mastered skill be continued (smoke-test bug B4).
++    const verdict = deriveVerdict(rec, practicedStatus, skillId);
+     const copy = VERDICT_COPY[verdict];
+ 
+     // Stat row from this session's attempts.
+diff --git a/lib/session-helpers/verdict.test.ts b/lib/session-helpers/verdict.test.ts
+index 157045a..c3eed47 100644
+--- a/lib/session-helpers/verdict.test.ts
++++ b/lib/session-helpers/verdict.test.ts
+@@ -19,6 +19,23 @@ describe("deriveVerdict — router kind → Summary verdict (spec §F)", () => {
+     expect(deriveVerdict(rec("remediate"), "prerequisite_gap")).toBe("remediate");
+   });
+ 
++  it("same-skill recommendation (not mastered) reads CONTINUE, not advance (B4)", () => {
++    // The router returns kind "accelerate" pointing back at the SAME skill the
++    // student just practiced (e.g. placed here, credited prereqs skipped) while
++    // that skill is still Developing. Without the practicedSkillId the old code
++    // said "Advance — you're moving on", contradicting the Developing state.
++    expect(deriveVerdict(rec("accelerate"), "developing", "ALG-X")).toBe("continue");
++    expect(deriveVerdict(rec("continue"), "developing", "ALG-X")).toBe("continue");
++    // A DIFFERENT next skill keeps the accelerate→advance mapping.
++    expect(deriveVerdict(rec("accelerate"), "developing", "ALG-OTHER")).toBe("advance");
++    // Mastered still advances even on a same-skill rec (the override wins).
++    expect(deriveVerdict(rec("accelerate"), "mastered", "ALG-X")).toBe("advance");
++    // Same-skill review/remediate are NOT downgraded — only the advance verdict
++    // contradicts a same-skill continuation (codex same-skill-review-remediate).
++    expect(deriveVerdict(rec("review"), "needs_review", "ALG-X")).toBe("review");
++    expect(deriveVerdict(rec("remediate"), "prerequisite_gap", "ALG-X")).toBe("remediate");
++  });
++
+   it("the mastered-override forces advance regardless of router kind", () => {
+     // Router has already moved the recommendation to the next skill (continue),
+     // but the just-practiced node is itself mastered → advance.
+diff --git a/lib/session-helpers/verdict.ts b/lib/session-helpers/verdict.ts
+index 8ff7de9..c03da1a 100644
+--- a/lib/session-helpers/verdict.ts
++++ b/lib/session-helpers/verdict.ts
+@@ -29,20 +29,35 @@ export type SessionVerdict = "advance" | "continue" | "review" | "remediate";
+ export function deriveVerdict(
+   rec: AdaptiveRecommendation,
+   practicedStatus: MasteryStatus | undefined,
++  practicedSkillId?: string,
+ ): SessionVerdict {
+   if (practicedStatus === "mastered") return "advance";
+-  switch (rec.kind) {
+-    case "accelerate":
+-    case "complete":
+-      return "advance";
+-    case "review":
+-      return "review";
+-    case "remediate":
+-      return "remediate";
+-    case "continue":
+-    default:
+-      return "continue";
++  const base: SessionVerdict = (() => {
++    switch (rec.kind) {
++      case "accelerate":
++      case "complete":
++        return "advance";
++      case "review":
++        return "review";
++      case "remediate":
++        return "remediate";
++      case "continue":
++      default:
++        return "continue";
++    }
++  })();
++  // The router's "accelerate"/"complete" framing describes WHICH skill to serve
++  // next (e.g. starting here having skipped credited prereqs) — it does NOT mean
++  // the just-practiced skill is finished. When the recommendation points back at
++  // the SAME skill just practiced and that skill is not mastered, "Advance —
++  // you're moving on" contradicts the Developing/Continue state shown right above
++  // it (smoke-test bug B4). ONLY the advance verdict contradicts a same-skill
++  // continuation — review/remediate already describe staying on the skill, so
++  // they pass through unchanged.
++  if (base === "advance" && practicedSkillId && rec.skillId === practicedSkillId) {
++    return "continue";
+   }
++  return base;
+ }
+ 
+ export interface VerdictCopy {

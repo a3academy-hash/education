@@ -201,7 +201,10 @@ export default async function SummaryPage({
     const rec = recommend(batch.results, states, graph, { justCredited: credited });
 
     const practicedStatus = batch.results[skillId]?.status;
-    const verdict = deriveVerdict(rec, practicedStatus);
+    // Pass the just-practiced skillId so the verdict never reads "Advance —
+    // you're moving on" when the router is actually recommending the SAME,
+    // not-yet-mastered skill be continued (smoke-test bug B4).
+    const verdict = deriveVerdict(rec, practicedStatus, skillId);
     const copy = VERDICT_COPY[verdict];
 
     // Stat row from this session's attempts.
