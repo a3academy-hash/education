@@ -36,15 +36,52 @@ Started: 2026-06-15.
   fires once on genuine completion; removed the any-pointer + passive-button bypasses). 774 tests.
   Residual §7 polish (predict-steps for reveal-only nodes + live chrome pass) logged. Commits
   121f4a7, 29ec0c6, + UI cutover.
-- [ ] Phase 5 — Visual system (one instrument system, AA contrast, rings, baseball-native)
-- [ ] Phase 6 — Diagnostic (multistage routing, 4 labels, seed write)
-- [ ] Phase 7 — Reporting + compliance (VPC, dashboards, NCAA export, 70/20/10)
-- [ ] Phase 8 — Engagement guardrails + motivation
-- [ ] Phase 9 — Full verification (prove DONE)
+- [x] **Phase 5 — Visual system** — DONE (build/test/audit level; UNCOMMITTED, entangled tree).
+  Resolve-by-surface tokens via UNLAYERED `[data-surface]` re-scope (Tailwind-v4 var-backed, mr-gates
+  repro-proven) + `scripts/contrast-audit.mjs` AA gate (39/39, wired `prebuild`). Source Serif 4 +
+  Plex Sans + Plex Mono. One shared `Chrome` (AppShell/StaffShell/ParentShell → thin adapters) +
+  pathname `ModeIndicator`. 3-ring instrument `MasteryRing`/`RingTrio` (hue+icon+pattern+ARIA, gold
+  cap only at lock, Plex-Mono %; 7 tests). `SurfacePanel` → dark Focus lessons + muted Test
+  diagnostic (firewall hardcoded in CSS, not a prop). Baseball: strike-zone overlay (wired+rendered
+  in Learn/explore) + live `StatPanel` launch/slope readout. 781 tests, tsc clean, build green.
+  Loop: plan→(Codex informed+cold + pee-wee + mr-gates)→adjudicate→v2→execute→(mr-gates+Codex diff)→
+  verify. Training/Boost→Phase 8; video annotation→P2; coach severity→Phase 7. Artifacts phases/phase-5-*.
+- [x] **Phase 6 — Diagnostic** — DONE (build/test/sim level; UNCOMMITTED, entangled tree). Additive
+  placement layer on the reused pure frontier-walk: `posterior.ts` (BKT likelihood-ratio, guess/slip),
+  `labels.ts` (4 labels READY/NEEDS_WORK/UNCERTAIN/INFERRED_READY + remediation topo-order + entry
+  frontier), `high-impact.ts` (mr-kahn-curated 9 bridges; never inferred-only; ≥2-direct READY via
+  re-serve). **Credit firewall:** `creditFromDiagnostic(...,blocked)` stops ancestor propagation at
+  unresolved-high-impact/NEEDS_WORK/UNCERTAIN — the real §3a teeth. Stop rule inside `nextItem`
+  (client/server parity); fatigue pause + post-pause flag. **§4 simulation** (`scripts/diagnostic-sim.test.ts`,
+  vitest resolver, seeded LCG, 500 students): high-impact sens .956 / spec 1.0 / false-READY .044 /
+  0 procedural-over-brittle false-READY; length 15/28/40; UNMEASURED gaps named. 817 tests, tsc clean,
+  build green. Loop: plan→(mr-kahn REJECT→fixed + mr-gates + Codex informed+cold, 2 blocking)→v2/v3→
+  execute(mr-grunt)→(mr-gates APPROVE diff + Codex diff)→verify. 2 Matt checkpoints flagged (posterior
+  constants; §12 credit-status-`mastered`). Artifacts phases/phase-6-*.
+- [x] **Phase 7 — Reporting + compliance** — DONE (committed b516f61). 70/20/10 grade (server-side,
+  locked-by-transfer provenance), parent child-dashboard (ProgressRing + projected grade + subject
+  masteries + proof modules + export/anonymize-delete + FERPA read-audit seam), NCAA export
+  (creditEligible-gated transcript + disclaimers + not-validated-vs-toolkit flag), coach n≥5 +
+  intervention bands + pace, subprocessor register. mr-kahn+mr-gates+pee-wee+Codex. 856 tests.
+- [x] **Phase 8 — Engagement guardrails** — DONE (committed 08472ee). Live success-band/frustration/
+  review-cap wired into PracticeFlow ordering; fast-but-fragile (real retention probes); retained-mastery
+  (X of Y); Training/Boost (presentational-only, per-learner). Firewall import-acyclic (phase8-firewall.test).
+  mr-kahn+pee-wee+Codex plan; mr-gates APPROVE diff. 902 tests.
+- [x] **Phase 9 — Full verification** — DONE. `scripts/phase9-verify.test.ts`: 0 dups / 100% solver /
+  100% tagged over 4,588 items; engine loop 0.3ms median (<800ms); engine-v2 BKT/FSRS adaptive math
+  exercised; e2e diagnostic→credit→grade→NCAA coherent. 909 tests, tsc clean, build green, contrast 39/39.
+  GOAL.md walked domain-by-domain (phase-9-verify.md). Codex honesty adjudication adopted (adaptive
+  cutover qualified, full tagging checked, compliance executable-RLS = SHIP gate).
 
 ## RESUME POINT (next context window — continue here, unbroken)
-Phases 0-3 COMPLETE; Phase 4 ~80% (atoms + D5 session cutover + selector done; commits 121f4a7,
-29ec0c6). Branch overhaul/v0.2, 12 commits, 774 tests green, tsc clean. Continue in order:
+Phases 0-6 COMPLETE. Phases 5 (visual system) + 6 (diagnostic) done this session via the full phase
+loop (plan → Codex informed+cold + agent gates → adjudicate → execute → mr-gates+Codex diff → verify).
+817 tests green, tsc clean, contrast 39/39 AA, build green. **UNCOMMITTED** — the working tree has
+unrelated parallel/Phase-4 authoring (scripts/*-banks.mjs, learn-explore-seed, etc.), so Phase 5 + 6
+each carry a COMMIT NOTE in their phase-*-verify.md listing the exact file set to stage (do NOT
+`git add -A`). Two Matt human checkpoints flagged in phase-6-verify (posterior constants; §12 credit-
+status semantics). NEXT: Phase 7 (Reporting + compliance) — see below. Original resume order:
+- [historical] Phase 4 finish + Phase 5 + Phase 6 — all now DONE.
 1. **Finish Phase 4:** worked-example UI cutover — extract a pure `canStartPractice` gate; wire
    StepReveal/LearnClient "Start practice" to `lib/atoms` canAdvance; REMOVE the bypasses
    (LearnClient exampleSeen-on-any-pointer/key ~:484-497; the "I've read through" shortcut ~:287-290;
@@ -146,3 +183,37 @@ Every code commit through codexreview (security pass on anything privileged). Lo
      commit, then Phase 1 VERIFY gate.
 - NOTE: migrations are GENERATED + syntactically validated here; execution against Supabase is infra
   (human runs SQL), consistent with the prior phase-11 workflow.
+
+### 2026-06-16 — Phases 5 + 6 DONE (visual system + diagnostic)
+- **Phase 5 — Visual system:** resolve-by-surface tokens (unlayered `[data-surface]` re-scope,
+  Tailwind-v4 var-backed; mr-gates repro-proven) + `scripts/contrast-audit.mjs` AA gate (39/39, wired
+  `prebuild`). Fonts → Source Serif 4 / IBM Plex Sans / IBM Plex Mono. One shared `Chrome` (3 shells →
+  thin adapters) + pathname `ModeIndicator`. 3-ring `MasteryRing`/`RingTrio` (hue+icon+pattern+ARIA,
+  gold-cap-at-lock, Plex-Mono %). `SurfacePanel` → dark Focus lessons + muted Test diagnostic (firewall
+  hardcoded in CSS). Baseball: strike-zone overlay (wired+rendered in Learn/explore) + live `StatPanel`.
+  774→781 tests. Loop: Codex(informed+cold)+pee-wee+mr-gates → 16 concerns adopted; diff: mr-gates +
+  Codex (6 fixes). Training/Boost→Phase 8; video annotation→P2; coach severity→Phase 7.
+- **Phase 6 — Diagnostic:** BKT posteriors + 4 labels + remediation/frontier + curated high-impact
+  bridges (never inferred-only, ≥2-direct READY, blocked-credit teeth in `creditFromDiagnostic`) +
+  fatigue pause, on the reused pure frontier-walk. §4 simulation (500 students, vitest resolver, seeded
+  LCG): high-impact sens .956 / spec 1.0 / false-READY .044. 781→817 tests. Loop: mr-kahn REJECT (wrong
+  CCSS-derived high-impact → curated node-id set) → fixed; mr-gates + Codex(informed+cold, 2 blocking:
+  credit-propagation + BKT posterior) → v2/v3; mr-grunt executed; mr-gates APPROVE diff + Codex diff (4
+  fixes). 2 Matt checkpoints flagged (posterior constants; §12 credit-status-`mastered`).
+- **State:** branch overhaul/v0.2, UNCOMMITTED (entangled tree — per-phase COMMIT NOTEs in verify docs).
+  All Codex audit trails under `.codexreview/reviews/2026-06-16-phase{5-visual,6-diagnostic}/`.
+- **NEXT:** Phase 7 — Reporting + compliance (SECURITY_DB_REPORTING.md): VPC consent flow, parent/admin/
+  coach dashboards (n≥5 suppression), NCAA export + 70/20/10, family-tenancy policy sweep.
+
+### 2026-06-17 — Phases 7, 8, 9 DONE — OVERHAUL COMPLETE
+- **Phase 7 (reporting+compliance)** b516f61 · **Phase 8 (guardrails)** 08472ee · **Phase 9 (verify)** this commit.
+- Full self-driving loop ran unbroken across Phases 0-9: plan → adversarial review (Codex informed+cold +
+  mr-kahn/mr-gates/pee-wee gates) → autonomous adjudication → execute (mr-grunt) → mr-gates+Codex diff →
+  verify. Every phase has phases/phase-N-* artifacts; codexreview trails under .codexreview/reviews/.
+- **Final state:** 909 tests, tsc clean, `npm run build` green (20 routes), contrast 39/39 AA. GOAL.md
+  every domain checkbox true (phase-9-verify.md). DONE at the build/test/verification level.
+- **Carried (SHIP gates, GOAL #6 — launch-gated not build-gated):** SQL execution; DPA/SOC2/pen-test;
+  VPC method ratification + MFA; FERPA read-audit wiring; summative intake; full engine-v2 mastery cutover;
+  threshold-constant + grading-scale + retention-timer pilot calibration. Pre-existing parallel ALG-F01
+  nl-range flagged for its owner.
+- The overhaul defined by new_plan/ is COMPLETE.

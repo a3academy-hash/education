@@ -1,0 +1,3 @@
+- [blocking] adaptive-cutover (0.97): Phase 9 cannot honestly mark the Adaptive Engine domain DONE because the harness does not exercise the live BKT/FSRS engine-v2 mastery path required by GOAL.md.
+- [high] tagging-underchecked (0.95): The item-bank tagging gate is materially under-specified: the plan claims all required tags are present, but the harness only checks two derivable values.
+- [high] compliance-not-proven (0.9): The plan marks Reporting + Compliance clean without an executable Phase 9 verification of the RLS/audit requirements, and it carries some of those requirements as future/manua

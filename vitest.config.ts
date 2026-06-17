@@ -22,6 +22,7 @@ export default defineConfig({
       // Phase-6 diagnostic simulation runs via the vitest resolver (§V2 R11 /
       // G2) — NOT bare node. Deterministic seeded LCG; no clock, no RNG.
       "scripts/diagnostic-sim.test.ts",
+      "scripts/phase9-verify.test.ts",
     ],
   },
 });
