@@ -441,4 +441,21 @@ export class SupabaseRepository implements A3Repository {
     });
     if (error) fail("appendAccessLog", error);
   }
+
+  // COPPA parent-deletion (Phase 7 R5 / §3): irreversibly anonymize operational
+  // data via app.erase_student_operational_data(p_student, p_reason). EXECUTE is
+  // granted to service_role ONLY (migration 0006), so it is called through the
+  // SERVICE client with a vouched, already-authorized actor — the SAME pattern as
+  // submit_attempt / issue_attempt_nonce. The calling server action verifies the
+  // parent owns the child (parentOwnsChild) and generates the export FIRST. The
+  // RPC overwrites raw response bodies in place (append-only preserved, never a
+  // row delete) and records its own system erase row; the action additionally
+  // writes the parent-attributable, no-PII access-audit row.
+  async eraseOperationalData(studentId: string, reason = "parent_self_service_delete"): Promise<void> {
+    const { error } = await this.serviceClient.rpc("erase_student_operational_data", {
+      p_student: studentId,
+      p_reason: reason,
+    });
+    if (error) fail("eraseOperationalData", error);
+  }
 }

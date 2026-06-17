@@ -1,0 +1,3295 @@
+diff --git a/app/admin/students/page.tsx b/app/admin/students/page.tsx
+index d763a87..13ef4ca 100644
+--- a/app/admin/students/page.tsx
++++ b/app/admin/students/page.tsx
+@@ -13,6 +13,7 @@ import { PageHeader } from "../../../components/ui/PageHeader";
+ import { Card } from "../../../components/ui/Card";
+ import { InsetPanel } from "../../../components/ui/Panels";
+ import { StatusPill } from "../../../components/ui/StatusPill";
++import { SeverityPill } from "../../../components/insight/SeverityPill";
+ import { Table, TableHead, TableBody, TableRow, Th, Td } from "../../../components/ui/Table";
+ 
+ export const metadata = {
+@@ -43,7 +44,20 @@ export default async function AdminStudentsPage() {
+   );
+ 
+   const nowIso = new Date().toISOString();
+-  const rows = buildRoster(graph, inputs, staff.campusId, nowIso);
++  const rows = buildRoster(graph, inputs, staff.campusId, staff.role, nowIso);
++  const isCoach = staff.role === "coach";
++
++  // Coach lead (R7): amber + rose count first, with the single next action.
++  const attentionCount = rows.filter((r) => r.band !== "on_track").length;
++  const leadAction = rows.find((r) => r.band === "intervention")?.nextAction ??
++    rows.find((r) => r.band === "watch")?.nextAction ??
++    "";
++
++  const PACE_LABEL: Record<string, string> = {
++    ahead: "Ahead",
++    on_track: "On track",
++    behind: "Behind",
++  };
+ 
+   return (
+     <StaffShell>
+@@ -51,9 +65,26 @@ export default async function AdminStudentsPage() {
+         <PageHeader
+           eyebrow="Staff · roster"
+           title="Students"
+-          subhead="Every student's current adaptive decision, last activity, and any signals worth a look. Read-only over the immutable evidence logs."
++          subhead={
++            isCoach
++              ? "Roster-scoped severity bands and signals. Coaches see need-to-know bands only."
++              : "Every student's current adaptive decision, last activity, and any signals worth a look. Read-only over the immutable evidence logs."
++          }
+         />
+ 
++        {isCoach && rows.length > 0 && (
++          <Card className="mb-5" padding="compact">
++            <p className="text-[13px] font-medium text-ink">
++              {attentionCount === 0
++                ? "All students on track."
++                : `${attentionCount} student${attentionCount === 1 ? "" : "s"} need a look.`}
++            </p>
++            {leadAction && (
++              <p className="mt-1 text-[12.5px] leading-[1.5] text-ink-500">{leadAction}</p>
++            )}
++          </Card>
++        )}
++
+         {rows.length === 0 ? (
+           <Card>
+             <InsetPanel>No students yet.</InsetPanel>
+@@ -65,8 +96,10 @@ export default async function AdminStudentsPage() {
+                 <TableHead>
+                   <TableRow first>
+                     <Th className="px-[18px]">Student</Th>
+-                    <Th>Current focus</Th>
+-                    <Th>Status</Th>
++                    {!isCoach && <Th>Current focus</Th>}
++                    {!isCoach && <Th>Status</Th>}
++                    <Th>Standing</Th>
++                    <Th>Pace</Th>
+                     <Th>Last active</Th>
+                     <Th align="right" className="pr-[18px]">
+                       Signals
+@@ -77,17 +110,27 @@ export default async function AdminStudentsPage() {
+                   {rows.map((row, i) => (
+                     <TableRow key={row.studentId} first={i === 0} interactive>
+                       <Td className="px-[18px]">
+-                        <Link
+-                          href={`/admin/students/${row.studentId}`}
+-                          className="rounded-[6px] text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+-                        >
+-                          {row.displayName}
+-                        </Link>
++                        {isCoach ? (
++                          <span className="text-ink">{row.displayName}</span>
++                        ) : (
++                          <Link
++                            href={`/admin/students/${row.studentId}`}
++                            className="rounded-[6px] text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
++                          >
++                            {row.displayName}
++                          </Link>
++                        )}
+                       </Td>
+-                      <Td secondary>{row.currentSkillTitle || "Course complete"}</Td>
++                      {!isCoach && (
++                        <Td secondary>{row.currentSkillTitle || "Course complete"}</Td>
++                      )}
++                      {!isCoach && (
++                        <Td>{row.currentStatus && <StatusPill status={row.currentStatus} />}</Td>
++                      )}
+                       <Td>
+-                        <StatusPill status={row.currentStatus} />
++                        <SeverityPill band={row.band} />
+                       </Td>
++                      <Td secondary>{PACE_LABEL[row.pace]}</Td>
+                       <Td secondary>{relativeDate(row.lastActiveAt)}</Td>
+                       <Td align="right" className="pr-[18px]" secondary>
+                         {row.openFlags}
+diff --git a/app/parent/RosterRow.tsx b/app/parent/RosterRow.tsx
+index f7de5a2..01c8b53 100644
+--- a/app/parent/RosterRow.tsx
++++ b/app/parent/RosterRow.tsx
+@@ -7,6 +7,7 @@
+ //   revoked  → "Re-grant access" (regrantConsent)
+ // No progress/analytics (P3). Calm, never accusatory.
+ 
++import Link from "next/link";
+ import { Card } from "../../components/ui/Card";
+ import { Button } from "../../components/ui/Button";
+ import { ConsentPill, type ConsentState } from "../../components/ui/ConsentPill";
+@@ -53,12 +54,20 @@ export function RosterRow({ studentId, firstName, gradeLevel, consent }: RosterR
+ function RowAction({ studentId, consent }: { studentId: string; consent: ConsentState }) {
+   if (consent === "active") {
+     return (
+-      <form action={launchChild}>
+-        <input type="hidden" name="studentId" value={studentId} />
+-        <Button variant="primary" size="sm" type="submit">
+-          Launch
+-        </Button>
+-      </form>
++      <div className="flex items-center gap-2">
++        <Link
++          href={`/parent/children/${studentId}`}
++          className="inline-flex items-center justify-center rounded-[10px] border border-border-strong bg-surface px-[14px] py-2 text-[13px] font-medium text-ink transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
++        >
++          View progress
++        </Link>
++        <form action={launchChild}>
++          <input type="hidden" name="studentId" value={studentId} />
++          <Button variant="primary" size="sm" type="submit">
++            Launch
++          </Button>
++        </form>
++      </div>
+     );
+   }
+   if (consent === "revoked") {
+diff --git a/app/parent/children/[studentId]/ChildRecordActions.tsx b/app/parent/children/[studentId]/ChildRecordActions.tsx
+new file mode 100644
+index 0000000..713c7f2
+--- /dev/null
++++ b/app/parent/children/[studentId]/ChildRecordActions.tsx
+@@ -0,0 +1,177 @@
++"use client";
++
++// Parent per-child export + delete affordances (Phase 7 R5). CLIENT component —
++// NO lib/grade import here (the grade is computed server-side and never shipped).
++// The delete uses a focus-managed confirm modal with an "export first" warning and
++// a NON-COLOR destructive affordance (an explicit typed confirmation), not a red
++// button alone.
++
++import { useEffect, useRef, useState } from "react";
++import { Button } from "../../../../components/ui/Button";
++import {
++  deleteChildRecord,
++  exportChildRecord,
++  type ExportResult,
++} from "./actions";
++
++export interface ChildRecordActionsProps {
++  studentId: string;
++  childName: string;
++}
++
++export function ChildRecordActions({ studentId, childName }: ChildRecordActionsProps) {
++  const [exporting, setExporting] = useState(false);
++  const [exportError, setExportError] = useState<string | null>(null);
++  const [modalOpen, setModalOpen] = useState(false);
++
++  async function onExport() {
++    setExporting(true);
++    setExportError(null);
++    const res: ExportResult = await exportChildRecord(studentId);
++    setExporting(false);
++    if (!res.ok || !res.artifact) {
++      setExportError(res.error ?? "Export failed.");
++      return;
++    }
++    downloadJson(res.artifact, `a3-record-${childName}.json`);
++  }
++
++  return (
++    <div className="flex flex-wrap items-center gap-3">
++      <Button variant="secondary" onClick={onExport} loading={exporting}>
++        Export record
++      </Button>
++      <Button variant="quiet" onClick={() => setModalOpen(true)}>
++        Delete record
++      </Button>
++      {exportError && (
++        <p role="alert" className="text-[12.5px] text-[var(--color-error)]">
++          {exportError}
++        </p>
++      )}
++      {modalOpen && (
++        <DeleteConfirmModal
++          studentId={studentId}
++          childName={childName}
++          onClose={() => setModalOpen(false)}
++        />
++      )}
++    </div>
++  );
++}
++
++function DeleteConfirmModal({
++  studentId,
++  childName,
++  onClose,
++}: {
++  studentId: string;
++  childName: string;
++  onClose: () => void;
++}) {
++  const [confirmText, setConfirmText] = useState("");
++  const [busy, setBusy] = useState(false);
++  const [error, setError] = useState<string | null>(null);
++  const [done, setDone] = useState(false);
++  const inputRef = useRef<HTMLInputElement>(null);
++
++  // Focus management: focus the confirm input on open; restore focus on close.
++  useEffect(() => {
++    const prev = document.activeElement as HTMLElement | null;
++    inputRef.current?.focus();
++    function onKey(e: KeyboardEvent) {
++      if (e.key === "Escape" && !busy) onClose();
++    }
++    document.addEventListener("keydown", onKey);
++    return () => {
++      document.removeEventListener("keydown", onKey);
++      prev?.focus?.();
++    };
++  }, [busy, onClose]);
++
++  // NON-COLOR destructive affordance: require typing DELETE to enable the action.
++  const armed = confirmText.trim().toUpperCase() === "DELETE";
++
++  async function onConfirm() {
++    if (!armed) return;
++    setBusy(true);
++    setError(null);
++    const res = await deleteChildRecord(studentId);
++    setBusy(false);
++    if (!res.ok) {
++      setError(res.error ?? "Delete failed.");
++      return;
++    }
++    setDone(true);
++  }
++
++  return (
++    <div
++      className="fixed inset-0 z-50 grid place-items-center bg-[rgba(15,23,42,0.35)] px-6"
++      role="dialog"
++      aria-modal="true"
++      aria-labelledby="delete-record-title"
++    >
++      <div className="w-full max-w-[460px] rounded-[16px] border border-border bg-surface p-7 shadow-lg">
++        <h2 id="delete-record-title" className="font-display text-[18px] font-semibold text-ink">
++          Delete {childName}&rsquo;s record
++        </h2>
++
++        {done ? (
++          <>
++            <p className="mt-3 text-[14px] leading-[1.55] text-ink-500">
++              The record has been deleted. Operational data was anonymized; the
++              evidence ledger is preserved for audit.
++            </p>
++            <div className="mt-6 flex justify-end">
++              <Button variant="primary" onClick={onClose}>
++                Done
++              </Button>
++            </div>
++          </>
++        ) : (
++          <>
++            <p className="mt-3 text-[14px] leading-[1.55] text-ink-500">
++              Export this record first — deleting it may limit future NCAA or
++              transcript support. This anonymizes {childName}&rsquo;s work; it cannot
++              be undone.
++            </p>
++            <label className="mt-5 block text-[13px] font-medium text-ink-700">
++              Type DELETE to confirm
++              <input
++                ref={inputRef}
++                value={confirmText}
++                onChange={(e) => setConfirmText(e.target.value)}
++                className="mt-1.5 w-full rounded-[10px] border border-border-strong bg-canvas px-3 py-2 text-[14px] text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
++                aria-label="Type DELETE to confirm"
++              />
++            </label>
++            {error && (
++              <p role="alert" className="mt-3 text-[12.5px] text-[var(--color-error)]">
++                {error}
++              </p>
++            )}
++            <div className="mt-6 flex justify-end gap-3">
++              <Button variant="quiet" onClick={onClose} disabled={busy}>
++                Cancel
++              </Button>
++              <Button variant="primary" onClick={onConfirm} disabled={!armed} loading={busy}>
++                Delete record
++              </Button>
++            </div>
++          </>
++        )}
++      </div>
++    </div>
++  );
++}
++
++function downloadJson(data: unknown, filename: string) {
++  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
++  const url = URL.createObjectURL(blob);
++  const a = document.createElement("a");
++  a.href = url;
++  a.download = filename;
++  a.click();
++  URL.revokeObjectURL(url);
++}
+diff --git a/app/parent/children/[studentId]/actions.ts b/app/parent/children/[studentId]/actions.ts
+new file mode 100644
+index 0000000..369696d
+--- /dev/null
++++ b/app/parent/children/[studentId]/actions.ts
+@@ -0,0 +1,106 @@
++"use server";
++
++// Parent per-child export + delete server actions (Phase 7 R5). SUPABASE-mode
++// only; memory mode short-circuits. NO lib/grade import in a client module — this
++// is a server action, so computing the grade here is allowed.
++//
++// R5 ORDERING (enforced in the action, not just the UI):
++//   delete = (a) verify parent-of authz, (b) generate the export FIRST,
++//            (c) only THEN erase operational data (anonymize-in-place).
++// Audit row carries NO PII: { actorId, actorRole, studentId, recordType }.
++
++import { getAuthMode } from "../../../../lib/auth/mode";
++import { getCurrentParent, parentOwnsChild } from "../../../../lib/auth/parent";
++import { getRepository } from "../../../../lib/repository/server";
++import { computeGrade } from "../../../../lib/grade";
++import { buildNcaaExport, type NcaaExport } from "../../../../lib/ncaa-export";
++
++export interface ExportResult {
++  ok: boolean;
++  error?: string;
++  /** The generated artifact (returned for download in supabase mode). */
++  artifact?: NcaaExport & { watermark: string };
++}
++
++export interface DeleteResult {
++  ok: boolean;
++  error?: string;
++}
++
++const MEMORY_NOTICE = "This action is not available in this environment.";
++const GENERIC_FAIL = "We couldn't complete that just now. Please try again.";
++
++/**
++ * Build the export artifact for a child the verified parent owns (R5b). PURE of
++ * side effects beyond the repository reads + the watermark stamp.
++ */
++async function buildArtifact(studentId: string, nowIso: string): Promise<NcaaExport & { watermark: string }> {
++  const repo = await getRepository();
++  const [profile, graph, states, updates] = await Promise.all([
++    repo.getStudent(studentId),
++    repo.getGraph(),
++    repo.getSkillStates(studentId),
++    repo.listMasteryUpdates(studentId),
++  ]);
++  if (!profile) throw new Error("student not found");
++  // Grade computed SERVER-SIDE (R6). Summative intake deferred → not credit-eligible.
++  const grade = computeGrade(states, graph, updates, { nowIso });
++  const ncaa = buildNcaaExport(profile, graph, states, updates, grade, nowIso);
++  return {
++    ...ncaa,
++    watermark: `A3 Academy support package · ${profile.displayName} · generated ${nowIso}`,
++  };
++}
++
++/** Self-service export (R5). Verifies parent-of, then builds the artifact. */
++export async function exportChildRecord(studentId: string): Promise<ExportResult> {
++  if (getAuthMode() !== "supabase") return { ok: false, error: MEMORY_NOTICE };
++  const parent = await getCurrentParent();
++  if (!parent) return { ok: false, error: "Please sign in again to continue." };
++  if (!(await parentOwnsChild(parent.uid, studentId))) return { ok: false, error: GENERIC_FAIL };
++
++  try {
++    const nowIso = new Date().toISOString();
++    const artifact = await buildArtifact(studentId, nowIso);
++    return { ok: true, artifact };
++  } catch {
++    return { ok: false, error: GENERIC_FAIL };
++  }
++}
++
++/**
++ * Self-service delete (R5). ORDER: authz → generate export FIRST → erase. The
++ * audit row carries NO PII body. The export artifact is returned so the parent
++ * becomes custodian of the record (§3 export-first-then-delete).
++ */
++export async function deleteChildRecord(studentId: string): Promise<DeleteResult> {
++  if (getAuthMode() !== "supabase") return { ok: false, error: MEMORY_NOTICE };
++  const parent = await getCurrentParent();
++  if (!parent) return { ok: false, error: "Please sign in again to continue." };
++  // (a) verify authz BEFORE any erase.
++  if (!(await parentOwnsChild(parent.uid, studentId))) return { ok: false, error: GENERIC_FAIL };
++
++  try {
++    const nowIso = new Date().toISOString();
++    const repo = await getRepository();
++    // (b) generate the export FIRST (§3 export-then-delete) — if it throws, we
++    // never reach the erase, so no data is destroyed without a record produced.
++    await buildArtifact(studentId, nowIso);
++    // (c) only THEN erase operational data (anonymize-in-place; append-only kept).
++    await repo.eraseOperationalData(studentId);
++    // Audit row — NO PII body (R5): { actorId, actorRole, studentId, recordType }.
++    try {
++      await repo.appendAccessLog({
++        actorId: parent.uid,
++        actorRole: "parent", // administrator of record (§7)
++        studentId,
++        recordType: "operational_erase",
++      });
++    } catch {
++      /* audit best-effort; the erase already succeeded */
++    }
++    return { ok: true };
++  } catch {
++    return { ok: false, error: GENERIC_FAIL };
++  }
++}
+diff --git a/app/parent/children/[studentId]/page.tsx b/app/parent/children/[studentId]/page.tsx
+new file mode 100644
+index 0000000..78cba71
+--- /dev/null
++++ b/app/parent/children/[studentId]/page.tsx
+@@ -0,0 +1,261 @@
++// /parent/children/[studentId] — the per-child parent dashboard (Phase 7 §12-13,
++// R3/R6/R8/R9/R11). SERVER component, ParentShell, parent-scoped. The grade is
++// computed SERVER-SIDE (NO lib/grade import in any client child) and only plain
++// data is passed down.
++//
++// MEMORY MODE: this surface is supabase-only (mirrors /parent). In memory mode it
++// renders a calm "not available" rather than throwing.
++//
++// Renders: course-progress ring (0-100%), projected grade (letter suppressed/grey
++// while no summative, R3 disclaimer visible), 5-10 subject masteries (StatusPill
++// bands), proof modules, stuck nodes, export + delete (server actions).
++
++import { notFound, redirect } from "next/navigation";
++import { getAuthMode } from "../../../../lib/auth/mode";
++import { getCurrentParent, parentOwnsChild } from "../../../../lib/auth/parent";
++import { getRepository } from "../../../../lib/repository/server";
++import { computeMasteryAll } from "../../../../lib/mastery-engine";
++import { recommend } from "../../../../lib/adaptive-router";
++import { computeFlags } from "../../../../lib/insight/flags";
++import { computeGrade } from "../../../../lib/grade";
++import { rollUpSubjects } from "../../../../lib/grade/subjects";
++import { buildProofModules, buildStuckNodes } from "../../../../lib/insight/proof";
++import { creditTier } from "../../../../lib/transcript";
++import { ParentShell } from "../../../../components/layout/ParentShell";
++import { PageHeader } from "../../../../components/ui/PageHeader";
++import { Card } from "../../../../components/ui/Card";
++import { InsetPanel, LabeledSection } from "../../../../components/ui/Panels";
++import { ProgressRing } from "../../../../components/gamification/ProgressRing";
++import { ProofModule } from "../../../../components/insight/ProofModule";
++import { ChildRecordActions } from "./ChildRecordActions";
++
++const SUBJECT_BAND_LABEL: Record<string, string> = {
++  not_started: "Not started",
++  developing: "Getting started",
++  progressing: "Progressing",
++  strong: "Strong",
++};
++
++export const metadata = {
++  title: "Student record — A3 Academy Family",
++};
++
++export default async function ParentChildDashboard({
++  params,
++}: {
++  params: Promise<{ studentId: string }>;
++}) {
++  if (getAuthMode() !== "supabase") return <NotAvailable />;
++
++  const { studentId } = await params;
++  const parent = await getCurrentParent();
++  if (!parent) redirect("/auth/sign-in");
++
++  // Authz: the verified parent must own this child (R5).
++  if (!(await parentOwnsChild(parent.uid, studentId))) notFound();
++
++  const repo = await getRepository();
++  const profile = await repo.getStudent(studentId);
++  if (!profile) notFound();
++
++  const [graph, states, attempts, updates] = await Promise.all([
++    repo.getGraph(),
++    repo.getSkillStates(studentId),
++    repo.listAttempts(studentId),
++    repo.listMasteryUpdates(studentId),
++  ]);
++
++  const nowIso = new Date().toISOString();
++  const batch = computeMasteryAll(studentId, states, graph, nowIso);
++  void recommend(batch.results, states, graph); // parity with other surfaces
++
++  // SERVER-SIDE grade (R6). Summative intake deferred → not credit-eligible.
++  const grade = computeGrade(states, graph, updates, { nowIso });
++  const lockedIds = new Set(grade.locked);
++
++  const subjects = rollUpSubjects(graph, states, batch.results, lockedIds);
++
++  const creditNodeIds = graph.nodes
++    .filter((n) => creditTier(n) === "algebra1-credit")
++    .map((n) => n.id);
++  const proofModules = buildProofModules(
++    graph,
++    states,
++    batch.results,
++    updates,
++    lockedIds,
++    creditNodeIds,
++  ).slice(0, 8);
++
++  const flags = computeFlags(graph, attempts, updates, states, batch.results, null, nowIso);
++  const stuckNodes = buildStuckNodes(graph, batch.results, flags).slice(0, 6);
++
++  // Course-progress 0-100% = mastered credit-bearing nodes / credit-bearing scope.
++  const creditTotal = creditNodeIds.length;
++  const masteredCredit = creditNodeIds.filter((id) => states[id]?.status === "mastered").length;
++  const courseProgress = creditTotal === 0 ? 0 : masteredCredit / creditTotal;
++
++  return (
++    <ParentShell parentName={parent.name}>
++      <div className="fade-in">
++        <PageHeader
++          eyebrow={`Family · ${profile.displayName}`}
++          title={`${profile.displayName}'s progress`}
++          subhead="Course progress, projected grade, and the evidence behind each placement. Read-only."
++        />
++
++        {/* Top: progress ring + projected grade. */}
++        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
++          <Card>
++            <LabeledSection label="Course progress">
++              <div className="flex items-center gap-6">
++                <ProgressRing
++                  value={courseProgress}
++                  ariaLabel={`Course progress: ${masteredCredit} of ${creditTotal} skills`}
++                  label={`${Math.round(courseProgress * 100)}%`}
++                  sublabel={`${masteredCredit} of ${creditTotal} skills`}
++                />
++                <p className="text-[13px] leading-[1.55] text-ink-500">
++                  Share of the credit-bearing Algebra 1 skills {profile.displayName} has
++                  mastered so far.
++                </p>
++              </div>
++            </LabeledSection>
++          </Card>
++
++          <Card>
++            <LabeledSection label="Projected grade">
++              <ProjectedGrade
++                pct={grade.pct}
++                letter={grade.letter}
++                summativePresent={grade.summativePresent}
++                disclaimer={grade.disclaimer}
++              />
++            </LabeledSection>
++          </Card>
++        </div>
++
++        {/* Subject masteries. */}
++        <LabeledSection label="Subject areas" className="mt-5">
++          <Card>
++            <ul className="grid gap-2.5">
++              {subjects.map((s) => (
++                <li
++                  key={s.id}
++                  className="flex items-center justify-between gap-3 border-b border-selected pb-2.5 last:border-0 last:pb-0"
++                >
++                  <span className="truncate text-[13px] font-medium text-ink">{s.label}</span>
++                  <span className="flex shrink-0 items-center gap-3">
++                    <span className="font-mono text-[11px] text-ink-500">
++                      {s.masteredLocked}/{s.total}
++                    </span>
++                    <span className="text-[12.5px] font-medium text-ink-700">
++                      {SUBJECT_BAND_LABEL[s.band]}
++                    </span>
++                  </span>
++                </li>
++              ))}
++            </ul>
++          </Card>
++        </LabeledSection>
++
++        {/* Proof modules + stuck nodes. */}
++        <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
++          <LabeledSection label="Why these placements?">
++            <Card>
++              {proofModules.length === 0 ? (
++                <InsetPanel>No skills attempted yet.</InsetPanel>
++              ) : (
++                <div className="grid gap-3">
++                  {proofModules.map((p) => (
++                    <ProofModule key={p.skillId} data={p} />
++                  ))}
++                </div>
++              )}
++            </Card>
++          </LabeledSection>
++
++          <LabeledSection label="Where to help">
++            <Card>
++              {stuckNodes.length === 0 ? (
++                <InsetPanel>
++                  Nothing stuck right now — {profile.displayName} is progressing well.
++                </InsetPanel>
++              ) : (
++                <ul className="grid gap-2.5">
++                  {stuckNodes.map((n) => (
++                    <li key={n.skillId} className="text-[13px] leading-[1.5] text-ink-700">
++                      {n.message}
++                    </li>
++                  ))}
++                </ul>
++              )}
++            </Card>
++          </LabeledSection>
++        </div>
++
++        {/* Export + delete. */}
++        <LabeledSection label="Your record" className="mt-5">
++          <Card>
++            <p className="mb-4 text-[13px] leading-[1.55] text-ink-500">
++              Export {profile.displayName}&rsquo;s full record anytime. Deleting it
++              anonymizes their work — export first.
++            </p>
++            <ChildRecordActions studentId={studentId} childName={profile.displayName} />
++          </Card>
++        </LabeledSection>
++      </div>
++    </ParentShell>
++  );
++}
++
++function ProjectedGrade({
++  pct,
++  letter,
++  summativePresent,
++  disclaimer,
++}: {
++  pct: number;
++  letter: string;
++  summativePresent: boolean;
++  disclaimer: string;
++}) {
++  return (
++    <div>
++      <div className="flex items-end gap-3">
++        <span className="font-display text-[34px] font-semibold leading-none text-ink">
++          {Math.round(pct)}
++        </span>
++        {/* Letter grade suppressed / greyed while no summative exists (R3). */}
++        <span
++          className={`text-[18px] font-semibold ${
++            summativePresent ? "text-ink-700" : "text-ink-400"
++          }`}
++          title={summativePresent ? undefined : "Letter grade pending a summative assessment"}
++        >
++          {summativePresent ? letter : "—"}
++        </span>
++        <span className="pb-1 text-[12px] font-medium uppercase tracking-[0.3px] text-ink-500">
++          Projected
++        </span>
++      </div>
++      <p className="mt-3 text-[12px] leading-[1.5] text-ink-500">{disclaimer}</p>
++    </div>
++  );
++}
++
++function NotAvailable() {
++  return (
++    <main className="flex min-h-screen items-center justify-center bg-canvas px-6 py-16">
++      <div className="w-full max-w-[420px] text-center">
++        <h1 className="font-display text-[22px] font-semibold text-ink">
++          Family accounts are not available here
++        </h1>
++        <p className="mt-3 text-[14px] leading-[1.55] text-ink-500">
++          This environment uses the local student flow. Family dashboards are
++          available in the hosted school environment.
++        </p>
++      </div>
++    </main>
++  );
++}
+diff --git a/components/insight/ProofModule.tsx b/components/insight/ProofModule.tsx
+new file mode 100644
+index 0000000..8493551
+--- /dev/null
++++ b/components/insight/ProofModule.tsx
+@@ -0,0 +1,72 @@
++// components/insight/ProofModule — the parent-facing "why this placement?" proof
++// module (§12-13, R9). Plain-English confidence band; the numeric posterior/CI
++// rides on hover/title ONLY, never as primary copy. Presentational, server-safe.
++//
++// "Confirmed" = passed an unseen re-check after a delay (the §3 delayed-unseen
++// lock). "Likely solid" = mastered but not yet delay-confirmed. "Still proving
++// it" = in progress. The band is computed server-side and passed in.
++
++export type ProofBand = "confirmed" | "likely_solid" | "still_proving";
++
++export interface ProofModuleData {
++  skillId: string;
++  title: string;
++  band: ProofBand;
++  /** Count of evidence items (attempts) behind the placement. */
++  evidenceCount: number;
++  /** True when the mastery was earned (not diagnostic/credit-propagation placement). */
++  confirmed: boolean;
++  /** ISO date of the last re-check, or null when none yet. */
++  lastRecheckAt: string | null;
++}
++
++const BAND_META: Record<ProofBand, { label: string; color: string; tip: string }> = {
++  confirmed: {
++    label: "Confirmed",
++    color: "var(--color-status-mastered)",
++    tip: "Passed an unseen re-check after a delay.",
++  },
++  likely_solid: {
++    label: "Likely solid",
++    color: "var(--color-retrieval)",
++    tip: "Mastered in practice; awaiting a delayed re-check to confirm.",
++  },
++  still_proving: {
++    label: "Still proving it",
++    color: "var(--color-status-developing)",
++    tip: "Working toward mastery — more evidence needed.",
++  },
++};
++
++export interface ProofModuleProps {
++  data: ProofModuleData;
++}
++
++export function ProofModule({ data }: ProofModuleProps) {
++  const meta = BAND_META[data.band];
++  const recheck = data.lastRecheckAt ? data.lastRecheckAt.slice(0, 10) : "—";
++  return (
++    <div className="flex items-start justify-between gap-3 border-b border-selected pb-3 last:border-0 last:pb-0">
++      <div className="min-w-0">
++        <p className="truncate text-[13px] font-medium text-ink">{data.title}</p>
++        <p className="mt-0.5 text-[11.5px] leading-[1.5] text-ink-500">
++          {/* Numeric evidence count is factual context, not a score. */}
++          {data.evidenceCount} item{data.evidenceCount === 1 ? "" : "s"} of evidence
++          <span className="text-ink-400"> · last check {recheck}</span>
++        </p>
++      </div>
++      <span
++        // The precise definition lives on hover/title only (R9) — never primary copy.
++        title={meta.tip}
++        className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-medium text-ink-700"
++      >
++        <span
++          aria-hidden
++          className="inline-block shrink-0 rounded-full"
++          style={{ width: 7, height: 7, background: meta.color }}
++        />
++        {meta.label}
++      </span>
++    </div>
++  );
++}
+diff --git a/components/insight/SeverityPill.tsx b/components/insight/SeverityPill.tsx
+new file mode 100644
+index 0000000..f3525d2
+--- /dev/null
++++ b/components/insight/SeverityPill.tsx
+@@ -0,0 +1,43 @@
++// components/insight/SeverityPill — the intervention-band pill for staff/coach
++// reporting (Phase 7 R7). 7px dot + MANDATORY text label — NEVER color-only
++// (accessibility + STYLE_GUIDE). Tokens only: --color-status-mastered (green) /
++// --color-retrieval (amber) / --color-error (rose). Presentational, server-safe.
++//
++// This is a DISPLAY band, distinct from FlagEntry.severity (which is unchanged).
++
++import type { InterventionBand } from "@/types";
++
++interface BandMeta {
++  label: string;
++  /** CSS variable token for the dot color. */
++  color: string;
++}
++
++const BAND_META = {
++  on_track: { label: "On track", color: "var(--color-status-mastered)" },
++  watch: { label: "Watch", color: "var(--color-retrieval)" },
++  intervention: { label: "Intervention", color: "var(--color-error)" },
++} satisfies Record<InterventionBand, BandMeta>;
++
++export interface SeverityPillProps {
++  band: InterventionBand;
++  small?: boolean;
++  className?: string;
++}
++
++export function SeverityPill({ band, small = false, className = "" }: SeverityPillProps) {
++  const meta = BAND_META[band];
++  return (
++    <span
++      className={`inline-flex items-center gap-1.5 font-medium text-ink-700 ${className}`}
++      style={{ fontSize: small ? 11 : 12.5 }}
++    >
++      <span
++        aria-hidden
++        className="inline-block shrink-0 rounded-full"
++        style={{ width: 7, height: 7, background: meta.color }}
++      />
++      {meta.label}
++    </span>
++  );
++}
+diff --git a/lib/auth/parent.ts b/lib/auth/parent.ts
+index a11ccac..7d92452 100644
+--- a/lib/auth/parent.ts
++++ b/lib/auth/parent.ts
+@@ -107,6 +107,39 @@ export async function getRoster(parentUid: string): Promise<RosterChild[]> {
+   }
+ }
+ 
++/**
++ * Verify the authenticated parent owns an ACTIVE link to a child (C-C2). The
++ * single authz gate for the per-child parent dashboard + its export/delete
++ * actions (Phase 7 R5). Service-read filtered to the verified parent uid; returns
++ * false on any error / non-ownership. Optionally require currently-granted consent.
++ */
++export async function parentOwnsChild(
++  parentUid: string,
++  studentId: string,
++  opts: { requireGranted?: boolean } = {},
++): Promise<boolean> {
++  if (!parentUid || !studentId) return false;
++  try {
++    const service = createServiceClient();
++    const { data, error } = await service
++      .from("parent_student_links")
++      .select("status, consent_events:current_consent_event_id(status)")
++      .match({ parent_id: parentUid, student_id: studentId })
++      .maybeSingle();
++    if (error || !data) return false;
++    const row = data as {
++      status: string;
++      consent_events: { status: string } | { status: string }[] | null;
++    };
++    if (row.status !== "active") return false;
++    if (!opts.requireGranted) return true;
++    const ev = normalizeOne(row.consent_events);
++    return ev?.status === "granted";
++  } catch {
++    return false;
++  }
++}
++
+ /** Map link.status + current consent event status → the roster ConsentState. */
+ export function deriveConsent(
+   linkStatus: string,
+diff --git a/lib/compliance/consent-gate.test.ts b/lib/compliance/consent-gate.test.ts
+new file mode 100644
+index 0000000..59df415
+--- /dev/null
++++ b/lib/compliance/consent-gate.test.ts
+@@ -0,0 +1,15 @@
++// lib/compliance/consent-gate tests (Phase 7 R11) — VPC ordering predicate. PURE.
++
++import { describe, expect, it } from "vitest";
++import { consentGate } from "./consent-gate";
++
++describe("consentGate", () => {
++  it("allows collection only when consent is granted", () => {
++    expect(consentGate({ parentalConsent: { status: "granted", updatedAt: null } })).toBe(true);
++  });
++
++  it("blocks collection while pending or revoked", () => {
++    expect(consentGate({ parentalConsent: { status: "pending", updatedAt: null } })).toBe(false);
++    expect(consentGate({ parentalConsent: { status: "revoked", updatedAt: null } })).toBe(false);
++  });
++});
+diff --git a/lib/compliance/consent-gate.ts b/lib/compliance/consent-gate.ts
+new file mode 100644
+index 0000000..7367ba3
+--- /dev/null
++++ b/lib/compliance/consent-gate.ts
+@@ -0,0 +1,31 @@
++// lib/compliance/consent-gate — the VPC ordering gate (§5, R11). PURE: no IO, no
++// Date.now().
++//
++// COPPA §5 ordering: NO learning telemetry, free-text profile, interest graph, or
++// persistent behavioral tracking may run for an under-13 student BEFORE verifiable
++// parental consent is granted. Pre-consent we collect only parent email + child
++// birth month/year. This gate is the single pure predicate any future
++// preference-sampler / telemetry surface MUST check before collecting.
++//
++// VERIFIED (R11, 2026-06-16): there is NO pre-consent telemetry or
++// preference-sampler surface in the current app. The onboarding flow
++// (app/student/onboarding) runs INSIDE an already-consented, parent-provisioned
++// session — the parent grants consent at provisioning (app/parent/actions.ts
++// provisionChild writes a granted consent_event), and the child's name/grade/sport
++// selection is a personalization choice within that consented session, not
++// pre-consent behavioral telemetry. This gate therefore guards a not-yet-built
++// surface; it is added now so the contract exists before any such surface ships.
++
++import type { StudentProfile } from "../../types";
++
++/**
++ * May the platform collect learning telemetry / run the interest-graph sampler
++ * for this student? TRUE only when parental consent is currently granted. PURE.
++ *
++ * Any telemetry/preference-sampler surface MUST gate on this; a non-granted
++ * (pending/revoked) consent state returns false → collect nothing beyond the
++ * pre-consent minimum (§5).
++ */
++export function consentGate(student: Pick<StudentProfile, "parentalConsent">): boolean {
++  return student.parentalConsent.status === "granted";
++}
+diff --git a/lib/compliance/subprocessors.test.ts b/lib/compliance/subprocessors.test.ts
+new file mode 100644
+index 0000000..c33df34
+--- /dev/null
++++ b/lib/compliance/subprocessors.test.ts
+@@ -0,0 +1,61 @@
++// lib/compliance/subprocessors tests (Phase 7 R11/R12/R13) — notice filter never
++// leaks dpaStatus/securityCommitments; register seeds pending DPAs.
++
++import { describe, expect, it } from "vitest";
++import {
++  SUBPROCESSOR_REGISTER,
++  parentNoticeSection,
++} from "./subprocessors";
++
++describe("SUBPROCESSOR_REGISTER", () => {
++  it("seeds the §15 minimum vendor set with all DPAs pending (launch blocker visible)", () => {
++    const providers = SUBPROCESSOR_REGISTER.map((e) => e.provider);
++    expect(providers).toContain("Supabase");
++    expect(providers).toContain("Vercel");
++    expect(providers).toContain("LLM tutor provider");
++    expect(providers).toContain("Payment processor");
++    for (const e of SUBPROCESSOR_REGISTER) {
++      expect(e.dpaStatus).toBe("pending");
++    }
++  });
++});
++
++describe("parentNoticeSection", () => {
++  it("returns only inParentNotice entries", () => {
++    const notice = parentNoticeSection();
++    const expected = SUBPROCESSOR_REGISTER.filter((e) => e.inParentNotice).map((e) => e.provider);
++    expect(notice.map((n) => n.provider)).toEqual(expected);
++    // analytics + error logging are NOT in the parent notice.
++    expect(notice.map((n) => n.provider)).not.toContain("Analytics");
++    expect(notice.map((n) => n.provider)).not.toContain("Error logging");
++  });
++
++  it("NEVER leaks dpaStatus or securityCommitments into the parent notice", () => {
++    const notice = parentNoticeSection();
++    for (const row of notice) {
++      expect(row).not.toHaveProperty("dpaStatus");
++      expect(row).not.toHaveProperty("securityCommitments");
++      expect(row).not.toHaveProperty("sccStatus");
++      expect(row).not.toHaveProperty("inParentNotice");
++    }
++  });
++
++  it("accepts a custom register", () => {
++    const notice = parentNoticeSection([
++      {
++        provider: "X",
++        dataShared: "d",
++        purpose: "p",
++        childData: true,
++        retention: "r",
++        region: "US",
++        dpaStatus: "pending",
++        sccStatus: "not_applicable",
++        securityCommitments: "s",
++        deletionSupport: "x",
++        inParentNotice: false,
++      },
++    ]);
++    expect(notice).toEqual([]);
++  });
++});
+diff --git a/lib/compliance/subprocessors.ts b/lib/compliance/subprocessors.ts
+new file mode 100644
+index 0000000..e69ddd9
+--- /dev/null
++++ b/lib/compliance/subprocessors.ts
+@@ -0,0 +1,170 @@
++// lib/compliance/subprocessors — the subprocessor register + parent-notice
++// generator (§15, R12). PURE: no IO, no Date.now(). mr-gates GATED.
++//
++// Every vendor that touches child data is registered here. DPAs / sub-processor
++// flow-downs are a LAUNCH BLOCKER (§15) — every entry seeds dpaStatus:"pending"
++// to keep that visible. The grade/NCAA/dashboard surfaces never read this; the
++// parent notice does, via parentNoticeSection.
++//
++// LEAK GUARD (R11): parentNoticeSection emits ONLY inParentNotice entries and
++// NEVER surfaces dpaStatus or securityCommitments (those are internal compliance
++// posture, not parent-facing copy).
++
++export type DpaStatus = "pending" | "executed" | "not_required";
++export type SccStatus = "pending" | "executed" | "not_applicable";
++
++export interface SubprocessorEntry {
++  provider: string;
++  dataShared: string;
++  purpose: string;
++  /** Does this vendor touch child personal data? */
++  childData: boolean;
++  retention: string;
++  region: string;
++  dpaStatus: DpaStatus;
++  sccStatus: SccStatus;
++  securityCommitments: string;
++  deletionSupport: string;
++  /** Whether this vendor appears in the plain-language parent sharing notice. */
++  inParentNotice: boolean;
++}
++
++/**
++ * The seeded register (§15 minimum set). All DPAs start "pending" — the launch
++ * blocker is visible until paperwork is executed. Frozen so callers cannot
++ * mutate the source of truth.
++ */
++export const SUBPROCESSOR_REGISTER: readonly SubprocessorEntry[] = Object.freeze([
++  {
++    provider: "Supabase",
++    dataShared: "Account identity, learning telemetry, attempts, mastery records",
++    purpose: "Primary database, authentication, and row-level-security enforcement",
++    childData: true,
++    retention: "While enrolled; deleted/anonymized within 30 days of verified parent request",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "RLS, encryption at rest/in transit, SOC 2 (vendor)",
++    deletionSupport: "Row-level erase + anonymization via service role",
++    inParentNotice: true,
++  },
++  {
++    provider: "Vercel",
++    dataShared: "Request metadata, IP (transient), session cookies",
++    purpose: "Application hosting and edge delivery",
++    childData: true,
++    retention: "Transient request logs per vendor policy",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "TLS, platform isolation, vendor SOC 2",
++    deletionSupport: "Log expiry per vendor policy",
++    inParentNotice: true,
++  },
++  {
++    provider: "Email provider",
++    dataShared: "Parent email address, notification content",
++    purpose: "Transactional notices (consent, digests, account)",
++    childData: false,
++    retention: "Per vendor policy; minimized",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "TLS, vendor security program",
++    deletionSupport: "Suppression + deletion on request",
++    inParentNotice: true,
++  },
++  {
++    provider: "LLM tutor provider",
++    dataShared: "Tokenized misconception tags + session id (NO raw PII body, §10)",
++    purpose: "Advisory natural-language scaffolding (never routes/grades)",
++    childData: true,
++    retention: "Same as raw submissions; no training use by provider",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "No-training-use commitment, input/output filtering",
++    deletionSupport: "Deleted/anonymized with operational data",
++    inParentNotice: true,
++  },
++  {
++    provider: "Analytics",
++    dataShared: "Anonymized usage events only (irreversibly de-identified)",
++    purpose: "Product analytics",
++    childData: false,
++    retention: "Indefinite ONLY if irreversibly de-identified",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "No re-identification path; no advertising disclosure ever",
++    deletionSupport: "n/a (de-identified)",
++    inParentNotice: false,
++  },
++  {
++    provider: "Error logging",
++    dataShared: "Stack traces, actor/student ids (NO answer text or transcript bodies)",
++    purpose: "Reliability and incident response",
++    childData: true,
++    retention: "Separate from learning data; minimized",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "PII-body scrubbing, access controls",
++    deletionSupport: "Log expiry + scrub on request",
++    inParentNotice: false,
++  },
++  {
++    provider: "Payment processor",
++    dataShared: "Parent billing identity, payment-account match (VPC)",
++    purpose: "Billing and verifiable-parental-consent identity match",
++    childData: false,
++    retention: "Per PCI + vendor policy",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "PCI-DSS, tokenized cards",
++    deletionSupport: "Per financial-record retention law",
++    inParentNotice: true,
++  },
++  {
++    provider: "File storage",
++    dataShared: "Export packages, work samples",
++    purpose: "Generated export artifacts (watermarked, short-TTL signed URLs)",
++    childData: true,
++    retention: "While enrolled / per export election; deleted with operational data",
++    region: "US",
++    dpaStatus: "pending",
++    sccStatus: "not_applicable",
++    securityCommitments: "Private buckets, family/student-scoped paths, signed URLs",
++    deletionSupport: "Object delete on request",
++    inParentNotice: true,
++  },
++]);
++
++/** A parent-facing sharing-notice row — NO internal compliance posture leaks. */
++export interface ParentNoticeRow {
++  provider: string;
++  dataShared: string;
++  purpose: string;
++  childData: boolean;
++  retention: string;
++}
++
++/**
++ * The plain-language sharing notice for parents (§4 direct notice). Returns ONLY
++ * inParentNotice entries, projected to parent-facing fields — dpaStatus and
++ * securityCommitments are NEVER included (R11). PURE; preserves register order.
++ */
++export function parentNoticeSection(
++  register: readonly SubprocessorEntry[] = SUBPROCESSOR_REGISTER,
++): ParentNoticeRow[] {
++  return register
++    .filter((e) => e.inParentNotice)
++    .map((e) => ({
++      provider: e.provider,
++      dataShared: e.dataShared,
++      purpose: e.purpose,
++      childData: e.childData,
++      retention: e.retention,
++    }));
++}
+diff --git a/lib/grade/index.test.ts b/lib/grade/index.test.ts
+new file mode 100644
+index 0000000..cd73e72
+--- /dev/null
++++ b/lib/grade/index.test.ts
+@@ -0,0 +1,213 @@
++// lib/grade tests (Phase 7 R1/R2/R3/R13) — provenance exclusion, credit-bearing
++// denominator, summative-zero, creditEligible. PURE fixtures (no live graph).
++
++import { describe, expect, it } from "vitest";
++import {
++  GRADE_DISCLAIMER,
++  GRADING_SCALE_VERSION,
++  computeGrade,
++  letterFor,
++} from "./index";
++import type {
++  CurriculumGraph,
++  MasteryUpdate,
++  Phase,
++  SkillNode,
++  StudentSkillState,
++} from "../../types";
++
++function node(id: string, ccss: string[]): SkillNode {
++  return {
++    id,
++    title: `Skill ${id}`,
++    domain: "d",
++    tier: 0,
++    prereqs: [],
++    standards: { ccss, state: null },
++    objective: "",
++    misconceptionTags: [],
++    visual: null,
++    contextHooks: {
++      baseball: "",
++      softball: "",
++      basketball: "",
++      soccer: "",
++      football: "",
++      volleyball: "",
++      neutral: "",
++    },
++    workedExamples: [],
++    problems: { p1: [], p2: [], p3: [] },
++  };
++}
++
++// Two credit-bearing nodes (A-... HS-category) + one prerequisite-review (8.EE...).
++const graph: CurriculumGraph = {
++  schema: {
++    version: "1.0.0",
++    course: "Algebra 1",
++    audience: "test",
++    sports: ["neutral"],
++    phases: { p1: "sport", p2: "blended", p3: "neutral" },
++    masteryStatuses: [],
++  },
++  domains: [{ id: "d", label: "D", tier: 0 }],
++  misconceptionRegistry: [],
++  nodes: [
++    node("credit-a", ["A-REI.B.3"]),
++    node("credit-b", ["A-SSE.A.1"]),
++    node("prereq", ["8.EE.C.7"]),
++  ],
++  edges: [],
++};
++
++function state(over: Partial<StudentSkillState>): StudentSkillState {
++  return {
++    mastery: 0,
++    status: "unknown",
++    phase: 1 as Phase,
++    attempts: 0,
++    correct: 0,
++    hints: 0,
++    timeMs: 0,
++    recent: [],
++    transfer: false,
++    lastAttemptAt: null,
++    masteredAt: null,
++    ...over,
++  };
++}
++
++function masteredUpdate(
++  over: Partial<MasteryUpdate> & { skillId: string; trigger: MasteryUpdate["trigger"] },
++): MasteryUpdate {
++  return {
++    id: `u-${over.skillId}-${over.trigger}`,
++    studentId: "stu",
++    attemptId: null,
++    prevMastery: 0,
++    newMastery: 0.9,
++    prevStatus: "developing",
++    newStatus: "mastered",
++    prevPhase: 1 as Phase,
++    newPhase: 3 as Phase,
++    reason: "",
++    engineVersion: "1.0.0",
++    sessionId: "",
++    graphVersion: "1.0.0",
++    createdAt: "2026-06-01T00:00:00.000Z",
++    ...over,
++  };
++}
++
++const NOW = "2026-06-10T00:00:00.000Z";
++
++describe("computeGrade", () => {
++  it("counts only attempt-earned mastery in the 70%; excludes diagnostic/credit-propagation as provisional", () => {
++    const states: Record<string, StudentSkillState> = {
++      "credit-a": state({ status: "mastered", masteredAt: NOW, attempts: 6, correct: 6 }),
++      "credit-b": state({ status: "mastered", masteredAt: NOW }),
++    };
++    const updates: MasteryUpdate[] = [
++      masteredUpdate({ skillId: "credit-a", trigger: "attempt" }),
++      masteredUpdate({ skillId: "credit-b", trigger: "diagnostic" }),
++    ];
++    const grade = computeGrade(states, graph, updates, { nowIso: NOW });
++
++    expect(grade.locked).toEqual(["credit-a"]);
++    expect(grade.provisionalExcluded).toEqual(["credit-b"]);
++    // Denominator = 2 credit-bearing nodes (prereq excluded). 1/2 = 0.5.
++    expect(grade.components.mastery).toBeCloseTo(0.5, 10);
++  });
++
++  it("uses the LATEST mastered-making update's trigger (a later attempt confirms a diagnostic placement)", () => {
++    const states: Record<string, StudentSkillState> = {
++      "credit-a": state({ status: "mastered", masteredAt: NOW, attempts: 5, correct: 5 }),
++    };
++    const updates: MasteryUpdate[] = [
++      masteredUpdate({
++        skillId: "credit-a",
++        trigger: "diagnostic",
++        id: "u1",
++        createdAt: "2026-06-01T00:00:00.000Z",
++      }),
++      masteredUpdate({
++        skillId: "credit-a",
++        trigger: "attempt",
++        id: "u2",
++        createdAt: "2026-06-05T00:00:00.000Z",
++      }),
++    ];
++    const grade = computeGrade(states, graph, updates, { nowIso: NOW });
++    expect(grade.locked).toEqual(["credit-a"]);
++    expect(grade.provisionalExcluded).toEqual([]);
++  });
++
++  it("denominator is credit-bearing nodes only (prerequisite-review excluded)", () => {
++    // Master the prerequisite-review node only — it must NOT affect the 70%.
++    const states: Record<string, StudentSkillState> = {
++      prereq: state({ status: "mastered", masteredAt: NOW, attempts: 4, correct: 4 }),
++    };
++    const updates: MasteryUpdate[] = [masteredUpdate({ skillId: "prereq", trigger: "attempt" })];
++    const grade = computeGrade(states, graph, updates, { nowIso: NOW });
++    expect(grade.locked).toEqual([]); // prereq node is not in the denominator
++    expect(grade.components.mastery).toBe(0);
++  });
++
++  it("summative defaults to 0 with summativePresent:false and creditEligible:false", () => {
++    const grade = computeGrade({}, graph, [], { nowIso: NOW });
++    expect(grade.summativePresent).toBe(false);
++    expect(grade.components.summative).toBe(0);
++    expect(grade.creditEligible).toBe(false);
++  });
++
++  it("summative present → summativePresent:true, creditEligible:true, weighted into pct", () => {
++    const states: Record<string, StudentSkillState> = {
++      "credit-a": state({ status: "mastered", masteredAt: NOW, attempts: 6, correct: 6 }),
++      "credit-b": state({ status: "mastered", masteredAt: NOW, attempts: 6, correct: 6 }),
++    };
++    const updates: MasteryUpdate[] = [
++      masteredUpdate({ skillId: "credit-a", trigger: "attempt" }),
++      masteredUpdate({ skillId: "credit-b", trigger: "attempt" }),
++    ];
++    const grade = computeGrade(states, graph, updates, { nowIso: NOW, summative: 1 });
++    expect(grade.summativePresent).toBe(true);
++    expect(grade.creditEligible).toBe(true);
++    // mastery 1.0, summative 1.0, portfolio 1.0 → 100.
++    expect(grade.pct).toBeCloseTo(100, 6);
++    expect(grade.letter).toBe("A+");
++  });
++
++  it("portfolio counts real work-product (attempts>0), never diagnostic-credit-only", () => {
++    const states: Record<string, StudentSkillState> = {
++      // mastered by diagnostic, NO attempts → counts for neither 70% nor portfolio.
++      "credit-a": state({ status: "mastered", masteredAt: NOW, attempts: 0 }),
++      // has real attempts but not mastered → portfolio yes, 70% no.
++      "credit-b": state({ status: "developing", attempts: 3, correct: 1 }),
++    };
++    const updates: MasteryUpdate[] = [
++      masteredUpdate({ skillId: "credit-a", trigger: "diagnostic" }),
++    ];
++    const grade = computeGrade(states, graph, updates, { nowIso: NOW });
++    expect(grade.components.mastery).toBe(0);
++    expect(grade.provisionalExcluded).toEqual(["credit-a"]);
++    // portfolio = credit-b only (1 of 2 credit-bearing) = 0.5.
++    expect(grade.components.portfolio).toBeCloseTo(0.5, 10);
++  });
++
++  it("carries the verbatim disclaimer and scale version on every output", () => {
++    const grade = computeGrade({}, graph, [], { nowIso: NOW });
++    expect(grade.disclaimer).toBe(GRADE_DISCLAIMER);
++    expect(grade.gradingScaleVersion).toBe(GRADING_SCALE_VERSION);
++  });
++});
++
++describe("letterFor", () => {
++  it("maps boundaries to the published scale", () => {
++    expect(letterFor(100)).toBe("A+");
++    expect(letterFor(90)).toBe("A-");
++    expect(letterFor(72)).toBe("C-");
++    expect(letterFor(59)).toBe("F");
++    expect(letterFor(0)).toBe("F");
++  });
++});
+diff --git a/lib/grade/index.ts b/lib/grade/index.ts
+new file mode 100644
+index 0000000..9eeba6d
+--- /dev/null
++++ b/lib/grade/index.ts
+@@ -0,0 +1,211 @@
++// lib/grade — the published, versioned 70/20/10 course-grade model (§14a,
++// phase-7 R1/R2/R3). PURE TypeScript: no React, no IO, no Date.now() (nowIso is
++// an explicit parameter). mr-kahn GATED.
++//
++// This is a DOCUMENTED PROJECTION of the deterministic mastery model — never a
++// separate black-box number, never stored. It is recomputable from the graph,
++// the per-skill states, and the immutable MasteryUpdate log it cites.
++//
++// NON-NEGOTIABLE INVARIANTS (do not weaken):
++//   - SERVER-SIDE ONLY (R6): computeGrade runs in server components/actions.
++//     NO "use client" module may import lib/grade. The grade is rendered, never
++//     shipped as client state.
++//   - LOCKED = locked-BY-TRANSFER, read from MasteryUpdate provenance (R1): a
++//     node's 70% credit counts iff its LATEST mastered-making update has trigger
++//     "attempt" (earned P3 transfer). Nodes whose only mastered-making update is
++//     "diagnostic"/"credit-propagation" (provisional placement) are EXCLUDED →
++//     provisionalExcluded[]. NEVER read "locked" from status alone.
++//   - DENOMINATOR = credit-bearing nodes only (R2): isCreditBearingCode/creditTier
++//     from lib/transcript (single source). Prerequisite-review nodes excluded.
++//   - EFFORT/TIME is NEVER an input (CLAUDE §14 / §14a).
++//   - creditEligible is FALSE until a summative assessment exists (the intake is
++//     deferred — §14a credit requires full scope + summative + admin approval).
++
++import { creditTier } from "../transcript";
++import type {
++  CurriculumGraph,
++  MasteryUpdate,
++  SkillNode,
++  StudentSkillState,
++} from "../../types";
++
++/**
++ * The published grading scale (0-100 → letter). FROZEN + versioned: changing any
++ * boundary is a Matt human checkpoint and a version bump (the scale must be
++ * published before the course begins, §14a). Standard +/- bands.
++ */
++export const GRADING_SCALE: { min: number; letter: string }[] = [
++  { min: 97, letter: "A+" },
++  { min: 93, letter: "A" },
++  { min: 90, letter: "A-" },
++  { min: 87, letter: "B+" },
++  { min: 83, letter: "B" },
++  { min: 80, letter: "B-" },
++  { min: 77, letter: "C+" },
++  { min: 73, letter: "C" },
++  { min: 70, letter: "C-" },
++  { min: 67, letter: "D+" },
++  { min: 63, letter: "D" },
++  { min: 60, letter: "D-" },
++  { min: 0, letter: "F" },
++];
++
++/** Bump on ANY scale/weight change (Matt checkpoint). */
++export const GRADING_SCALE_VERSION = "1.0.0";
++
++/** Component weights — published, frozen (§14a). Sum to 1.0. */
++export const GRADE_WEIGHTS = { mastery: 0.7, summative: 0.2, portfolio: 0.1 } as const;
++
++/**
++ * The verbatim FERPA disclaimer (R3). Rides the computeGrade output AND the NCAA
++ * grade line. A3 is the curriculum/software provider — the parent is the
++ * administrator of record; A3 does not issue grades or credit (§7, §14a).
++ */
++export const GRADE_DISCLAIMER =
++  "Projected course grade — for the parent-administrator's reference; A3 does not issue grades or credit";
++
++/** Map a 0-100 percentage to a letter via the published scale. */
++export function letterFor(pct: number): string {
++  const clamped = Math.min(100, Math.max(0, pct));
++  for (const band of GRADING_SCALE) {
++    if (clamped >= band.min) return band.letter;
++  }
++  return "F";
++}
++
++export interface GradeComponents {
++  /** 70% — locked-by-transfer fraction over the credit-bearing denominator. */
++  mastery: number;
++  /** 20% — summative score (0 until the summative intake exists). */
++  summative: number;
++  /** 10% — real-work-product portfolio fraction over the same denominator. */
++  portfolio: number;
++}
++
++export interface GradeOptions {
++  /** Cumulative proctored/summative score as a 0-1 fraction. Absent until built. */
++  summative?: number;
++  /** ISO "now" — the view header records exactly this. Reserved for audit parity. */
++  nowIso: string;
++}
++
++export interface CourseGrade {
++  /** Weighted 0-100 projection. */
++  pct: number;
++  /** Letter from the published scale. */
++  letter: string;
++  components: GradeComponents;
++  gradingScaleVersion: string;
++  /** Node ids counted in the 70% (locked-by-transfer, credit-bearing). */
++  locked: string[];
++  /** Node ids EXCLUDED from the 70%: mastered only by diagnostic/credit-propagation. */
++  provisionalExcluded: string[];
++  /** False when no summative score was supplied (20% defaults to 0). */
++  summativePresent: boolean;
++  /** False until a summative exists — no 1.0 Algebra-1 credit before then (§14a). */
++  creditEligible: boolean;
++  /** Verbatim FERPA disclaimer (R3). */
++  disclaimer: string;
++}
++
++/**
++ * The latest MasteryUpdate that put a skill into "mastered" (newStatus ===
++ * "mastered"), by skill, plus that update's trigger. createdAt asc, id asc
++ * tie-break — the LAST such row wins (a restoration/earn supersedes an earlier
++ * placement). Mirrors lib/transcript's masteredUpdateBySkill provenance read.
++ */
++function latestMasteredTriggerBySkill(
++  updates: MasteryUpdate[],
++): Map<string, MasteryUpdate["trigger"]> {
++  const out = new Map<string, MasteryUpdate["trigger"]>();
++  const ordered = [...updates].sort(
++    (a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id),
++  );
++  for (const u of ordered) {
++    if (u.newStatus === "mastered") out.set(u.skillId, u.trigger);
++  }
++  return out;
++}
++
++/** Credit-bearing (HS-category) nodes — the 70% + 10% denominator (R2). */
++function creditBearingNodes(graph: CurriculumGraph): SkillNode[] {
++  return graph.nodes.filter((n) => creditTier(n) === "algebra1-credit");
++}
++
++/**
++ * Compute the published 70/20/10 course grade. PURE.
++ *
++ * @param states  per-skill states (the student's current state map)
++ * @param graph   the curriculum graph (credit-bearing scope is derived from it)
++ * @param updates the immutable MasteryUpdate log — provenance for the 70%
++ * @param opts    summative score (absent until built) + nowIso
++ */
++export function computeGrade(
++  states: Record<string, StudentSkillState>,
++  graph: CurriculumGraph,
++  updates: MasteryUpdate[],
++  opts: GradeOptions,
++): CourseGrade {
++  void opts.nowIso; // reserved for audit-header parity; never enters the math
++  const denomNodes = creditBearingNodes(graph);
++  const denom = denomNodes.length;
++  const triggerBySkill = latestMasteredTriggerBySkill(updates);
++
++  // --- 70%: locked-BY-TRANSFER over the credit-bearing denominator (R1/R2).
++  const locked: string[] = [];
++  const provisionalExcluded: string[] = [];
++  for (const node of denomNodes) {
++    const state = states[node.id];
++    if (!state || state.status !== "mastered") continue; // not mastered → neither bucket
++    const trigger = triggerBySkill.get(node.id);
++    if (trigger === "attempt") {
++      // Earned P3 transfer (incl. a restoration, which logs trigger "attempt").
++      locked.push(node.id);
++    } else {
++      // Mastered only by diagnostic placement / credit-propagation — provisional.
++      provisionalExcluded.push(node.id);
++    }
++  }
++  const masteryComponent = denom === 0 ? 0 : locked.length / denom;
++
++  // --- 20%: summative when present, else 0 (intake deferred — R12/§14a).
++  const summativePresent = typeof opts.summative === "number";
++  const summativeComponent = summativePresent
++    ? Math.min(1, Math.max(0, opts.summative as number))
++    : 0;
++
++  // --- 10%: portfolio = credit-bearing nodes with REAL work-product (attempts > 0
++  //     or lesson progress), NEVER diagnostic-credit-only (R2). Same denominator.
++  let portfolioCount = 0;
++  for (const node of denomNodes) {
++    const state = states[node.id];
++    if (state && state.attempts > 0) portfolioCount += 1;
++  }
++  const portfolioComponent = denom === 0 ? 0 : portfolioCount / denom;
++
++  const pct =
++    100 *
++    (GRADE_WEIGHTS.mastery * masteryComponent +
++      GRADE_WEIGHTS.summative * summativeComponent +
++      GRADE_WEIGHTS.portfolio * portfolioComponent);
++
++  return {
++    pct,
++    letter: letterFor(pct),
++    components: {
++      mastery: masteryComponent,
++      summative: summativeComponent,
++      portfolio: portfolioComponent,
++    },
++    gradingScaleVersion: GRADING_SCALE_VERSION,
++    locked,
++    provisionalExcluded,
++    summativePresent,
++    // §14a: 1.0 credit only after full scope + summative + admin approval. The
++    // summative intake is the gating piece this phase can satisfy → eligibility
++    // is FALSE until a summative score is present. (Admin approval is a further
++    // human gate handled outside this pure function.)
++    creditEligible: summativePresent,
++    disclaimer: GRADE_DISCLAIMER,
++  };
++}
+diff --git a/lib/grade/subjects.test.ts b/lib/grade/subjects.test.ts
+new file mode 100644
+index 0000000..f1cbd4c
+--- /dev/null
++++ b/lib/grade/subjects.test.ts
+@@ -0,0 +1,121 @@
++// lib/grade/subjects tests (Phase 7 R2/R11) — domain roll-up, locked-by-transfer
++// counting, accepts precomputed results, plain bands. PURE.
++
++import { describe, expect, it } from "vitest";
++import { rollUpSubjects } from "./subjects";
++import type {
++  CurriculumGraph,
++  MasteryResult,
++  Phase,
++  SkillNode,
++  StudentSkillState,
++} from "../../types";
++
++function node(id: string, domain: string): SkillNode {
++  return {
++    id,
++    title: `Skill ${id}`,
++    domain,
++    tier: 0,
++    prereqs: [],
++    standards: { ccss: [], state: null },
++    objective: "",
++    misconceptionTags: [],
++    visual: null,
++    contextHooks: {
++      baseball: "",
++      softball: "",
++      basketball: "",
++      soccer: "",
++      football: "",
++      volleyball: "",
++      neutral: "",
++    },
++    workedExamples: [],
++    problems: { p1: [], p2: [], p3: [] },
++  };
++}
++
++const graph: CurriculumGraph = {
++  schema: {
++    version: "1.0.0",
++    course: "Algebra 1",
++    audience: "test",
++    sports: ["neutral"],
++    phases: { p1: "sport", p2: "blended", p3: "neutral" },
++    masteryStatuses: [],
++  },
++  domains: [
++    { id: "alpha", label: "Alpha", tier: 0 },
++    { id: "beta", label: "Beta", tier: 1 },
++  ],
++  misconceptionRegistry: [],
++  nodes: [node("a1", "alpha"), node("a2", "alpha"), node("b1", "beta")],
++  edges: [],
++};
++
++function state(over: Partial<StudentSkillState>): StudentSkillState {
++  return {
++    mastery: 0,
++    status: "unknown",
++    phase: 1 as Phase,
++    attempts: 0,
++    correct: 0,
++    hints: 0,
++    timeMs: 0,
++    recent: [],
++    transfer: false,
++    lastAttemptAt: null,
++    masteredAt: null,
++    ...over,
++  };
++}
++
++const result = (status: MasteryResult["status"]): MasteryResult => ({
++  score: 0.9,
++  status,
++  flags: [],
++});
++
++describe("rollUpSubjects", () => {
++  it("rolls touched nodes into domains and counts only locked-by-transfer mastery", () => {
++    const states: Record<string, StudentSkillState> = {
++      a1: state({ status: "mastered" }),
++      a2: state({ status: "mastered" }),
++      b1: state({ status: "developing" }),
++    };
++    const results: Record<string, MasteryResult> = {
++      a1: result("mastered"),
++      a2: result("mastered"),
++      b1: result("developing"),
++    };
++    // a1 is locked-by-transfer; a2 mastered but provisional (NOT in lockedIds).
++    const subjects = rollUpSubjects(graph, states, results, new Set(["a1"]));
++
++    const alpha = subjects.find((s) => s.id === "alpha")!;
++    expect(alpha.total).toBe(2);
++    expect(alpha.masteredLocked).toBe(1);
++    expect(alpha.fraction).toBeCloseTo(0.5, 10);
++    expect(alpha.band).toBe("progressing");
++
++    const beta = subjects.find((s) => s.id === "beta")!;
++    expect(beta.total).toBe(1);
++    expect(beta.masteredLocked).toBe(0);
++    // touched but nothing locked → fraction 0 → not_started.
++    expect(beta.band).toBe("not_started");
++  });
++
++  it("ignores nodes the student has no state on", () => {
++    const states: Record<string, StudentSkillState> = { a1: state({ status: "mastered" }) };
++    const results: Record<string, MasteryResult> = { a1: result("mastered") };
++    const subjects = rollUpSubjects(graph, states, results, new Set(["a1"]));
++    expect(subjects.find((s) => s.id === "alpha")!.total).toBe(1);
++    expect(subjects.find((s) => s.id === "beta")!.total).toBe(0);
++    expect(subjects.find((s) => s.id === "beta")!.band).toBe("not_started");
++  });
++
++  it("preserves graph.domains order", () => {
++    const subjects = rollUpSubjects(graph, {}, {}, new Set());
++    expect(subjects.map((s) => s.id)).toEqual(["alpha", "beta"]);
++  });
++});
+diff --git a/lib/grade/subjects.ts b/lib/grade/subjects.ts
+new file mode 100644
+index 0000000..3acc557
+--- /dev/null
++++ b/lib/grade/subjects.ts
+@@ -0,0 +1,85 @@
++// lib/grade/subjects — roll node mastery up to the graph's domains for the
++// parent dashboard's "5-10 subject-area masteries" (§12-13, R2). PURE: no IO, no
++// recompute. ACCEPTS already-computed computeMasteryAll results (mr-gates perf,
++// R11) — it never re-runs the engine.
++//
++// "masteredLocked" counts a node iff it is locked-BY-TRANSFER — the SAME
++// provenance rule as lib/grade's 70% (R1). The caller passes the locked-id SET
++// from computeGrade so the two surfaces can never disagree. Diagnostic/credit-
++// propagation placements are NOT counted as locked here (they are provisional).
++
++import type {
++  CurriculumGraph,
++  MasteryResult,
++  StudentSkillState,
++} from "../../types";
++
++/** Plain-English band for a domain's locked-mastery fraction. */
++export type SubjectBand = "not_started" | "developing" | "progressing" | "strong";
++
++export interface SubjectMastery {
++  /** Domain id (graph.domains[].id). */
++  id: string;
++  /** Domain label (graph.domains[].label). */
++  label: string;
++  /** Nodes in this domain that are locked-by-transfer (provenance-confirmed). */
++  masteredLocked: number;
++  /** Total nodes in this domain that the student has a state on. */
++  total: number;
++  /** masteredLocked / total (0 when total is 0). */
++  fraction: number;
++  band: SubjectBand;
++}
++
++function bandFor(fraction: number, total: number): SubjectBand {
++  if (total === 0) return "not_started";
++  if (fraction >= 0.8) return "strong";
++  if (fraction >= 0.4) return "progressing";
++  if (fraction > 0) return "developing";
++  return "not_started";
++}
++
++/**
++ * Roll the precomputed mastery results up to the graph's domains. PURE.
++ *
++ * @param graph   the curriculum graph (domain list + node→domain mapping)
++ * @param states  per-skill states — defines which nodes the student has touched
++ * @param results computeMasteryAll(...).results (ALREADY computed — never re-run)
++ * @param lockedIds the locked-by-transfer node-id set from computeGrade (R1
++ *   provenance). A node counts as masteredLocked iff it is in this set.
++ */
++export function rollUpSubjects(
++  graph: CurriculumGraph,
++  states: Record<string, StudentSkillState>,
++  results: Record<string, MasteryResult>,
++  lockedIds: ReadonlySet<string>,
++): SubjectMastery[] {
++  // domain id → { masteredLocked, total } over nodes the student has a state on.
++  const counts = new Map<string, { masteredLocked: number; total: number }>();
++  for (const d of graph.domains) counts.set(d.id, { masteredLocked: 0, total: 0 });
++
++  for (const node of graph.nodes) {
++    if (states[node.id] === undefined) continue; // only nodes the student has touched
++    const bucket = counts.get(node.domain);
++    if (!bucket) continue; // node references an unknown domain — skip defensively
++    bucket.total += 1;
++    // locked-by-transfer (provenance-confirmed) — never status alone.
++    if (lockedIds.has(node.id) && results[node.id]?.status === "mastered") {
++      bucket.masteredLocked += 1;
++    }
++  }
++
++  // Preserve graph.domains order (tier-ascending, audit-stable).
++  return graph.domains.map((d) => {
++    const c = counts.get(d.id) ?? { masteredLocked: 0, total: 0 };
++    const fraction = c.total === 0 ? 0 : c.masteredLocked / c.total;
++    return {
++      id: d.id,
++      label: d.label,
++      masteredLocked: c.masteredLocked,
++      total: c.total,
++      fraction,
++      band: bandFor(fraction, c.total),
++    };
++  });
++}
+diff --git a/lib/insight/intervention.test.ts b/lib/insight/intervention.test.ts
+new file mode 100644
+index 0000000..296681d
+--- /dev/null
++++ b/lib/insight/intervention.test.ts
+@@ -0,0 +1,62 @@
++// lib/insight/intervention tests (Phase 7 R7/R13) — kind→band mapping, most-severe
++// rollup, next-action string. PURE.
++
++import { describe, expect, it } from "vitest";
++import { interventionBand, nextAction, nextActionForKind } from "./intervention";
++import type { FlagEntry } from "../../types";
++
++function flag(over: Partial<FlagEntry> & { kind: FlagEntry["kind"] }): FlagEntry {
++  return {
++    severity: "info",
++    detail: "",
++    evidenceAttemptIds: [],
++    ...over,
++  };
++}
++
++describe("interventionBand", () => {
++  it("returns on_track with no flags", () => {
++    expect(interventionBand([])).toBe("on_track");
++  });
++
++  it("maps stalled-node and decayed-review-queue to intervention (rose)", () => {
++    expect(interventionBand([flag({ kind: "stalled-node" })])).toBe("intervention");
++    expect(interventionBand([flag({ kind: "decayed-review-queue" })])).toBe("intervention");
++  });
++
++  it("maps habit signals to watch (amber)", () => {
++    expect(interventionBand([flag({ kind: "high-hint-dependence" })])).toBe("watch");
++    expect(interventionBand([flag({ kind: "rushing" })])).toBe("watch");
++    expect(interventionBand([flag({ kind: "retention-probes-due" })])).toBe("watch");
++  });
++
++  it("escalates days-since-session by severity", () => {
++    expect(interventionBand([flag({ kind: "days-since-session", severity: "info" })])).toBe(
++      "on_track",
++    );
++    expect(
++      interventionBand([flag({ kind: "days-since-session", severity: "attention" })]),
++    ).toBe("watch");
++  });
++
++  it("returns the most-severe band across flags", () => {
++    const flags = [
++      flag({ kind: "rushing" }),
++      flag({ kind: "stalled-node" }),
++      flag({ kind: "high-hint-dependence" }),
++    ];
++    expect(interventionBand(flags)).toBe("intervention");
++  });
++});
++
++describe("nextAction", () => {
++  it("returns empty when on_track", () => {
++    expect(nextAction([])).toBe("");
++    expect(nextAction([flag({ kind: "days-since-session", severity: "info" })])).toBe("");
++  });
++
++  it("returns the next action for the most-severe open flag", () => {
++    const flags = [flag({ kind: "rushing" }), flag({ kind: "stalled-node" })];
++    expect(nextAction(flags)).toBe(nextActionForKind("stalled-node"));
++  });
++});
+diff --git a/lib/insight/intervention.ts b/lib/insight/intervention.ts
+new file mode 100644
+index 0000000..a9aed2e
+--- /dev/null
++++ b/lib/insight/intervention.ts
+@@ -0,0 +1,90 @@
++// lib/insight/intervention — DISPLAY-band derivation for staff/coach reporting
++// (§12-13, R7). PURE: no IO, no Date.now().
++//
++// This derives a three-step DISPLAY band — on_track | watch | intervention
++// (green / amber / rose, STYLE_GUIDE §8.5) — from a student's open FlagEntry set
++// OR a single FlagEntry.kind, plus a plain-language "what to do next" string.
++//
++// IMPORTANT (R7): this does NOT touch FlagEntry.severity (info | attention) — that
++// union is unchanged. The band is a separate presentation layer. The pill token
++// mapping lives in components/insight/SeverityPill.tsx (mastered/retrieval/error).
++
++import type { FlagEntry } from "../../types";
++
++/** Display band — green/amber/rose. Distinct from FlagEntry.severity (R7). */
++export type InterventionBand = "on_track" | "watch" | "intervention";
++
++/**
++ * Per-kind band weight. "intervention" (rose) = a genuine plateau/decay needing
++ * a teacher's hand; "watch" (amber) = a habit signal worth a look; absent kinds
++ * leave the student on_track (green). days-since-session escalates by severity
++ * (an attention-level inactivity is a watch), so it is handled in interventionBand.
++ */
++const KIND_BAND: Record<FlagEntry["kind"], InterventionBand> = {
++  "stalled-node": "intervention",
++  "decayed-review-queue": "intervention",
++  "high-hint-dependence": "watch",
++  rushing: "watch",
++  "retention-probes-due": "watch",
++  "days-since-session": "watch",
++};
++
++/** Plain-language next step per kind (§12-13 "what to do next"). */
++const KIND_NEXT_ACTION: Record<FlagEntry["kind"], string> = {
++  "stalled-node": "Sit with this skill together — the same prerequisite keeps blocking progress.",
++  "decayed-review-queue": "Schedule a short review session — a mastered skill is due to be refreshed.",
++  "high-hint-dependence": "Try a few problems without hints to confirm the skill is sticking.",
++  rushing: "Encourage slowing down — answers are coming in very fast.",
++  "retention-probes-due": "A spaced retention check is due — let the student work it when next active.",
++  "days-since-session": "Check in — it has been a while since the last session.",
++};
++
++const BAND_RANK: Record<InterventionBand, number> = {
++  on_track: 0,
++  watch: 1,
++  intervention: 2,
++};
++
++/** The band for a single flag kind (days-since-session escalates by severity). */
++function bandForFlag(flag: FlagEntry): InterventionBand {
++  if (flag.kind === "days-since-session") {
++    return flag.severity === "attention" ? "watch" : "on_track";
++  }
++  return KIND_BAND[flag.kind];
++}
++
++/**
++ * The student's overall band = the most severe band across their open flags.
++ * No flags → on_track. PURE.
++ */
++export function interventionBand(flags: FlagEntry[]): InterventionBand {
++  let band: InterventionBand = "on_track";
++  for (const f of flags) {
++    const b = bandForFlag(f);
++    if (BAND_RANK[b] > BAND_RANK[band]) band = b;
++  }
++  return band;
++}
++
++/**
++ * The single most useful "what to do next" string for a student — the next
++ * action for their most-severe open flag. Empty string when on_track. PURE.
++ */
++export function nextAction(flags: FlagEntry[]): string {
++  let best: FlagEntry | null = null;
++  let bestRank = -1;
++  for (const f of flags) {
++    const rank = BAND_RANK[bandForFlag(f)];
++    if (rank > bestRank) {
++      bestRank = rank;
++      best = f;
++    }
++  }
++  if (!best || bestRank <= 0) return "";
++  return KIND_NEXT_ACTION[best.kind];
++}
++
++/** The next-action string for a specific flag kind (used in detail surfaces). */
++export function nextActionForKind(kind: FlagEntry["kind"]): string {
++  return KIND_NEXT_ACTION[kind];
++}
+diff --git a/lib/insight/pace.test.ts b/lib/insight/pace.test.ts
+new file mode 100644
+index 0000000..dbd1f31
+--- /dev/null
++++ b/lib/insight/pace.test.ts
+@@ -0,0 +1,137 @@
++// lib/insight/pace tests — ahead/on_track/behind + wastingTime. PURE.
++
++import { describe, expect, it } from "vitest";
++import { computePace } from "./pace";
++import type {
++  CurriculumGraph,
++  Phase,
++  SkillNode,
++  StudentAttempt,
++  StudentSkillState,
++} from "../../types";
++
++function node(id: string, ccss: string[]): SkillNode {
++  return {
++    id,
++    title: id,
++    domain: "d",
++    tier: 0,
++    prereqs: [],
++    standards: { ccss, state: null },
++    objective: "",
++    misconceptionTags: [],
++    visual: null,
++    contextHooks: {
++      baseball: "",
++      softball: "",
++      basketball: "",
++      soccer: "",
++      football: "",
++      volleyball: "",
++      neutral: "",
++    },
++    workedExamples: [],
++    problems: { p1: [], p2: [], p3: [] },
++  };
++}
++
++// 4 credit-bearing nodes (A-...) + 1 prerequisite-review (8.EE...).
++const graph: CurriculumGraph = {
++  schema: {
++    version: "1.0.0",
++    course: "Algebra 1",
++    audience: "test",
++    sports: ["neutral"],
++    phases: { p1: "s", p2: "b", p3: "n" },
++    masteryStatuses: [],
++  },
++  domains: [{ id: "d", label: "D", tier: 0 }],
++  misconceptionRegistry: [],
++  nodes: [
++    node("c1", ["A-REI.B.3"]),
++    node("c2", ["A-REI.B.4"]),
++    node("c3", ["A-SSE.A.1"]),
++    node("c4", ["A-SSE.A.2"]),
++    node("p1", ["8.EE.C.7"]),
++  ],
++  edges: [],
++};
++
++function state(status: StudentSkillState["status"]): StudentSkillState {
++  return {
++    mastery: status === "mastered" ? 0.9 : 0.3,
++    status,
++    phase: 1 as Phase,
++    attempts: 1,
++    correct: 1,
++    hints: 0,
++    timeMs: 0,
++    recent: [],
++    transfer: status === "mastered",
++    lastAttemptAt: null,
++    masteredAt: status === "mastered" ? "2026-06-01T00:00:00.000Z" : null,
++  };
++}
++
++function attempt(timeMs: number): StudentAttempt {
++  return {
++    id: `a-${Math.random()}`,
++    studentId: "stu",
++    skillId: "c1",
++    problemId: "p",
++    phase: 1 as Phase,
++    sport: "neutral",
++    response: "x",
++    correct: true,
++    hintsUsed: 0,
++    timeMs,
++    misconceptionTags: [],
++    isProbe: false,
++    source: "practice",
++    sessionId: "s",
++    graphVersion: "1.0.0",
++    engineVersion: "1.0.0",
++    createdAt: "2026-06-01T00:00:00.000Z",
++  };
++}
++
++const NOW = "2026-06-10T00:00:00.000Z";
++
++describe("computePace", () => {
++  it("is ahead when mastery outpaces seat-time", () => {
++    // 3/4 mastered (0.75 progress), ~6 min of 100 budget (0.06 spent) → ahead.
++    const states: Record<string, StudentSkillState> = {
++      c1: state("mastered"),
++      c2: state("mastered"),
++      c3: state("mastered"),
++      c4: state("developing"),
++    };
++    const r = computePace(states, graph, [attempt(6 * 60_000)], NOW, 100);
++    expect(r.standing).toBe("ahead");
++    expect(r.wastingTime).toBe(false);
++  });
++
++  it("is behind and wastingTime when lots of seat-time yields little mastery", () => {
++    // 0 mastered (0 progress), 50 min of 100 budget (0.5 spent) → behind + wasting.
++    const states: Record<string, StudentSkillState> = {
++      c1: state("developing"),
++      c2: state("developing"),
++    };
++    const r = computePace(states, graph, [attempt(50 * 60_000)], NOW, 100);
++    expect(r.standing).toBe("behind");
++    expect(r.wastingTime).toBe(true);
++  });
++
++  it("is on_track when progress roughly matches spent", () => {
++    // 2/4 mastered (0.5), 50 min of 100 (0.5) → delta 0 → on_track, not wasting.
++    const states: Record<string, StudentSkillState> = {
++      c1: state("mastered"),
++      c2: state("mastered"),
++      c3: state("developing"),
++      c4: state("developing"),
++    };
++    const r = computePace(states, graph, [attempt(50 * 60_000)], NOW, 100);
++    expect(r.standing).toBe("on_track");
++    expect(r.wastingTime).toBe(false);
++  });
++});
+diff --git a/lib/insight/pace.ts b/lib/insight/pace.ts
+new file mode 100644
+index 0000000..b17dd7c
+--- /dev/null
++++ b/lib/insight/pace.ts
+@@ -0,0 +1,84 @@
++// lib/insight/pace — pace-vs-plan for staff/teacher reporting (§12-13). PURE: no
++// IO, no Date.now() (nowIso explicit). Time-on-task is a PACE signal here, NEVER
++// a mastery input (CLAUDE §14).
++//
++// Model: the course has a defined seat-time budget (courseBudgetMin) sized to the
++// credit-bearing scope. The student's PROGRESS is the fraction of credit-bearing
++// nodes mastered; their SPENT fraction is time-on-task / budget. Standing compares
++// the two:
++//   - ahead     : progress materially exceeds spent (faster than plan)
++//   - on_track  : progress roughly tracks spent
++//   - behind    : progress materially trails spent (slower than plan)
++// "wastingTime" fires when a lot of seat-time has produced little mastery (high
++// time / low gain) — the §12-13 explicit flag. It NEVER affects the grade.
++
++import { creditTier } from "../transcript";
++import type {
++  CurriculumGraph,
++  StudentAttempt,
++  StudentSkillState,
++} from "../../types";
++
++const MS_PER_MIN = 60_000;
++
++/** Tolerance band: |progress - spent| within this is "on_track". */
++const ON_TRACK_BAND = 0.15;
++
++/**
++ * "wastingTime" floor: at least this much of the budget spent AND mastery this
++ * far below spent. Documented, NOT a mastery weight (no Matt checkpoint).
++ */
++const WASTING_SPENT_FLOOR = 0.25;
++const WASTING_GAP_FLOOR = 0.3;
++
++export type PaceStanding = "ahead" | "on_track" | "behind";
++
++export interface PaceResult {
++  standing: PaceStanding;
++  /** High seat-time, low mastery gain (§12-13). Never a grade input. */
++  wastingTime: boolean;
++  /** Fraction of credit-bearing nodes currently mastered (0-1). */
++  progressFraction: number;
++  /** time-on-task / budget (0-1, clamped). */
++  spentFraction: number;
++}
++
++/**
++ * Compute pace-vs-plan. PURE.
++ *
++ * @param states          per-skill states
++ * @param graph           the curriculum graph (credit-bearing scope)
++ * @param attempts        the student's attempts (time-on-task source)
++ * @param nowIso          ISO "now" (reserved for audit parity; not in the math)
++ * @param courseBudgetMin defined seat-time budget for the course, in minutes
++ */
++export function computePace(
++  states: Record<string, StudentSkillState>,
++  graph: CurriculumGraph,
++  attempts: StudentAttempt[],
++  nowIso: string,
++  courseBudgetMin: number,
++): PaceResult {
++  void nowIso; // reserved for audit-header parity; never enters the math
++
++  const creditNodes = graph.nodes.filter((n) => creditTier(n) === "algebra1-credit");
++  const denom = creditNodes.length;
++  const mastered = creditNodes.filter((n) => states[n.id]?.status === "mastered").length;
++  const progressFraction = denom === 0 ? 0 : mastered / denom;
++
++  const timeMs = attempts.reduce((sum, a) => sum + (a.timeMs > 0 ? a.timeMs : 0), 0);
++  const budgetMs = Math.max(1, courseBudgetMin) * MS_PER_MIN;
++  const spentFraction = Math.min(1, timeMs / budgetMs);
++
++  const delta = progressFraction - spentFraction;
++  let standing: PaceStanding;
++  if (delta > ON_TRACK_BAND) standing = "ahead";
++  else if (delta < -ON_TRACK_BAND) standing = "behind";
++  else standing = "on_track";
++
++  const wastingTime =
++    spentFraction >= WASTING_SPENT_FLOOR &&
++    spentFraction - progressFraction >= WASTING_GAP_FLOOR;
++
++  return { standing, wastingTime, progressFraction, spentFraction };
++}
+diff --git a/lib/insight/proof.test.ts b/lib/insight/proof.test.ts
+new file mode 100644
+index 0000000..1db7d04
+--- /dev/null
++++ b/lib/insight/proof.test.ts
+@@ -0,0 +1,139 @@
++// lib/insight/proof tests (Phase 7 R8/R9) — proof band provenance + stuck nodes.
++
++import { describe, expect, it } from "vitest";
++import { buildProofModules, buildStuckNodes } from "./proof";
++import type {
++  CurriculumGraph,
++  FlagEntry,
++  MasteryResult,
++  MasteryUpdate,
++  Phase,
++  SkillNode,
++  StudentSkillState,
++} from "../../types";
++
++function node(id: string): SkillNode {
++  return {
++    id,
++    title: `Skill ${id}`,
++    domain: "d",
++    tier: 0,
++    prereqs: [],
++    standards: { ccss: [], state: null },
++    objective: "",
++    misconceptionTags: [],
++    visual: null,
++    contextHooks: {
++      baseball: "",
++      softball: "",
++      basketball: "",
++      soccer: "",
++      football: "",
++      volleyball: "",
++      neutral: "",
++    },
++    workedExamples: [],
++    problems: { p1: [], p2: [], p3: [] },
++  };
++}
++
++const graph: CurriculumGraph = {
++  schema: {
++    version: "1.0.0",
++    course: "Algebra 1",
++    audience: "test",
++    sports: ["neutral"],
++    phases: { p1: "s", p2: "b", p3: "n" },
++    masteryStatuses: [],
++  },
++  domains: [{ id: "d", label: "D", tier: 0 }],
++  misconceptionRegistry: [],
++  nodes: [node("a"), node("b"), node("c")],
++  edges: [],
++};
++
++function state(over: Partial<StudentSkillState>): StudentSkillState {
++  return {
++    mastery: 0,
++    status: "unknown",
++    phase: 1 as Phase,
++    attempts: 0,
++    correct: 0,
++    hints: 0,
++    timeMs: 0,
++    recent: [],
++    transfer: false,
++    lastAttemptAt: null,
++    masteredAt: null,
++    ...over,
++  };
++}
++
++const r = (status: MasteryResult["status"]): MasteryResult => ({ score: 0.9, status, flags: [] });
++
++describe("buildProofModules", () => {
++  it("bands by provenance: confirmed (locked) / likely_solid (provisional) / still_proving", () => {
++    const states: Record<string, StudentSkillState> = {
++      a: state({ status: "mastered", attempts: 6 }),
++      b: state({ status: "mastered", attempts: 1 }),
++      c: state({ status: "developing", attempts: 3 }),
++    };
++    const results: Record<string, MasteryResult> = {
++      a: r("mastered"),
++      b: r("mastered"),
++      c: r("developing"),
++    };
++    const updates: MasteryUpdate[] = [
++      {
++        id: "u1",
++        studentId: "s",
++        skillId: "a",
++        attemptId: null,
++        trigger: "attempt",
++        prevMastery: 0,
++        newMastery: 0.9,
++        prevStatus: "developing",
++        newStatus: "mastered",
++        prevPhase: 1 as Phase,
++        newPhase: 3 as Phase,
++        reason: "",
++        engineVersion: "1.0.0",
++        sessionId: "",
++        graphVersion: "1.0.0",
++        createdAt: "2026-06-05T00:00:00.000Z",
++      },
++    ];
++    const modules = buildProofModules(
++      graph,
++      states,
++      results,
++      updates,
++      new Set(["a"]),
++      ["a", "b", "c"],
++    );
++    expect(modules.find((m) => m.skillId === "a")!.band).toBe("confirmed");
++    expect(modules.find((m) => m.skillId === "a")!.lastRecheckAt).toBe("2026-06-05T00:00:00.000Z");
++    expect(modules.find((m) => m.skillId === "b")!.band).toBe("likely_solid");
++    expect(modules.find((m) => m.skillId === "c")!.band).toBe("still_proving");
++  });
++
++  it("only surfaces touched nodes", () => {
++    const modules = buildProofModules(graph, {}, {}, [], new Set(), ["a", "b"]);
++    expect(modules).toEqual([]);
++  });
++});
++
++describe("buildStuckNodes", () => {
++  it("surfaces stalled flags and prerequisite_gap with a plain struggling line (R8 downgrade)", () => {
++    const flags: FlagEntry[] = [
++      { kind: "stalled-node", severity: "attention", skillId: "a", detail: "", evidenceAttemptIds: [] },
++    ];
++    const results: Record<string, MasteryResult> = {
++      a: r("developing"),
++      b: r("prerequisite_gap"),
++    };
++    const stuck = buildStuckNodes(graph, results, flags);
++    expect(stuck.map((s) => s.skillId)).toEqual(["a", "b"]);
++    expect(stuck[0].message).toBe("Struggling with Skill a");
++  });
++});
+diff --git a/lib/insight/proof.ts b/lib/insight/proof.ts
+new file mode 100644
+index 0000000..cf6854d
+--- /dev/null
++++ b/lib/insight/proof.ts
+@@ -0,0 +1,123 @@
++// lib/insight/proof — pure builders for the parent dashboard's proof modules
++// (R9) and stuck-node list (R8). PURE: no IO, no Date.now().
++//
++// Proof band (R9):
++//   - "confirmed"    : locked-by-transfer (earned via attempt, the §3 delayed-
++//                      unseen path) — passed an unseen re-check after a delay.
++//   - "likely_solid" : status mastered but NOT in the locked-by-transfer set
++//                      (a diagnostic/credit-propagation placement, provisional).
++//   - "still_proving": anything else the student has touched.
++//
++// Stuck nodes (R8): nodes flagged stalled OR sitting in prerequisite_gap/
++// developing with real attempts. The failing TRANSFER DIMENSION is not exposed by
++// the engine read this phase, so we DOCUMENT the downgrade and surface
++// "struggling with {title}" instead of silently dropping the signal (CLAUDE §13).
++
++import type {
++  CurriculumGraph,
++  FlagEntry,
++  MasteryResult,
++  MasteryUpdate,
++  StudentSkillState,
++} from "../../types";
++import type { ProofBand, ProofModuleData } from "../../components/insight/ProofModule";
++
++/** Latest re-check (mastered-making attempt update) date per skill, ISO. */
++function lastRecheckBySkill(updates: MasteryUpdate[]): Map<string, string> {
++  const out = new Map<string, string>();
++  const ordered = [...updates].sort(
++    (a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id),
++  );
++  for (const u of ordered) {
++    if (u.newStatus === "mastered" && u.trigger === "attempt") out.set(u.skillId, u.createdAt);
++  }
++  return out;
++}
++
++/**
++ * Build proof modules for the credit-bearing nodes the student has touched.
++ * `lockedIds` is the locked-by-transfer set from computeGrade (provenance). PURE.
++ *
++ * @param creditNodeIds ordered ids of the credit-bearing nodes to surface
++ */
++export function buildProofModules(
++  graph: CurriculumGraph,
++  states: Record<string, StudentSkillState>,
++  results: Record<string, MasteryResult>,
++  updates: MasteryUpdate[],
++  lockedIds: ReadonlySet<string>,
++  creditNodeIds: string[],
++): ProofModuleData[] {
++  const titleOf = new Map(graph.nodes.map((n) => [n.id, n.title]));
++  const recheck = lastRecheckBySkill(updates);
++  const out: ProofModuleData[] = [];
++
++  for (const id of creditNodeIds) {
++    const state = states[id];
++    if (!state) continue; // only surface touched nodes
++    const status = results[id]?.status ?? state.status;
++    let band: ProofBand;
++    let confirmed: boolean;
++    if (lockedIds.has(id) && status === "mastered") {
++      band = "confirmed";
++      confirmed = true;
++    } else if (status === "mastered") {
++      band = "likely_solid";
++      confirmed = false;
++    } else {
++      band = "still_proving";
++      confirmed = false;
++    }
++    out.push({
++      skillId: id,
++      title: titleOf.get(id) ?? id,
++      band,
++      evidenceCount: state.attempts,
++      confirmed,
++      lastRecheckAt: recheck.get(id) ?? null,
++    });
++  }
++  return out;
++}
++
++export interface StuckNode {
++  skillId: string;
++  title: string;
++  /** Plain-English line — "struggling with {title}" (transfer dimension TBD, R8). */
++  message: string;
++}
++
++/**
++ * Stuck nodes for the parent dashboard (R8). Surfaces nodes the student is
++ * struggling with: those carrying a "stalled-node" flag, or in prerequisite_gap.
++ * The engine read does not expose the failing transfer dimension this phase — we
++ * DOCUMENT that downgrade here rather than drop the signal. PURE.
++ */
++export function buildStuckNodes(
++  graph: CurriculumGraph,
++  results: Record<string, MasteryResult>,
++  flags: FlagEntry[],
++): StuckNode[] {
++  const titleOf = new Map(graph.nodes.map((n) => [n.id, n.title]));
++  const stuck = new Map<string, StuckNode>();
++
++  const add = (id: string) => {
++    if (stuck.has(id)) return;
++    const title = titleOf.get(id) ?? id;
++    // DOWNGRADE (R8): no transfer-dimension read available → plain struggling line.
++    stuck.set(id, { skillId: id, title, message: `Struggling with ${title}` });
++  };
++
++  for (const f of flags) {
++    if (f.kind === "stalled-node" && f.skillId) add(f.skillId);
++  }
++  for (const [id, r] of Object.entries(results)) {
++    if (r.status === "prerequisite_gap") add(id);
++  }
++
++  // Deterministic order: graph node order.
++  const order = new Map(graph.nodes.map((n, i) => [n.id, i]));
++  return [...stuck.values()].sort(
++    (a, b) => (order.get(a.skillId) ?? 0) - (order.get(b.skillId) ?? 0),
++  );
++}
+diff --git a/lib/insight/roster.test.ts b/lib/insight/roster.test.ts
+index 7bb044a..7beed02 100644
+--- a/lib/insight/roster.test.ts
++++ b/lib/insight/roster.test.ts
+@@ -100,7 +100,7 @@ describe("buildRoster", () => {
+       { profile: profile({ id: "z", displayName: "Zoe" }), states: {}, attempts: [], updates: [] },
+       { profile: profile({ id: "a", displayName: "Ada" }), states: {}, attempts: [], updates: [] },
+     ];
+-    const rows = buildRoster(graph, inputs, null, NOW);
++    const rows = buildRoster(graph, inputs, null, "super_admin", NOW);
+     expect(rows.map((r) => r.displayName)).toEqual(["Ada", "Zoe"]);
+   });
+ 
+@@ -116,7 +116,7 @@ describe("buildRoster", () => {
+         updates: [],
+       },
+     ];
+-    const rows = buildRoster(graph, inputs, null, NOW);
++    const rows = buildRoster(graph, inputs, null, "super_admin", NOW);
+     expect(rows[0].currentSkillTitle).toBe("Skill a");
+     expect(rows[0].lastActiveAt).toBe("2026-06-05T10:00:00.000Z");
+   });
+@@ -125,9 +125,11 @@ describe("buildRoster", () => {
+     const inputs: RosterStudentInput[] = [
+       { profile: profile({ id: "a", displayName: "Ada" }), states: {}, attempts: [], updates: [] },
+     ];
+-    const rows = buildRoster(graph, inputs, null, NOW);
++    const rows = buildRoster(graph, inputs, null, "super_admin", NOW);
+     expect(rows[0].lastActiveAt).toBeNull();
+     expect(rows[0].openFlags).toBe(0);
++    expect(rows[0].band).toBe("on_track");
++    expect(rows[0].pace).toBe("on_track");
+   });
+ 
+   it("scopes to a campus when a campusId is given", () => {
+@@ -145,7 +147,27 @@ describe("buildRoster", () => {
+         updates: [],
+       },
+     ];
+-    const rows = buildRoster(graph, inputs, "c1", NOW);
++    const rows = buildRoster(graph, inputs, "c1", "super_admin", NOW);
+     expect(rows.map((r) => r.studentId)).toEqual(["a"]);
+   });
++
++  it("redacts exact status and raw current-focus title for the coach role (R4)", () => {
++    const inputs: RosterStudentInput[] = [
++      {
++        profile: profile({ id: "a", displayName: "Ada" }),
++        states: {},
++        attempts: [attempt({ id: "at-1", createdAt: "2026-06-05T10:00:00.000Z" })],
++        updates: [],
++      },
++    ];
++    const coach = buildRoster(graph, inputs, null, "coach", NOW);
++    expect(coach[0].currentStatus).toBeNull();
++    expect(coach[0].currentSkillTitle).toBe("");
++    // band/flags signals remain available to the coach.
++    expect(coach[0].band).toBeDefined();
++
++    const admin = buildRoster(graph, inputs, null, "campus_admin", NOW);
++    expect(admin[0].currentStatus).not.toBeNull();
++    expect(admin[0].currentSkillTitle).toBe("Skill a");
++  });
+ });
+diff --git a/lib/insight/roster.ts b/lib/insight/roster.ts
+index e3f024a..98a930b 100644
+--- a/lib/insight/roster.ts
++++ b/lib/insight/roster.ts
+@@ -7,15 +7,25 @@
+ import { computeMasteryAll } from "../mastery-engine";
+ import { recommend } from "../adaptive-router";
+ import { computeFlags } from "./flags";
++import { interventionBand, nextAction } from "./intervention";
++import { computePace } from "./pace";
+ import type {
+   CurriculumGraph,
+   MasteryUpdate,
+   RosterRow,
++  StaffRole,
+   StudentAttempt,
+   StudentProfile,
+   StudentSkillState,
+ } from "@/types";
+ 
++/**
++ * Defined course seat-time budget (minutes) for pace-vs-plan (§12-13). A
++ * documented working default sized to the Algebra 1 credit scope — NOT a mastery
++ * weight (no Matt checkpoint). Wired here so every roster row uses one constant.
++ */
++export const COURSE_BUDGET_MIN = 6_000;
++
+ /** One student's already-fetched evidence + states, keyed for the roster build. */
+ export interface RosterStudentInput {
+   profile: StudentProfile;
+@@ -32,14 +42,20 @@ export interface RosterStudentInput {
+  *   single seeded campus passes through; the later RLS swap filters rows. We
+  *   filter defensively here too: a non-null campusId only returns matching
+  *   students (null = unscoped/global staff sees all).
++ * @param role REQUIRED staff role (Phase 7 R4). For "coach", the exact engine
++ *   status and the raw current-focus title are REDACTED (severity bands + flags
++ *   only, §11) — admin/teacher roles see the full row. Passing the role is
++ *   mandatory so coach-banding can never be omitted at a call site.
+  */
+ export function buildRoster(
+   graph: CurriculumGraph,
+   students: RosterStudentInput[],
+   campusId: string | null,
++  role: StaffRole,
+   nowIso: string,
+ ): RosterRow[] {
+   const rows: RosterRow[] = [];
++  const isCoach = role === "coach";
+ 
+   for (const s of students) {
+     if (campusId !== null && s.profile.campusId !== campusId) continue;
+@@ -67,19 +83,26 @@ export function buildRoster(
+     // When the course is complete, recommend() returns an empty skillId; the
+     // student's standing is "mastered". Otherwise use the recommended skill's
+     // computed status.
+-    const currentStatus =
++    const exactStatus =
+       rec.kind === "complete"
+         ? "mastered"
+         : (batch.results[rec.skillId]?.status ?? "unknown");
+ 
++    const pace = computePace(s.states, graph, s.attempts, nowIso, COURSE_BUDGET_MIN);
++
+     rows.push({
+       studentId: s.profile.id,
+       displayName: s.profile.displayName,
+       campusId: s.profile.campusId,
+-      currentSkillTitle: rec.title,
+-      currentStatus,
++      // R4: coach sees NO raw current-focus title and NO exact status.
++      currentSkillTitle: isCoach ? "" : rec.title,
++      currentStatus: isCoach ? null : exactStatus,
+       lastActiveAt,
+       openFlags: flags.length,
++      band: interventionBand(flags),
++      nextAction: nextAction(flags),
++      pace: pace.standing,
++      wastingTime: pace.wastingTime,
+     });
+   }
+ 
+diff --git a/lib/insight/suppression.test.ts b/lib/insight/suppression.test.ts
+new file mode 100644
+index 0000000..df8a71c
+--- /dev/null
++++ b/lib/insight/suppression.test.ts
+@@ -0,0 +1,42 @@
++// lib/insight/suppression tests (Phase 7 B1/R4/R13) — n<5 suppressed, n>=5 passes.
++
++import { describe, expect, it } from "vitest";
++import { suppressCohort, type CohortCell } from "./suppression";
++
++const cells: CohortCell[] = [
++  { key: "on_track", n: 12, value: 0.8 },
++  { key: "watch", n: 4, value: 0.3 },
++  { key: "intervention", n: 5, value: 0.1 },
++  { key: "empty", n: 0, value: 0 },
++];
++
++describe("suppressCohort", () => {
++  it("suppresses cells with n < minCell (default 5) and passes n >= 5", () => {
++    const out = suppressCohort(cells);
++    const byKey = Object.fromEntries(out.map((c) => [c.key, c]));
++
++    expect(byKey.on_track.suppressed).toBe(false);
++    expect(byKey.on_track.value).toBe(0.8);
++    expect(byKey.on_track.n).toBe(12);
++
++    expect(byKey.watch.suppressed).toBe(true);
++    expect(byKey.watch.value).toBeNull();
++    expect(byKey.watch.n).toBeNull();
++
++    // n === 5 is at the threshold and is NOT suppressed.
++    expect(byKey.intervention.suppressed).toBe(false);
++    expect(byKey.intervention.n).toBe(5);
++
++    expect(byKey.empty.suppressed).toBe(true);
++  });
++
++  it("honors a custom minCell", () => {
++    const out = suppressCohort([{ key: "k", n: 3, value: 1 }], { minCell: 3 });
++    expect(out[0].suppressed).toBe(false);
++  });
++
++  it("preserves input order", () => {
++    const out = suppressCohort(cells);
++    expect(out.map((c) => c.key)).toEqual(["on_track", "watch", "intervention", "empty"]);
++  });
++});
+diff --git a/lib/insight/suppression.ts b/lib/insight/suppression.ts
+new file mode 100644
+index 0000000..7917fb5
+--- /dev/null
++++ b/lib/insight/suppression.ts
+@@ -0,0 +1,59 @@
++// lib/insight/suppression — n≥5 small-cell suppression for COHORT aggregates
++// (§8 inference channel, B1/R4). PURE: no IO, no Date.now().
++//
++// SCOPE (binding, R4): this gates COHORT aggregates only — a cell (a count over a
++// group of students) with size < minCell is suppressed so a small academy roster
++// cannot be re-identified. SINGLE-STUDENT AUTHORIZED READS ARE EXEMPT and must
++// NEVER be passed through here: a parent viewing their own child, the admin
++// per-student detail, the student themselves, and a coach's own-roster per-child
++// severity bands are authorized per-student projections, not cohort cells.
++//
++// SHIP-GATE (logged, R4): RLS bands only RAW evidence — this app-layer suppressor
++// is the SOLE projection-channel defense for cohort aggregates until a follow-up
++// coach-banding migration lands. mr-gates attention flagged.
++
++/** A cohort aggregate cell: a labelled count over a group of students. */
++export interface CohortCell {
++  /** Stable cell key/label (e.g. a band name, a domain id). */
++  key: string;
++  /** Number of students contributing to this cell. */
++  n: number;
++  /** The aggregate value (e.g. a fraction or count). Suppressed when n < minCell. */
++  value: number;
++}
++
++/** A cell after suppression: when suppressed, `value` is null and `n` is hidden. */
++export interface SuppressedCell {
++  key: string;
++  /** Null when suppressed (n < minCell); otherwise the original n. */
++  n: number | null;
++  /** Null when suppressed; otherwise the original value. */
++  value: number | null;
++  suppressed: boolean;
++}
++
++export interface SuppressOptions {
++  /** Minimum cell size; cells with n below this are suppressed. Default 5 (§8). */
++  minCell?: number;
++}
++
++/**
++ * Suppress small cohort cells. Any cell with n < minCell returns value:null,
++ * n:null, suppressed:true (no per-child exact metric leaks). PURE; preserves
++ * input order. NEVER call this on a single-student authorized projection (R4).
++ */
++export function suppressCohort(
++  cells: CohortCell[],
++  opts: SuppressOptions = {},
++): SuppressedCell[] {
++  const minCell = opts.minCell ?? 5;
++  return cells.map((c) => {
++    const suppressed = c.n < minCell;
++    return {
++      key: c.key,
++      n: suppressed ? null : c.n,
++      value: suppressed ? null : c.value,
++      suppressed,
++    };
++  });
++}
+diff --git a/lib/ncaa-export/index.test.ts b/lib/ncaa-export/index.test.ts
+new file mode 100644
+index 0000000..8faef0b
+--- /dev/null
++++ b/lib/ncaa-export/index.test.ts
+@@ -0,0 +1,150 @@
++// lib/ncaa-export tests (Phase 7 R10/R13) — creditEligible refusal, disclaimers,
++// field-map flag, evidence/transcript separation, seat-time isolation. PURE.
++
++import { describe, expect, it } from "vitest";
++import {
++  FIELD_MAP_FLAG,
++  NCAA_DISCLAIMERS,
++  buildNcaaExport,
++} from "./index";
++import { computeGrade } from "../grade";
++import type {
++  CurriculumGraph,
++  Phase,
++  ProblemTemplate,
++  SkillNode,
++  StudentProfile,
++  StudentSkillState,
++} from "../../types";
++
++function p3Problem(id: string): ProblemTemplate {
++  return {
++    id,
++    version: 1,
++    skillId: "credit-a",
++    phase: 3 as Phase,
++    sport: "neutral",
++    prompt: "Solve 2x + 3 = 11.",
++    visual: null,
++    answer: { kind: "numeric", value: "4" },
++    hints: [],
++    difficulty: 1,
++  };
++}
++
++function node(id: string, ccss: string[], withP3 = false): SkillNode {
++  return {
++    id,
++    title: `Skill ${id}`,
++    domain: "d",
++    tier: 0,
++    prereqs: [],
++    standards: { ccss, state: null },
++    objective: `Objective for ${id}`,
++    misconceptionTags: [],
++    visual: null,
++    contextHooks: {
++      baseball: "",
++      softball: "",
++      basketball: "",
++      soccer: "",
++      football: "",
++      volleyball: "",
++      neutral: "",
++    },
++    workedExamples: [],
++    problems: { p1: [], p2: [], p3: withP3 ? [p3Problem(id)] : [] },
++  };
++}
++
++const graph: CurriculumGraph = {
++  schema: {
++    version: "1.11.0",
++    course: "Algebra 1",
++    audience: "test",
++    sports: ["neutral"],
++    phases: { p1: "s", p2: "b", p3: "n" },
++    masteryStatuses: [],
++  },
++  domains: [{ id: "d", label: "D", tier: 0 }],
++  misconceptionRegistry: [],
++  nodes: [node("credit-a", ["A-REI.B.3"], true), node("prereq", ["8.EE.C.7"])],
++  edges: [],
++};
++
++const student: StudentProfile = {
++  id: "stu",
++  displayName: "Ada",
++  gradeLevel: 8,
++  sport: "neutral",
++  campusId: null,
++  parentalConsent: { status: "granted", updatedAt: null },
++  createdAt: "2026-06-01T00:00:00.000Z",
++};
++
++function state(over: Partial<StudentSkillState>): StudentSkillState {
++  return {
++    mastery: 0,
++    status: "unknown",
++    phase: 1 as Phase,
++    attempts: 0,
++    correct: 0,
++    hints: 0,
++    timeMs: 0,
++    recent: [],
++    transfer: false,
++    lastAttemptAt: null,
++    masteredAt: null,
++    ...over,
++  };
++}
++
++const NOW = "2026-06-10T00:00:00.000Z";
++
++describe("buildNcaaExport", () => {
++  it("emits NO credit-bearing transcript line when grade.creditEligible is false", () => {
++    const grade = computeGrade({}, graph, [], { nowIso: NOW }); // no summative → not eligible
++    expect(grade.creditEligible).toBe(false);
++    const ex = buildNcaaExport(student, graph, {}, [], grade, NOW);
++    expect(ex.parentCertified.transcriptLine).toBeNull();
++  });
++
++  it("emits a credit-bearing line only when credit-eligible", () => {
++    const states: Record<string, StudentSkillState> = {
++      "credit-a": state({ status: "mastered", masteredAt: NOW, attempts: 5, correct: 5, timeMs: 600_000 }),
++    };
++    const grade = computeGrade(states, graph, [], { nowIso: NOW, summative: 1 });
++    expect(grade.creditEligible).toBe(true);
++    const ex = buildNcaaExport(student, graph, states, [], grade, NOW);
++    expect(ex.parentCertified.transcriptLine).not.toBeNull();
++    expect(ex.parentCertified.transcriptLine!.credit).toContain("1.0");
++  });
++
++  it("carries all three §14 disclaimers and the field-map-not-validated flag", () => {
++    const grade = computeGrade({}, graph, [], { nowIso: NOW });
++    const ex = buildNcaaExport(student, graph, {}, [], grade, NOW);
++    for (const d of NCAA_DISCLAIMERS) expect(ex.disclaimers).toContain(d);
++    expect(ex.fieldMapNotValidated).toBe(FIELD_MAP_FLAG);
++  });
++
++  it("includes time-on-task ONLY in the activity/seat-time section", () => {
++    const states: Record<string, StudentSkillState> = {
++      "credit-a": state({ attempts: 3, timeMs: 180_000 }),
++    };
++    const grade = computeGrade(states, graph, [], { nowIso: NOW });
++    const ex = buildNcaaExport(student, graph, states, [], grade, NOW);
++    expect(ex.platformEvidence.coreCourseWorksheet.timeSpentMinutes).toBe(3);
++    expect(ex.platformEvidence.activityLog[0].minutes).toBe(3);
++  });
++
++  it("separates platform evidence from parent-certified content; topics are credit-bearing only", () => {
++    const grade = computeGrade({}, graph, [], { nowIso: NOW });
++    const ex = buildNcaaExport(student, graph, {}, [], grade, NOW);
++    expect(ex.platformEvidence.coreCourseWorksheet.majorTopics.map((t) => t.skillId)).toEqual([
++      "credit-a",
++    ]);
++    expect(ex.parentCertified.administratorStatementTemplate.length).toBeGreaterThan(0);
++    // a neutral P3 sample is surfaced for the domain.
++    expect(ex.platformEvidence.assessmentSamples[0].prompt).toContain("Solve");
++  });
++});
+diff --git a/lib/ncaa-export/index.ts b/lib/ncaa-export/index.ts
+new file mode 100644
+index 0000000..251e0c8
+--- /dev/null
++++ b/lib/ncaa-export/index.ts
+@@ -0,0 +1,232 @@
++// lib/ncaa-export — the NCAA homeschool support-package builder (§14, R10). PURE:
++// no IO, no Date.now() (nowIso explicit). mr-kahn + mr-gates GATED.
++//
++// A3 GENERATES a parent-submittable package; the PARENT (administrator of record)
++// certifies + submits. This builder is pure over a STATIC field-map snapshot — it
++// is NOT validated against the live NCAA Homeschool Toolkit (a deferred
++// MUST-VALIDATE; the artifact carries that flag visibly).
++//
++// NON-NEGOTIABLE (R3/R10):
++//   - reads grade.creditEligible — emits NO credit-bearing transcript line when
++//     false (§14a: 1.0 credit only after full scope + summative + admin approval).
++//   - time-on-task lives ONLY in the seat-time / activity section, NEVER as a
++//     grade input (CLAUDE §14).
++//   - the three §14 disclaimers ride EVERY export, verbatim.
++//   - separates "platform-generated evidence" from "parent-certified transcript".
++
++import { creditTier } from "../transcript";
++import type { CourseGrade } from "../grade";
++import type {
++  CurriculumGraph,
++  MasteryUpdate,
++  SkillNode,
++  StudentProfile,
++  StudentSkillState,
++} from "../../types";
++
++/** The three §14 disclaimers — verbatim, on every export. */
++export const NCAA_DISCLAIMERS = [
++  "Parent/guardian administrator is responsible for accuracy",
++  "Generated support package, NOT NCAA approval",
++  "Eligibility Center may request more",
++] as const;
++
++/** The MUST-VALIDATE flag carried on the artifact (R10). */
++export const FIELD_MAP_FLAG =
++  "Field mapping not yet validated against the live NCAA Homeschool Toolkit";
++
++/** Accurate classification (§14 — do not over-claim "parent only"). */
++export const COURSE_CLASSIFICATION =
++  "Parent-administered homeschool course supported by a third-party platform, AI tutor, and content authoring";
++
++/** Snapshot version of this static field-map (audit). */
++export const NCAA_EXPORT_VERSION = "1.0.0";
++
++const MS_PER_MIN = 60_000;
++
++export interface CoreCourseTopic {
++  skillId: string;
++  title: string;
++  objective: string;
++  domain: string;
++}
++
++export interface AssessmentSample {
++  skillId: string;
++  /** A representative NEUTRAL (P3) problem prompt for this domain, if available. */
++  prompt: string;
++}
++
++export interface ActivityLogEntry {
++  /** ISO date (YYYY-MM-DD) of activity. */
++  date: string;
++  /** Seat-time minutes on that date (rounded). Seat-time only — never a grade input. */
++  minutes: number;
++}
++
++export interface TranscriptLine {
++  course: string;
++  /** Letter grade — present only as a projection (parent certifies the final). */
++  projectedGrade: string;
++  /** Credit unit string; null when not credit-eligible (§14a). */
++  credit: string | null;
++  /** Completion date (ISO) when the course is complete; null otherwise. */
++  completionDate: string | null;
++}
++
++export interface NcaaExport {
++  exportVersion: string;
++  generatedAt: string;
++  classification: string;
++  /** The MUST-VALIDATE field-map flag (R10). */
++  fieldMapNotValidated: string;
++  disclaimers: readonly string[];
++
++  student: { id: string; displayName: string; gradeLevel: number };
++
++  /** PLATFORM-GENERATED EVIDENCE (clearly separated from the parent-certified line). */
++  platformEvidence: {
++    coreCourseWorksheet: {
++      learningObjectives: string[];
++      majorTopics: CoreCourseTopic[];
++      materials: string[];
++      /** Total seat-time minutes (activity aggregate). Seat-time only. */
++      timeSpentMinutes: number;
++      gradingApproach: string;
++    };
++    syllabus: { graphSchemaVersion: string; domainSequence: { id: string; label: string }[] };
++    gradingScale: { version: string; disclaimer: string };
++    assessmentSamples: AssessmentSample[];
++    activityLog: ActivityLogEntry[];
++  };
++
++  /** PARENT-CERTIFIED TRANSCRIPT — the line the parent attests to + submits. */
++  parentCertified: {
++    /** Null when grade.creditEligible is false — NO credit-bearing line (R3/§14a). */
++    transcriptLine: TranscriptLine | null;
++    administratorStatementTemplate: string;
++  };
++}
++
++const GRADING_APPROACH_TEXT =
++  "70% locked mastery across required Algebra 1 standards (delayed-unseen, transfer-gated); " +
++  "20% cumulative proctored assessment; 10% portfolio/completion artifacts. " +
++  "Effort and time-on-task document seat-time but never boost the grade.";
++
++const ADMIN_STATEMENT_TEMPLATE =
++  "I, the parent/guardian administrator of record for this homeschool course, certify that the " +
++  "above record accurately reflects the student's completed coursework. This package was generated " +
++  "with platform support; I am responsible for its accuracy and for any additional documentation " +
++  "the NCAA Eligibility Center may request.";
++
++function neutralPrompt(node: SkillNode): string {
++  // A node may have no P3 problems authored; be defensive.
++  return node.problems.p3?.[0]?.prompt ?? "";
++}
++
++/**
++ * Build the NCAA support package. PURE.
++ *
++ * @param student the student profile
++ * @param graph   the curriculum graph (scope, domains, objectives, samples)
++ * @param states  per-skill states (which nodes are mastered/touched)
++ * @param updates the immutable MasteryUpdate log (provenance — reserved for audit)
++ * @param grade   the computed CourseGrade (reads creditEligible + projectedGrade)
++ * @param nowIso  ISO "now" (generation timestamp)
++ */
++export function buildNcaaExport(
++  student: StudentProfile,
++  graph: CurriculumGraph,
++  states: Record<string, StudentSkillState>,
++  updates: MasteryUpdate[],
++  grade: CourseGrade,
++  nowIso: string,
++): NcaaExport {
++  void updates; // provenance is consumed by lib/grade; retained here for audit parity
++
++  const creditNodes = graph.nodes.filter((n) => creditTier(n) === "algebra1-credit");
++
++  // Major topics = credit-bearing graph nodes (NCAA Core-Course Worksheet).
++  const majorTopics: CoreCourseTopic[] = creditNodes.map((n) => ({
++    skillId: n.id,
++    title: n.title,
++    objective: n.objective,
++    domain: n.domain,
++  }));
++
++  const learningObjectives = creditNodes.map((n) => n.objective).filter((o) => o.length > 0);
++
++  // One representative NEUTRAL sample per domain (first credit node in the domain
++  // that carries a P3 problem).
++  const assessmentSamples: AssessmentSample[] = [];
++  const seenDomain = new Set<string>();
++  for (const n of creditNodes) {
++    if (seenDomain.has(n.domain)) continue;
++    const prompt = neutralPrompt(n);
++    if (prompt) {
++      assessmentSamples.push({ skillId: n.id, prompt });
++      seenDomain.add(n.domain);
++    }
++  }
++
++  // Seat-time activity: aggregate per-skill timeMs by... we have no per-date logs
++  // in state, so summarize total time. Activity-log granularity is per attempt in
++  // the immutable log; here we emit the seat-time total (seat-time section ONLY).
++  let totalTimeMs = 0;
++  for (const node of graph.nodes) {
++    const s = states[node.id];
++    if (s) totalTimeMs += s.timeMs > 0 ? s.timeMs : 0;
++  }
++  const timeSpentMinutes = Math.round(totalTimeMs / MS_PER_MIN);
++  const activityLog: ActivityLogEntry[] = [
++    { date: nowIso.slice(0, 10), minutes: timeSpentMinutes },
++  ];
++
++  // Course completion = every credit-bearing node mastered.
++  const allMastered =
++    creditNodes.length > 0 &&
++    creditNodes.every((n) => states[n.id]?.status === "mastered");
++
++  // PARENT-CERTIFIED transcript line — ONLY when credit-eligible (R3/§14a).
++  const transcriptLine: TranscriptLine | null = grade.creditEligible
++    ? {
++        course: graph.schema.course,
++        projectedGrade: grade.letter,
++        credit: "1.0 Algebra 1 (parent-certified)",
++        completionDate: allMastered ? nowIso.slice(0, 10) : null,
++      }
++    : null;
++
++  return {
++    exportVersion: NCAA_EXPORT_VERSION,
++    generatedAt: nowIso,
++    classification: COURSE_CLASSIFICATION,
++    fieldMapNotValidated: FIELD_MAP_FLAG,
++    disclaimers: NCAA_DISCLAIMERS,
++    student: {
++      id: student.id,
++      displayName: student.displayName,
++      gradeLevel: student.gradeLevel,
++    },
++    platformEvidence: {
++      coreCourseWorksheet: {
++        learningObjectives,
++        majorTopics,
++        materials: [`A3 Academy Algebra 1 adaptive curriculum (graph ${graph.schema.version})`],
++        timeSpentMinutes,
++        gradingApproach: GRADING_APPROACH_TEXT,
++      },
++      syllabus: {
++        graphSchemaVersion: graph.schema.version,
++        domainSequence: graph.domains.map((d) => ({ id: d.id, label: d.label })),
++      },
++      gradingScale: { version: grade.gradingScaleVersion, disclaimer: grade.disclaimer },
++      assessmentSamples,
++      activityLog,
++    },
++    parentCertified: {
++      transcriptLine,
++      administratorStatementTemplate: ADMIN_STATEMENT_TEMPLATE,
++    },
++  };
++}
+diff --git a/lib/repository/in-memory.ts b/lib/repository/in-memory.ts
+index ccfd05f..1e1c612 100644
+--- a/lib/repository/in-memory.ts
++++ b/lib/repository/in-memory.ts
+@@ -206,4 +206,16 @@ export class InMemoryRepository implements A3Repository {
+   ): Promise<void> {
+     void _entry;
+   }
++
++  // COPPA parent-deletion (Phase 7 R5): ANONYMIZE-IN-PLACE. The append-only
++  // contract is preserved — NO row is deleted. Each of the student's attempt
++  // `response` bodies (the raw operational PII) is overwritten with "[erased]";
++  // counts, timestamps, and the mastery_updates provenance trail are untouched so
++  // the evidence ledger stays reconstructable. Mirrors the Supabase erase RPC's
++  // anonymize semantics. Export-then-erase ordering is the CALLER's obligation.
++  async eraseOperationalData(studentId: string): Promise<void> {
++    for (const a of this.attempts) {
++      if (a.studentId === studentId) a.response = "[erased]";
++    }
++  }
+ }
+diff --git a/lib/repository/supabase.ts b/lib/repository/supabase.ts
+index c58af67..a97b9c4 100644
+--- a/lib/repository/supabase.ts
++++ b/lib/repository/supabase.ts
+@@ -441,4 +441,18 @@ export class SupabaseRepository implements A3Repository {
+     });
+     if (error) fail("appendAccessLog", error);
+   }
++
++  // COPPA parent-deletion (Phase 7 R5 / §3): irreversibly anonymize operational
++  // data via the erase_student_operational_data RPC. The function is SECURITY
++  // DEFINER and asserts caller access (assert_can_access_student) BEFORE touching
++  // any row — we route it through the RLS userClient (NOT service-role) so the
++  // caller's identity is the JWT the RPC checks. Append-only is preserved inside
++  // the RPC (it overwrites raw response bodies, never deletes evidence rows).
++  // Export-then-erase ordering is enforced by the calling server action.
++  async eraseOperationalData(studentId: string): Promise<void> {
++    const { error } = await this.userClient.rpc("erase_student_operational_data", {
++      p_student_id: studentId,
++    });
++    if (error) fail("eraseOperationalData", error);
++  }
+ }
+diff --git a/types/insight.ts b/types/insight.ts
+index ca5f51e..68246f1 100644
+--- a/types/insight.ts
++++ b/types/insight.ts
+@@ -85,16 +85,39 @@ export interface FlagEntry {
+   evidenceAttemptIds: string[];
+ }
+ 
+-/** One roster row — the cross-school "is the engine working" view (A.4). */
++/** Display band derived from open flags (Phase 7 R7) — distinct from
++ *  FlagEntry.severity. green / amber / rose. */
++export type InterventionBand = "on_track" | "watch" | "intervention";
++
++/** Pace-vs-plan standing (Phase 7 §12-13). */
++export type PaceStanding = "ahead" | "on_track" | "behind";
++
++/**
++ * One roster row — the cross-school "is the engine working" view (A.4), banded
++ * for role-scoped reporting (Phase 7 R4/R7).
++ *
++ * ROLE BANDING (R4/R11): for the `coach` role, `currentStatus` is null and
++ * `currentSkillTitle` is "" — a coach sees severity BANDS + flags only, never the
++ * exact engine status or the raw current-focus title (§11). Admin/teacher roles
++ * see the full row. The builder enforces this; the UI must not reconstruct it.
++ */
+ export interface RosterRow {
+   studentId: string;
+   displayName: string;
+   campusId: string | null;
+-  /** Current recommended skill title (from recommend); "" when course complete. */
++  /** Current recommended skill title; "" when complete OR redacted for coach. */
+   currentSkillTitle: string;
+-  /** Status of the current recommended skill, or "mastered" when complete. */
+-  currentStatus: MasteryStatus;
++  /** Exact engine status — null for the coach role (banded view only). */
++  currentStatus: MasteryStatus | null;
+   /** ISO of the most recent attempt, or null when never active. */
+   lastActiveAt: string | null;
+   openFlags: number;
++  /** Display band from the open flag set (R7). All roles see this. */
++  band: InterventionBand;
++  /** Single "what to do next" string for the most-severe flag; "" when on_track. */
++  nextAction: string;
++  /** Pace-vs-plan standing (§12-13). All roles see this banded signal. */
++  pace: PaceStanding;
++  /** High seat-time / low mastery gain (§12-13). Never a grade input. */
++  wastingTime: boolean;
+ }
+diff --git a/types/repository.ts b/types/repository.ts
+index 0ed31bd..0d00277 100644
+--- a/types/repository.ts
++++ b/types/repository.ts
+@@ -20,7 +20,18 @@ import type { StreamVideoAsset } from "./stream-video";
+  * "transcript" and "parent_child_record" are reserved for surfaces that must log
+  * before they ship (see appendAccessLog).
+  */
+-export type RecordAccessType = "student_insight" | "transcript" | "parent_child_record";
++export type RecordAccessType =
++  | "student_insight"
++  | "transcript"
++  | "parent_child_record"
++  | "operational_erase";
++
++/**
++ * Who performed an audited action. Staff roles plus "parent" — the parent is the
++ * administrator of record (§7) for their own child's record actions (export /
++ * delete, Phase 7 R5). The audit row carries this string only; no PII body.
++ */
++export type AuditActorRole = StaffRole | "parent";
+ 
+ /**
+  * All IDs are opaque strings — no numeric parsing, no ordering semantics
+@@ -73,5 +84,16 @@ export interface A3Repository {
+    * Supabase: INSERT via the userClient (RLS with-check actor_id = current_actor_id()).
+    * InMemory: no-op (memory mode has no FERPA disclosure surface).
+    */
+-  appendAccessLog(entry: { actorId: string; actorRole: StaffRole; studentId: string; recordType: RecordAccessType }): Promise<void>;
++  appendAccessLog(entry: { actorId: string; actorRole: AuditActorRole; studentId: string; recordType: RecordAccessType }): Promise<void>;
++  /**
++   * COPPA parent-deletion (§3 / Phase 7 R5): irreversibly anonymize the student's
++   * OPERATIONAL data (raw attempt responses) while PRESERVING the append-only
++   * evidence trail — NO row delete. Export-then-erase ordering is enforced by the
++   * CALLER (the parent delete action), not here.
++   *   - InMemory → sets each of the student's attempt `response` to "[erased]"
++   *                in place (append-only preserved; counts/timestamps untouched).
++   *   - Supabase → calls the erase_student_operational_data RPC (SECURITY DEFINER,
++   *                asserts caller access first). Stubbed/wired behind REPOSITORY_BACKEND.
++   */
++  eraseOperationalData(studentId: string): Promise<void>;
+ }

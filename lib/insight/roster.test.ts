@@ -100,7 +100,7 @@ describe("buildRoster", () => {
       { profile: profile({ id: "z", displayName: "Zoe" }), states: {}, attempts: [], updates: [] },
       { profile: profile({ id: "a", displayName: "Ada" }), states: {}, attempts: [], updates: [] },
     ];
-    const rows = buildRoster(graph, inputs, null, NOW);
+    const rows = buildRoster(graph, inputs, null, "super_admin", NOW);
     expect(rows.map((r) => r.displayName)).toEqual(["Ada", "Zoe"]);
   });
 
@@ -116,7 +116,7 @@ describe("buildRoster", () => {
         updates: [],
       },
     ];
-    const rows = buildRoster(graph, inputs, null, NOW);
+    const rows = buildRoster(graph, inputs, null, "super_admin", NOW);
     expect(rows[0].currentSkillTitle).toBe("Skill a");
     expect(rows[0].lastActiveAt).toBe("2026-06-05T10:00:00.000Z");
   });
@@ -125,9 +125,11 @@ describe("buildRoster", () => {
     const inputs: RosterStudentInput[] = [
       { profile: profile({ id: "a", displayName: "Ada" }), states: {}, attempts: [], updates: [] },
     ];
-    const rows = buildRoster(graph, inputs, null, NOW);
+    const rows = buildRoster(graph, inputs, null, "super_admin", NOW);
     expect(rows[0].lastActiveAt).toBeNull();
     expect(rows[0].openFlags).toBe(0);
+    expect(rows[0].band).toBe("on_track");
+    expect(rows[0].pace).toBe("on_track");
   });
 
   it("scopes to a campus when a campusId is given", () => {
@@ -145,7 +147,27 @@ describe("buildRoster", () => {
         updates: [],
       },
     ];
-    const rows = buildRoster(graph, inputs, "c1", NOW);
+    const rows = buildRoster(graph, inputs, "c1", "super_admin", NOW);
     expect(rows.map((r) => r.studentId)).toEqual(["a"]);
+  });
+
+  it("redacts exact status and raw current-focus title for the coach role (R4)", () => {
+    const inputs: RosterStudentInput[] = [
+      {
+        profile: profile({ id: "a", displayName: "Ada" }),
+        states: {},
+        attempts: [attempt({ id: "at-1", createdAt: "2026-06-05T10:00:00.000Z" })],
+        updates: [],
+      },
+    ];
+    const coach = buildRoster(graph, inputs, null, "coach", NOW);
+    expect(coach[0].currentStatus).toBeNull();
+    expect(coach[0].currentSkillTitle).toBe("");
+    // band/flags signals remain available to the coach.
+    expect(coach[0].band).toBeDefined();
+
+    const admin = buildRoster(graph, inputs, null, "campus_admin", NOW);
+    expect(admin[0].currentStatus).not.toBeNull();
+    expect(admin[0].currentSkillTitle).toBe("Skill a");
   });
 });

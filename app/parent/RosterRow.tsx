@@ -7,6 +7,7 @@
 //   revoked  → "Re-grant access" (regrantConsent)
 // No progress/analytics (P3). Calm, never accusatory.
 
+import Link from "next/link";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { ConsentPill, type ConsentState } from "../../components/ui/ConsentPill";
@@ -53,12 +54,20 @@ export function RosterRow({ studentId, firstName, gradeLevel, consent }: RosterR
 function RowAction({ studentId, consent }: { studentId: string; consent: ConsentState }) {
   if (consent === "active") {
     return (
-      <form action={launchChild}>
-        <input type="hidden" name="studentId" value={studentId} />
-        <Button variant="primary" size="sm" type="submit">
-          Launch
-        </Button>
-      </form>
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/parent/children/${studentId}`}
+          className="inline-flex items-center justify-center rounded-[10px] border border-border-strong bg-surface px-[14px] py-2 text-[13px] font-medium text-ink transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          View progress
+        </Link>
+        <form action={launchChild}>
+          <input type="hidden" name="studentId" value={studentId} />
+          <Button variant="primary" size="sm" type="submit">
+            Launch
+          </Button>
+        </form>
+      </div>
     );
   }
   if (consent === "revoked") {
@@ -73,11 +82,11 @@ function RowAction({ studentId, consent }: { studentId: string; consent: Consent
   }
   // pending — finish the consent step.
   return (
-    <a
+    <Link
       href="/parent/children/new"
       className="inline-flex items-center justify-center rounded-[10px] border border-border-strong bg-surface px-[14px] py-2 text-[13px] font-medium text-ink transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
       Finish setup
-    </a>
+    </Link>
   );
 }

@@ -13,6 +13,7 @@ import { PageHeader } from "../../../components/ui/PageHeader";
 import { Card } from "../../../components/ui/Card";
 import { InsetPanel } from "../../../components/ui/Panels";
 import { StatusPill } from "../../../components/ui/StatusPill";
+import { SeverityPill } from "../../../components/insight/SeverityPill";
 import { Table, TableHead, TableBody, TableRow, Th, Td } from "../../../components/ui/Table";
 
 export const metadata = {
@@ -43,7 +44,20 @@ export default async function AdminStudentsPage() {
   );
 
   const nowIso = new Date().toISOString();
-  const rows = buildRoster(graph, inputs, staff.campusId, nowIso);
+  const rows = buildRoster(graph, inputs, staff.campusId, staff.role, nowIso);
+  const isCoach = staff.role === "coach";
+
+  // Coach lead (R7): amber + rose count first, with the single next action.
+  const attentionCount = rows.filter((r) => r.band !== "on_track").length;
+  const leadAction = rows.find((r) => r.band === "intervention")?.nextAction ??
+    rows.find((r) => r.band === "watch")?.nextAction ??
+    "";
+
+  const PACE_LABEL: Record<string, string> = {
+    ahead: "Ahead",
+    on_track: "On track",
+    behind: "Behind",
+  };
 
   return (
     <StaffShell>
@@ -51,8 +65,25 @@ export default async function AdminStudentsPage() {
         <PageHeader
           eyebrow="Staff · roster"
           title="Students"
-          subhead="Every student's current adaptive decision, last activity, and any signals worth a look. Read-only over the immutable evidence logs."
+          subhead={
+            isCoach
+              ? "Roster-scoped severity bands and signals. Coaches see need-to-know bands only."
+              : "Every student's current adaptive decision, last activity, and any signals worth a look. Read-only over the immutable evidence logs."
+          }
         />
+
+        {isCoach && rows.length > 0 && (
+          <Card className="mb-5" padding="compact">
+            <p className="text-[13px] font-medium text-ink">
+              {attentionCount === 0
+                ? "All students on track."
+                : `${attentionCount} student${attentionCount === 1 ? "" : "s"} need a look.`}
+            </p>
+            {leadAction && (
+              <p className="mt-1 text-[12.5px] leading-[1.5] text-ink-500">{leadAction}</p>
+            )}
+          </Card>
+        )}
 
         {rows.length === 0 ? (
           <Card>
@@ -65,8 +96,10 @@ export default async function AdminStudentsPage() {
                 <TableHead>
                   <TableRow first>
                     <Th className="px-[18px]">Student</Th>
-                    <Th>Current focus</Th>
-                    <Th>Status</Th>
+                    {!isCoach && <Th>Current focus</Th>}
+                    {!isCoach && <Th>Status</Th>}
+                    <Th>Standing</Th>
+                    <Th>Pace</Th>
                     <Th>Last active</Th>
                     <Th align="right" className="pr-[18px]">
                       Signals
@@ -77,17 +110,27 @@ export default async function AdminStudentsPage() {
                   {rows.map((row, i) => (
                     <TableRow key={row.studentId} first={i === 0} interactive>
                       <Td className="px-[18px]">
-                        <Link
-                          href={`/admin/students/${row.studentId}`}
-                          className="rounded-[6px] text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                        >
-                          {row.displayName}
-                        </Link>
+                        {isCoach ? (
+                          <span className="text-ink">{row.displayName}</span>
+                        ) : (
+                          <Link
+                            href={`/admin/students/${row.studentId}`}
+                            className="rounded-[6px] text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                          >
+                            {row.displayName}
+                          </Link>
+                        )}
                       </Td>
-                      <Td secondary>{row.currentSkillTitle || "Course complete"}</Td>
+                      {!isCoach && (
+                        <Td secondary>{row.currentSkillTitle || "Course complete"}</Td>
+                      )}
+                      {!isCoach && (
+                        <Td>{row.currentStatus && <StatusPill status={row.currentStatus} />}</Td>
+                      )}
                       <Td>
-                        <StatusPill status={row.currentStatus} />
+                        <SeverityPill band={row.band} />
                       </Td>
+                      <Td secondary>{PACE_LABEL[row.pace]}</Td>
                       <Td secondary>{relativeDate(row.lastActiveAt)}</Td>
                       <Td align="right" className="pr-[18px]" secondary>
                         {row.openFlags}

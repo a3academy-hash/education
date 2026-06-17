@@ -20,7 +20,18 @@ import type { StreamVideoAsset } from "./stream-video";
  * "transcript" and "parent_child_record" are reserved for surfaces that must log
  * before they ship (see appendAccessLog).
  */
-export type RecordAccessType = "student_insight" | "transcript" | "parent_child_record";
+export type RecordAccessType =
+  | "student_insight"
+  | "transcript"
+  | "parent_child_record"
+  | "operational_erase";
+
+/**
+ * Who performed an audited action. Staff roles plus "parent" — the parent is the
+ * administrator of record (§7) for their own child's record actions (export /
+ * delete, Phase 7 R5). The audit row carries this string only; no PII body.
+ */
+export type AuditActorRole = StaffRole | "parent";
 
 /**
  * All IDs are opaque strings — no numeric parsing, no ordering semantics
@@ -73,5 +84,16 @@ export interface A3Repository {
    * Supabase: INSERT via the userClient (RLS with-check actor_id = current_actor_id()).
    * InMemory: no-op (memory mode has no FERPA disclosure surface).
    */
-  appendAccessLog(entry: { actorId: string; actorRole: StaffRole; studentId: string; recordType: RecordAccessType }): Promise<void>;
+  appendAccessLog(entry: { actorId: string; actorRole: AuditActorRole; studentId: string; recordType: RecordAccessType }): Promise<void>;
+  /**
+   * COPPA parent-deletion (§3 / Phase 7 R5): irreversibly anonymize the student's
+   * OPERATIONAL data (raw attempt responses) while PRESERVING the append-only
+   * evidence trail — NO row delete. Export-then-erase ordering is enforced by the
+   * CALLER (the parent delete action), not here.
+   *   - InMemory → sets each of the student's attempt `response` to "[erased]"
+   *                in place (append-only preserved; counts/timestamps untouched).
+   *   - Supabase → calls the erase_student_operational_data RPC (SECURITY DEFINER,
+   *                asserts caller access first). Stubbed/wired behind REPOSITORY_BACKEND.
+   */
+  eraseOperationalData(studentId: string): Promise<void>;
 }

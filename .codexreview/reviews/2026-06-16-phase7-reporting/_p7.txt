@@ -1,0 +1,11 @@
+==== INFORMED ====
+- [blocking] locked-provisional-contract (0.92): The 70/20/10 grade model says credited diagnostic/provisional mastery must be excluded, but the current app-layer state does not expose the DB `locked`/`provisional`
+- [high] delete-export-authz-audit (0.86): The parent self-service export/delete plan is underspecified at the authorization boundary: the only erase RPC is service-role executable and takes only `student_id`
+- [medium] ncaa-live-build (0.78): The NCAA export plan is contradictory about determinism: it calls the export builder pure, but the binding requires pulling the live NCAA toolkit at build time, whic
+==== COLD ====
+- [blocking] repo-premises-unverified (0.95): The plan depends on many existing schema, RPC, RLS, UI, and pure-builder capabilities, but because this review has only the plan text, those capabilities are unprove
+- [blocking] gate-deferred-contradiction (0.9): The plan's gate says the release requires NCAA export, 70/20/10 rubric, server-side grading, audit without PII bodies, and consent-gated flows, but the deferred list
+- [high] summative-zero-grade (0.88): Assigning the missing 20% summative component as zero may produce misleading grades and transcript/export outputs before the summative flow exists, even if flagged. 
+- [high] ncaa-live-toolkit (0.86): The NCAA export is described as a required gate artifact, but the plan explicitly says the live toolkit must be validated and is not hardcoded-final. That leaves the
+- [high] memory-mode-compliance (0.82): The plan assumes memory mode can satisfy export, delete, and audit behavior, but it does not define persistence, audit durability, or equivalence to database-backed 
+- [medium] suppression-scope-ambiguous (0.78): The n≥5 suppression rule is only stated for cohort/roster aggregates, while the same reporting pages include per-child dashboards and admin views. The plan does not 

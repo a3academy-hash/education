@@ -1,0 +1,14 @@
+{
+  "phase": "plan", "round": 1, "decision": "converged-to-v2",
+  "rationale": "Codex informed+cold + mr-kahn + mr-gates + pee-wee all APPROVE WITH CHANGES, strongly convergent. All adopted into plan v2 §V2 R1-R13. One rebuttal (codex-cold repo-premises-unverified — premises verified by the repo-aware reviewers).",
+  "dispositions": [
+    {"id": "locked-provisional-contract", "source": "both", "disposition": "accept", "action": "R1 — 70% reads MasteryUpdate provenance (trigger=attempt locked vs diagnostic/credit-propagation provisional-excluded)."},
+    {"id": "delete-export-authz-audit", "source": "informed", "disposition": "accept", "action": "R5 — action verifies parent-of/assert_can_access before erase; audit no-PII."},
+    {"id": "ncaa-live-build / ncaa-live-toolkit", "source": "both", "disposition": "accept", "action": "R10 — pure builder over static field-map; export carries 'not validated vs live toolkit' flag; live-toolkit deferred MUST-VALIDATE."},
+    {"id": "gate-deferred-contradiction", "source": "cold", "disposition": "accept", "action": "R12 — explicit gate-vs-ship boundary: build delivers all gate artifacts; deferrals are SHIP gates (GOAL #6)."},
+    {"id": "summative-zero-grade", "source": "cold", "disposition": "accept", "action": "R3 — projection label, letter suppressed, creditEligible false, export refuses credit line."},
+    {"id": "memory-mode-compliance", "source": "cold", "disposition": "accept", "action": "R5 — anonymize-in-place (response='[erased]'), export-first-in-action, audit no-PII."},
+    {"id": "suppression-scope-ambiguous", "source": "cold", "disposition": "accept", "action": "R4 — n≥5 cohort-only; single-student authorized reads + coach own-roster exempt."},
+    {"id": "repo-premises-unverified", "source": "cold", "disposition": "rebut", "action": "Premises (spine/RPCs/builders) verified by mr-kahn/mr-gates/codex-informed repo reads; cold-seal artifact."}
+  ]
+}

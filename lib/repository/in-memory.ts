@@ -206,4 +206,16 @@ export class InMemoryRepository implements A3Repository {
   ): Promise<void> {
     void _entry;
   }
+
+  // COPPA parent-deletion (Phase 7 R5): ANONYMIZE-IN-PLACE. The append-only
+  // contract is preserved — NO row is deleted. Each of the student's attempt
+  // `response` bodies (the raw operational PII) is overwritten with "[erased]";
+  // counts, timestamps, and the mastery_updates provenance trail are untouched so
+  // the evidence ledger stays reconstructable. Mirrors the Supabase erase RPC's
+  // anonymize semantics. Export-then-erase ordering is the CALLER's obligation.
+  async eraseOperationalData(studentId: string): Promise<void> {
+    for (const a of this.attempts) {
+      if (a.studentId === studentId) a.response = "[erased]";
+    }
+  }
 }

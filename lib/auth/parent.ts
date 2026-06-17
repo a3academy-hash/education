@@ -107,6 +107,39 @@ export async function getRoster(parentUid: string): Promise<RosterChild[]> {
   }
 }
 
+/**
+ * Verify the authenticated parent owns an ACTIVE link to a child (C-C2). The
+ * single authz gate for the per-child parent dashboard + its export/delete
+ * actions (Phase 7 R5). Service-read filtered to the verified parent uid; returns
+ * false on any error / non-ownership. Optionally require currently-granted consent.
+ */
+export async function parentOwnsChild(
+  parentUid: string,
+  studentId: string,
+  opts: { requireGranted?: boolean } = {},
+): Promise<boolean> {
+  if (!parentUid || !studentId) return false;
+  try {
+    const service = createServiceClient();
+    const { data, error } = await service
+      .from("parent_student_links")
+      .select("status, consent_events:current_consent_event_id(status)")
+      .match({ parent_id: parentUid, student_id: studentId })
+      .maybeSingle();
+    if (error || !data) return false;
+    const row = data as {
+      status: string;
+      consent_events: { status: string } | { status: string }[] | null;
+    };
+    if (row.status !== "active") return false;
+    if (!opts.requireGranted) return true;
+    const ev = normalizeOne(row.consent_events);
+    return ev?.status === "granted";
+  } catch {
+    return false;
+  }
+}
+
 /** Map link.status + current consent event status → the roster ConsentState. */
 export function deriveConsent(
   linkStatus: string,

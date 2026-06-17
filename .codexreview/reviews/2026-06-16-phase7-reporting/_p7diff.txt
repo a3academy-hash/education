@@ -1,0 +1,3 @@
+- [blocking] erase-rpc-mismatch (0.98): Parent self-service delete will fail in Supabase mode because the repository calls the erase RPC with the wrong parameter list and through a role that is explicitly not grante
+- [high] credit-before-complete (0.91): A credit-bearing NCAA transcript line can be emitted as soon as any summative score exists, even when the student has not completed the credit-bearing scope.
+- [high] parent-record-unaudited (0.86): The new parent per-child record page reads detailed student record data without the required parent_child_record access log gate.

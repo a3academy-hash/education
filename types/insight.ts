@@ -85,16 +85,39 @@ export interface FlagEntry {
   evidenceAttemptIds: string[];
 }
 
-/** One roster row — the cross-school "is the engine working" view (A.4). */
+/** Display band derived from open flags (Phase 7 R7) — distinct from
+ *  FlagEntry.severity. green / amber / rose. */
+export type InterventionBand = "on_track" | "watch" | "intervention";
+
+/** Pace-vs-plan standing (Phase 7 §12-13). */
+export type PaceStanding = "ahead" | "on_track" | "behind";
+
+/**
+ * One roster row — the cross-school "is the engine working" view (A.4), banded
+ * for role-scoped reporting (Phase 7 R4/R7).
+ *
+ * ROLE BANDING (R4/R11): for the `coach` role, `currentStatus` is null and
+ * `currentSkillTitle` is "" — a coach sees severity BANDS + flags only, never the
+ * exact engine status or the raw current-focus title (§11). Admin/teacher roles
+ * see the full row. The builder enforces this; the UI must not reconstruct it.
+ */
 export interface RosterRow {
   studentId: string;
   displayName: string;
   campusId: string | null;
-  /** Current recommended skill title (from recommend); "" when course complete. */
+  /** Current recommended skill title; "" when complete OR redacted for coach. */
   currentSkillTitle: string;
-  /** Status of the current recommended skill, or "mastered" when complete. */
-  currentStatus: MasteryStatus;
+  /** Exact engine status — null for the coach role (banded view only). */
+  currentStatus: MasteryStatus | null;
   /** ISO of the most recent attempt, or null when never active. */
   lastActiveAt: string | null;
   openFlags: number;
+  /** Display band from the open flag set (R7). All roles see this. */
+  band: InterventionBand;
+  /** Single "what to do next" string for the most-severe flag; "" when on_track. */
+  nextAction: string;
+  /** Pace-vs-plan standing (§12-13). All roles see this banded signal. */
+  pace: PaceStanding;
+  /** High seat-time / low mastery gain (§12-13). Never a grade input. */
+  wastingTime: boolean;
 }
