@@ -201,6 +201,40 @@ describe("computeFlags", () => {
     expect(r?.detail).toMatch(/Due for a retention check/);
   });
 
+  it("flags fast-but-fragile for a fast-mastered node with an overdue retention check (attention, factual detail)", () => {
+    // Mastered fast (attempts ≤ fastThreshold) 30 days before NOW → overdue the
+    // 21-day first interval, no passing probe → fragile.
+    const mastered = state({
+      attempts: 4,
+      status: "mastered",
+      masteredAt: "2026-05-03T10:00:00.000Z",
+      recent: [],
+    });
+    const flags = flagsFor({ a: mastered }, [
+      attempt({ id: "x1", createdAt: "2026-05-03T10:00:00.000Z" }),
+    ]);
+    const f = flags.find((fl) => fl.kind === "fast-but-fragile");
+    expect(f).toBeDefined();
+    expect(f?.skillId).toBe("a");
+    expect(f?.severity).toBe("attention");
+    expect(f?.detail).toMatch(/4 attempts/);
+  });
+
+  it("does NOT flag fast-but-fragile for an unmeasured fast node (no probe due/taken)", () => {
+    // Mastered fast but only 5 days before NOW → inside the first interval,
+    // nothing overdue, no probe → unmeasured, NEVER fragile.
+    const fresh = state({
+      attempts: 3,
+      status: "mastered",
+      masteredAt: "2026-05-28T10:00:00.000Z",
+      recent: [],
+    });
+    const flags = flagsFor({ a: fresh }, [
+      attempt({ id: "x1", createdAt: "2026-05-28T10:00:00.000Z" }),
+    ]);
+    expect(flags.some((fl) => fl.kind === "fast-but-fragile")).toBe(false);
+  });
+
   it("emits no skill flags for a student with no attempts", () => {
     const flags = flagsFor({}, []);
     expect(flags.filter((f) => f.skillId !== undefined)).toHaveLength(0);

@@ -76,6 +76,7 @@ export interface FlagEntry {
     | "rushing"
     | "decayed-review-queue"
     | "retention-probes-due"
+    | "fast-but-fragile"
     | "days-since-session";
   /** info = neutral signal; attention = worth a look (never an error/alarm). */
   severity: "info" | "attention";

@@ -18,6 +18,7 @@ import { InsetPanel } from "../../../../components/ui/Panels";
 import { StatusPill } from "../../../../components/ui/StatusPill";
 import { ProgressRing } from "../../../../components/gamification/ProgressRing";
 import { RingTrio } from "../../../../components/gamification/RingTrio";
+import { cookies } from "next/headers";
 import { getRepository } from "../../../../lib/repository/server";
 import { computeMasteryAll, MASTERY_CONFIG } from "../../../../lib/mastery-engine";
 import { recommend } from "../../../../lib/adaptive-router";
@@ -27,6 +28,16 @@ import {
   humanizeMinutes,
   masteryRingFraction,
 } from "../../../../lib/gamification";
+import { retainedMastery } from "../../../../lib/gamification/retained";
+import {
+  defaultRewardMode,
+  ageBandForGrade,
+  isRewardMode,
+  type RewardMode,
+} from "../../../../lib/gamification/reward-mode";
+import { studentFragility } from "../../../../lib/engine-v2/fragile";
+import { RewardModeToggle } from "../../../../components/gamification/RewardModeToggle";
+import { REWARD_MODE_COOKIE } from "./reward-mode-constants";
 
 const LINK_PRIMARY =
   "inline-flex items-center justify-center gap-2 rounded-[10px] font-sans bg-accent text-white " +
@@ -50,16 +61,41 @@ export default async function MomentumPage() {
   const profile = await repo.getStudent(studentId);
   if (!profile) return <NoStudent />;
 
-  const [graph, states, attempts] = await Promise.all([
+  const [graph, states, attempts, updates] = await Promise.all([
     repo.getGraph(),
     repo.getSkillStates(studentId),
     repo.listAttempts(studentId),
+    repo.listMasteryUpdates(studentId),
   ]);
 
   const nowIso = new Date().toISOString();
   const momentum = computeMomentum(states, graph, attempts, nowIso);
   const batch = computeMasteryAll(studentId, states, graph, nowIso);
   const rec = recommend(batch.results, states, graph);
+
+  // Phase 8 — RETAINED mastery (X of Y), derived from passed delayed retention
+  // probes (read-only; never mastery math).
+  const retained = retainedMastery(states, attempts, graph, nowIso);
+
+  // Phase 8 — fast-but-fragile, surfaced to the STUDENT as a positive tune-up
+  // nudge (no "fragile", no red). We only need the focus node's status here.
+  const fragility = studentFragility(states, attempts, updates, graph, nowIso);
+  const focusFragile = rec.skillId
+    ? fragility.find((f) => f.skillId === rec.skillId)?.status === "fragile"
+    : false;
+
+  // Phase 8 — reward-mode (CELEBRATIONS) preference. Source of truth = the
+  // per-learner cookie; default-by-age when unset. Presentation only.
+  // Per-learner scope: the cookie is `${studentId}:${mode}`; honor it only when
+  // it belongs to the active learner (shared-device safety), else default-by-age.
+  const cookieRaw = (await cookies()).get(REWARD_MODE_COOKIE)?.value;
+  const sep = cookieRaw?.indexOf(":") ?? -1;
+  const cookieStudent = sep >= 0 ? cookieRaw!.slice(0, sep) : null;
+  const cookieMode = sep >= 0 ? cookieRaw!.slice(sep + 1) : undefined;
+  const rewardMode: RewardMode =
+    cookieStudent === studentId && isRewardMode(cookieMode)
+      ? cookieMode
+      : defaultRewardMode(ageBandForGrade(profile.gradeLevel));
 
   const nodeById = new Map(graph.nodes.map((n) => [n.id, n]));
   const focusNode = rec.skillId ? nodeById.get(rec.skillId) : undefined;
@@ -124,7 +160,7 @@ export default async function MomentumPage() {
       </Card>
 
       {/* Secondary stats. */}
-      <div className="stagger mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="stagger mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {/* All-time productive minutes (XP). */}
         <Card className="flex flex-col items-center text-center">
           <p className="mb-4 self-start text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
@@ -158,6 +194,32 @@ export default async function MomentumPage() {
             Estimated time saved vs. a traditional classroom pace by mastering
             skills efficiently. An estimate, not a graded measure.
           </p>
+        </Card>
+
+        {/* Retained — durable mastery proven on a later, unseen check (Phase 8).
+            Reuses the "Time given back" Card pattern; ALWAYS "X of Y mastered"
+            (never a bare count). Pending-probe nodes sit in Y, never against. */}
+        <Card className="flex flex-col items-center justify-center text-center">
+          <p className="mb-4 self-start text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
+            Retained
+          </p>
+          <div className="font-display text-[44px] font-semibold leading-none text-ink">
+            {retained.retainedCount}
+            <span className="text-[22px] font-medium text-ink-500">
+              {" "}
+              of {retained.masteredCount}
+            </span>
+          </div>
+          <p className="mt-1 text-[13px] font-medium text-ink-700">mastered</p>
+          <p className="mt-3 max-w-[230px] text-[13px] leading-[1.5] text-ink-500">
+            Kept sharp &mdash; proven on a later, unseen check.
+          </p>
+        </Card>
+
+        {/* Celebrations preference (Phase 8) — this learner surface only. Never
+            on the Focus chrome, never on a test. Presentation only. */}
+        <Card className="flex flex-col justify-center">
+          <RewardModeToggle value={rewardMode} />
         </Card>
       </div>
 
@@ -206,6 +268,14 @@ export default async function MomentumPage() {
                   <p className="mt-3 text-[13px] leading-[1.5] text-ink-700">
                     Taking your time is good — if you&rsquo;re stuck, a hint or a
                     quick worked example can get you moving again.
+                  </p>
+                )}
+                {/* Fast-but-fragile → a positive, action-framed tune-up nudge.
+                    NO "fragile", NO red — the existing non-punitive treatment. */}
+                {focusFragile && (
+                  <p className="mt-3 text-[13px] leading-[1.5] text-ink-700">
+                    <span className="font-medium text-ink">Worth a quick tune-up</span> — you
+                    picked this up fast; a short review in a day or two will lock it in.
                   </p>
                 )}
 

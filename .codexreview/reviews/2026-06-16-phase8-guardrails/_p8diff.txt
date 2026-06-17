@@ -1,0 +1,4 @@
+- [high] nl-range (0.97): ALG-F01 numeric practice now suppresses the text input and forces an interactive number line limited to [-20, 20], but existing ALG-F01 items have correct answe
+  FIX: Do not force the number-line-only input for ALG-F01 items unless the served answer is representable by an answer-free authored range, or keep a typed 
+- [medium] reward-cookie-scope (0.84): The reward-mode preference is described and read as per-learner, but the implementation stores a single browser-wide cookie, so switching learners on the same d
+  FIX: Scope the preference by student, for example by including the current student id in the cookie key/value map after validating the current session, or 

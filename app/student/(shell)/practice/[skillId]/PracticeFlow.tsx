@@ -25,16 +25,40 @@ import { MathText } from "../../../../../components/ui/MathText";
 import { MathKeypad } from "../../../../../components/learning/MathKeypad";
 import { keypadHint } from "../../../../../components/learning/math-keypad-hint";
 import { phaseLabel } from "../../../../../lib/session-helpers";
+import {
+  applyGuardrails,
+  type GuardrailCandidate,
+} from "../../../../../lib/engine-v2/guardrails";
 import type { InputNotation } from "../../../../../lib/math-notation/input-notation";
 import { submitPractice } from "./actions";
 import type { PracticeResult } from "./shared";
 import type {
   AnswerSpec,
+  NumberLineSpec,
   Phase,
   Sport,
   VisualKind,
   VisualSpec,
 } from "../../../../../types";
+
+// Phase 06 — "drag the answer". For ALG-F01 numeric items the answer is given on
+// an interactive number line instead of a text field. The range is a fixed
+// integer window (answer-FREE — the client never receives the answer value);
+// dragging or tapping a tick sets the value, which serializes into the SAME
+// response string the server re-validates. Scoped to ALG-F01 for v1.
+function numberlineAnswerSpec(
+  skillId: string,
+  answerKind: AnswerSpec["kind"],
+): NumberLineSpec | null {
+  if (skillId !== "ALG-F01" || answerKind !== "numeric") return null;
+  return {
+    kind: "numberline",
+    mode: "interactive",
+    range: { min: -20, max: 20 },
+    markers: [{ value: 0 }],
+    affordances: ["drag", "labels"],
+  };
+}
 
 const FADE: React.CSSProperties = {
   animation: "a3-fade-in var(--duration-base) var(--ease-calm) both",
@@ -64,6 +88,8 @@ export interface ServedItem {
   visualSpec?: VisualSpec;
   hints: string[];
   isProbe: boolean;
+  /** Item difficulty (1 easy … 3 hard) — feeds the §8 guardrail proxy. */
+  difficulty: 1 | 2 | 3;
   answerKind: AnswerSpec["kind"];
   /**
    * Multiple-choice options (only for answerKind === "choice"). Carries the
@@ -87,11 +113,25 @@ export interface PracticeFlowProps {
   sport: Sport;
   items: ServedItem[];
   sessionId: string;
+  /**
+   * Live mastery score (0..1) for the focus node, computed server-side. Feeds the
+   * §8 guardrail predicted-success PROXY that orders WHICH remaining item is
+   * served next (band targeting + frustration fallback + review cap). The server
+   * still grades every answer authoritatively — this only governs ordering.
+   */
+  masteryScore: number;
 }
 
-export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }: PracticeFlowProps) {
+export function PracticeFlow({
+  skillId,
+  title,
+  phase,
+  sport,
+  items,
+  sessionId,
+  masteryScore,
+}: PracticeFlowProps) {
   const router = useRouter();
-  const [index, setIndex] = useState(0);
   const [value, setValue] = useState("");
   const [hintsShown, setHintsShown] = useState(0);
   const [pending, setPending] = useState(false);
@@ -99,13 +139,52 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
   const [submittedResponse, setSubmittedResponse] = useState("");
   const [streak, setStreak] = useState(0);
   const [persistError, setPersistError] = useState(false);
-  const startRef = useRef<number>(Date.now());
   const answerRef = useRef<HTMLInputElement>(null);
 
-  const item = items[index];
-  const isLast = index >= items.length - 1;
+  // §8 guardrails (genuinely active on the live path). The PLAY ORDER is
+  // guardrail-driven over the not-yet-played pool, threading the live signals
+  // (consecutive errors, review fraction). A retention probe is PINNED first (a
+  // scheduling concern, not a difficulty choice). `order` is the realized play
+  // sequence (indices into `items`); `cursor` is the current slot.
+  const pickNextIndex = (played: number[], errors: number, reviewCount: number): number | null => {
+    const remaining = items
+      .map((it, i) => ({ it, i }))
+      .filter(({ i }) => !played.includes(i));
+    if (remaining.length === 0) return null;
+    // A pinned retention probe always plays first.
+    const probe = remaining.find(({ it }) => it.source === "retention");
+    if (played.length === 0 && probe) return probe.i;
+    const candidates: GuardrailCandidate[] = remaining.map(({ it, i }) => ({
+      itemId: String(i),
+      difficulty: it.difficulty,
+      // Retention maintenance is review; forward "stretch ahead" probes + normal
+      // items are progress.
+      isReview: it.source === "retention",
+    }));
+    const reviewFrac = played.length > 0 ? reviewCount / played.length : 0;
+    const decision = applyGuardrails(candidates, {
+      masteryScore,
+      consecutiveErrors: errors,
+      reviewServedFraction: reviewFrac,
+    });
+    return decision ? Number(decision.itemId) : remaining[0].i;
+  };
+
+  const [order, setOrder] = useState<number[]>(() => {
+    const first = pickNextIndex([], 0, 0);
+    return first == null ? [] : [first];
+  });
+  const [cursor, setCursor] = useState(0);
+  const consecutiveErrorsRef = useRef(0);
+  const reviewServedRef = useRef(0);
+  const startRef = useRef<number>(Date.now());
+
+  const currentIndex = order[cursor];
+  const item = currentIndex != null ? items[currentIndex] : undefined;
+  const playedCount = cursor;
+  const isLast = playedCount >= items.length - 1;
   // Non-numeric engine progress: items completed / total (direction §0.4).
-  const progress = items.length === 0 ? 0 : index / items.length;
+  const progress = items.length === 0 ? 0 : playedCount / items.length;
 
   const resetForNext = () => {
     setValue("");
@@ -146,6 +225,9 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
     // Momentum: each server-confirmed correct extends the run; a miss resets
     // it quietly (no punishment color, direction §0.5 / §2 momentum).
     setStreak((s) => (res.result.correct ? s + 1 : 0));
+    // §8 frustration signal: consecutive errors drive the guardrail fallback; a
+    // correct answer auto-recovers (resets to 0). This NEVER feeds mastery math.
+    consecutiveErrorsRef.current = res.result.correct ? 0 : consecutiveErrorsRef.current + 1;
   };
 
   const next = () => {
@@ -153,7 +235,14 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
       router.push(`/student/summary?skill=${encodeURIComponent(skillId)}&session=${sessionId}`);
       return;
     }
-    setIndex((i) => i + 1);
+    // Account the item just completed toward the review-burden signal.
+    if (item?.source === "retention") reviewServedRef.current += 1;
+    // §8 guardrails choose the NEXT item from the remaining pool, given the live
+    // signals. Additive ordering only — the server has already graded each answer.
+    const played = order.slice(0, cursor + 1);
+    const picked = pickNextIndex(played, consecutiveErrorsRef.current, reviewServedRef.current);
+    if (picked != null) setOrder((o) => [...o.slice(0, cursor + 1), picked]);
+    setCursor((c) => c + 1);
     resetForNext();
   };
 
@@ -208,6 +297,17 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
         })()
       : undefined;
 
+  // Phase 06 — the interactive number-line answer (ALG-F01 numeric). The live
+  // marker mirrors `value` so the dragged position sticks; values round to the
+  // integer tick the answer expects.
+  const effectiveSkill = item.skillId ?? skillId;
+  const answerLineBase = isChoice ? null : numberlineAnswerSpec(effectiveSkill, item.answerKind);
+  const liveMarker =
+    value.trim() !== "" && Number.isFinite(Number(value)) ? Math.round(Number(value)) : 0;
+  const liveAnswerSpec: NumberLineSpec | null = answerLineBase
+    ? { ...answerLineBase, markers: [{ value: liveMarker }] }
+    : null;
+
   return (
     <div className="mx-auto max-w-[720px]">
       {/* Top rail */}
@@ -224,7 +324,7 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
       </div>
       <Progress value={progress} height={4} label="Practice progress" className="mb-6" />
 
-      <div key={index} style={FADE}>
+      <div key={cursor} style={FADE}>
         <Card className="px-8 py-8" padding="flush">
           {/* Problem header row. A probe is an N+1 stretch slot — it is already
               EXCLUDED from phase-advance math server-side, so we label it as a
@@ -313,6 +413,33 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
                   onChange={setValue}
                   autoFocus
                 />
+              ) : liveAnswerSpec ? (
+                // Phase 06 — the response IS the manipulable: drag/tap the number
+                // line to set the answer (the typed Input is suppressed). The
+                // marker value serializes into the same response the server checks.
+                <div>
+                  <p className="mb-3 text-[13.5px] font-medium text-ink-700">
+                    Drag the marker to your answer — or tap a tick.
+                  </p>
+                  <ProblemVisual
+                    visual="numberline"
+                    visualSpec={liveAnswerSpec}
+                    sport={item.sport}
+                    phase={item.phase}
+                    onChange={(spec) => {
+                      if (spec.kind === "numberline") {
+                        const v = spec.markers?.[0]?.value;
+                        if (typeof v === "number") setValue(String(Math.round(v)));
+                      }
+                    }}
+                  />
+                  <p className="mt-3 text-[13.5px] text-ink-700">
+                    Your answer:{" "}
+                    <span className="font-mono text-ink">
+                      {value.trim() !== "" ? value : "—"}
+                    </span>
+                  </p>
+                </div>
               ) : (
                 <>
               {/* When the response IS the manipulable the Input is suppressed;

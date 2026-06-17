@@ -26,6 +26,7 @@ const KIND_BAND: Record<FlagEntry["kind"], InterventionBand> = {
   "high-hint-dependence": "watch",
   rushing: "watch",
   "retention-probes-due": "watch",
+  "fast-but-fragile": "watch",
   "days-since-session": "watch",
 };
 
@@ -36,6 +37,7 @@ const KIND_NEXT_ACTION: Record<FlagEntry["kind"], string> = {
   "high-hint-dependence": "Try a few problems without hints to confirm the skill is sticking.",
   rushing: "Encourage slowing down — answers are coming in very fast.",
   "retention-probes-due": "A spaced retention check is due — let the student work it when next active.",
+  "fast-but-fragile": "Schedule a short review — this skill was picked up fast and a delayed check hasn't confirmed it's holding.",
   "days-since-session": "Check in — it has been a while since the last session.",
 };
 

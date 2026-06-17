@@ -10,6 +10,7 @@
 
 import { MASTERY_CONFIG } from "../mastery-engine";
 import { retentionStatus } from "../retention";
+import { studentFragility } from "../engine-v2/fragile";
 import type {
   CurriculumGraph,
   FlagEntry,
@@ -203,6 +204,24 @@ export function computeFlags(
         evidenceAttemptIds: [],
       });
     }
+  }
+
+  // --- Fast-but-fragile (Phase 8 R7): a node mastered FAST that is NOT holding
+  // up on delayed retrieval (a failed retention probe, or an overdue scheduled
+  // probe with no pass) — the §3/§8 Alpha failure mode. DERIVED read-only from
+  // the live attempt log + the retention scheduler by lib/engine-v2/fragile; it
+  // NEVER feeds mastery/lock math. The detail is factual (count + date only, no
+  // editorializing); severity is "attention", never a new band. An "unmeasured"
+  // node (no probe due/taken) is NEVER flagged (mr-kahn 1a).
+  for (const f of studentFragility(states, attempts, updates, graph, nowIso)) {
+    if (f.status !== "fragile") continue;
+    flags.push({
+      kind: "fast-but-fragile",
+      severity: "attention",
+      skillId: f.skillId,
+      detail: f.reason,
+      evidenceAttemptIds: [],
+    });
   }
 
   return flags;

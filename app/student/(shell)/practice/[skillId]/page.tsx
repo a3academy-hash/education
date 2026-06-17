@@ -97,9 +97,12 @@ export default async function PracticePage({
 
   // Engine — ONCE per request, to know the current phase.
   const nowIso = new Date().toISOString();
-  computeMasteryAll(studentId, states, graph, nowIso);
+  const batch = computeMasteryAll(studentId, states, graph, nowIso);
   const state = states[skillId] ?? blankState();
   const phase: Phase = state.phase;
+  // Live mastery score for the focus node — the §8 guardrail proxy input. Read
+  // from the engine result (read-only); the guardrails never set it.
+  const masteryScore = batch.results[skillId]?.score ?? state.mastery ?? 0;
 
   const served = selectProblems(node, state, sport);
   if (served.length === 0) {
@@ -123,6 +126,8 @@ export default async function PracticePage({
     visualSpec: s.problem.visualSpec,
     hints: s.problem.hints,
     isProbe: s.isProbe,
+    // Difficulty feeds the §8 guardrail predicted-success proxy (client ordering).
+    difficulty: s.problem.difficulty,
     answerKind: s.problem.answer.kind,
     // Multiple-choice options ride the same narrow DTO channel as `visual`;
     // answer.value stays stripped (engine re-checks server-side). Omitted when
@@ -156,6 +161,7 @@ export default async function PracticePage({
       sport={sport}
       items={items}
       sessionId={sessionId}
+      masteryScore={masteryScore}
     />
   );
 }

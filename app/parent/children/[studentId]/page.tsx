@@ -27,6 +27,7 @@ import { Card } from "../../../../components/ui/Card";
 import { InsetPanel, LabeledSection } from "../../../../components/ui/Panels";
 import { ProgressRing } from "../../../../components/gamification/ProgressRing";
 import { ProofModule } from "../../../../components/insight/ProofModule";
+import { SeverityPill } from "../../../../components/insight/SeverityPill";
 import { ChildRecordActions } from "./ChildRecordActions";
 
 const SUBJECT_BAND_LABEL: Record<string, string> = {
@@ -104,6 +105,12 @@ export default async function ParentChildDashboard({
 
   const flags = computeFlags(graph, attempts, updates, states, batch.results, null, nowIso);
   const stuckNodes = buildStuckNodes(graph, batch.results, flags).slice(0, 6);
+
+  // Phase 8 — fast-but-fragile: mastered FAST and not yet holding on a delayed
+  // check. Sober + actionable for the parent (the term "fragile" is OK here).
+  const titleOf = (id?: string): string =>
+    (id ? graph.nodes.find((n) => n.id === id)?.title : undefined) ?? id ?? "";
+  const fragileFlags = flags.filter((f) => f.kind === "fast-but-fragile").slice(0, 6);
 
   // Course-progress 0-100% = mastered credit-bearing nodes / credit-bearing scope.
   const creditTotal = creditNodeIds.length;
@@ -208,6 +215,34 @@ export default async function ParentChildDashboard({
             </Card>
           </LabeledSection>
         </div>
+
+        {/* Fast but fragile — mastered fast, not yet confirmed on a delayed check.
+            Sober, actionable; shown only when there is something to surface. */}
+        {fragileFlags.length > 0 && (
+          <LabeledSection label="Worth refreshing soon" className="mt-5">
+            <Card>
+              <p className="mb-4 text-[13px] leading-[1.55] text-ink-500">
+                {profile.displayName} picked these up quickly, but a delayed check hasn&rsquo;t
+                yet confirmed they&rsquo;re holding. A short review in the next day or two locks
+                them in.
+              </p>
+              <ul className="grid gap-3">
+                {fragileFlags.map((f, i) => (
+                  <li
+                    key={`${f.skillId ?? "global"}-${i}`}
+                    className="flex items-start justify-between gap-3 border-b border-selected pb-3 last:border-0 last:pb-0"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium text-ink">{titleOf(f.skillId)}</p>
+                      <p className="mt-0.5 text-[12.5px] leading-[1.5] text-ink-500">{f.detail}</p>
+                    </div>
+                    <SeverityPill band="watch" small className="shrink-0" />
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </LabeledSection>
+        )}
 
         {/* Export + delete. */}
         <LabeledSection label="Your record" className="mt-5">

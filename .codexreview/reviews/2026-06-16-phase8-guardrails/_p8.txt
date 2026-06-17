@@ -1,0 +1,10 @@
+==== INFORMED ====
+- [blocking] guardrails-live-gap (0.94): The plan does not guarantee the required 'guardrails active' gate. It explicitly permits logging the engine-v2 live-cutover gap instead of wiring `selectNext`, 
+- [high] retention-state-missing (0.91): Fast-but-fragile and retained-mastery cannot be computed faithfully from the current live state shape. The plan requires `p_known`, `stability`/`halflife`, and 
+- [high] reward-mode-persistence-gap (0.86): The Training/Boost mode plan is underspecified for a switchable live preference. It says Supabase SQL will be generated but not executed, while the current repo
+==== COLD ====
+- [blocking] live-guardrails-optional (0.95): The plan treats live guardrail activation as both a required gate and an optional/deferred outcome, so it can pass without satisfying its own stated premise tha
+- [high] retention-data-premise (0.86): The new fragile and retained-mastery features depend on retention inputs being available, current, and keyed consistently to mastery states and graph nodes, but
+- [high] attempts-definition (0.88): The fast-but-fragile detector hinges on `attempts ≤ fastThreshold`, but the plan does not define what counts as an attempt or over what window, making the core 
+- [medium] preference-persistence-split (0.82): The plan assumes a lightweight reward-mode preference can be stored in memory or Supabase, but does not define the source of truth, migration behavior, or cross
+- [medium] boost-cadence-undefined (0.75): The reward-mode behavior is underspecified: Boost "raises CADENCE" but the plan gives no exact bounds or acceptance criteria, so it cannot be verified that it s

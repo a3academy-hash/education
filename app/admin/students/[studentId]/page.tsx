@@ -36,6 +36,7 @@ const FLAG_LABEL: Record<FlagEntry["kind"], string> = {
   rushing: "Moving fast",
   "decayed-review-queue": "Due for review",
   "retention-probes-due": "Retention check",
+  "fast-but-fragile": "Fast but fragile",
   "days-since-session": "Inactivity",
 };
 

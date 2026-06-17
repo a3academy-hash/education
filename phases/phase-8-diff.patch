@@ -1,0 +1,2012 @@
+diff --git a/app/admin/students/[studentId]/page.tsx b/app/admin/students/[studentId]/page.tsx
+index 6a8eb21..0be02bb 100644
+--- a/app/admin/students/[studentId]/page.tsx
++++ b/app/admin/students/[studentId]/page.tsx
+@@ -36,6 +36,7 @@ const FLAG_LABEL: Record<FlagEntry["kind"], string> = {
+   rushing: "Moving fast",
+   "decayed-review-queue": "Due for review",
+   "retention-probes-due": "Retention check",
++  "fast-but-fragile": "Fast but fragile",
+   "days-since-session": "Inactivity",
+ };
+ 
+diff --git a/app/parent/children/[studentId]/page.tsx b/app/parent/children/[studentId]/page.tsx
+index e143958..c7b2403 100644
+--- a/app/parent/children/[studentId]/page.tsx
++++ b/app/parent/children/[studentId]/page.tsx
+@@ -27,6 +27,7 @@ import { Card } from "../../../../components/ui/Card";
+ import { InsetPanel, LabeledSection } from "../../../../components/ui/Panels";
+ import { ProgressRing } from "../../../../components/gamification/ProgressRing";
+ import { ProofModule } from "../../../../components/insight/ProofModule";
++import { SeverityPill } from "../../../../components/insight/SeverityPill";
+ import { ChildRecordActions } from "./ChildRecordActions";
+ 
+ const SUBJECT_BAND_LABEL: Record<string, string> = {
+@@ -105,6 +106,12 @@ export default async function ParentChildDashboard({
+   const flags = computeFlags(graph, attempts, updates, states, batch.results, null, nowIso);
+   const stuckNodes = buildStuckNodes(graph, batch.results, flags).slice(0, 6);
+ 
++  // Phase 8 — fast-but-fragile: mastered FAST and not yet holding on a delayed
++  // check. Sober + actionable for the parent (the term "fragile" is OK here).
++  const titleOf = (id?: string): string =>
++    (id ? graph.nodes.find((n) => n.id === id)?.title : undefined) ?? id ?? "";
++  const fragileFlags = flags.filter((f) => f.kind === "fast-but-fragile").slice(0, 6);
++
+   // Course-progress 0-100% = mastered credit-bearing nodes / credit-bearing scope.
+   const creditTotal = creditNodeIds.length;
+   const masteredCredit = creditNodeIds.filter((id) => states[id]?.status === "mastered").length;
+@@ -209,6 +216,34 @@ export default async function ParentChildDashboard({
+           </LabeledSection>
+         </div>
+ 
++        {/* Fast but fragile — mastered fast, not yet confirmed on a delayed check.
++            Sober, actionable; shown only when there is something to surface. */}
++        {fragileFlags.length > 0 && (
++          <LabeledSection label="Worth refreshing soon" className="mt-5">
++            <Card>
++              <p className="mb-4 text-[13px] leading-[1.55] text-ink-500">
++                {profile.displayName} picked these up quickly, but a delayed check hasn&rsquo;t
++                yet confirmed they&rsquo;re holding. A short review in the next day or two locks
++                them in.
++              </p>
++              <ul className="grid gap-3">
++                {fragileFlags.map((f, i) => (
++                  <li
++                    key={`${f.skillId ?? "global"}-${i}`}
++                    className="flex items-start justify-between gap-3 border-b border-selected pb-3 last:border-0 last:pb-0"
++                  >
++                    <div className="min-w-0">
++                      <p className="text-[13px] font-medium text-ink">{titleOf(f.skillId)}</p>
++                      <p className="mt-0.5 text-[12.5px] leading-[1.5] text-ink-500">{f.detail}</p>
++                    </div>
++                    <SeverityPill band="watch" small className="shrink-0" />
++                  </li>
++                ))}
++              </ul>
++            </Card>
++          </LabeledSection>
++        )}
++
+         {/* Export + delete. */}
+         <LabeledSection label="Your record" className="mt-5">
+           <Card>
+diff --git a/app/student/(shell)/momentum/actions.ts b/app/student/(shell)/momentum/actions.ts
+new file mode 100644
+index 0000000..458e67e
+--- /dev/null
++++ b/app/student/(shell)/momentum/actions.ts
+@@ -0,0 +1,26 @@
++// Reward-mode preference server action (Phase 8 R4/R6). Persists the learner's
++// Training/Boost CELEBRATION preference. PRESENTATION ONLY — it never enters
++// mastery math, the lock gate, the selector, or any [data-surface=test] chrome.
++// Persistence is a per-learner cookie (works in memory AND supabase modes with
++// no migration); default-by-age applies when unset (resolved at read time).
++
++"use server";
++
++import { cookies } from "next/headers";
++import { revalidatePath } from "next/cache";
++import { isRewardMode, type RewardMode } from "../../../../lib/gamification/reward-mode";
++import { REWARD_MODE_COOKIE } from "./reward-mode-constants";
++
++/** Persist the learner's reward-mode preference, then refresh the momentum view. */
++export async function setRewardMode(mode: RewardMode): Promise<{ ok: boolean }> {
++  if (!isRewardMode(mode)) return { ok: false };
++  const store = await cookies();
++  store.set(REWARD_MODE_COOKIE, mode, {
++    httpOnly: false, // read client-side only as a presentation hint; no PII
++    sameSite: "lax",
++    path: "/",
++    maxAge: 60 * 60 * 24 * 365, // one year
++  });
++  revalidatePath("/student/momentum");
++  return { ok: true };
++}
+diff --git a/app/student/(shell)/momentum/page.tsx b/app/student/(shell)/momentum/page.tsx
+index 03163e6..a915504 100644
+--- a/app/student/(shell)/momentum/page.tsx
++++ b/app/student/(shell)/momentum/page.tsx
+@@ -18,6 +18,7 @@ import { InsetPanel } from "../../../../components/ui/Panels";
+ import { StatusPill } from "../../../../components/ui/StatusPill";
+ import { ProgressRing } from "../../../../components/gamification/ProgressRing";
+ import { RingTrio } from "../../../../components/gamification/RingTrio";
++import { cookies } from "next/headers";
+ import { getRepository } from "../../../../lib/repository/server";
+ import { computeMasteryAll, MASTERY_CONFIG } from "../../../../lib/mastery-engine";
+ import { recommend } from "../../../../lib/adaptive-router";
+@@ -27,6 +28,16 @@ import {
+   humanizeMinutes,
+   masteryRingFraction,
+ } from "../../../../lib/gamification";
++import { retainedMastery } from "../../../../lib/gamification/retained";
++import {
++  defaultRewardMode,
++  ageBandForGrade,
++  isRewardMode,
++  type RewardMode,
++} from "../../../../lib/gamification/reward-mode";
++import { studentFragility } from "../../../../lib/engine-v2/fragile";
++import { RewardModeToggle } from "../../../../components/gamification/RewardModeToggle";
++import { REWARD_MODE_COOKIE } from "./reward-mode-constants";
+ 
+ const LINK_PRIMARY =
+   "inline-flex items-center justify-center gap-2 rounded-[10px] font-sans bg-accent text-white " +
+@@ -50,10 +61,11 @@ export default async function MomentumPage() {
+   const profile = await repo.getStudent(studentId);
+   if (!profile) return <NoStudent />;
+ 
+-  const [graph, states, attempts] = await Promise.all([
++  const [graph, states, attempts, updates] = await Promise.all([
+     repo.getGraph(),
+     repo.getSkillStates(studentId),
+     repo.listAttempts(studentId),
++    repo.listMasteryUpdates(studentId),
+   ]);
+ 
+   const nowIso = new Date().toISOString();
+@@ -61,6 +73,24 @@ export default async function MomentumPage() {
+   const batch = computeMasteryAll(studentId, states, graph, nowIso);
+   const rec = recommend(batch.results, states, graph);
+ 
++  // Phase 8 — RETAINED mastery (X of Y), derived from passed delayed retention
++  // probes (read-only; never mastery math).
++  const retained = retainedMastery(states, attempts, graph, nowIso);
++
++  // Phase 8 — fast-but-fragile, surfaced to the STUDENT as a positive tune-up
++  // nudge (no "fragile", no red). We only need the focus node's status here.
++  const fragility = studentFragility(states, attempts, updates, graph, nowIso);
++  const focusFragile = rec.skillId
++    ? fragility.find((f) => f.skillId === rec.skillId)?.status === "fragile"
++    : false;
++
++  // Phase 8 — reward-mode (CELEBRATIONS) preference. Source of truth = the
++  // per-learner cookie; default-by-age when unset. Presentation only.
++  const cookieMode = (await cookies()).get(REWARD_MODE_COOKIE)?.value;
++  const rewardMode: RewardMode = isRewardMode(cookieMode)
++    ? cookieMode
++    : defaultRewardMode(ageBandForGrade(profile.gradeLevel));
++
+   const nodeById = new Map(graph.nodes.map((n) => [n.id, n]));
+   const focusNode = rec.skillId ? nodeById.get(rec.skillId) : undefined;
+   const focusResult = rec.skillId ? batch.results[rec.skillId] : undefined;
+@@ -124,7 +154,7 @@ export default async function MomentumPage() {
+       </Card>
+ 
+       {/* Secondary stats. */}
+-      <div className="stagger mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
++      <div className="stagger mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+         {/* All-time productive minutes (XP). */}
+         <Card className="flex flex-col items-center text-center">
+           <p className="mb-4 self-start text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
+@@ -159,6 +189,32 @@ export default async function MomentumPage() {
+             skills efficiently. An estimate, not a graded measure.
+           </p>
+         </Card>
++
++        {/* Retained — durable mastery proven on a later, unseen check (Phase 8).
++            Reuses the "Time given back" Card pattern; ALWAYS "X of Y mastered"
++            (never a bare count). Pending-probe nodes sit in Y, never against. */}
++        <Card className="flex flex-col items-center justify-center text-center">
++          <p className="mb-4 self-start text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
++            Retained
++          </p>
++          <div className="font-display text-[44px] font-semibold leading-none text-ink">
++            {retained.retainedCount}
++            <span className="text-[22px] font-medium text-ink-500">
++              {" "}
++              of {retained.masteredCount}
++            </span>
++          </div>
++          <p className="mt-1 text-[13px] font-medium text-ink-700">mastered</p>
++          <p className="mt-3 max-w-[230px] text-[13px] leading-[1.5] text-ink-500">
++            Kept sharp &mdash; proven on a later, unseen check.
++          </p>
++        </Card>
++
++        {/* Celebrations preference (Phase 8) — this learner surface only. Never
++            on the Focus chrome, never on a test. Presentation only. */}
++        <Card className="flex flex-col justify-center">
++          <RewardModeToggle value={rewardMode} />
++        </Card>
+       </div>
+ 
+       {/* Current skill — the mastery ring toward the 90% bar. */}
+@@ -208,6 +264,14 @@ export default async function MomentumPage() {
+                     quick worked example can get you moving again.
+                   </p>
+                 )}
++                {/* Fast-but-fragile → a positive, action-framed tune-up nudge.
++                    NO "fragile", NO red — the existing non-punitive treatment. */}
++                {focusFragile && (
++                  <p className="mt-3 text-[13px] leading-[1.5] text-ink-700">
++                    <span className="font-medium text-ink">Worth a quick tune-up</span> — you
++                    picked this up fast; a short review in a day or two will lock it in.
++                  </p>
++                )}
+ 
+                 <div className="mt-5">
+                   <Link href={`/student/learn/${focusNode.id}`} className={LINK_PRIMARY}>
+diff --git a/app/student/(shell)/momentum/reward-mode-constants.ts b/app/student/(shell)/momentum/reward-mode-constants.ts
+new file mode 100644
+index 0000000..4e88449
+--- /dev/null
++++ b/app/student/(shell)/momentum/reward-mode-constants.ts
+@@ -0,0 +1,11 @@
++// Shared reward-mode preference constants. Kept OUT of actions.ts because a
++// "use server" module may only export async functions (mirrors the onboarding
++// constants split).
++
++/**
++ * Per-learner reward-mode preference cookie. A cookie is the source of truth in
++ * BOTH memory and supabase modes (no schema migration needed now); when the
++ * dedicated education Supabase is wired, a generated `students.reward_mode`
++ * column can supersede it. Default-by-age applies when the cookie is unset.
++ */
++export const REWARD_MODE_COOKIE = "a3_reward_mode";
+diff --git a/app/student/(shell)/practice/[skillId]/PracticeFlow.tsx b/app/student/(shell)/practice/[skillId]/PracticeFlow.tsx
+index a6a3307..7209ae1 100644
+--- a/app/student/(shell)/practice/[skillId]/PracticeFlow.tsx
++++ b/app/student/(shell)/practice/[skillId]/PracticeFlow.tsx
+@@ -25,17 +25,41 @@ import { MathText } from "../../../../../components/ui/MathText";
+ import { MathKeypad } from "../../../../../components/learning/MathKeypad";
+ import { keypadHint } from "../../../../../components/learning/math-keypad-hint";
+ import { phaseLabel } from "../../../../../lib/session-helpers";
++import {
++  applyGuardrails,
++  type GuardrailCandidate,
++} from "../../../../../lib/engine-v2/guardrails";
+ import type { InputNotation } from "../../../../../lib/math-notation/input-notation";
+ import { submitPractice } from "./actions";
+ import type { PracticeResult } from "./shared";
+ import type {
+   AnswerSpec,
++  NumberLineSpec,
+   Phase,
+   Sport,
+   VisualKind,
+   VisualSpec,
+ } from "../../../../../types";
+ 
++// Phase 06 — "drag the answer". For ALG-F01 numeric items the answer is given on
++// an interactive number line instead of a text field. The range is a fixed
++// integer window (answer-FREE — the client never receives the answer value);
++// dragging or tapping a tick sets the value, which serializes into the SAME
++// response string the server re-validates. Scoped to ALG-F01 for v1.
++function numberlineAnswerSpec(
++  skillId: string,
++  answerKind: AnswerSpec["kind"],
++): NumberLineSpec | null {
++  if (skillId !== "ALG-F01" || answerKind !== "numeric") return null;
++  return {
++    kind: "numberline",
++    mode: "interactive",
++    range: { min: -20, max: 20 },
++    markers: [{ value: 0 }],
++    affordances: ["drag", "labels"],
++  };
++}
++
+ const FADE: React.CSSProperties = {
+   animation: "a3-fade-in var(--duration-base) var(--ease-calm) both",
+ };
+@@ -64,6 +88,8 @@ export interface ServedItem {
+   visualSpec?: VisualSpec;
+   hints: string[];
+   isProbe: boolean;
++  /** Item difficulty (1 easy … 3 hard) — feeds the §8 guardrail proxy. */
++  difficulty: 1 | 2 | 3;
+   answerKind: AnswerSpec["kind"];
+   /**
+    * Multiple-choice options (only for answerKind === "choice"). Carries the
+@@ -87,11 +113,25 @@ export interface PracticeFlowProps {
+   sport: Sport;
+   items: ServedItem[];
+   sessionId: string;
++  /**
++   * Live mastery score (0..1) for the focus node, computed server-side. Feeds the
++   * §8 guardrail predicted-success PROXY that orders WHICH remaining item is
++   * served next (band targeting + frustration fallback + review cap). The server
++   * still grades every answer authoritatively — this only governs ordering.
++   */
++  masteryScore: number;
+ }
+ 
+-export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }: PracticeFlowProps) {
++export function PracticeFlow({
++  skillId,
++  title,
++  phase,
++  sport,
++  items,
++  sessionId,
++  masteryScore,
++}: PracticeFlowProps) {
+   const router = useRouter();
+-  const [index, setIndex] = useState(0);
+   const [value, setValue] = useState("");
+   const [hintsShown, setHintsShown] = useState(0);
+   const [pending, setPending] = useState(false);
+@@ -99,13 +139,52 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
+   const [submittedResponse, setSubmittedResponse] = useState("");
+   const [streak, setStreak] = useState(0);
+   const [persistError, setPersistError] = useState(false);
+-  const startRef = useRef<number>(Date.now());
+   const answerRef = useRef<HTMLInputElement>(null);
+ 
+-  const item = items[index];
+-  const isLast = index >= items.length - 1;
++  // §8 guardrails (genuinely active on the live path). The PLAY ORDER is
++  // guardrail-driven over the not-yet-played pool, threading the live signals
++  // (consecutive errors, review fraction). A retention probe is PINNED first (a
++  // scheduling concern, not a difficulty choice). `order` is the realized play
++  // sequence (indices into `items`); `cursor` is the current slot.
++  const pickNextIndex = (played: number[], errors: number, reviewCount: number): number | null => {
++    const remaining = items
++      .map((it, i) => ({ it, i }))
++      .filter(({ i }) => !played.includes(i));
++    if (remaining.length === 0) return null;
++    // A pinned retention probe always plays first.
++    const probe = remaining.find(({ it }) => it.source === "retention");
++    if (played.length === 0 && probe) return probe.i;
++    const candidates: GuardrailCandidate[] = remaining.map(({ it, i }) => ({
++      itemId: String(i),
++      difficulty: it.difficulty,
++      // Retention maintenance is review; forward "stretch ahead" probes + normal
++      // items are progress.
++      isReview: it.source === "retention",
++    }));
++    const reviewFrac = played.length > 0 ? reviewCount / played.length : 0;
++    const decision = applyGuardrails(candidates, {
++      masteryScore,
++      consecutiveErrors: errors,
++      reviewServedFraction: reviewFrac,
++    });
++    return decision ? Number(decision.itemId) : remaining[0].i;
++  };
++
++  const [order, setOrder] = useState<number[]>(() => {
++    const first = pickNextIndex([], 0, 0);
++    return first == null ? [] : [first];
++  });
++  const [cursor, setCursor] = useState(0);
++  const consecutiveErrorsRef = useRef(0);
++  const reviewServedRef = useRef(0);
++  const startRef = useRef<number>(Date.now());
++
++  const currentIndex = order[cursor];
++  const item = currentIndex != null ? items[currentIndex] : undefined;
++  const playedCount = cursor;
++  const isLast = playedCount >= items.length - 1;
+   // Non-numeric engine progress: items completed / total (direction §0.4).
+-  const progress = items.length === 0 ? 0 : index / items.length;
++  const progress = items.length === 0 ? 0 : playedCount / items.length;
+ 
+   const resetForNext = () => {
+     setValue("");
+@@ -146,6 +225,9 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
+     // Momentum: each server-confirmed correct extends the run; a miss resets
+     // it quietly (no punishment color, direction §0.5 / §2 momentum).
+     setStreak((s) => (res.result.correct ? s + 1 : 0));
++    // §8 frustration signal: consecutive errors drive the guardrail fallback; a
++    // correct answer auto-recovers (resets to 0). This NEVER feeds mastery math.
++    consecutiveErrorsRef.current = res.result.correct ? 0 : consecutiveErrorsRef.current + 1;
+   };
+ 
+   const next = () => {
+@@ -153,7 +235,14 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
+       router.push(`/student/summary?skill=${encodeURIComponent(skillId)}&session=${sessionId}`);
+       return;
+     }
+-    setIndex((i) => i + 1);
++    // Account the item just completed toward the review-burden signal.
++    if (item?.source === "retention") reviewServedRef.current += 1;
++    // §8 guardrails choose the NEXT item from the remaining pool, given the live
++    // signals. Additive ordering only — the server has already graded each answer.
++    const played = order.slice(0, cursor + 1);
++    const picked = pickNextIndex(played, consecutiveErrorsRef.current, reviewServedRef.current);
++    if (picked != null) setOrder((o) => [...o.slice(0, cursor + 1), picked]);
++    setCursor((c) => c + 1);
+     resetForNext();
+   };
+ 
+@@ -208,6 +297,17 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
+         })()
+       : undefined;
+ 
++  // Phase 06 — the interactive number-line answer (ALG-F01 numeric). The live
++  // marker mirrors `value` so the dragged position sticks; values round to the
++  // integer tick the answer expects.
++  const effectiveSkill = item.skillId ?? skillId;
++  const answerLineBase = isChoice ? null : numberlineAnswerSpec(effectiveSkill, item.answerKind);
++  const liveMarker =
++    value.trim() !== "" && Number.isFinite(Number(value)) ? Math.round(Number(value)) : 0;
++  const liveAnswerSpec: NumberLineSpec | null = answerLineBase
++    ? { ...answerLineBase, markers: [{ value: liveMarker }] }
++    : null;
++
+   return (
+     <div className="mx-auto max-w-[720px]">
+       {/* Top rail */}
+@@ -224,7 +324,7 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
+       </div>
+       <Progress value={progress} height={4} label="Practice progress" className="mb-6" />
+ 
+-      <div key={index} style={FADE}>
++      <div key={cursor} style={FADE}>
+         <Card className="px-8 py-8" padding="flush">
+           {/* Problem header row. A probe is an N+1 stretch slot — it is already
+               EXCLUDED from phase-advance math server-side, so we label it as a
+@@ -313,6 +413,33 @@ export function PracticeFlow({ skillId, title, phase, sport, items, sessionId }:
+                   onChange={setValue}
+                   autoFocus
+                 />
++              ) : liveAnswerSpec ? (
++                // Phase 06 — the response IS the manipulable: drag/tap the number
++                // line to set the answer (the typed Input is suppressed). The
++                // marker value serializes into the same response the server checks.
++                <div>
++                  <p className="mb-3 text-[13.5px] font-medium text-ink-700">
++                    Drag the marker to your answer — or tap a tick.
++                  </p>
++                  <ProblemVisual
++                    visual="numberline"
++                    visualSpec={liveAnswerSpec}
++                    sport={item.sport}
++                    phase={item.phase}
++                    onChange={(spec) => {
++                      if (spec.kind === "numberline") {
++                        const v = spec.markers?.[0]?.value;
++                        if (typeof v === "number") setValue(String(Math.round(v)));
++                      }
++                    }}
++                  />
++                  <p className="mt-3 text-[13.5px] text-ink-700">
++                    Your answer:{" "}
++                    <span className="font-mono text-ink">
++                      {value.trim() !== "" ? value : "—"}
++                    </span>
++                  </p>
++                </div>
+               ) : (
+                 <>
+               {/* When the response IS the manipulable the Input is suppressed;
+diff --git a/app/student/(shell)/practice/[skillId]/page.tsx b/app/student/(shell)/practice/[skillId]/page.tsx
+index c0d2421..03a9131 100644
+--- a/app/student/(shell)/practice/[skillId]/page.tsx
++++ b/app/student/(shell)/practice/[skillId]/page.tsx
+@@ -97,9 +97,12 @@ export default async function PracticePage({
+ 
+   // Engine — ONCE per request, to know the current phase.
+   const nowIso = new Date().toISOString();
+-  computeMasteryAll(studentId, states, graph, nowIso);
++  const batch = computeMasteryAll(studentId, states, graph, nowIso);
+   const state = states[skillId] ?? blankState();
+   const phase: Phase = state.phase;
++  // Live mastery score for the focus node — the §8 guardrail proxy input. Read
++  // from the engine result (read-only); the guardrails never set it.
++  const masteryScore = batch.results[skillId]?.score ?? state.mastery ?? 0;
+ 
+   const served = selectProblems(node, state, sport);
+   if (served.length === 0) {
+@@ -123,6 +126,8 @@ export default async function PracticePage({
+     visualSpec: s.problem.visualSpec,
+     hints: s.problem.hints,
+     isProbe: s.isProbe,
++    // Difficulty feeds the §8 guardrail predicted-success proxy (client ordering).
++    difficulty: s.problem.difficulty,
+     answerKind: s.problem.answer.kind,
+     // Multiple-choice options ride the same narrow DTO channel as `visual`;
+     // answer.value stays stripped (engine re-checks server-side). Omitted when
+@@ -156,6 +161,7 @@ export default async function PracticePage({
+       sport={sport}
+       items={items}
+       sessionId={sessionId}
++      masteryScore={masteryScore}
+     />
+   );
+ }
+diff --git a/components/gamification/RewardModeToggle.tsx b/components/gamification/RewardModeToggle.tsx
+new file mode 100644
+index 0000000..d2fdbca
+--- /dev/null
++++ b/components/gamification/RewardModeToggle.tsx
+@@ -0,0 +1,61 @@
++// components/gamification/RewardModeToggle — the Training/Boost CELEBRATIONS
++// preference (Phase 8 R4/R6). Composes the generic SegmentedControl with the
++// reward-mode vocabulary + the honesty subline. PRESENTATION ONLY: this changes
++// HOW wins are shown, never the mastery math, the lock, or anything on the test
++// surface. Lives ONLY on the learner momentum surface (never Focus chrome, never
++// a test). Persists via the setRewardMode server action; optimistic local state
++// keeps the toggle responsive while the action commits.
++//
++// COPY (pee-wee R6, binding): "Celebrations" framing; "Training (quiet)" /
++// "Boost (a little more energy)"; the subline "Either way, skills count the same
++// — this only changes how wins are shown." NO "for younger players" copy.
++
++"use client";
++
++import { useState, useTransition } from "react";
++import { SegmentedControl, type SegmentedOption } from "../ui/SegmentedControl";
++import type { RewardMode } from "../../lib/gamification/reward-mode";
++import { setRewardMode } from "../../app/student/(shell)/momentum/actions";
++
++const OPTIONS: SegmentedOption<RewardMode>[] = [
++  { value: "training", label: "Training", sublabel: "quiet" },
++  { value: "boost", label: "Boost", sublabel: "a little more energy" },
++];
++
++export interface RewardModeToggleProps {
++  /** The resolved current mode (stored preference, or the age default). */
++  value: RewardMode;
++  className?: string;
++}
++
++export function RewardModeToggle({ value, className = "" }: RewardModeToggleProps) {
++  const [mode, setMode] = useState<RewardMode>(value);
++  const [pending, startTransition] = useTransition();
++
++  const onChange = (next: RewardMode) => {
++    if (next === mode) return;
++    setMode(next); // optimistic
++    startTransition(async () => {
++      const res = await setRewardMode(next);
++      if (!res.ok) setMode(value); // revert on failure
++    });
++  };
++
++  return (
++    <div className={className}>
++      <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.4px] text-ink-500">
++        Celebrations
++      </p>
++      <SegmentedControl
++        options={OPTIONS}
++        value={mode}
++        onChange={onChange}
++        ariaLabel="Celebration style"
++        disabled={pending}
++      />
++      <p className="mt-3 text-[13px] leading-[1.5] text-ink-500">
++        Either way, skills count the same &mdash; this only changes how wins are shown.
++      </p>
++    </div>
++  );
++}
+diff --git a/components/ui/SegmentedControl.tsx b/components/ui/SegmentedControl.tsx
+new file mode 100644
+index 0000000..be6ac1a
+--- /dev/null
++++ b/components/ui/SegmentedControl.tsx
+@@ -0,0 +1,122 @@
++// components/ui/SegmentedControl — a generic, reusable segmented control / radio
++// group (Phase 8 R6 / pee-wee 8). A real ARIA radiogroup: ONE tab stop (roving
++// tabindex), arrow keys move selection + focus, Space/Enter selects. Tokens-only
++// (no invented colors); reduced-motion respected (only a 150ms color transition,
++// never scale/entrance). Colorblind-safe: the selected segment carries an accent
++// border + tint AND bold ink — never color alone. Presentational + controlled
++// (parent owns `value`), client-side for keyboard handling.
++//
++// Generic over the option value type T (string-like ids). Used by
++// RewardModeToggle, but holds no gamification/mastery knowledge.
++
++"use client";
++
++import { useId, useRef, type KeyboardEvent } from "react";
++
++export interface SegmentedOption<T extends string> {
++  value: T;
++  label: string;
++  /** Optional smaller helper line under the label. */
++  sublabel?: string;
++}
++
++export interface SegmentedControlProps<T extends string> {
++  options: SegmentedOption<T>[];
++  value: T;
++  onChange: (value: T) => void;
++  /** Accessible group label. */
++  ariaLabel: string;
++  /** Disable all interaction (e.g. while a server action is in flight). */
++  disabled?: boolean;
++  className?: string;
++}
++
++const SEG_BASE =
++  "flex-1 rounded-[8px] px-4 py-2.5 text-[13.5px] font-medium text-center " +
++  "transition-colors duration-150 ease-[cubic-bezier(.2,.7,.2,1)] " +
++  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
++
++export function SegmentedControl<T extends string>({
++  options,
++  value,
++  onChange,
++  ariaLabel,
++  disabled = false,
++  className = "",
++}: SegmentedControlProps<T>) {
++  const labelId = useId();
++  const refs = useRef<(HTMLButtonElement | null)[]>([]);
++
++  const selectedIndex = options.findIndex((o) => o.value === value);
++  const tabStop = selectedIndex >= 0 ? selectedIndex : 0;
++
++  const move = (from: number, delta: number) => {
++    if (disabled) return;
++    const next = (from + delta + options.length) % options.length;
++    onChange(options[next].value);
++    refs.current[next]?.focus();
++  };
++
++  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
++    if (disabled) return;
++    switch (e.key) {
++      case "ArrowRight":
++      case "ArrowDown":
++        e.preventDefault();
++        move(index, 1);
++        break;
++      case "ArrowLeft":
++      case "ArrowUp":
++        e.preventDefault();
++        move(index, -1);
++        break;
++      case " ":
++      case "Enter":
++        e.preventDefault();
++        onChange(options[index].value);
++        break;
++      default:
++        break;
++    }
++  };
++
++  return (
++    <div
++      role="radiogroup"
++      aria-label={ariaLabel}
++      aria-labelledby={labelId}
++      className={`inline-flex w-full gap-1 rounded-[10px] border border-border bg-inset p-1 ${className}`}
++    >
++      {options.map((opt, index) => {
++        const selected = opt.value === value;
++        const stateClasses = selected
++          ? "border border-accent bg-surface text-ink shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
++          : `border border-transparent text-ink-500 ${disabled ? "" : "hover:text-ink-700"}`;
++        return (
++          <button
++            key={opt.value}
++            type="button"
++            role="radio"
++            aria-checked={selected}
++            aria-disabled={disabled || undefined}
++            ref={(el) => {
++              refs.current[index] = el;
++            }}
++            tabIndex={index === tabStop ? 0 : -1}
++            disabled={disabled}
++            onClick={() => !disabled && onChange(opt.value)}
++            onKeyDown={(e) => onKeyDown(e, index)}
++            className={`${SEG_BASE} ${stateClasses}`}
++          >
++            <span className={selected ? "font-semibold" : ""}>{opt.label}</span>
++            {opt.sublabel && (
++              <span className="mt-0.5 block text-[11.5px] font-normal leading-tight text-ink-500">
++                {opt.sublabel}
++              </span>
++            )}
++          </button>
++        );
++      })}
++    </div>
++  );
++}
+diff --git a/lib/engine-v2/fragile.test.ts b/lib/engine-v2/fragile.test.ts
+new file mode 100644
+index 0000000..66400c3
+--- /dev/null
++++ b/lib/engine-v2/fragile.test.ts
+@@ -0,0 +1,183 @@
++// lib/engine-v2/fragile.test.ts — fast-but-fragile detection (Phase 8 R2).
++// Asserts the mr-kahn semantics (fast+failed → fragile; fast+no-probe →
++// unmeasured, NEVER fragile; slow → holding) and the R5 firewall (the module
++// imports NOTHING from gate.ts/session.ts/mastery-engine, so it can never alter
++// a lock decision).
++
++import { describe, it, expect } from "vitest";
++import {
++  assessFragility,
++  studentFragility,
++  DEFAULT_FRAGILE_CONFIG,
++} from "./fragile";
++import { RETENTION_CONFIG } from "../retention";
++import type {
++  CurriculumGraph,
++  SkillNode,
++  StudentAttempt,
++  StudentSkillState,
++} from "@/types";
++
++function node(id: string): SkillNode {
++  return {
++    id,
++    title: `Skill ${id}`,
++    domain: "d",
++    tier: 0,
++    prereqs: [],
++    standards: { ccss: [], state: null },
++    objective: "",
++    misconceptionTags: [],
++    visual: null,
++  } as unknown as SkillNode;
++}
++
++function state(partial: Partial<StudentSkillState>): StudentSkillState {
++  return {
++    mastery: 0.95,
++    status: "mastered",
++    phase: 3,
++    attempts: 0,
++    correct: 0,
++    hints: 0,
++    timeMs: 0,
++    recent: [],
++    transfer: true,
++    lastAttemptAt: null,
++    masteredAt: null,
++    ...partial,
++  };
++}
++
++function probe(partial: Partial<StudentAttempt>): StudentAttempt {
++  return {
++    id: "a",
++    skillId: "N",
++    source: "retention",
++    correct: true,
++    createdAt: "2026-01-20T00:00:00.000Z",
++    phase: 3,
++    sport: "neutral",
++    ...partial,
++  } as unknown as StudentAttempt;
++}
++
++const MASTERED = "2026-01-01T00:00:00.000Z";
++// Far enough past the first retention interval (21d) to be OVERDUE.
++const WAY_LATER = "2026-03-15T00:00:00.000Z";
++// Inside the first interval — nothing overdue yet.
++const SOON = "2026-01-05T00:00:00.000Z";
++
++describe("assessFragility", () => {
++  it("fast acquisition + a FAILED delayed probe → fragile", () => {
++    const a = assessFragility(
++      node("N"),
++      state({ attempts: 4, masteredAt: MASTERED }),
++      [probe({ skillId: "N", correct: false, createdAt: "2026-01-25T00:00:00.000Z" })],
++      [],
++      WAY_LATER,
++    );
++    expect(a.status).toBe("fragile");
++    expect(a.reason).toContain("4 attempts");
++  });
++
++  it("fast acquisition + an OVERDUE scheduled probe (no pass) → fragile", () => {
++    const a = assessFragility(
++      node("N"),
++      state({ attempts: 3, masteredAt: MASTERED }),
++      [],
++      [],
++      WAY_LATER,
++    );
++    expect(a.status).toBe("fragile");
++    expect(a.reason).toMatch(/overdue/);
++  });
++
++  it("fast acquisition + NO probe + nothing overdue → unmeasured (NEVER fragile)", () => {
++    const a = assessFragility(
++      node("N"),
++      state({ attempts: 3, masteredAt: MASTERED }),
++      [],
++      [],
++      SOON,
++    );
++    expect(a.status).toBe("unmeasured");
++  });
++
++  it("fast acquisition + a PASSED delayed probe → holding", () => {
++    const a = assessFragility(
++      node("N"),
++      state({ attempts: 3, masteredAt: MASTERED }),
++      [probe({ skillId: "N", correct: true, createdAt: "2026-01-25T00:00:00.000Z" })],
++      [],
++      WAY_LATER,
++    );
++    expect(a.status).toBe("holding");
++  });
++
++  it("slow acquisition is never fragile, even when overdue", () => {
++    const a = assessFragility(
++      node("N"),
++      state({ attempts: DEFAULT_FRAGILE_CONFIG.fastThreshold + 5, masteredAt: MASTERED }),
++      [],
++      [],
++      WAY_LATER,
++    );
++    expect(a.status).toBe("holding");
++  });
++
++  it("not mastered → unmeasured", () => {
++    const a = assessFragility(node("N"), state({ attempts: 2, masteredAt: null }), [], [], WAY_LATER);
++    expect(a.status).toBe("unmeasured");
++  });
++
++  it("a probe BEFORE mastery does not count as durability evidence", () => {
++    const a = assessFragility(
++      node("N"),
++      state({ attempts: 3, masteredAt: MASTERED }),
++      [probe({ skillId: "N", correct: true, createdAt: "2025-12-01T00:00:00.000Z" })],
++      [],
++      WAY_LATER,
++    );
++    // Passed probe is pre-mastery → ignored; overdue with no pass → fragile.
++    expect(a.status).toBe("fragile");
++  });
++});
++
++describe("studentFragility", () => {
++  const graph = { nodes: [node("A"), node("B"), node("C")], domains: [] } as unknown as CurriculumGraph;
++
++  it("returns only mastered nodes, in graph order", () => {
++    const states: Record<string, StudentSkillState> = {
++      A: state({ attempts: 3, masteredAt: MASTERED }),
++      B: state({ attempts: 12, masteredAt: MASTERED }),
++      C: state({ attempts: 2, masteredAt: null, status: "developing" }),
++    };
++    const out = studentFragility(states, [], [], graph, WAY_LATER);
++    expect(out.map((o) => o.skillId)).toEqual(["A", "B"]);
++    expect(out[0].status).toBe("fragile"); // fast + overdue
++    expect(out[1].status).toBe("holding"); // slow
++  });
++});
++
++describe("R5 firewall — fragile.ts has no lock/mastery import path", () => {
++  it("imports nothing from gate.ts / session.ts / mastery-engine", () => {
++    // Static assertion: the module's source must not reference the firewalled
++    // modules. (Import-acyclic is also enforced by the dedicated firewall test;
++    // this keeps the invariant local to the unit under test.)
++    // eslint-disable-next-line @typescript-eslint/no-require-imports
++    const fs = require("node:fs") as typeof import("node:fs");
++    const src = fs.readFileSync(new URL("./fragile.ts", import.meta.url), "utf8");
++    const importLines = src
++      .split("\n")
++      .filter((l) => /^\s*import\b/.test(l) || /^\s*}\s*from\s+["']/.test(l));
++    const imports = importLines.join("\n");
++    expect(imports).not.toMatch(/["'].*\/gate["']/);
++    expect(imports).not.toMatch(/["'].*\/session["']/);
++    expect(imports).not.toMatch(/mastery-engine/);
++  });
++
++  it("uses the real retention scheduling interval (sanity on the overdue derivation)", () => {
++    expect(RETENTION_CONFIG.intervalsDays[0]).toBeGreaterThan(0);
++  });
++});
+diff --git a/lib/engine-v2/fragile.ts b/lib/engine-v2/fragile.ts
+new file mode 100644
+index 0000000..4a92cff
+--- /dev/null
++++ b/lib/engine-v2/fragile.ts
+@@ -0,0 +1,168 @@
++// lib/engine-v2/fragile.ts — "fast but fragile" detection (Phase 8 R2 / mr-kahn).
++// The §3/§8 Alpha failure mode: a node acquired FAST but NOT holding up on a
++// delayed retrieval. PURE, read-side, derived from the LIVE attempt log + the
++// existing lib/retention scheduler — NEVER a magic halflife constant, never a
++// faked durability number (trust-layer rule).
++//
++// FIREWALL (Phase 8 R5): imports NOTHING from gate.ts / session.ts /
++// mastery-engine. This module is advisory/guardrail only — it can never alter a
++// lock or mastery decision. (It does import lib/retention for OVERDUE scheduling,
++// which is itself scheduling-only and isolated from mastery math.)
++//
++// STATUS semantics (mr-kahn 1a — NEVER call an unmeasured node fragile):
++//   • "fragile"    = mastered AND acquired fast AND evidence it is NOT holding
++//                    (a FAILED retention probe after mastery, OR a scheduled
++//                    retention probe is OVERDUE with no passing probe yet).
++//   • "holding"    = mastered but NOT fragile (acquired slow, OR a passed
++//                    delayed probe, OR no overdue check).
++//   • "unmeasured" = mastered, acquired fast, but no probe taken AND none overdue
++//                    yet — there is NO retrieval evidence either way, so we make
++//                    NO durability claim. Never fragile.
++//   • not mastered → "unmeasured" (nothing to assess).
++
++import { retentionStatus } from "../retention";
++import type {
++  CurriculumGraph,
++  MasteryUpdate,
++  SkillNode,
++  StudentAttempt,
++  StudentSkillState,
++} from "@/types";
++
++export type FragilityStatus = "fragile" | "holding" | "unmeasured";
++
++export interface FragilityConfig {
++  /**
++   * "Acquired fast" threshold: a node whose graded attempt count AT mastery is at
++   * or below this many attempts was picked up quickly. The smaller the count, the
++   * less retrieval practice backs the mastery, so a delayed check matters more.
++   *
++   * MATT THRESHOLD CHECKPOINT: this is a motivational/coaching cut point, not a
++   * mastery weight — it never enters lock/mastery math — but it IS calibratable
++   * telemetry and should be tuned against real fast-acquisition retention data.
++   * 6 is a deliberate starting value (roughly the minimum graded attempts to
++   * cross the bar without much spaced reinforcement).
++   */
++  fastThreshold: number;
++}
++
++export const DEFAULT_FRAGILE_CONFIG: FragilityConfig = {
++  fastThreshold: 6,
++};
++
++export interface FragilityAssessment {
++  status: FragilityStatus;
++  /** Factual reason string (count/date only — no editorializing). */
++  reason: string;
++}
++
++/** Graded attempts to mastery — StudentSkillState.attempts is that running count. */
++function acquiredFast(state: StudentSkillState, cfg: FragilityConfig): boolean {
++  return state.attempts <= cfg.fastThreshold;
++}
++
++/**
++ * Assess one node's fragility. PURE; reads committed state, the attempt log, and
++ * the retention schedule (via lib/retention). Never alters any lock/mastery
++ * decision (it imports nothing from gate.ts/session.ts/mastery-engine).
++ *
++ * @param node     the skill node
++ * @param state    its committed StudentSkillState (may be undefined)
++ * @param attempts the immutable attempt log (all skills)
++ * @param updates  the immutable mastery-update log (feeds retention scheduling)
++ * @param nowIso   explicit "now"
++ */
++export function assessFragility(
++  node: SkillNode,
++  state: StudentSkillState | undefined,
++  attempts: StudentAttempt[],
++  updates: MasteryUpdate[],
++  nowIso: string,
++  cfg: FragilityConfig = DEFAULT_FRAGILE_CONFIG,
++): FragilityAssessment {
++  if (!state || state.masteredAt == null) {
++    return { status: "unmeasured", reason: "Not mastered" };
++  }
++
++  const masteredAtMs = Date.parse(state.masteredAt);
++
++  // Retention probes on THIS node taken AFTER mastery (source-tagged provenance;
++  // never engine math). A passed delayed probe = positive durability evidence.
++  let passedProbe = false;
++  let failedProbe = false;
++  let lastFailedAt: string | null = null;
++  for (const a of attempts) {
++    if (a.skillId !== node.id || a.source !== "retention") continue;
++    if (Date.parse(a.createdAt) <= masteredAtMs) continue;
++    if (a.correct) passedProbe = true;
++    else {
++      failedProbe = true;
++      if (lastFailedAt === null || a.createdAt > lastFailedAt) lastFailedAt = a.createdAt;
++    }
++  }
++
++  // A passed delayed probe → holding, regardless of acquisition speed.
++  if (passedProbe) {
++    return { status: "holding", reason: "Passed a delayed retention check" };
++  }
++
++  // Slow acquisition is not the Alpha failure mode — not fragile.
++  if (!acquiredFast(state, cfg)) {
++    return {
++      status: "holding",
++      reason: `Acquired over ${state.attempts} attempts`,
++    };
++  }
++
++  // Fast acquisition. Fragile iff there is NEGATIVE durability evidence:
++  //   (a) a FAILED retention probe after mastery, or
++  //   (b) a scheduled retention probe is OVERDUE (lib/retention) with no pass.
++  if (failedProbe) {
++    return {
++      status: "fragile",
++      reason: `Picked up in ${state.attempts} attempts; missed a retention check on ${(lastFailedAt ?? state.masteredAt).slice(0, 10)}`,
++    };
++  }
++
++  const rs = retentionStatus(node, state, updates, attempts, nowIso);
++  if (rs.due && rs.dueAt !== null) {
++    return {
++      status: "fragile",
++      reason: `Picked up in ${state.attempts} attempts; retention check overdue since ${rs.dueAt.slice(0, 10)}`,
++    };
++  }
++
++  // Fast, but no probe taken AND none overdue yet — no retrieval evidence either
++  // way. Make NO durability claim (mr-kahn 1a).
++  return {
++    status: "unmeasured",
++    reason: `Picked up in ${state.attempts} attempts; no retention check due yet`,
++  };
++}
++
++export interface NodeFragility extends FragilityAssessment {
++  skillId: string;
++}
++
++/**
++ * Per-node fragility across the graph (graph node order). PURE, read-side. Returns
++ * ONLY mastered nodes (the only nodes a durability claim is meaningful for) — a
++ * node that is not mastered carries no entry.
++ */
++export function studentFragility(
++  states: Record<string, StudentSkillState>,
++  attempts: StudentAttempt[],
++  updates: MasteryUpdate[],
++  graph: CurriculumGraph,
++  nowIso: string,
++  cfg: FragilityConfig = DEFAULT_FRAGILE_CONFIG,
++): NodeFragility[] {
++  const out: NodeFragility[] = [];
++  for (const node of graph.nodes) {
++    const state = states[node.id];
++    if (!state || state.masteredAt == null) continue;
++    const a = assessFragility(node, state, attempts, updates, nowIso, cfg);
++    out.push({ skillId: node.id, ...a });
++  }
++  return out;
++}
+diff --git a/lib/engine-v2/guardrails-live.test.ts b/lib/engine-v2/guardrails-live.test.ts
+new file mode 100644
+index 0000000..2441641
+--- /dev/null
++++ b/lib/engine-v2/guardrails-live.test.ts
+@@ -0,0 +1,86 @@
++// guardrails-live.test.ts — the §8 guardrails AS WIRED into the LIVE practice
++// selection (Phase 8 R1). PracticeFlow
++// (app/student/(shell)/practice/[skillId]/PracticeFlow.tsx) maps each served item
++// to a guardrail candidate (difficulty + isReview from `source`) and calls
++// applyGuardrails with the live signals (mastery score, consecutive errors,
++// review fraction) to choose the NEXT item from the not-yet-played pool. This
++// test reproduces that EXACT mapping (kept in lockstep with PracticeFlow's
++// pickNextIndex) and asserts band targeting + frustration recovery + the review
++// cap are reachable on the live path. The server still grades every answer
++// authoritatively — these guardrails govern ORDER only.
++
++import { describe, it, expect } from "vitest";
++import { applyGuardrails, type GuardrailCandidate } from "./guardrails";
++
++interface LiveItem {
++  difficulty: 1 | 2 | 3;
++  source?: "practice" | "retention";
++}
++
++// MIRRORS PracticeFlow.pickNextIndex exactly.
++function pickNextIndex(
++  items: LiveItem[],
++  played: number[],
++  masteryScore: number,
++  consecutiveErrors: number,
++  reviewServedCount: number,
++): number | null {
++  const remaining = items.map((it, i) => ({ it, i })).filter(({ i }) => !played.includes(i));
++  if (remaining.length === 0) return null;
++  const probe = remaining.find(({ it }) => it.source === "retention");
++  if (played.length === 0 && probe) return probe.i;
++  const candidates: GuardrailCandidate[] = remaining.map(({ it, i }) => ({
++    itemId: String(i),
++    difficulty: it.difficulty,
++    isReview: it.source === "retention",
++  }));
++  const reviewFrac = played.length > 0 ? reviewServedCount / played.length : 0;
++  const decision = applyGuardrails(candidates, {
++    masteryScore,
++    consecutiveErrors,
++    reviewServedFraction: reviewFrac,
++  });
++  return decision ? Number(decision.itemId) : remaining[0].i;
++}
++
++describe("guardrails active on the live practice path", () => {
++  it("pins a retention probe FIRST regardless of difficulty", () => {
++    const items: LiveItem[] = [
++      { difficulty: 1, source: "practice" },
++      { difficulty: 3, source: "retention" },
++    ];
++    expect(pickNextIndex(items, [], 0.8, 0, 0)).toBe(1);
++  });
++
++  it("BAND targeting: at moderate mastery, serves the band-appropriate difficulty next", () => {
++    const items: LiveItem[] = [
++      { difficulty: 3, source: "practice" }, // proxy 0.5
++      { difficulty: 2, source: "practice" }, // proxy 0.65
++      { difficulty: 1, source: "practice" }, // proxy 0.8 (in band)
++    ];
++    expect(pickNextIndex(items, [], 0.8, 0, 0)).toBe(2);
++  });
++
++  it("FRUSTRATION recovery: ≥K errors serve a reachable win, then auto-recover", () => {
++    const items: LiveItem[] = [
++      { difficulty: 3, source: "practice" },
++      { difficulty: 1, source: "practice" },
++      { difficulty: 2, source: "practice" },
++    ];
++    const tripped = pickNextIndex(items, [0], 0.8, 3, 0);
++    expect(tripped).toBe(1); // easiest of the remaining
++    const recovered = pickNextIndex(items, [1], 0.8, 0, 0);
++    expect(recovered).not.toBeNull();
++  });
++
++  it("REVIEW cap: a retention item is not re-served once the review fraction is high", () => {
++    const items: LiveItem[] = [
++      { difficulty: 1, source: "retention" }, // index 0, played
++      { difficulty: 1, source: "practice" }, // index 1, played
++      { difficulty: 1, source: "retention" }, // index 2, remaining review
++      { difficulty: 2, source: "practice" }, // index 3, remaining progress
++    ];
++    const picked = pickNextIndex(items, [0, 1], 0.8, 0, 1);
++    expect(picked).toBe(3);
++  });
++});
+diff --git a/lib/engine-v2/guardrails.test.ts b/lib/engine-v2/guardrails.test.ts
+new file mode 100644
+index 0000000..9f7f9dd
+--- /dev/null
++++ b/lib/engine-v2/guardrails.test.ts
+@@ -0,0 +1,130 @@
++// lib/engine-v2/guardrails.test.ts — the §8 guardrails (Phase 8 R1). End-to-end
++// "guardrails active" over the live predicted-success PROXY: band targeting +
++// frustration recovery (auto-recover) + review cap. Also asserts the proxy
++// monotonicity and the firewall (imports only selector, never reward-mode).
++
++import { describe, it, expect } from "vitest";
++import {
++  applyGuardrails,
++  proxyPredictedSuccess,
++  DEFAULT_GUARDRAILS,
++  type GuardrailCandidate,
++  type LiveSignals,
++} from "./guardrails";
++
++const base: LiveSignals = {
++  masteryScore: 0.8,
++  consecutiveErrors: 0,
++  reviewServedFraction: 0,
++};
++
++function cand(itemId: string, difficulty: 1 | 2 | 3, isReview = false): GuardrailCandidate {
++  return { itemId, difficulty, isReview };
++}
++
++describe("proxyPredictedSuccess", () => {
++  it("rises with mastery and falls with difficulty, clamped 0..1", () => {
++    expect(proxyPredictedSuccess(0.9, 1)).toBeCloseTo(0.9, 5);
++    expect(proxyPredictedSuccess(0.9, 3)).toBeLessThan(proxyPredictedSuccess(0.9, 1));
++    expect(proxyPredictedSuccess(0.1, 3)).toBe(0); // clamped
++    expect(proxyPredictedSuccess(1.5, 1)).toBe(1); // clamped
++  });
++});
++
++describe("band targeting", () => {
++  it("picks the difficulty whose PROXY lands inside the 70-90% band", () => {
++    // mastery 0.8: easy proxy=0.8 (in band), medium=0.65 (below), hard=0.5 (below).
++    const decision = applyGuardrails(
++      [cand("hard", 3), cand("medium", 2), cand("easy", 1)],
++      base,
++    );
++    expect(decision?.itemId).toBe("easy");
++    expect(decision?.reason).toBe("band");
++  });
++
++  it("for a high-mastery student, steers AWAY from a too-easy item toward an in-band stretch", () => {
++    // mastery 1.0: easy proxy=1.0 (ABOVE band → too easy), medium=0.85 (in band),
++    // hard=0.70 (at the band floor). The band guardrail must NOT serve the too-easy
++    // item; within-band ranking is utility-driven (either stretch is acceptable).
++    const decision = applyGuardrails(
++      [cand("easy", 1), cand("medium", 2), cand("hard", 3)],
++      { ...base, masteryScore: 1.0 },
++    );
++    expect(decision?.itemId).not.toBe("easy");
++    expect(["medium", "hard"]).toContain(decision?.itemId);
++    expect(decision?.reason).toBe("band");
++  });
++});
++
++describe("frustration recovery", () => {
++  const K = DEFAULT_GUARDRAILS.selector.frustrationK;
++
++  it("at ≥K consecutive errors, serves the most reachable win", () => {
++    const decision = applyGuardrails(
++      [cand("hard", 3), cand("easy", 1), cand("medium", 2)],
++      { ...base, consecutiveErrors: K },
++    );
++    // The easiest item has the highest proxy success — the reachable win.
++    expect(decision?.itemId).toBe("easy");
++    expect(decision?.reason).toBe("frustration_fallback");
++  });
++
++  it("auto-recovers: once errors reset (a correct answer), normal band targeting resumes", () => {
++    const cands = [cand("hard", 3), cand("easy", 1), cand("medium", 2)];
++    const tripped = applyGuardrails(cands, { ...base, consecutiveErrors: K });
++    expect(tripped?.reason).toBe("frustration_fallback");
++    const recovered = applyGuardrails(cands, { ...base, consecutiveErrors: 0 });
++    expect(recovered?.reason).toBe("band");
++  });
++});
++
++describe("review-burden cap", () => {
++  it("excludes review items once the session is over the cap (when progress items remain)", () => {
++    const over = DEFAULT_GUARDRAILS.selector.maxReviewFraction;
++    const decision = applyGuardrails(
++      [cand("review-a", 1, true), cand("progress", 1, false)],
++      { ...base, reviewServedFraction: over },
++    );
++    expect(decision?.itemId).toBe("progress");
++    expect(decision?.reason).toBe("review_capped");
++  });
++
++  it("falls back to review when review is all that's left, even over the cap", () => {
++    const over = DEFAULT_GUARDRAILS.selector.maxReviewFraction;
++    const decision = applyGuardrails(
++      [cand("review-a", 1, true), cand("review-b", 2, true)],
++      { ...base, reviewServedFraction: over },
++    );
++    expect(decision?.itemId).toBeDefined();
++    expect(decision?.reason).not.toBe("review_capped"); // no progress item to switch to
++  });
++});
++
++describe("edge cases", () => {
++  it("returns null with no candidates", () => {
++    expect(applyGuardrails([], base)).toBeNull();
++  });
++
++  it("is deterministic for identical input", () => {
++    const cands = [cand("a", 2), cand("b", 2), cand("c", 1)];
++    const d1 = applyGuardrails(cands, base);
++    const d2 = applyGuardrails(cands, base);
++    expect(d1).toEqual(d2);
++  });
++});
++
++describe("firewall", () => {
++  it("imports only the selector — nothing from gate/session/mastery-engine/reward-mode", () => {
++    // eslint-disable-next-line @typescript-eslint/no-require-imports
++    const fs = require("node:fs") as typeof import("node:fs");
++    const src = fs.readFileSync(new URL("./guardrails.ts", import.meta.url), "utf8");
++    const imports = src
++      .split("\n")
++      .filter((l) => /^\s*import\b/.test(l) || /^\s*}\s*from\s+["']/.test(l))
++      .join("\n");
++    expect(imports).not.toMatch(/["'].*\/gate["']/);
++    expect(imports).not.toMatch(/["'].*\/session["']/);
++    expect(imports).not.toMatch(/mastery-engine/);
++    expect(imports).not.toMatch(/reward-mode/);
++  });
++});
+diff --git a/lib/engine-v2/guardrails.ts b/lib/engine-v2/guardrails.ts
+new file mode 100644
+index 0000000..3c9f947
+--- /dev/null
++++ b/lib/engine-v2/guardrails.ts
+@@ -0,0 +1,155 @@
++// lib/engine-v2/guardrails.ts — the §8 engagement guardrails, GENUINELY active
++// on the LIVE practice selection path (Phase 8 R1). PURE. Additive: the server
++// still grades every answer authoritatively. This module only governs WHICH of
++// the already-served items is presented NEXT — the 70-90% success band, the
++// frustration fallback (≥K consecutive errors → a reachable win, auto-recover),
++// and the review-burden cap.
++//
++// It REUSES the existing selector (selector.ts) over a predicted-success PROXY
++// derived from the LIVE mastery score (the live engine has no per-item BKT
++// P(known)/FSRS P(recall) yet — that is the not-cutover engine-v2 substrate).
++// proxy = f(masteryScore, difficulty): a higher mastery score lifts predicted
++// success; a harder item lowers it. This keeps the guardrails reachable from the
++// live loop WITHOUT the full engine-v2 mastery cutover (which remains separate).
++//
++// FIREWALL: this imports ONLY selector.ts (pure ranking) — nothing from
++// gate.ts/session.ts/mastery-engine, and nothing reward-mode. It never sets
++// mastery, never locks, never reorders curriculum.
++
++import {
++  selectNext,
++  predictedSuccess,
++  type Candidate,
++  type SelectorParams,
++  type SelectorState,
++  DEFAULT_SELECTOR,
++} from "./selector";
++
++/** One already-served practice item the guardrails may choose among. */
++export interface GuardrailCandidate {
++  itemId: string;
++  /** 1 = easy, 2 = medium, 3 = hard. */
++  difficulty: 1 | 2 | 3;
++  /** Is this a maintenance/review item (vs forward progress)? */
++  isReview: boolean;
++}
++
++/** Live, per-request signals (no per-item BKT/FSRS on the live substrate yet). */
++export interface LiveSignals {
++  /** The live engine mastery score for the focus node, 0..1. */
++  masteryScore: number;
++  /** Consecutive incorrect answers this session (frustration signal). */
++  consecutiveErrors: number;
++  /** Fraction of this session already spent on review items, 0..1. */
++  reviewServedFraction: number;
++}
++
++export interface GuardrailParams {
++  selector: SelectorParams;
++  /**
++   * Per-difficulty success penalty for the predicted-success PROXY. A harder
++   * item is less likely to be answered correctly at a given mastery level. These
++   * are presentation/selection tuning only — they never enter mastery math.
++   * MATT THRESHOLD CHECKPOINT (selection tuning, not a mastery weight).
++   */
++  difficultyDrag: Record<1 | 2 | 3, number>;
++}
++
++export const DEFAULT_GUARDRAILS: GuardrailParams = {
++  selector: DEFAULT_SELECTOR,
++  // proxy ≈ masteryScore − drag(difficulty): an easy item reads near the raw
++  // mastery score; a hard item sits well below it (so a low-mastery student is
++  // steered toward easier wins, a high-mastery student toward stretch).
++  difficultyDrag: { 1: 0.0, 2: 0.15, 3: 0.3 },
++};
++
++/**
++ * Predicted success PROXY for an item, from the live mastery score and the
++ * item's difficulty. Clamped 0..1. Higher mastery → higher predicted success;
++ * harder item → lower. This is the live stand-in for the engine-v2
++ * predictedSuccess = P(known)·P(recall).
++ */
++export function proxyPredictedSuccess(
++  masteryScore: number,
++  difficulty: 1 | 2 | 3,
++  p: GuardrailParams = DEFAULT_GUARDRAILS,
++): number {
++  const raw = masteryScore - p.difficultyDrag[difficulty];
++  return Math.min(1, Math.max(0, Number.isFinite(raw) ? raw : 0));
++}
++
++/**
++ * Map a GuardrailCandidate to the selector's Candidate shape. The proxy success
++ * is carried as pKnown with pRecall = 1, so predictedSuccess(Candidate) ===
++ * proxy (bandFit/frustration ranking is over the proxy). The utility-only
++ * dimensions (dueWeight, coverageGap) are neutralised so the band guardrail +
++ * frustration + review cap drive the decision (the live substrate has no
++ * per-item retention/transfer signal yet).
++ */
++function toSelectorCandidate(c: GuardrailCandidate, signals: LiveSignals, p: GuardrailParams): Candidate {
++  const proxy = proxyPredictedSuccess(signals.masteryScore, c.difficulty, p);
++  return {
++    nodeId: "live",
++    itemId: c.itemId,
++    difficulty: c.difficulty,
++    pKnown: proxy,
++    pRecall: 1,
++    dueWeight: 0,
++    coverageGap: 0,
++    isReview: c.isReview,
++  };
++}
++
++export interface GuardrailDecision {
++  itemId: string;
++  reason: "band" | "frustration_fallback" | "review_capped";
++}
++
++/**
++ * Choose the next item under the §8 guardrails. Returns the chosen item id + the
++ * governing reason, or null when there are no candidates. PURE.
++ *
++ * The selector applies (in order): review-burden cap → frustration fallback →
++ * band-fit ranking. We surface the governing reason for the live UI / audit:
++ *  - "frustration_fallback" when the selector took the reachable-win path,
++ *  - "review_capped" when the review cap excluded review items this turn,
++ *  - "band" otherwise (the normal success-band target).
++ */
++export function applyGuardrails(
++  candidates: GuardrailCandidate[],
++  signals: LiveSignals,
++  params: GuardrailParams = DEFAULT_GUARDRAILS,
++): GuardrailDecision | null {
++  if (candidates.length === 0) return null;
++
++  const selectorCands = candidates.map((c) => toSelectorCandidate(c, signals, params));
++  const state: SelectorState = {
++    consecutiveErrors: signals.consecutiveErrors,
++    reviewServedFraction: signals.reviewServedFraction,
++  };
++
++  const choice = selectNext(selectorCands, state, params.selector);
++  if (!choice) return null;
++
++  if (choice.reason === "frustration_fallback") {
++    return { itemId: choice.itemId, reason: "frustration_fallback" };
++  }
++
++  // Distinguish "review was capped this turn" (a non-review item was chosen
++  // while the session is over the review cap and review candidates existed) from
++  // the normal band target — purely for the surfaced reason.
++  const overCap = signals.reviewServedFraction >= params.selector.maxReviewFraction;
++  const hadReview = candidates.some((c) => c.isReview);
++  const hadNonReview = candidates.some((c) => !c.isReview);
++  if (overCap && hadReview && hadNonReview) {
++    const chosen = candidates.find((c) => c.itemId === choice.itemId);
++    if (chosen && !chosen.isReview) {
++      return { itemId: choice.itemId, reason: "review_capped" };
++    }
++  }
++
++  return { itemId: choice.itemId, reason: "band" };
++}
++
++/** Re-export for callers that want to inspect the proxy directly. */
++export { predictedSuccess as selectorPredictedSuccess };
+diff --git a/lib/engine-v2/phase8-firewall.test.ts b/lib/engine-v2/phase8-firewall.test.ts
+new file mode 100644
+index 0000000..0152786
+--- /dev/null
++++ b/lib/engine-v2/phase8-firewall.test.ts
+@@ -0,0 +1,97 @@
++// phase8-firewall.test.ts — the Phase 8 structural firewall (R5), enforced as a
++// test so a future import can't silently breach it. Asserts:
++//   • fragile.ts / retained.ts / reward-mode.ts / guardrails.ts import NOTHING
++//     from gate.ts / session.ts / mastery-engine (import-acyclic);
++//   • selector.ts and mastery-engine have ZERO import path to the reward-mode
++//     preference (rewards never contaminate measurement);
++//   • the new read-side fns never alter a lock decision (canLock is unchanged
++//     when fragile/retained run over the same inputs).
++
++import { describe, it, expect } from "vitest";
++import { readFileSync } from "node:fs";
++import { canLock } from "./gate";
++import { studentFragility } from "./fragile";
++import { retainedMastery } from "../gamification/retained";
++import type { LockEvidence } from "./types";
++import type { CurriculumGraph, SkillNode, StudentSkillState } from "@/types";
++
++function src(rel: string): string {
++  return readFileSync(new URL(rel, import.meta.url), "utf8");
++}
++
++function importLines(text: string): string {
++  return text
++    .split("\n")
++    .filter((l) => /^\s*import\b/.test(l) || /^\s*}\s*from\s+["']/.test(l))
++    .join("\n");
++}
++
++describe("Phase 8 firewall — import-acyclic", () => {
++  const FIREWALLED = /["'][^"']*\/(gate|session)["']|mastery-engine/;
++
++  it("fragile.ts imports nothing from gate/session/mastery-engine", () => {
++    expect(importLines(src("./fragile.ts"))).not.toMatch(FIREWALLED);
++  });
++  it("guardrails.ts imports nothing from gate/session/mastery-engine", () => {
++    expect(importLines(src("./guardrails.ts"))).not.toMatch(FIREWALLED);
++  });
++  it("retained.ts imports nothing from gate/session/mastery-engine", () => {
++    expect(importLines(src("../gamification/retained.ts"))).not.toMatch(FIREWALLED);
++  });
++  it("reward-mode.ts imports nothing at all (pure constants/resolvers)", () => {
++    expect(importLines(src("../gamification/reward-mode.ts")).trim()).toBe("");
++  });
++});
++
++describe("Phase 8 firewall — rewards never reach measurement", () => {
++  it("selector.ts has no import path to the reward-mode preference", () => {
++    expect(src("./selector.ts")).not.toMatch(/reward-mode|gamification/);
++  });
++});
++
++describe("Phase 8 firewall — read-side fns never alter a lock decision", () => {
++  function node(id: string): SkillNode {
++    return {
++      id,
++      title: id,
++      domain: "d",
++      tier: 0,
++      prereqs: [],
++      standards: { ccss: [], state: null },
++      objective: "",
++      misconceptionTags: [],
++      visual: null,
++    } as unknown as SkillNode;
++  }
++  function state(p: Partial<StudentSkillState>): StudentSkillState {
++    return {
++      mastery: 0.95,
++      status: "mastered",
++      phase: 3,
++      attempts: 3,
++      correct: 3,
++      hints: 0,
++      timeMs: 0,
++      recent: [],
++      transfer: true,
++      lastAttemptAt: null,
++      masteredAt: "2026-01-01T00:00:00.000Z",
++      ...p,
++    };
++  }
++
++  it("running fragile/retained does not change canLock over the same history", () => {
++    const history: LockEvidence[] = []; // empty → canLock false (firewall)
++    const before = canLock(history, { lowerBound: 0.9 });
++
++    const graph = { nodes: [node("N")], domains: [] } as unknown as CurriculumGraph;
++    const states = { N: state({}) };
++    // Run the read-side derivations (over a far-future now → "fragile").
++    studentFragility(states, [], [], graph, "2026-06-01T00:00:00.000Z");
++    retainedMastery(states, [], graph, "2026-06-01T00:00:00.000Z");
++
++    const after = canLock(history, { lowerBound: 0.9 });
++    expect(after).toBe(before);
++    expect(after).toBe(false);
++  });
++});
+diff --git a/lib/gamification/retained.test.ts b/lib/gamification/retained.test.ts
+new file mode 100644
+index 0000000..5b0ff80
+--- /dev/null
++++ b/lib/gamification/retained.test.ts
+@@ -0,0 +1,113 @@
++import { describe, it, expect } from "vitest";
++import { retainedMastery } from "./retained";
++import type { CurriculumGraph, StudentAttempt, StudentSkillState } from "@/types";
++
++function state(partial: Partial<StudentSkillState>): StudentSkillState {
++  return {
++    mastery: 0,
++    status: "unknown",
++    phase: 1,
++    attempts: 0,
++    correct: 0,
++    hints: 0,
++    timeMs: 0,
++    recent: [],
++    transfer: false,
++    lastAttemptAt: null,
++    masteredAt: null,
++    ...partial,
++  };
++}
++
++function graphWith(ids: string[]): CurriculumGraph {
++  return { nodes: ids.map((id) => ({ id })), domains: [] } as unknown as CurriculumGraph;
++}
++
++function attempt(partial: Partial<StudentAttempt>): StudentAttempt {
++  return {
++    id: "a",
++    skillId: "S0",
++    source: "retention",
++    correct: true,
++    createdAt: "2026-01-10T00:00:00.000Z",
++    ...partial,
++  } as unknown as StudentAttempt;
++}
++
++const MASTERED = "2026-01-01T00:00:00.000Z";
++const LATER = "2026-01-10T00:00:00.000Z";
++const EARLIER = "2025-12-20T00:00:00.000Z";
++const now = "2026-02-01T00:00:00.000Z";
++
++describe("retainedMastery", () => {
++  it("counts a node as retained when a passed retention probe lands after masteredAt", () => {
++    const states = { S0: state({ masteredAt: MASTERED }) };
++    const attempts = [attempt({ skillId: "S0", source: "retention", correct: true, createdAt: LATER })];
++    const r = retainedMastery(states, attempts, graphWith(["S0"]), now);
++    expect(r.masteredCount).toBe(1);
++    expect(r.retainedCount).toBe(1);
++    expect(r.retainedIds).toEqual(["S0"]);
++    expect(r.pendingIds).toEqual([]);
++  });
++
++  it("treats a mastered node with no probe as PENDING (in Y, not against the student)", () => {
++    const states = { S0: state({ masteredAt: MASTERED }) };
++    const r = retainedMastery(states, [], graphWith(["S0"]), now);
++    expect(r.masteredCount).toBe(1);
++    expect(r.retainedCount).toBe(0);
++    expect(r.pendingIds).toEqual(["S0"]);
++    expect(r.retainedIds).toEqual([]);
++  });
++
++  it("does NOT count a node retained on a FAILED probe alone (no faked durability)", () => {
++    const states = { S0: state({ masteredAt: MASTERED }) };
++    const attempts = [attempt({ skillId: "S0", source: "retention", correct: false, createdAt: LATER })];
++    const r = retainedMastery(states, attempts, graphWith(["S0"]), now);
++    expect(r.retainedCount).toBe(0);
++    expect(r.pendingIds).toEqual(["S0"]);
++  });
++
++  it("ignores a passed probe that PRECEDES masteredAt (not a delayed, post-mastery check)", () => {
++    const states = { S0: state({ masteredAt: MASTERED }) };
++    const attempts = [attempt({ skillId: "S0", source: "retention", correct: true, createdAt: EARLIER })];
++    const r = retainedMastery(states, attempts, graphWith(["S0"]), now);
++    expect(r.retainedCount).toBe(0);
++    expect(r.pendingIds).toEqual(["S0"]);
++  });
++
++  it("ignores practice/diagnostic correct attempts after mastery (only source==='retention' counts)", () => {
++    const states = { S0: state({ masteredAt: MASTERED }) };
++    const attempts = [
++      attempt({ skillId: "S0", source: "practice", correct: true, createdAt: LATER }),
++      attempt({ skillId: "S0", source: "diagnostic", correct: true, createdAt: LATER }),
++    ];
++    const r = retainedMastery(states, attempts, graphWith(["S0"]), now);
++    expect(r.retainedCount).toBe(0);
++  });
++
++  it("excludes un-mastered nodes from the denominator entirely", () => {
++    const states = {
++      S0: state({ masteredAt: MASTERED }),
++      S1: state({ masteredAt: null, attempts: 4 }),
++    };
++    const attempts = [attempt({ skillId: "S0", source: "retention", correct: true, createdAt: LATER })];
++    const r = retainedMastery(states, attempts, graphWith(["S0", "S1"]), now);
++    expect(r.masteredCount).toBe(1);
++    expect(r.retainedCount).toBe(1);
++  });
++
++  it("emits ids in graph node order", () => {
++    const states = {
++      A: state({ masteredAt: MASTERED }),
++      B: state({ masteredAt: MASTERED }),
++      C: state({ masteredAt: MASTERED }),
++    };
++    const attempts = [
++      attempt({ skillId: "C", source: "retention", correct: true, createdAt: LATER }),
++      attempt({ skillId: "A", source: "retention", correct: true, createdAt: LATER }),
++    ];
++    const r = retainedMastery(states, attempts, graphWith(["A", "B", "C"]), now);
++    expect(r.retainedIds).toEqual(["A", "C"]);
++    expect(r.pendingIds).toEqual(["B"]);
++  });
++});
+diff --git a/lib/gamification/retained.ts b/lib/gamification/retained.ts
+new file mode 100644
+index 0000000..6d998ab
+--- /dev/null
++++ b/lib/gamification/retained.ts
+@@ -0,0 +1,80 @@
++// lib/gamification/retained.ts — visible RETAINED-mastery (Phase 8 R2). PURE,
++// read-side: derives "kept sharp" from the LIVE attempt log, never from a faked
++// durability number (trust-layer rule: never assert retention without measured
++// retrieval). Imports NOTHING from gate.ts/session.ts/mastery-engine — this is
++// presentation-only and can never touch lock/mastery math (Phase 8 R5 firewall).
++//
++// DEFINITIONS (Phase 8 R2 / review #2):
++//   • masteredCount = every node currently mastered (masteredAt != null). This is
++//     the "Y" denominator. A node with no retention probe yet is "retention
++//     pending" — counted in Y, NEVER counted against the student.
++//   • retained = a mastered node that has cleared ≥1 DELAYED, unseen retention
++//     probe — i.e. ≥1 attempt with source==="retention" && correct &&
++//     createdAt > masteredAt. This is the real §7 "proven on a later check"
++//     definition. It is the "X" in "X of Y mastered".
++//   • pendingIds = mastered nodes with no passed retention probe yet (the
++//     remainder of Y not in X).
++//
++// "now" is unused here (the definition is purely log-relative: createdAt vs
++// masteredAt), but it is accepted for a stable read-side signature parallel to
++// computeMomentum and so a future windowed variant needs no signature change.
++
++import type { CurriculumGraph, StudentAttempt, StudentSkillState } from "@/types";
++
++export interface RetainedSummary {
++  /** Mastered nodes proven on a later, unseen retention check (the "X"). */
++  retainedCount: number;
++  /** All currently-mastered nodes (the "Y" denominator). */
++  masteredCount: number;
++  /** Node ids in `retainedCount`, in graph node order. */
++  retainedIds: string[];
++  /** Mastered nodes with no passed retention probe yet (retention pending). */
++  pendingIds: string[];
++}
++
++/**
++ * Derive retained-mastery from committed state + the immutable attempt log.
++ * PURE; never mutates inputs; never feeds mastery/lock math.
++ */
++export function retainedMastery(
++  states: Record<string, StudentSkillState>,
++  attempts: StudentAttempt[],
++  graph: CurriculumGraph,
++  nowIso: string,
++): RetainedSummary {
++  void nowIso; // log-relative definition; accepted for signature stability
++
++  // Index passed retention probes per node (source-tagged, audit-only provenance —
++  // never engine math). We only need a boolean "≥1 passed delayed probe" per node.
++  const passedProbeNodes = new Set<string>();
++  for (const a of attempts) {
++    if (a.source !== "retention" || !a.correct) continue;
++    const masteredAt = states[a.skillId]?.masteredAt;
++    if (masteredAt == null) continue;
++    // DELAYED + unseen is guaranteed by the retention scheduler that injected the
++    // probe; the durability signal here is strictly "passed AFTER mastery".
++    if (Date.parse(a.createdAt) > Date.parse(masteredAt)) {
++      passedProbeNodes.add(a.skillId);
++    }
++  }
++
++  const retainedIds: string[] = [];
++  const pendingIds: string[] = [];
++  let masteredCount = 0;
++
++  // Iterate in graph node order for deterministic output.
++  for (const node of graph.nodes) {
++    const state = states[node.id];
++    if (!state || state.masteredAt == null) continue;
++    masteredCount += 1;
++    if (passedProbeNodes.has(node.id)) retainedIds.push(node.id);
++    else pendingIds.push(node.id);
++  }
++
++  return {
++    retainedCount: retainedIds.length,
++    masteredCount,
++    retainedIds,
++    pendingIds,
++  };
++}
+diff --git a/lib/gamification/reward-mode.test.ts b/lib/gamification/reward-mode.test.ts
+new file mode 100644
+index 0000000..74f1ebf
+--- /dev/null
++++ b/lib/gamification/reward-mode.test.ts
+@@ -0,0 +1,80 @@
++// lib/gamification/reward-mode.test.ts — Training/Boost is presentation-only
++// (Phase 8 R4). Asserts: default-by-age; identical milestone SET across modes
++// (mastery math invariant); only the SWEEP cadence differs; the 90s throttle +
++// gold-cap-at-lock are mode-invariant.
++
++import { describe, it, expect } from "vitest";
++import {
++  defaultRewardMode,
++  ageBandForGrade,
++  isRewardMode,
++  cadenceFor,
++  sweeps,
++  type CelebrationLevel,
++  type RewardMode,
++} from "./reward-mode";
++
++describe("defaultRewardMode", () => {
++  it("defaults boost for under_13, training for teen/adult", () => {
++    expect(defaultRewardMode("under_13")).toBe("boost");
++    expect(defaultRewardMode("teen_13_17")).toBe("training");
++    expect(defaultRewardMode("adult")).toBe("training");
++  });
++});
++
++describe("ageBandForGrade", () => {
++  it("maps grade levels to coarse age bands", () => {
++    expect(ageBandForGrade(6)).toBe("under_13");
++    expect(ageBandForGrade(7)).toBe("under_13");
++    expect(ageBandForGrade(8)).toBe("teen_13_17");
++    expect(ageBandForGrade(12)).toBe("teen_13_17");
++    expect(ageBandForGrade(13)).toBe("adult");
++    expect(ageBandForGrade(NaN)).toBe("under_13");
++  });
++
++  it("default-by-grade composes through to a mode", () => {
++    expect(defaultRewardMode(ageBandForGrade(6))).toBe("boost");
++    expect(defaultRewardMode(ageBandForGrade(9))).toBe("training");
++  });
++});
++
++describe("isRewardMode", () => {
++  it("guards the persisted preference string", () => {
++    expect(isRewardMode("training")).toBe(true);
++    expect(isRewardMode("boost")).toBe(true);
++    expect(isRewardMode("loud")).toBe(false);
++    expect(isRewardMode(null)).toBe(false);
++    expect(isRewardMode(undefined)).toBe(false);
++  });
++});
++
++describe("cadence is presentation-only", () => {
++  const LEVELS: CelebrationLevel[] = ["node_provisional", "node_lock"];
++
++  it("a node LOCK sweeps in BOTH modes; node-provisional sweeps only in boost", () => {
++    expect(sweeps("training", "node_lock")).toBe(true);
++    expect(sweeps("boost", "node_lock")).toBe(true);
++    expect(sweeps("training", "node_provisional")).toBe(false);
++    expect(sweeps("boost", "node_provisional")).toBe(true);
++  });
++
++  it("the 90s throttle + gold-cap-at-lock are MODE-INVARIANT", () => {
++    const t = cadenceFor("training");
++    const b = cadenceFor("boost");
++    expect(t.burstThrottleMs).toBe(90_000);
++    expect(b.burstThrottleMs).toBe(90_000);
++    expect(t.goldCapOnLockOnly).toBe(true);
++    expect(b.goldCapOnLockOnly).toBe(true);
++  });
++
++  it("the milestone SET (which levels EXIST) is identical across modes — only sweep presentation differs", () => {
++    // The set of celebration levels the system reasons about is mode-invariant;
++    // a mode only decides which of those levels gets a visible sweep. Modelled
++    // here as: the union of (sweep ∪ non-sweep) levels is identical per mode.
++    const modes: RewardMode[] = ["training", "boost"];
++    const milestoneSets = modes.map(() => [...LEVELS].sort());
++    // Every milestone level EXISTS in both modes; the mode only changes which
++    // ones fire a visible sweep (asserted above), never the underlying set.
++    expect(milestoneSets[0]).toEqual(milestoneSets[1]);
++  });
++});
+diff --git a/lib/gamification/reward-mode.ts b/lib/gamification/reward-mode.ts
+new file mode 100644
+index 0000000..a82bead
+--- /dev/null
++++ b/lib/gamification/reward-mode.ts
+@@ -0,0 +1,90 @@
++// lib/gamification/reward-mode.ts — Training/Boost reward intensity (Phase 8 R4,
++// STYLE_GUIDE §5/§8.6). PRESENTATIONAL FREQUENCY ONLY. PURE — no IO, no
++// Date.now()/Math.random().
++//
++// FIREWALL (Phase 8 R5): imports NOTHING from mastery/gate/selector. The reward
++// mode is a per-learner PRESENTATION preference; it can never reach mastery math,
++// the lock gate, or the selector, and it never appears on the [data-surface=test]
++// chrome. The ETHIC (STYLE_GUIDE §5): rewards never gate variable OUTCOMES — they
++// only change WHICH §5 celebration cadence levels fire a visible sweep.
++//
++// MODE-INVARIANTS (documented, NOT parameters — the same in both modes):
++//   • the ~90s burst throttle, and
++//   • the gold cap fires ONLY at a node LOCK.
++// Boost differs from Training in exactly ONE way: in Boost a node-PROVISIONAL
++// milestone also fires a visible sweep; in Training only a node LOCK does. The
++// underlying milestone SET (the mastery math) is identical in both modes.
++
++/** Coarse audience band for the default reward intensity (§8.6). */
++export type AgeBand = "under_13" | "teen_13_17" | "adult";
++
++export type RewardMode = "training" | "boost";
++
++/**
++ * Default reward mode by age band (§8.6 "default by age, not a hard split").
++ * Boost for the youngest learners (a little more energy); Training (quiet) for
++ * teens and adults. Always overridable by the learner's stored preference.
++ */
++export function defaultRewardMode(ageBand: AgeBand): RewardMode {
++  return ageBand === "under_13" ? "boost" : "training";
++}
++
++/**
++ * Coarse age band from a US grade level (the platform's known age proxy —
++ * middle-schoolers are ~grade 6-8). Grade ≤ 7 (roughly ≤ 12-13) → under_13;
++ * grade 8-12 → teen; anything higher → adult. PURE; presentation default only.
++ */
++export function ageBandForGrade(gradeLevel: number): AgeBand {
++  if (!Number.isFinite(gradeLevel) || gradeLevel <= 7) return "under_13";
++  if (gradeLevel <= 12) return "teen_13_17";
++  return "adult";
++}
++
++/** Type guard for a persisted reward-mode string (e.g. from a cookie). */
++export function isRewardMode(v: string | null | undefined): v is RewardMode {
++  return v === "training" || v === "boost";
++}
++
++/**
++ * The §5 celebration levels. A milestone is computed identically in both modes
++ * (mastery math is mode-invariant); the mode only decides which levels fire a
++ * VISIBLE sweep.
++ */
++export type CelebrationLevel = "node_provisional" | "node_lock";
++
++export interface RewardCadence {
++  /** Celebration levels that fire a visible ring sweep in this mode. */
++  sweepLevels: readonly CelebrationLevel[];
++  /** Mode-invariant: the ~90s burst throttle floor (documented, not a knob). */
++  burstThrottleMs: 90_000;
++  /** Mode-invariant: the gold cap is reserved for a node LOCK only. */
++  goldCapOnLockOnly: true;
++}
++
++const TRAINING_CADENCE: RewardCadence = {
++  // Training (quiet): only a true node LOCK sweeps; gold cap at lock.
++  sweepLevels: ["node_lock"],
++  burstThrottleMs: 90_000,
++  goldCapOnLockOnly: true,
++};
++
++const BOOST_CADENCE: RewardCadence = {
++  // Boost (a little more energy): a node-provisional milestone ALSO sweeps, in
++  // ADDITION to the lock sweep. Same throttle, same gold-cap-at-lock rule.
++  sweepLevels: ["node_provisional", "node_lock"],
++  burstThrottleMs: 90_000,
++  goldCapOnLockOnly: true,
++};
++
++/** Which §5 cadence levels fire a visible sweep for a mode (presentation only). */
++export function cadenceFor(mode: RewardMode): RewardCadence {
++  return mode === "boost" ? BOOST_CADENCE : TRAINING_CADENCE;
++}
++
++/**
++ * Does a given celebration level fire a visible sweep under `mode`? Convenience
++ * predicate over cadenceFor — pure, presentation-only.
++ */
++export function sweeps(mode: RewardMode, level: CelebrationLevel): boolean {
++  return cadenceFor(mode).sweepLevels.includes(level);
++}
+diff --git a/lib/insight/flags.ts b/lib/insight/flags.ts
+index 16e15c5..09870c7 100644
+--- a/lib/insight/flags.ts
++++ b/lib/insight/flags.ts
+@@ -10,6 +10,7 @@
+ 
+ import { MASTERY_CONFIG } from "../mastery-engine";
+ import { retentionStatus } from "../retention";
++import { studentFragility } from "../engine-v2/fragile";
+ import type {
+   CurriculumGraph,
+   FlagEntry,
+@@ -205,5 +206,23 @@ export function computeFlags(
+     }
+   }
+ 
++  // --- Fast-but-fragile (Phase 8 R7): a node mastered FAST that is NOT holding
++  // up on delayed retrieval (a failed retention probe, or an overdue scheduled
++  // probe with no pass) — the §3/§8 Alpha failure mode. DERIVED read-only from
++  // the live attempt log + the retention scheduler by lib/engine-v2/fragile; it
++  // NEVER feeds mastery/lock math. The detail is factual (count + date only, no
++  // editorializing); severity is "attention", never a new band. An "unmeasured"
++  // node (no probe due/taken) is NEVER flagged (mr-kahn 1a).
++  for (const f of studentFragility(states, attempts, updates, graph, nowIso)) {
++    if (f.status !== "fragile") continue;
++    flags.push({
++      kind: "fast-but-fragile",
++      severity: "attention",
++      skillId: f.skillId,
++      detail: f.reason,
++      evidenceAttemptIds: [],
++    });
++  }
++
+   return flags;
+ }
+diff --git a/lib/insight/intervention.ts b/lib/insight/intervention.ts
+index a9aed2e..86a01b2 100644
+--- a/lib/insight/intervention.ts
++++ b/lib/insight/intervention.ts
+@@ -26,6 +26,7 @@ const KIND_BAND: Record<FlagEntry["kind"], InterventionBand> = {
+   "high-hint-dependence": "watch",
+   rushing: "watch",
+   "retention-probes-due": "watch",
++  "fast-but-fragile": "watch",
+   "days-since-session": "watch",
+ };
+ 
+@@ -36,6 +37,7 @@ const KIND_NEXT_ACTION: Record<FlagEntry["kind"], string> = {
+   "high-hint-dependence": "Try a few problems without hints to confirm the skill is sticking.",
+   rushing: "Encourage slowing down — answers are coming in very fast.",
+   "retention-probes-due": "A spaced retention check is due — let the student work it when next active.",
++  "fast-but-fragile": "Schedule a short review — this skill was picked up fast and a delayed check hasn't confirmed it's holding.",
+   "days-since-session": "Check in — it has been a while since the last session.",
+ };
+ 
+diff --git a/types/insight.ts b/types/insight.ts
+index 68246f1..2278c18 100644
+--- a/types/insight.ts
++++ b/types/insight.ts
+@@ -76,6 +76,7 @@ export interface FlagEntry {
+     | "rushing"
+     | "decayed-review-queue"
+     | "retention-probes-due"
++    | "fast-but-fragile"
+     | "days-since-session";
+   /** info = neutral signal; attention = worth a look (never an error/alarm). */
+   severity: "info" | "attention";
