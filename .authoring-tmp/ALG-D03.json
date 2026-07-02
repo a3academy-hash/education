@@ -1,0 +1,1434 @@
+{
+  "id": "ALG-D03",
+  "workedExamples": [
+    {
+      "id": "ALG-D03-we-01",
+      "title": "Joint vs. marginal relative frequency in a 2×2 table",
+      "steps": [
+        {
+          "prompt": "A survey of 100 students records two yes/no questions: \"Do you play a sport?\" and \"Do you like math?\" The counts are: play & like = 30, play & dislike = 20, don't play & like = 25, don't play & dislike = 25. First, organize these into a 2×2 table and find the row totals, column totals, and grand total.",
+          "reveal": "Rows = play / don't play, columns = like / dislike. Play row: 30 + 20 = 50. Don't-play row: 25 + 25 = 50. Like column: 30 + 25 = 55. Dislike column: 20 + 25 = 45. Grand total: 50 + 50 = 100 (and 55 + 45 = 100, which checks). Every total must trace back to the four cells, so an auditor can rebuild the table from the cells alone."
+        },
+        {
+          "prompt": "A JOINT relative frequency answers \"what fraction of EVERYONE falls in this single cell?\" Find the joint relative frequency of students who play a sport AND like math, as a percent.",
+          "reveal": "Joint = cell ÷ grand total = 30 ÷ 100 = 0.30 = 30%. The denominator for a joint relative frequency is always the GRAND total, because we are comparing one cell against the whole group."
+        },
+        {
+          "prompt": "A MARGINAL relative frequency answers \"what fraction of everyone falls in this whole row or whole column?\" Find the marginal relative frequency of students who play a sport, as a percent.",
+          "reveal": "Marginal = row total ÷ grand total = 50 ÷ 100 = 0.50 = 50%. The numerator is the ROW total (a margin of the table), not a single cell."
+        },
+        {
+          "prompt": "Why is the joint answer (30%) different from the marginal answer (50%), even though both involve students who play a sport?",
+          "reveal": "Joint counts only the cell — play AND like math (30 people). Marginal counts the entire play row — like OR dislike math (50 people). Confusing the two is the joint-vs-marginal trap: the joint cell is always a piece of the larger marginal total, so reporting 50% when the question asked for the single cell over-counts by including the 20 who dislike math."
+        }
+      ]
+    },
+    {
+      "id": "ALG-D03-we-02",
+      "title": "Row percent vs. column percent: choosing the denominator",
+      "steps": [
+        {
+          "prompt": "Use the same table: play & like = 30, play & dislike = 20, don't play & like = 25, don't play & dislike = 25 (grand total 100; play row total = 50; like column total = 55). A conditional (row or column) percent uses a denominator that is NOT the grand total. First write the two totals you might divide the cell 30 by.",
+          "reveal": "The cell 30 sits in the play ROW (total 50) and the like COLUMN (total 55). So the two candidate denominators are 50 (its row total) and 55 (its column total). Picking the right one is the whole game."
+        },
+        {
+          "prompt": "Question A: \"Of the students who PLAY a sport, what percent like math?\" Which total is the denominator, and what is the percent?",
+          "reveal": "\"Of the students who play\" fixes the group to the play ROW, so divide by the row total 50: 30 ÷ 50 = 0.60 = 60%. The phrase \"of the [row group]\" tells you the row total is the denominator."
+        },
+        {
+          "prompt": "Question B: \"Of the students who LIKE math, what percent play a sport?\" Which total is the denominator, and what is the percent?",
+          "reveal": "\"Of the students who like math\" fixes the group to the like COLUMN, so divide by the column total 55: 30 ÷ 55 ≈ 0.545 = 54.5%. Same cell (30), different denominator, different meaning."
+        },
+        {
+          "prompt": "Both questions involve the same cell (30). Why are 60% and 54.5% both correct but to DIFFERENT questions?",
+          "reveal": "The denominator must match the group named after the word \"of.\" \"Of those who play\" → divide by the row total (50). \"Of those who like math\" → divide by the column total (55). Using 55 when the question said \"of those who play\" is the row-column-percent-confusion trap: right cell, wrong denominator, wrong answer."
+        }
+      ]
+    }
+  ],
+  "problems": {
+    "p1": [
+      {
+        "id": "ALG-D03-p1-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A coach charts 100 at-bats in a 2×2 table by count and outcome. Ahead in the count & hit = 30, ahead & out = 20, behind & hit = 10, behind & out = 40. What fraction of ALL 100 at-bats were ahead in the count AND a hit? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "30"
+        },
+        "misconceptionMap": {
+          "50": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides one cell by the grand total of 100.",
+          "30 ÷ 100 = 0.30."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p1-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "From the same chart of 100 at-bats: ahead & hit = 30, ahead & out = 20, behind & hit = 10, behind & out = 40. What percent of ALL at-bats were ahead in the count (the whole 'ahead' row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "50"
+        },
+        "misconceptionMap": {
+          "30": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "Ahead row total = 30 + 20 = 50; then 50 ÷ 100."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "Same 100 at-bats: ahead & hit = 30, ahead & out = 20, behind & hit = 10, behind & out = 40. Of the at-bats that were AHEAD in the count, what percent were hits? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "60"
+        },
+        "misconceptionMap": {
+          "75": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the at-bats that were ahead' means divide by the ahead ROW total (50), not a column total.",
+          "30 ÷ 50 = 0.60."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "Same 100 at-bats: ahead & hit = 30, ahead & out = 20, behind & hit = 10, behind & out = 40. Of the at-bats that ended in a HIT, what percent came when the batter was ahead in the count? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "75"
+        },
+        "misconceptionMap": {
+          "60": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the at-bats that ended in a hit' means divide by the HIT column total.",
+          "Hit column total = 30 + 10 = 40; then 30 ÷ 40 = 0.75."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D03-p1-softball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A softball team logs 200 plate appearances in a 2×2 table: starters & on-base = 80, starters & out = 60, bench & on-base = 20, bench & out = 40. What fraction of ALL 200 plate appearances were starters who got on base? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "40"
+        },
+        "misconceptionMap": {
+          "70": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides the single cell by the grand total of 200.",
+          "80 ÷ 200 = 0.40."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p1-softball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "Same 200 plate appearances: starters & on-base = 80, starters & out = 60, bench & on-base = 20, bench & out = 40. What percent of ALL plate appearances were by starters (the whole 'starters' row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "70"
+        },
+        "misconceptionMap": {
+          "40": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "Starters row total = 80 + 60 = 140; then 140 ÷ 200."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-softball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "Same 200 plate appearances: starters & on-base = 80, starters & out = 60, bench & on-base = 20, bench & out = 40. Of the STARTERS' plate appearances, what percent ended on base? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "57"
+        },
+        "misconceptionMap": {
+          "80": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the starters' means divide by the starters ROW total (140), not the on-base column.",
+          "80 ÷ 140 ≈ 0.5714, which rounds to 57%."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-softball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "Same 200 plate appearances: starters & on-base = 80, starters & out = 60, bench & on-base = 20, bench & out = 40. Of the plate appearances that ended ON BASE, what percent were by starters? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "80"
+        },
+        "misconceptionMap": {
+          "57": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the appearances that ended on base' means divide by the ON-BASE column total.",
+          "On-base column total = 80 + 20 = 100; then 80 ÷ 100 = 0.80."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D03-p1-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A team charts 50 shots in a 2×2 table: contested & made = 15, contested & missed = 20, open & made = 12, open & missed = 3. What fraction of ALL 50 shots were contested AND made? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "30"
+        },
+        "misconceptionMap": {
+          "70": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides one cell by the grand total of 50.",
+          "15 ÷ 50 = 0.30."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p1-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "Same 50 shots: contested & made = 15, contested & missed = 20, open & made = 12, open & missed = 3. What percent of ALL shots were contested (the whole 'contested' row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "70"
+        },
+        "misconceptionMap": {
+          "30": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "Contested row total = 15 + 20 = 35; then 35 ÷ 50."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "Same 50 shots: contested & made = 15, contested & missed = 20, open & made = 12, open & missed = 3. Of the OPEN shots, what percent were made? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "80"
+        },
+        "misconceptionMap": {
+          "56": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the open shots' means divide by the open ROW total (15), not the made column.",
+          "12 ÷ 15 = 0.80."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "Same 50 shots: contested & made = 15, contested & missed = 20, open & made = 12, open & missed = 3. Of the shots that were MADE, what percent were open? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "44"
+        },
+        "misconceptionMap": {
+          "80": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the shots that were made' means divide by the MADE column total.",
+          "Made column total = 15 + 12 = 27; then 12 ÷ 27 ≈ 0.444, which rounds to 44%."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D03-p1-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A team charts 40 shots in a 2×2 table: inside the box & on target = 18, inside & off target = 6, outside the box & on target = 4, outside & off target = 12. What fraction of ALL 40 shots were inside the box AND on target? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "45"
+        },
+        "misconceptionMap": {
+          "60": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides one cell by the grand total of 40.",
+          "18 ÷ 40 = 0.45."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p1-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "Same 40 shots: inside & on target = 18, inside & off target = 6, outside & on target = 4, outside & off target = 12. What percent of ALL shots were taken from inside the box (the whole 'inside' row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "60"
+        },
+        "misconceptionMap": {
+          "45": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "Inside row total = 18 + 6 = 24; then 24 ÷ 40."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "Same 40 shots: inside & on target = 18, inside & off target = 6, outside & on target = 4, outside & off target = 12. Of the shots taken from INSIDE the box, what percent were on target? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "75"
+        },
+        "misconceptionMap": {
+          "82": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the shots from inside the box' means divide by the inside ROW total (24).",
+          "18 ÷ 24 = 0.75."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "Same 40 shots: inside & on target = 18, inside & off target = 6, outside & on target = 4, outside & off target = 12. Of the shots that were ON TARGET, what percent came from inside the box? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "82"
+        },
+        "misconceptionMap": {
+          "75": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the shots that were on target' means divide by the ON-TARGET column total.",
+          "On-target column total = 18 + 4 = 22; then 18 ÷ 22 ≈ 0.818, which rounds to 82%."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D03-p1-football-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A team charts 100 plays in a 2×2 table by down and result: early down & gained first-down yardage = 35, early down & did not = 25, late down & gained = 15, late down & did not = 25. What fraction of ALL 100 plays were early downs that gained the needed yardage? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "35"
+        },
+        "misconceptionMap": {
+          "60": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides one cell by the grand total of 100.",
+          "35 ÷ 100 = 0.35."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p1-football-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "Same 100 plays: early down & gained = 35, early down & did not = 25, late down & gained = 15, late down & did not = 25. What percent of ALL plays were early downs (the whole 'early down' row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "60"
+        },
+        "misconceptionMap": {
+          "35": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "Early-down row total = 35 + 25 = 60; then 60 ÷ 100."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-football-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "Same 100 plays: early down & gained = 35, early down & did not = 25, late down & gained = 15, late down & did not = 25. Of the EARLY-DOWN plays, what percent gained the needed yardage? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "58"
+        },
+        "misconceptionMap": {
+          "70": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the early-down plays' means divide by the early-down ROW total (60).",
+          "35 ÷ 60 ≈ 0.5833, which rounds to 58%."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-football-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "Same 100 plays: early down & gained = 35, early down & did not = 25, late down & gained = 15, late down & did not = 25. Of the plays that GAINED the needed yardage, what percent were on early downs? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "70"
+        },
+        "misconceptionMap": {
+          "58": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the plays that gained the yardage' means divide by the GAINED column total.",
+          "Gained column total = 35 + 15 = 50; then 35 ÷ 50 = 0.70."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D03-p1-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A team charts 50 serves in a 2×2 table: float serve & in play = 20, float & error = 5, jump serve & in play = 15, jump & error = 10. What fraction of ALL 50 serves were float serves that stayed in play? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "40"
+        },
+        "misconceptionMap": {
+          "50": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides one cell by the grand total of 50.",
+          "20 ÷ 50 = 0.40."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p1-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "Same 50 serves: float & in play = 20, float & error = 5, jump & in play = 15, jump & error = 10. What percent of ALL serves were float serves (the whole 'float' row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "50"
+        },
+        "misconceptionMap": {
+          "40": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "Float row total = 20 + 5 = 25; then 25 ÷ 50."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "Same 50 serves: float & in play = 20, float & error = 5, jump & in play = 15, jump & error = 10. Of the FLOAT serves, what percent stayed in play? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "80"
+        },
+        "misconceptionMap": {
+          "57": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the float serves' means divide by the float ROW total (25), not the in-play column.",
+          "20 ÷ 25 = 0.80."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "Same 50 serves: float & in play = 20, float & error = 5, jump & in play = 15, jump & error = 10. Of the serves that stayed IN PLAY, what percent were float serves? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "57"
+        },
+        "misconceptionMap": {
+          "80": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the serves that stayed in play' means divide by the IN-PLAY column total.",
+          "In-play column total = 20 + 15 = 35; then 20 ÷ 35 ≈ 0.571, which rounds to 57%."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D03-p1-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A class of 100 students is surveyed in a 2×2 table: bus rider & lives far = 40, bus rider & lives near = 10, walker & lives far = 5, walker & lives near = 45. What fraction of ALL 100 students are bus riders who live far from school? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "40"
+        },
+        "misconceptionMap": {
+          "50": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides one cell by the grand total of 100.",
+          "40 ÷ 100 = 0.40."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p1-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "Same 100 students: bus rider & lives far = 40, bus rider & lives near = 10, walker & lives far = 5, walker & lives near = 45. What percent of ALL students are bus riders (the whole 'bus rider' row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "50"
+        },
+        "misconceptionMap": {
+          "40": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "Bus-rider row total = 40 + 10 = 50; then 50 ÷ 100."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "Same 100 students: bus rider & lives far = 40, bus rider & lives near = 10, walker & lives far = 5, walker & lives near = 45. Of the BUS RIDERS, what percent live far from school? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "80"
+        },
+        "misconceptionMap": {
+          "89": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the bus riders' means divide by the bus-rider ROW total (50).",
+          "40 ÷ 50 = 0.80."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p1-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "Same 100 students: bus rider & lives far = 40, bus rider & lives near = 10, walker & lives far = 5, walker & lives near = 45. Of the students who live FAR from school, what percent are bus riders? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "89"
+        },
+        "misconceptionMap": {
+          "80": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the students who live far' means divide by the LIVES-FAR column total.",
+          "Lives-far column total = 40 + 5 = 45; then 40 ÷ 45 ≈ 0.889, which rounds to 89%."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p2": [
+      {
+        "id": "ALG-D03-p2-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A two-way table charts 200 at-bats. Cells: vs lefty & hit = 36, vs lefty & out = 84, vs righty & hit = 32, vs righty & out = 48. Is the value '36 hits vs lefties out of 200 at-bats' a JOINT relative frequency or a MARGINAL relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "joint"
+        },
+        "misconceptionMap": {
+          "marginal": "joint-vs-marginal"
+        },
+        "hints": [
+          "A single cell over the grand total is a JOINT relative frequency; a row or column total over the grand total is MARGINAL.",
+          "36 is one cell, not a whole row or column."
+        ],
+        "difficulty": 1,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "Same 200 at-bats: vs lefty & hit = 36, vs lefty & out = 84, vs righty & hit = 32, vs righty & out = 48. What is the MARGINAL relative frequency of at-bats versus lefty pitchers? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "60"
+        },
+        "misconceptionMap": {
+          "18": "joint-vs-marginal"
+        },
+        "hints": [
+          "Marginal means a whole row total over the grand total.",
+          "vs-lefty row total = 36 + 84 = 120; then 120 ÷ 200."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "Same 200 at-bats: vs lefty & hit = 36, vs lefty & out = 84, vs righty & hit = 32, vs righty & out = 48. To find the percent of AT-BATS VERSUS LEFTIES that were hits, which total do you divide 36 by?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "the vs-lefty row total (120)"
+        },
+        "misconceptionMap": {
+          "the hit column total (68)": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the at-bats versus lefties' fixes the group to that ROW, so use the row total.",
+          "Divide by 120, not by the hit column."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "the vs-lefty row total (120)",
+          "the hit column total (68)"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "Same 200 at-bats: vs lefty & hit = 36, vs lefty & out = 84, vs righty & hit = 32, vs righty & out = 48. Of the at-bats that ended in a HIT, what percent came against righties? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "47"
+        },
+        "misconceptionMap": {
+          "40": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the at-bats that ended in a hit' means divide by the HIT column total.",
+          "Hit column total = 36 + 32 = 68; then 32 ÷ 68 ≈ 0.470, which rounds to 47%."
+        ],
+        "difficulty": 3,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-softball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A two-way table charts 100 swings. Cells: contact swing & in play = 45, contact & whiff = 5, power swing & in play = 20, power & whiff = 30. Is the value '50 contact swings out of 100' (the whole contact row) a JOINT or a MARGINAL relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "marginal"
+        },
+        "misconceptionMap": {
+          "joint": "joint-vs-marginal"
+        },
+        "hints": [
+          "A whole ROW total over the grand total is a MARGINAL relative frequency.",
+          "50 is a row total, not a single cell."
+        ],
+        "difficulty": 1,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-softball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "Same 100 swings: contact & in play = 45, contact & whiff = 5, power & in play = 20, power & whiff = 30. What is the JOINT relative frequency of power swings that ended in a whiff? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "30"
+        },
+        "misconceptionMap": {
+          "50": "joint-vs-marginal"
+        },
+        "hints": [
+          "Joint means one cell over the grand total of 100.",
+          "30 ÷ 100 = 0.30."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-softball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "Same 100 swings: contact & in play = 45, contact & whiff = 5, power & in play = 20, power & whiff = 30. To find the percent of CONTACT SWINGS that stayed in play, which total do you divide 45 by?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "the contact-swing row total (50)"
+        },
+        "misconceptionMap": {
+          "the in-play column total (65)": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the contact swings' fixes the group to that ROW, so use the row total.",
+          "Divide by 50, not the in-play column."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "the contact-swing row total (50)",
+          "the in-play column total (65)"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-softball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "Same 100 swings: contact & in play = 45, contact & whiff = 5, power & in play = 20, power & whiff = 30. Of the swings that stayed IN PLAY, what percent were power swings? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "31"
+        },
+        "misconceptionMap": {
+          "40": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the swings that stayed in play' means divide by the IN-PLAY column total.",
+          "In-play column total = 45 + 20 = 65; then 20 ÷ 65 ≈ 0.308, which rounds to 31%."
+        ],
+        "difficulty": 3,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A two-way table charts 40 free throws. Cells: first half & made = 14, first half & missed = 6, second half & made = 12, second half & missed = 8. Is the value '14 made in the first half out of 40' a JOINT or a MARGINAL relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "joint"
+        },
+        "misconceptionMap": {
+          "marginal": "joint-vs-marginal"
+        },
+        "hints": [
+          "A single cell over the grand total is JOINT.",
+          "14 is one cell, not a whole row or column."
+        ],
+        "difficulty": 1,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "Same 40 free throws: first half & made = 14, first half & missed = 6, second half & made = 12, second half & missed = 8. What is the MARGINAL relative frequency of free throws that were MADE (the whole made column)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "65"
+        },
+        "misconceptionMap": {
+          "35": "joint-vs-marginal"
+        },
+        "hints": [
+          "Marginal means a whole column total over the grand total.",
+          "Made column total = 14 + 12 = 26; then 26 ÷ 40."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "Same 40 free throws: first half & made = 14, first half & missed = 6, second half & made = 12, second half & missed = 8. Of the FIRST-HALF free throws, what percent were made? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "70"
+        },
+        "misconceptionMap": {
+          "54": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the first-half free throws' means divide by the first-half ROW total (20).",
+          "14 ÷ 20 = 0.70."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "Same 40 free throws: first half & made = 14, first half & missed = 6, second half & made = 12, second half & missed = 8. To find the percent of MADE free throws that came in the first half, which total do you divide 14 by?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "the made column total (26)"
+        },
+        "misconceptionMap": {
+          "the first-half row total (20)": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the made free throws' fixes the group to the MADE column, so use the column total.",
+          "Divide by 26, not the first-half row."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "the made column total (26)",
+          "the first-half row total (20)"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A two-way table charts 50 passes. Cells: forward pass & completed = 18, forward & lost = 12, square pass & completed = 16, square & lost = 4. Is the value '30 forward passes out of 50' (the whole forward row) a JOINT or a MARGINAL relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "marginal"
+        },
+        "misconceptionMap": {
+          "joint": "joint-vs-marginal"
+        },
+        "hints": [
+          "A whole ROW total over the grand total is MARGINAL.",
+          "30 is a row total, not a single cell."
+        ],
+        "difficulty": 1,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "Same 50 passes: forward & completed = 18, forward & lost = 12, square & completed = 16, square & lost = 4. What is the JOINT relative frequency of square passes that were completed? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "32"
+        },
+        "misconceptionMap": {
+          "40": "joint-vs-marginal"
+        },
+        "hints": [
+          "Joint means one cell over the grand total of 50.",
+          "16 ÷ 50 = 0.32."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "Same 50 passes: forward & completed = 18, forward & lost = 12, square & completed = 16, square & lost = 4. Of the FORWARD passes, what percent were completed? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "60"
+        },
+        "misconceptionMap": {
+          "53": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the forward passes' means divide by the forward ROW total (30).",
+          "18 ÷ 30 = 0.60."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "Same 50 passes: forward & completed = 18, forward & lost = 12, square & completed = 16, square & lost = 4. To find the percent of COMPLETED passes that were forward passes, which total do you divide 18 by?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "the completed column total (34)"
+        },
+        "misconceptionMap": {
+          "the forward row total (30)": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the completed passes' fixes the group to the COMPLETED column, so use the column total.",
+          "Divide by 34, not the forward row."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "the completed column total (34)",
+          "the forward row total (30)"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-football-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A two-way table charts 200 plays. Cells: run play & gained = 70, run & stuffed = 30, pass play & gained = 60, pass & stuffed = 40. Is the value '70 run plays that gained out of 200' a JOINT or a MARGINAL relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "joint"
+        },
+        "misconceptionMap": {
+          "marginal": "joint-vs-marginal"
+        },
+        "hints": [
+          "A single cell over the grand total is JOINT.",
+          "70 is one cell, not a whole row or column."
+        ],
+        "difficulty": 1,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-football-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "Same 200 plays: run & gained = 70, run & stuffed = 30, pass & gained = 60, pass & stuffed = 40. What is the MARGINAL relative frequency of run plays (the whole run row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "50"
+        },
+        "misconceptionMap": {
+          "35": "joint-vs-marginal"
+        },
+        "hints": [
+          "Marginal means a whole row total over the grand total.",
+          "Run row total = 70 + 30 = 100; then 100 ÷ 200."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-football-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "Same 200 plays: run & gained = 70, run & stuffed = 30, pass & gained = 60, pass & stuffed = 40. Of the RUN plays, what percent gained yardage? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "70"
+        },
+        "misconceptionMap": {
+          "54": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the run plays' means divide by the run ROW total (100).",
+          "70 ÷ 100 = 0.70."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-football-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "Same 200 plays: run & gained = 70, run & stuffed = 30, pass & gained = 60, pass & stuffed = 40. Of the plays that GAINED yardage, what percent were run plays? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "54"
+        },
+        "misconceptionMap": {
+          "70": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the plays that gained yardage' means divide by the GAINED column total.",
+          "Gained column total = 70 + 60 = 130; then 70 ÷ 130 ≈ 0.538, which rounds to 54%."
+        ],
+        "difficulty": 3,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A two-way table charts 40 attacks. Cells: outside hitter & kill = 12, outside & dug = 8, middle hitter & kill = 15, middle & dug = 5. Is the value '20 outside-hitter attacks out of 40' (the whole outside row) a JOINT or a MARGINAL relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "marginal"
+        },
+        "misconceptionMap": {
+          "joint": "joint-vs-marginal"
+        },
+        "hints": [
+          "A whole ROW total over the grand total is MARGINAL.",
+          "20 is a row total, not a single cell."
+        ],
+        "difficulty": 1,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "Same 40 attacks: outside & kill = 12, outside & dug = 8, middle & kill = 15, middle & dug = 5. What is the JOINT relative frequency of middle-hitter attacks that were kills? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "38"
+        },
+        "misconceptionMap": {
+          "50": "joint-vs-marginal"
+        },
+        "hints": [
+          "Joint means one cell over the grand total of 40.",
+          "15 ÷ 40 = 0.375, which rounds to 38%."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "Same 40 attacks: outside & kill = 12, outside & dug = 8, middle & kill = 15, middle & dug = 5. Of the MIDDLE-hitter attacks, what percent were kills? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "75"
+        },
+        "misconceptionMap": {
+          "56": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the middle-hitter attacks' means divide by the middle ROW total (20).",
+          "15 ÷ 20 = 0.75."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "Same 40 attacks: outside & kill = 12, outside & dug = 8, middle & kill = 15, middle & dug = 5. To find the percent of KILLS that came from middle hitters, which total do you divide 15 by?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "the kill column total (27)"
+        },
+        "misconceptionMap": {
+          "the middle row total (20)": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the kills' fixes the group to the KILL column, so use the column total.",
+          "Divide by 27, not the middle row."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "the kill column total (27)",
+          "the middle row total (20)"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A two-way table surveys 50 people. Cells: morning person & drinks coffee = 18, morning & no coffee = 7, night person & drinks coffee = 15, night & no coffee = 10. Is the value '18 morning people who drink coffee out of 50' a JOINT or a MARGINAL relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "joint"
+        },
+        "misconceptionMap": {
+          "marginal": "joint-vs-marginal"
+        },
+        "hints": [
+          "A single cell over the grand total is JOINT.",
+          "18 is one cell, not a whole row or column."
+        ],
+        "difficulty": 1,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      },
+      {
+        "id": "ALG-D03-p2-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "Same 50 people: morning & coffee = 18, morning & no coffee = 7, night & coffee = 15, night & no coffee = 10. What is the MARGINAL relative frequency of people who drink COFFEE (the whole coffee column)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "66"
+        },
+        "misconceptionMap": {
+          "36": "joint-vs-marginal"
+        },
+        "hints": [
+          "Marginal means a whole column total over the grand total.",
+          "Coffee column total = 18 + 15 = 33; then 33 ÷ 50 = 0.66."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "Same 50 people: morning & coffee = 18, morning & no coffee = 7, night & coffee = 15, night & no coffee = 10. Of the MORNING people, what percent drink coffee? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "72"
+        },
+        "misconceptionMap": {
+          "55": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the morning people' means divide by the morning ROW total (25).",
+          "18 ÷ 25 = 0.72."
+        ],
+        "difficulty": 2,
+        "choices": null
+      },
+      {
+        "id": "ALG-D03-p2-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "Same 50 people: morning & coffee = 18, morning & no coffee = 7, night & coffee = 15, night & no coffee = 10. To find the percent of COFFEE drinkers who are morning people, which total do you divide 18 by?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "the coffee column total (33)"
+        },
+        "misconceptionMap": {
+          "the morning row total (25)": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the coffee drinkers' fixes the group to the COFFEE column, so use the column total.",
+          "Divide by 33, not the morning row."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "the coffee column total (33)",
+          "the morning row total (25)"
+        ]
+      }
+    ],
+    "p3": [
+      {
+        "id": "ALG-D03-p3-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A two-way table records 100 people by two yes/no questions. Cells: A-yes & B-yes = 25, A-yes & B-no = 15, A-no & B-yes = 35, A-no & B-no = 25. What is the joint relative frequency of A-yes and B-yes? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "25"
+        },
+        "misconceptionMap": {
+          "40": "joint-vs-marginal"
+        },
+        "hints": [
+          "A joint relative frequency divides one cell by the grand total of 100.",
+          "25 ÷ 100 = 0.25."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D03-p3-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Same table of 100: A-yes & B-yes = 25, A-yes & B-no = 15, A-no & B-yes = 35, A-no & B-no = 25. What is the marginal relative frequency of A-yes (the whole A-yes row)? Answer as a percent.",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "40"
+        },
+        "misconceptionMap": {
+          "25": "joint-vs-marginal"
+        },
+        "hints": [
+          "A marginal relative frequency divides a row total by the grand total.",
+          "A-yes row total = 25 + 15 = 40; then 40 ÷ 100."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p3-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Same table of 100: A-yes & B-yes = 25, A-yes & B-no = 15, A-no & B-yes = 35, A-no & B-no = 25. Of the cases where A is yes, what percent have B yes? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "63"
+        },
+        "misconceptionMap": {
+          "42": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the cases where A is yes' means divide by the A-yes ROW total (40).",
+          "25 ÷ 40 = 0.625, which rounds to 63%."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p3-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Same table of 100: A-yes & B-yes = 25, A-yes & B-no = 15, A-no & B-yes = 35, A-no & B-no = 25. Of the cases where B is yes, what percent have A yes? Answer as a percent (to the nearest percent).",
+        "visual": "table",
+        "answer": {
+          "kind": "numeric",
+          "value": "42"
+        },
+        "misconceptionMap": {
+          "63": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the cases where B is yes' means divide by the B-yes COLUMN total.",
+          "B-yes column total = 25 + 35 = 60; then 25 ÷ 60 ≈ 0.417, which rounds to 42%."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D03-p3-neutral-05",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A two-way table records 40 items by category X (yes/no) and category Y (yes/no). Cells: X-yes & Y-yes = 6, X-yes & Y-no = 14, X-no & Y-yes = 18, X-no & Y-no = 2. To find the percent of Y-yes items that are also X-yes, which total is the correct denominator?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "the Y-yes column total (24)"
+        },
+        "misconceptionMap": {
+          "the X-yes row total (20)": "row-column-percent-confusion"
+        },
+        "hints": [
+          "'Of the Y-yes items' fixes the group to the Y-yes COLUMN, so use that column total.",
+          "Y-yes column total = 6 + 18 = 24; the X-yes row total (20) is the wrong denominator."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "the Y-yes column total (24)",
+          "the X-yes row total (20)"
+        ]
+      },
+      {
+        "id": "ALG-D03-p3-neutral-06",
+        "version": 1,
+        "skillId": "ALG-D03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Same table of 40: X-yes & Y-yes = 6, X-yes & Y-no = 14, X-no & Y-yes = 18, X-no & Y-no = 2. The value '24 Y-yes items out of 40 total' is which type of relative frequency?",
+        "visual": "table",
+        "answer": {
+          "kind": "choice",
+          "value": "marginal"
+        },
+        "misconceptionMap": {
+          "joint": "joint-vs-marginal"
+        },
+        "hints": [
+          "A whole column total over the grand total is a MARGINAL relative frequency.",
+          "24 is the Y-yes column total, not a single cell."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "joint",
+          "marginal"
+        ]
+      }
+    ]
+  }
+}

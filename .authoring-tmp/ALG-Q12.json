@@ -1,0 +1,1525 @@
+{
+  "id": "ALG-Q12",
+  "workedExamples": [
+    {
+      "id": "ALG-Q12-we-01",
+      "title": "A projectile lands when h = 0: solve, then keep only the POSITIVE time",
+      "steps": [
+        {
+          "prompt": "A ball is thrown straight up from the ground. Its height in feet after t seconds is h(t) = -16t^2 + 16t + 32. The ball lands when its height is 0. Set up the equation you must solve.",
+          "reveal": "Set h(t) = 0: -16t^2 + 16t + 32 = 0. 'Lands' means the height is 0, so we solve for the times when h = 0."
+        },
+        {
+          "prompt": "Divide every term by -16 to simplify, then factor.",
+          "reveal": "Dividing by -16 gives t^2 - t - 2 = 0. This factors as (t - 2)(t + 1) = 0."
+        },
+        {
+          "prompt": "Use the zero-product property to list BOTH solutions of the equation.",
+          "reveal": "t - 2 = 0 gives t = 2, and t + 1 = 0 gives t = -1. The equation has two roots: t = 2 and t = -1."
+        },
+        {
+          "prompt": "Both -1 and 2 are real roots of the equation. Which one is the time the ball actually lands? Think about what t means here.",
+          "reveal": "t is time measured in seconds AFTER the throw, so t cannot be negative. t = -1 would mean 1 second BEFORE the ball was thrown, which is impossible. Choosing -1 is the wrong-root-chosen-for-context error. The ball lands at t = 2 seconds."
+        },
+        {
+          "prompt": "State the answer to the question 'When does the ball land?'",
+          "reveal": "The ball lands at t = 2 seconds. When a quadratic model gives two roots, only the root that makes sense in the situation is the answer — here, the positive time."
+        }
+      ]
+    },
+    {
+      "id": "ALG-Q12-we-02",
+      "title": "Maximum height is the VERTEX y-value, not a root",
+      "steps": [
+        {
+          "prompt": "A ball's height in feet after t seconds is h(t) = -16t^2 + 32t + 48. We want the MAXIMUM height the ball reaches. The roots tell us when h = 0 (the ground) — is that where the ball is highest?",
+          "reveal": "No. The roots are where the ball is on the GROUND (height 0), which is the lowest the ball gets, not the highest. The maximum height is at the very top of the arc — the vertex of the parabola. Using a root for the max height is the vertex-misread-as-root error."
+        },
+        {
+          "prompt": "The vertex occurs at t = -b/(2a). Here a = -16 and b = 32. Compute the time of the vertex.",
+          "reveal": "t = -b/(2a) = -32 / (2 * -16) = -32 / -32 = 1. The ball reaches its highest point at t = 1 second."
+        },
+        {
+          "prompt": "The maximum height is the y-VALUE of the vertex. Substitute t = 1 into h(t) to find it.",
+          "reveal": "h(1) = -16(1)^2 + 32(1) + 48 = -16 + 32 + 48 = 64. The maximum height is 64 feet."
+        },
+        {
+          "prompt": "For comparison, solve h(t) = 0 to see where the roots are, so you can tell them apart from the max height. (Divide by -16 and factor.)",
+          "reveal": "-16t^2 + 32t + 48 = 0 becomes t^2 - 2t - 3 = 0, which factors as (t - 3)(t + 1) = 0, so t = 3 or t = -1. These are TIMES the ball is on the ground — they are not the height. The number 3 answers 'when does it land,' NOT 'how high does it go.'"
+        },
+        {
+          "prompt": "State the maximum height, and say clearly what it is the y-coordinate of.",
+          "reveal": "The maximum height is 64 feet. It is the y-coordinate of the vertex (1, 64). 'When it lands' is a root (t = 3); 'highest point' is the vertex y-value (64). Do not confuse the two."
+        }
+      ]
+    }
+  ],
+  "problems": {
+    "p1": [
+      {
+        "id": "ALG-Q12-p1-baseball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A throw from deep right field has height h(t) = -16t^2 + 32t feet after t seconds. The ball lands when h = 0. At what time t (in seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Set -16t^2 + 32t = 0 and factor out -16t to get -16t(t - 2) = 0.",
+          "The roots are t = 0 (the throw) and t = 2; the landing is the later positive time."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p1-baseball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A high throw has height h(t) = -16t^2 + 16t + 32 feet. The ball lands when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - t - 2 = 0, which factors as (t - 2)(t + 1) = 0.",
+          "The roots are t = 2 and t = -1; time cannot be negative, so take the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-baseball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A pop fly has height h(t) = -16t^2 + 64t feet. What is the ball's MAXIMUM height, in feet?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "64"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "4": "vertex-misread-as-root"
+        },
+        "hints": [
+          "The vertex time is t = -b/(2a) = -64/(2*-16) = 2 seconds.",
+          "Substitute t = 2 into h(t): the maximum height is the y-value, not the time."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-baseball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A throw has height h(t) = -16t^2 + 32t + 48 feet, with roots t = -1 and t = 3. Which value answers the question 'At what time does the ball land?'",
+        "visual": null,
+        "choices": [
+          "t = 3 seconds (the positive root)",
+          "t = -1 seconds (the negative root)",
+          "t = 1 second (the vertex time)",
+          "h = 64 feet (the maximum height)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t = 3 seconds (the positive root)"
+        },
+        "misconceptionMap": {
+          "t = -1 seconds (the negative root)": "wrong-root-chosen-for-context",
+          "h = 64 feet (the maximum height)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "'Lands' means height 0, which happens at a root; time cannot be negative.",
+          "Of the two roots t = 3 and t = -1, only the positive one is a real landing time."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q12-p1-softball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A pop-up has height h(t) = -16t^2 + 48t feet after t seconds. The ball lands when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-3": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Set -16t^2 + 48t = 0 and factor: -16t(t - 3) = 0.",
+          "The roots are t = 0 (hit) and t = 3 (lands); take the later positive time."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p1-softball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A pop-up has height h(t) = -16t^2 + 32t + 48 feet. The ball lands when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 2t - 3 = 0, which factors as (t - 3)(t + 1) = 0.",
+          "The roots are t = 3 and t = -1; time cannot be negative, so take the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-softball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A pop-up has height h(t) = -16t^2 + 32t feet. What is the ball's MAXIMUM height, in feet?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "16"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "2": "vertex-misread-as-root"
+        },
+        "hints": [
+          "The vertex time is t = -b/(2a) = -32/(2*-16) = 1 second.",
+          "Substitute t = 1 into h(t); the max height is the y-value, not the time."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-softball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A pop-up has height h(t) = -16t^2 + 16t + 32 feet, with roots t = -1 and t = 2. Which value answers 'At what time does the ball land?'",
+        "visual": null,
+        "choices": [
+          "t = 2 seconds (the positive root)",
+          "t = -1 seconds (the negative root)",
+          "t = 0.5 seconds (the vertex time)",
+          "h = 36 feet (the maximum height)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t = 2 seconds (the positive root)"
+        },
+        "misconceptionMap": {
+          "t = -1 seconds (the negative root)": "wrong-root-chosen-for-context",
+          "h = 36 feet (the maximum height)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "'Lands' means height 0, which happens at a root; time cannot be negative.",
+          "Between t = 2 and t = -1, only the positive root is a real landing time."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q12-p1-basketball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A shot has height h(t) = -16t^2 + 16t feet above the rim line after t seconds, returning to that line when h = 0. At what time t (seconds) does it return?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "1"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Set -16t^2 + 16t = 0 and factor: -16t(t - 1) = 0.",
+          "The roots are t = 0 (release) and t = 1; take the later positive time."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p1-basketball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A high-arc shot has height h(t) = -16t^2 + 48t + 64 feet, returning to the ground when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 3t - 4 = 0, which factors as (t - 4)(t + 1) = 0.",
+          "The roots are t = 4 and t = -1; time cannot be negative, so take the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-basketball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A shot's height is h(t) = -16t^2 + 48t feet. What is the ball's MAXIMUM height, in feet?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "36"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "3": "vertex-misread-as-root"
+        },
+        "hints": [
+          "The vertex time is t = -b/(2a) = -48/(2*-16) = 1.5 seconds.",
+          "Substitute t = 1.5 into h(t); the max height is the y-value, not the time."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-basketball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A shot has height h(t) = -16t^2 + 64t + 80 feet, with roots t = -1 and t = 5. Which value answers 'At what time does the ball land?'",
+        "visual": null,
+        "choices": [
+          "t = 5 seconds (the positive root)",
+          "t = -1 seconds (the negative root)",
+          "t = 2 seconds (the vertex time)",
+          "h = 144 feet (the maximum height)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t = 5 seconds (the positive root)"
+        },
+        "misconceptionMap": {
+          "t = -1 seconds (the negative root)": "wrong-root-chosen-for-context",
+          "h = 144 feet (the maximum height)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "'Lands' means height 0, which happens at a root; time cannot be negative.",
+          "Between t = 5 and t = -1, only the positive root is a real landing time."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q12-p1-soccer-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A chip kick has height h(t) = -16t^2 + 64t feet after t seconds, landing when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-4": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Set -16t^2 + 64t = 0 and factor: -16t(t - 4) = 0.",
+          "The roots are t = 0 (kick) and t = 4 (lands); take the later positive time."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p1-soccer-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A chip has height h(t) = -16t^2 + 32t + 128 feet, landing when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 2t - 8 = 0, which factors as (t - 4)(t + 2) = 0.",
+          "The roots are t = 4 and t = -2; time cannot be negative, so take the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-soccer-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A goal kick has height h(t) = -16t^2 + 64t feet. What is the ball's MAXIMUM height, in feet?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "64"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "4": "vertex-misread-as-root"
+        },
+        "hints": [
+          "The vertex time is t = -b/(2a) = -64/(2*-16) = 2 seconds.",
+          "Substitute t = 2 into h(t); the max height is the y-value, not the time."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-soccer-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A chip has height h(t) = -16t^2 + 48t + 64 feet, with roots t = -1 and t = 4. Which value answers 'At what time does the ball land?'",
+        "visual": null,
+        "choices": [
+          "t = 4 seconds (the positive root)",
+          "t = -1 seconds (the negative root)",
+          "t = 1.5 seconds (the vertex time)",
+          "h = 100 feet (the maximum height)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t = 4 seconds (the positive root)"
+        },
+        "misconceptionMap": {
+          "t = -1 seconds (the negative root)": "wrong-root-chosen-for-context",
+          "h = 100 feet (the maximum height)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "'Lands' means height 0, which happens at a root; time cannot be negative.",
+          "Between t = 4 and t = -1, only the positive root is a real landing time."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q12-p1-football-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A punt has height h(t) = -16t^2 + 80t feet after t seconds, landing when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-5": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Set -16t^2 + 80t = 0 and factor: -16t(t - 5) = 0.",
+          "The roots are t = 0 (kick) and t = 5 (lands); take the later positive time."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p1-football-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A punt has height h(t) = -16t^2 + 32t + 128 feet, landing when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 2t - 8 = 0, which factors as (t - 4)(t + 2) = 0.",
+          "The roots are t = 4 and t = -2; time cannot be negative, so take the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-football-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A kickoff has height h(t) = -16t^2 + 80t feet. What is the ball's MAXIMUM height, in feet?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "100"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "5": "vertex-misread-as-root"
+        },
+        "hints": [
+          "The vertex time is t = -b/(2a) = -80/(2*-16) = 2.5 seconds.",
+          "Substitute t = 2.5 into h(t); the max height is the y-value, not the time."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-football-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A punt has height h(t) = -16t^2 + 64t + 80 feet, with roots t = -1 and t = 5. Which value answers 'At what time does the ball land?'",
+        "visual": null,
+        "choices": [
+          "t = 5 seconds (the positive root)",
+          "t = -1 seconds (the negative root)",
+          "t = 2 seconds (the vertex time)",
+          "h = 144 feet (the maximum height)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t = 5 seconds (the positive root)"
+        },
+        "misconceptionMap": {
+          "t = -1 seconds (the negative root)": "wrong-root-chosen-for-context",
+          "h = 144 feet (the maximum height)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "'Lands' means height 0, which happens at a root; time cannot be negative.",
+          "Between t = 5 and t = -1, only the positive root is a real landing time."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q12-p1-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A serve has height h(t) = -16t^2 + 16t feet above net height after t seconds, returning when h = 0. At what time t (seconds) does it return?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "1"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Set -16t^2 + 16t = 0 and factor: -16t(t - 1) = 0.",
+          "The roots are t = 0 (contact) and t = 1; take the later positive time."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p1-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A serve has height h(t) = -16t^2 + 16t + 96 feet, landing when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - t - 6 = 0, which factors as (t - 3)(t + 2) = 0.",
+          "The roots are t = 3 and t = -2; time cannot be negative, so take the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A serve has height h(t) = -16t^2 + 16t + 32 feet. What is the ball's MAXIMUM height, in feet?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "36"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "2": "vertex-misread-as-root"
+        },
+        "hints": [
+          "The vertex time is t = -b/(2a) = -16/(2*-16) = 0.5 seconds.",
+          "Substitute t = 0.5 into h(t); the max height is the y-value, not the time."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A serve has height h(t) = -16t^2 + 48t + 160 feet, with roots t = -2 and t = 5. Which value answers 'At what time does the ball land?'",
+        "visual": null,
+        "choices": [
+          "t = 5 seconds (the positive root)",
+          "t = -2 seconds (the negative root)",
+          "t = 1.5 seconds (the vertex time)",
+          "h = 196 feet (the maximum height)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t = 5 seconds (the positive root)"
+        },
+        "misconceptionMap": {
+          "t = -2 seconds (the negative root)": "wrong-root-chosen-for-context",
+          "h = 196 feet (the maximum height)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "'Lands' means height 0, which happens at a root; time cannot be negative.",
+          "Between t = 5 and t = -2, only the positive root is a real landing time."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q12-p1-neutral-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "An object thrown upward has height h(t) = -16t^2 + 48t feet after t seconds. It lands when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-3": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Set -16t^2 + 48t = 0 and factor -16t(t - 3) = 0.",
+          "The roots are t = 0 and t = 3; the landing is the later positive time."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p1-neutral-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "An object has height h(t) = -16t^2 + 16t + 32 feet. It lands when h = 0. At what time t (seconds) does it land?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - t - 2 = 0, which factors as (t - 2)(t + 1) = 0.",
+          "The roots are t = 2 and t = -1; time cannot be negative, so take the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-neutral-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "An object has height h(t) = -16t^2 + 64t feet. What is its MAXIMUM height, in feet?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "64"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "4": "vertex-misread-as-root"
+        },
+        "hints": [
+          "The vertex time is t = -b/(2a) = -64/(2*-16) = 2 seconds.",
+          "Substitute t = 2 into h(t); the max height is the y-value, not the time."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p1-neutral-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "An object has height h(t) = -16t^2 + 48t + 64 feet, with roots t = -1 and t = 4. Which value answers \"At what time does it land?\"",
+        "visual": null,
+        "choices": [
+          "t = 4 seconds (the positive root)",
+          "t = -1 seconds (the negative root)",
+          "t = 1.5 seconds (the vertex time)",
+          "h = 100 feet (the maximum height)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t = 4 seconds (the positive root)"
+        },
+        "misconceptionMap": {
+          "t = -1 seconds (the negative root)": "wrong-root-chosen-for-context",
+          "h = 100 feet (the maximum height)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "\"Lands\" means height 0, which happens at a root; time cannot be negative.",
+          "Between t = 4 and t = -1, only the positive root is a real landing time."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p2": [
+      {
+        "id": "ALG-Q12-p2-baseball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "For the throw model h(t) = -16t^2 + 48t (height in feet), solve h(t) = 0 and report the time t > 0 at which the ball lands.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-3": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Factor -16t(t - 3) = 0 to get the roots.",
+          "Roots t = 0 and t = 3; the landing is the positive root."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p2-baseball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "For h(t) = -16t^2 + 32t + 128, solve h(t) = 0 and report the positive landing time t (seconds).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 2t - 8 = 0, factoring as (t - 4)(t + 2) = 0.",
+          "Roots t = 4 and t = -2; keep the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-baseball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "For h(t) = -16t^2 + 48t, find the maximum height (in feet) by evaluating h at the vertex t = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "36"
+        },
+        "misconceptionMap": {
+          "3": "vertex-misread-as-root",
+          "1.5": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex time t = -48/(2*-16) = 1.5 seconds.",
+          "The max height is h(1.5), the y-value of the vertex, not the time or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-baseball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "For h(t) = -16t^2 + 32t + 48 (vertex (1, 64), roots t = -1 and t = 3), which value is the MAXIMUM height?",
+        "visual": null,
+        "choices": [
+          "64 feet (the vertex y-value)",
+          "3 (a root)",
+          "1 (the vertex time)",
+          "-1 (the negative root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "64 feet (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "3 (a root)": "vertex-misread-as-root",
+          "-1 (the negative root)": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Max height is the y-coordinate of the vertex, not a root.",
+          "Roots tell you when h = 0 (the ground); the vertex y-value is the peak."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-softball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "For the pop-up model h(t) = -16t^2 + 32t, solve h(t) = 0 and report the time t > 0 at which the ball lands.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Factor -16t(t - 2) = 0 to get the roots.",
+          "Roots t = 0 and t = 2; the landing is the positive root."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p2-softball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "For h(t) = -16t^2 + 16t + 96, solve h(t) = 0 and report the positive landing time t (seconds).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - t - 6 = 0, factoring as (t - 3)(t + 2) = 0.",
+          "Roots t = 3 and t = -2; keep the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-softball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "For h(t) = -16t^2 + 64t, find the maximum height (in feet) by evaluating h at the vertex t = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "64"
+        },
+        "misconceptionMap": {
+          "2": "vertex-misread-as-root",
+          "4": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex time t = -64/(2*-16) = 2 seconds.",
+          "The max height is h(2), the y-value of the vertex, not the time or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-softball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "For h(t) = -16t^2 + 16t + 32 (vertex (0.5, 36), roots t = -1 and t = 2), which value is the MAXIMUM height?",
+        "visual": null,
+        "choices": [
+          "36 feet (the vertex y-value)",
+          "2 (a root)",
+          "0.5 (the vertex time)",
+          "-1 (the negative root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "36 feet (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "2 (a root)": "vertex-misread-as-root",
+          "-1 (the negative root)": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Max height is the y-coordinate of the vertex, not a root.",
+          "Roots tell you when h = 0 (the ground); the vertex y-value is the peak."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-basketball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "For the shot model h(t) = -16t^2 + 32t, solve h(t) = 0 and report the time t > 0 at which the ball returns to the line.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Factor -16t(t - 2) = 0 to get the roots.",
+          "Roots t = 0 and t = 2; take the positive root."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p2-basketball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "For h(t) = -16t^2 + 48t + 64, solve h(t) = 0 and report the positive landing time t (seconds).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 3t - 4 = 0, factoring as (t - 4)(t + 1) = 0.",
+          "Roots t = 4 and t = -1; keep the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-basketball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "For h(t) = -16t^2 + 32t, find the maximum height (in feet) by evaluating h at the vertex t = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "16"
+        },
+        "misconceptionMap": {
+          "1": "vertex-misread-as-root",
+          "2": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex time t = -32/(2*-16) = 1 second.",
+          "The max height is h(1), the y-value of the vertex, not the time or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-basketball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "For h(t) = -16t^2 + 64t + 80 (vertex (2, 144), roots t = -1 and t = 5), which value is the MAXIMUM height?",
+        "visual": null,
+        "choices": [
+          "144 feet (the vertex y-value)",
+          "5 (a root)",
+          "2 (the vertex time)",
+          "-1 (the negative root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "144 feet (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "5 (a root)": "vertex-misread-as-root",
+          "-1 (the negative root)": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Max height is the y-coordinate of the vertex, not a root.",
+          "Roots tell you when h = 0 (the ground); the vertex y-value is the peak."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-soccer-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "For the chip model h(t) = -16t^2 + 64t, solve h(t) = 0 and report the time t > 0 at which the ball lands.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-4": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Factor -16t(t - 4) = 0 to get the roots.",
+          "Roots t = 0 and t = 4; take the positive root."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p2-soccer-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "For h(t) = -16t^2 + 64t + 80, solve h(t) = 0 and report the positive landing time t (seconds).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 4t - 5 = 0, factoring as (t - 5)(t + 1) = 0.",
+          "Roots t = 5 and t = -1; keep the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-soccer-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "For h(t) = -16t^2 + 96t, find the maximum height (in feet) by evaluating h at the vertex t = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "144"
+        },
+        "misconceptionMap": {
+          "3": "vertex-misread-as-root",
+          "6": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex time t = -96/(2*-16) = 3 seconds.",
+          "The max height is h(3), the y-value of the vertex, not the time or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-soccer-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "For h(t) = -16t^2 + 32t + 128 (vertex (1, 144), roots t = -2 and t = 4), which value is the MAXIMUM height?",
+        "visual": null,
+        "choices": [
+          "144 feet (the vertex y-value)",
+          "4 (a root)",
+          "1 (the vertex time)",
+          "-2 (the negative root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "144 feet (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "4 (a root)": "vertex-misread-as-root",
+          "-2 (the negative root)": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Max height is the y-coordinate of the vertex, not a root.",
+          "Roots tell you when h = 0 (the ground); the vertex y-value is the peak."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-football-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "For the punt model h(t) = -16t^2 + 96t, solve h(t) = 0 and report the time t > 0 at which the ball lands.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-6": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Factor -16t(t - 6) = 0 to get the roots.",
+          "Roots t = 0 and t = 6; take the positive root."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p2-football-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "For h(t) = -16t^2 + 48t + 160, solve h(t) = 0 and report the positive landing time t (seconds).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-2": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 3t - 10 = 0, factoring as (t - 5)(t + 2) = 0.",
+          "Roots t = 5 and t = -2; keep the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-football-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "For h(t) = -16t^2 + 96t, find the maximum height (in feet) by evaluating h at the vertex t = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "144"
+        },
+        "misconceptionMap": {
+          "3": "vertex-misread-as-root",
+          "6": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex time t = -96/(2*-16) = 3 seconds.",
+          "The max height is h(3), the y-value of the vertex, not the time or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-football-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "For h(t) = -16t^2 + 48t + 160 (vertex (1.5, 196), roots t = -2 and t = 5), which value is the MAXIMUM height?",
+        "visual": null,
+        "choices": [
+          "196 feet (the vertex y-value)",
+          "5 (a root)",
+          "1.5 (the vertex time)",
+          "-2 (the negative root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "196 feet (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "5 (a root)": "vertex-misread-as-root",
+          "-2 (the negative root)": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Max height is the y-coordinate of the vertex, not a root.",
+          "Roots tell you when h = 0 (the ground); the vertex y-value is the peak."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "For the serve model h(t) = -16t^2 + 80t, solve h(t) = 0 and report the time t > 0 at which the ball lands.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-5": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Factor -16t(t - 5) = 0 to get the roots.",
+          "Roots t = 0 and t = 5; take the positive root."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p2-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "For h(t) = -16t^2 + 32t + 48, solve h(t) = 0 and report the positive landing time t (seconds).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - 2t - 3 = 0, factoring as (t - 3)(t + 1) = 0.",
+          "Roots t = 3 and t = -1; keep the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "For h(t) = -16t^2 + 80t, find the maximum height (in feet) by evaluating h at the vertex t = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "100"
+        },
+        "misconceptionMap": {
+          "5": "vertex-misread-as-root",
+          "2.5": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex time t = -80/(2*-16) = 2.5 seconds.",
+          "The max height is h(2.5), the y-value of the vertex, not the time or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "For h(t) = -16t^2 + 16t + 96 (vertex (0.5, 100), roots t = -2 and t = 3), which value is the MAXIMUM height?",
+        "visual": null,
+        "choices": [
+          "100 feet (the vertex y-value)",
+          "3 (a root)",
+          "0.5 (the vertex time)",
+          "-2 (the negative root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "100 feet (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "3 (a root)": "vertex-misread-as-root",
+          "-2 (the negative root)": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Max height is the y-coordinate of the vertex, not a root.",
+          "Roots tell you when h = 0 (the ground); the vertex y-value is the peak."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-neutral-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "An object's height is h(t) = -16t^2 + 64t feet. Solve h(t) = 0 and report the time t > 0 at which it lands.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-4": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Factor -16t(t - 4) = 0 to get the roots.",
+          "Roots t = 0 and t = 4; take the positive root."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p2-neutral-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "An object's height is h(t) = -16t^2 + 16t + 32 feet. Solve h(t) = 0 and report the positive landing time t (seconds).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "-1": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Divide by -16: t^2 - t - 2 = 0, factoring as (t - 2)(t + 1) = 0.",
+          "Roots t = 2 and t = -1; keep the positive root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-neutral-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "An object's height is h(t) = -16t^2 + 96t feet. Find the maximum height (in feet) using the vertex t = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "144"
+        },
+        "misconceptionMap": {
+          "3": "vertex-misread-as-root",
+          "6": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex time t = -96/(2*-16) = 3 seconds.",
+          "The max height is h(3), the y-value of the vertex, not the time or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p2-neutral-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "For h(t) = -16t^2 + 32t + 128 (vertex (1, 144), roots t = -2 and t = 4), which value is the MAXIMUM height?",
+        "visual": null,
+        "choices": [
+          "144 feet (the vertex y-value)",
+          "4 (a root)",
+          "1 (the vertex time)",
+          "-2 (the negative root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "144 feet (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "4 (a root)": "vertex-misread-as-root",
+          "-2 (the negative root)": "wrong-root-chosen-for-context"
+        },
+        "hints": [
+          "Max height is the y-coordinate of the vertex, not a root.",
+          "Roots tell you when h = 0 (the ground); the vertex y-value is the peak."
+        ],
+        "difficulty": 2
+      }
+    ],
+    "p3": [
+      {
+        "id": "ALG-Q12-p3-neutral-01",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A rectangle has perimeter 24, so its area is A(x) = x(12 - x), where x is the width. Find the width x > 0 (other than 0) at which the area is 0.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "6": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Set x(12 - x) = 0; the roots are x = 0 and x = 12.",
+          "An area of 0 occurs at a root, not at the vertex; take the positive root x = 12."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q12-p3-neutral-02",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A rectangle has perimeter 24, so its area is A(x) = x(12 - x). Find the MAXIMUM area by evaluating A at the vertex x = -b/(2a) of A(x) = -x^2 + 12x.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "36"
+        },
+        "misconceptionMap": {
+          "6": "vertex-misread-as-root",
+          "12": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex x = -12/(2*-1) = 6.",
+          "Max area is A(6), the y-value of the vertex, not the width 6 or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p3-neutral-03",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A rectangle has perimeter 40, so its area is A(x) = -x^2 + 20x. Find the MAXIMUM area by evaluating A at the vertex x = -b/(2a).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "100"
+        },
+        "misconceptionMap": {
+          "10": "vertex-misread-as-root",
+          "20": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Vertex x = -20/(2*-1) = 10.",
+          "Max area is A(10), the y-value of the vertex, not the width 10 or a root."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p3-neutral-04",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A product's revenue is R(x) = -x^2 + 14x (in dollars), where x is the price. For R(x) = -x^2 + 14x with vertex (7, 49) and roots x = 0 and x = 14, which value is the MAXIMUM revenue?",
+        "visual": null,
+        "choices": [
+          "$49 (the vertex y-value)",
+          "$14 (a root)",
+          "$7 (the vertex x-value)",
+          "$0 (a root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "$49 (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "$14 (a root)": "vertex-misread-as-root",
+          "$0 (a root)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Max revenue is the y-coordinate of the vertex, not a root.",
+          "Roots are where revenue is 0; the vertex y-value is the peak revenue."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q12-p3-neutral-05",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A rectangle has area A(x) = -x^2 + 16x. Find the width x > 0 (other than 0) at which the area is 0.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "16"
+        },
+        "misconceptionMap": {
+          "0": "vertex-misread-as-root",
+          "8": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Factor -x(x - 16) = 0; the roots are x = 0 and x = 16.",
+          "Area 0 occurs at a root, not the vertex; take the positive root x = 16."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q12-p3-neutral-06",
+        "version": 1,
+        "skillId": "ALG-Q12",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "For the area model A(x) = -x^2 + 16x with vertex (8, 64) and roots x = 0 and x = 16, which value is the MAXIMUM area?",
+        "visual": null,
+        "choices": [
+          "64 (the vertex y-value)",
+          "16 (a root)",
+          "8 (the vertex x-value)",
+          "0 (a root)"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "64 (the vertex y-value)"
+        },
+        "misconceptionMap": {
+          "16 (a root)": "vertex-misread-as-root",
+          "0 (a root)": "vertex-misread-as-root"
+        },
+        "hints": [
+          "Max area is the y-coordinate of the vertex, not a root.",
+          "Roots are where area is 0; the vertex y-value is the peak area."
+        ],
+        "difficulty": 3
+      }
+    ]
+  }
+}

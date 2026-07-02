@@ -12,6 +12,7 @@ import type {
   CoordinateSpec,
   NumberLineSpec,
   ProblemTemplate,
+  VisualKind,
   WorkedExample,
 } from "../../types";
 import type { Equation } from "./balance-scale-math";
@@ -85,6 +86,74 @@ export function numberlineSeedFromProblems(
     };
   }
   return base;
+}
+
+// ---------------------------------------------------------------------------
+// SYNTHESIZED numberline fallback (UI default — NOT authored content). When a
+// numberline node has no problem-authored numberline visualSpec (e.g. ALG-F01,
+// whose problems are text-only), "The idea" would otherwise fall back to a clone
+// of the worked example. Instead we synthesize a sensible interactive number
+// line so the lesson always has a genuine, distinct manipulable. mr-kahn note:
+// this is an explore default (a draggable marker on an integer line), not a
+// graded artifact; the answer-grading path is unaffected.
+// ---------------------------------------------------------------------------
+
+/** Round a half-span up to a tidy bound in [10, 20]. */
+function numberlineBound(span: number): number {
+  const rounded = Math.ceil(Math.max(10, span) / 5) * 5;
+  return Math.min(20, rounded);
+}
+
+/**
+ * Parse the first worked-example title that encodes a clean "a + b" / "a - b"
+ * move (no parentheses, so "5 − (−3)"-style titles are skipped). Returns the
+ * start `a` and the signed move `b`, or null. Used to seed an operationDelta arc.
+ */
+function firstSignedMove(workedExamples: WorkedExample[]): { a: number; b: number } | null {
+  for (const we of workedExamples) {
+    const title = (we.title ?? "").replace(/−/g, "-");
+    if (/[()]/.test(title)) continue; // skip parenthesized double-sign forms
+    const m = title.match(/(-?\d+)\s*([+-])\s*(\d+)/);
+    if (!m) continue;
+    const a = Number(m[1]);
+    const b = (m[2] === "-" ? -1 : 1) * Number(m[3]);
+    if (Number.isFinite(a) && Number.isFinite(b)) return { a, b };
+  }
+  return null;
+}
+
+/**
+ * Build a default interactive NumberLineSpec for a numberline node that has no
+ * authored numberline visualSpec. When the first worked example encodes a clean
+ * signed move (e.g. "−4 + 7"), seed the marker at `a` with an operationDelta arc
+ * of `b`; otherwise a symmetric −10..10 line with a draggable marker at 0.
+ * Returns null for non-numberline nodes.
+ */
+export function synthesizeNumberlineSeed(node: {
+  visual: VisualKind | null;
+  workedExamples: WorkedExample[];
+}): NumberLineSpec | null {
+  if (node.visual !== "numberline") return null;
+  const move = firstSignedMove(node.workedExamples);
+  if (move) {
+    const span = Math.max(Math.abs(move.a), Math.abs(move.a + move.b), 10);
+    const bound = numberlineBound(span);
+    return {
+      kind: "numberline",
+      mode: "interactive",
+      range: { min: -bound, max: bound },
+      markers: [{ value: move.a }],
+      operationDelta: move.b,
+      affordances: ["drag", "labels"],
+    };
+  }
+  return {
+    kind: "numberline",
+    mode: "interactive",
+    range: { min: -10, max: 10 },
+    markers: [{ value: 0 }],
+    affordances: ["drag", "labels"],
+  };
 }
 
 // ---------------------------------------------------------------------------

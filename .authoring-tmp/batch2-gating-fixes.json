@@ -1,0 +1,96 @@
+[
+  {
+    "id": "ALG-E12-p3-neutral-01",
+    "version": 1,
+    "skillId": "ALG-E12",
+    "phase": 3,
+    "sport": "neutral",
+    "prompt": "Solve |x − 4| = 6 by splitting into two cases. Type both solutions separated by a comma, like 3, -7.",
+    "visual": "numberline",
+    "answer": {
+      "kind": "numeric-set",
+      "values": [
+        "10",
+        "-2"
+      ]
+    },
+    "misconceptionMap": {
+      "10": "single-case-only"
+    },
+    "hints": [
+      "Split |x − 4| = 6 into x − 4 = 6 and x − 4 = −6.",
+      "Add 4 to both sides in each case."
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "ALG-E11-p2-softball-04",
+    "version": 1,
+    "skillId": "ALG-E11",
+    "phase": 2,
+    "sport": "softball",
+    "prompt": "A pitching machine triggers a service alert when its speed s (in mph) falls outside its safe band: the alert fires when 2s − 10 < 70 OR when 2s − 10 > 130. Solve the compound inequality. Which is the correct solution set for s?",
+    "visual": "numberline",
+    "choices": [
+      "s < 40 or s > 70",
+      "40 < s < 70",
+      "s < 40 and s > 70",
+      "s > 40 or s < 70"
+    ],
+    "answer": {
+      "kind": "choice",
+      "value": "s < 40 or s > 70"
+    },
+    "misconceptionMap": {
+      "40 < s < 70": "intersects-instead-of-union"
+    },
+    "hints": [
+      "Solve 2s − 10 < 70 to get s < 40; solve 2s − 10 > 130 to get s > 70.",
+      "The pieces point opposite ways, so the answer is the UNION s < 40 or s > 70, not the middle gap."
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "ALG-E13-p3-neutral-05",
+    "version": 1,
+    "skillId": "ALG-E13",
+    "phase": 3,
+    "sport": "neutral",
+    "prompt": "A tutoring plan's cost in dollars is modeled by 30 + 5h, where h is the number of hours booked, and the total bill is $95. After solving 30 + 5h = 95 for h, the question asks for the DOLLARS spent on the hours alone (the per-hour part, not the setup fee). Answer in dollars.",
+    "visual": null,
+    "answer": {
+      "kind": "numeric",
+      "value": "65"
+    },
+    "misconceptionMap": {
+      "13": "answers-wrong-question"
+    },
+    "hints": [
+      "Solve 30 + 5h = 95 to get h = 13 hours.",
+      "h = 13 is hours; dollars on hours is 5 × 13."
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "ALG-E06-p2-neutral-04",
+    "version": 1,
+    "skillId": "ALG-E06",
+    "phase": 2,
+    "sport": "neutral",
+    "prompt": "Solve y = mx + b for x. Type the RIGHT SIDE with NO spaces, exactly in the form (y-b)/m .",
+    "visual": null,
+    "answer": {
+      "kind": "expression",
+      "value": "(y-b)/m"
+    },
+    "misconceptionMap": {
+      "(y-b)m": "treats-letters-as-one-unknown",
+      "y/m-b": "divides-single-term"
+    },
+    "hints": [
+      "Subtract b from both sides first: y − b = mx.",
+      "Divide the entire left side by m. Write just the right side (y-b)/m with no spaces."
+    ],
+    "difficulty": 2
+  }
+]

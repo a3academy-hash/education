@@ -1,0 +1,1472 @@
+{
+  "id": "ALG-S05",
+  "workedExamples": [
+    {
+      "id": "ALG-S05-we-01",
+      "title": "Two constraints need two equations",
+      "steps": [
+        {
+          "prompt": "A school fair sells adult and child tickets. Two facts are given: 9 tickets were sold in all, AND the money collected was $51. Before writing any equations, what must you do first?",
+          "reveal": "Define your variables clearly. Let a = the number of adult tickets and c = the number of child tickets. Naming the unknowns prevents the most common error: not knowing which number answers the question at the end."
+        },
+        {
+          "prompt": "The first constraint is 'a total of 9 tickets were sold.' Write that as an equation.",
+          "reveal": "a + c = 9. This single equation counts tickets. By itself it cannot tell you how many of each — many (a, c) pairs add to 9, so one equation is not enough."
+        },
+        {
+          "prompt": "The second constraint is 'the money collected was $51.' Adult tickets cost $7 and child tickets cost $4. Write that as an equation.",
+          "reveal": "7a + 4c = 51. This equation tracks dollars, a completely different fact from the ticket count."
+        },
+        {
+          "prompt": "Why can't you answer the question with just one of these equations?",
+          "reveal": "Each equation captures only ONE constraint. Two unknowns pinned down by two separate facts require TWO equations solved together. Using one equation alone is the classic single-equation-for-two-constraints mistake."
+        },
+        {
+          "prompt": "State the finished system.",
+          "reveal": "a + c = 9 and 7a + 4c = 51, with a = adult tickets and c = child tickets. Two constraints, two labeled variables, two equations — ready to solve."
+        }
+      ]
+    },
+    {
+      "id": "ALG-S05-we-02",
+      "title": "Solve the system and interpret the answer",
+      "steps": [
+        {
+          "prompt": "Solve the system from before: a + c = 9 and 7a + 4c = 51. Start by isolating one variable from the simpler equation.",
+          "reveal": "From a + c = 9, write c = 9 − a. Substitution replaces c in the other equation with an expression in a."
+        },
+        {
+          "prompt": "Substitute c = 9 − a into 7a + 4c = 51 and simplify.",
+          "reveal": "7a + 4(9 − a) = 51 → 7a + 36 − 4a = 51 → 3a + 36 = 51 → 3a = 15."
+        },
+        {
+          "prompt": "Solve for a, then find c.",
+          "reveal": "a = 5. Then c = 9 − a = 9 − 5 = 4."
+        },
+        {
+          "prompt": "Check (a, c) = (5, 4) against BOTH original constraints.",
+          "reveal": "Tickets: 5 + 4 = 9 ✓. Money: 7(5) + 4(4) = 35 + 16 = 51 ✓. A solution must satisfy both facts, not just one."
+        },
+        {
+          "prompt": "Interpret the answer in context with the right labels.",
+          "reveal": "5 adult tickets and 4 child tickets were sold. Always restate which count is which — the bare numbers 5 and 4 mean nothing until you attach 'adult' and 'child.'"
+        }
+      ]
+    }
+  ],
+  "problems": {
+    "p1": [
+      {
+        "id": "ALG-S05-p1-baseball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "At a game, adult tickets are $8 and child tickets are $5. A family bought 6 tickets in all and spent $39. Let a = number of adult tickets and c = number of child tickets, so a + c = 6 and 8a + 5c = 39. How many ADULT tickets did they buy? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "6": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "Two facts (6 tickets, $39 spent) need both equations solved together, not just one.",
+          "From a + c = 6, write c = 6 − a, then substitute into 8a + 5c = 39."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p1-baseball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A hitter's at-bats were all singles or doubles. He had 10 hits in all that produced 13 total bases (a single = 1 base, a double = 2 bases). Let s = number of singles and d = number of doubles, so s + d = 10 and s + 2d = 13. How many DOUBLES did he hit? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "13": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The hit count and the base count are two different constraints; use both equations.",
+          "Subtract s + d = 10 from s + 2d = 13 to get d directly."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-baseball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A pitcher threw 12 strikeouts and walks combined, and the strikeouts were 4 more than the walks. Let k = number of strikeouts and w = number of walks, so k + w = 12 and k = w + 4. Give your answer as (k, w) = (strikeouts, walks). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(8, 4)"
+        },
+        "misconceptionMap": {
+          "(4, 8)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute k = w + 4 into k + w = 12 and solve for w first.",
+          "Order matters: the first number is strikeouts (k), the second is walks (w)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-baseball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A team sold programs at the gate. Single programs cost $3 and combo programs cost $5. They sold p single programs and q combo programs, with p + q = 20 programs sold for $76 total. Which system models this situation? Let p = single programs and q = combo programs.",
+        "visual": null,
+        "choices": [
+          "p + q = 20 and 3p + 5q = 76",
+          "3p + 5q = 76 only",
+          "q + p = 20 and 5p + 3q = 76",
+          "p + q = 76 and 3p + 5q = 20"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "p + q = 20 and 3p + 5q = 76"
+        },
+        "misconceptionMap": {
+          "3p + 5q = 76 only": "single-equation-for-two-constraints",
+          "q + p = 20 and 5p + 3q = 76": "unlabeled-variables"
+        },
+        "hints": [
+          "You need one equation for the count (20 programs) and one for the dollars ($76).",
+          "Each price multiplies its OWN program type: $3 goes with singles p, $5 with combos q."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p1-softball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A coach bought softballs at $4 each and gloves at $9 each, 7 items in all, spending $43. Let b = number of softballs and g = number of gloves, so b + g = 7 and 4b + 9g = 43. How many GLOVES were bought? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "7": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The item count and the budget are two constraints; solve both equations together.",
+          "From b + g = 7, write b = 7 − g, then substitute into 4b + 9g = 43."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p1-softball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A batter had 11 hits that were singles or triples, totaling 19 bases (a single = 1 base, a triple = 3 bases). Let s = number of singles and t = number of triples, so s + t = 11 and s + 3t = 19. How many TRIPLES were hit? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "19": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "Hit count and base count are separate facts; use both equations.",
+          "Subtract s + t = 11 from s + 3t = 19 to isolate t."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-softball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A pitcher recorded 15 outs by strikeout or groundout, and the strikeouts were twice the groundouts. Let k = number of strikeouts and r = number of groundouts, so k + r = 15 and k = 2r. Give your answer as (k, r) = (strikeouts, groundouts). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(10, 5)"
+        },
+        "misconceptionMap": {
+          "(5, 10)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute k = 2r into k + r = 15 and solve for r first.",
+          "Order matters: first number is strikeouts (k), second is groundouts (r)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-softball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A booster table sold wristbands at $2 and pennants at $6. They sold w wristbands and n pennants, with w + n = 18 items sold for $68 total. Which system models this situation? Let w = wristbands and n = pennants.",
+        "visual": null,
+        "choices": [
+          "w + n = 18 and 2w + 6n = 68",
+          "2w + 6n = 68 only",
+          "n + w = 18 and 6w + 2n = 68",
+          "w + n = 68 and 2w + 6n = 18"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "w + n = 18 and 2w + 6n = 68"
+        },
+        "misconceptionMap": {
+          "2w + 6n = 68 only": "single-equation-for-two-constraints",
+          "n + w = 18 and 6w + 2n = 68": "unlabeled-variables"
+        },
+        "hints": [
+          "One equation for the item count (18) and one for the dollars ($68).",
+          "Each price multiplies its own item: $2 with wristbands w, $6 with pennants n."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p1-basketball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A player scored only on two-point and three-point shots. She made 11 shots in all for 25 points. Let x = number of two-point shots and y = number of three-point shots, so x + y = 11 and 2x + 3y = 25. How many THREE-POINT shots did she make? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "11": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The shot count and the point total are two constraints; solve both together.",
+          "From x + y = 11, write x = 11 − y, then substitute into 2x + 3y = 25."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p1-basketball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A guard scored on free throws (1 point) and two-point baskets, making 14 scoring plays for 22 points. Let f = number of free throws and b = number of two-point baskets, so f + b = 14 and f + 2b = 22. How many TWO-POINT baskets did he make? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "22": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "Scoring-play count and point total are separate facts; use both equations.",
+          "Subtract f + b = 14 from f + 2b = 22 to isolate b."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-basketball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A team grabbed 16 rebounds, offensive or defensive, and the defensive rebounds were 3 times the offensive rebounds. Let o = offensive rebounds and d = defensive rebounds, so o + d = 16 and d = 3o. Give your answer as (o, d) = (offensive, defensive). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(4, 12)"
+        },
+        "misconceptionMap": {
+          "(12, 4)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute d = 3o into o + d = 16 and solve for o first.",
+          "Order matters: first number is offensive (o), second is defensive (d)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-basketball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A fan shop sold towels at $4 and jerseys at $10. They sold t towels and j jerseys, with t + j = 15 items sold for $108 total. Which system models this situation? Let t = towels and j = jerseys.",
+        "visual": null,
+        "choices": [
+          "t + j = 15 and 4t + 10j = 108",
+          "4t + 10j = 108 only",
+          "j + t = 15 and 10t + 4j = 108",
+          "t + j = 108 and 4t + 10j = 15"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "t + j = 15 and 4t + 10j = 108"
+        },
+        "misconceptionMap": {
+          "4t + 10j = 108 only": "single-equation-for-two-constraints",
+          "j + t = 15 and 10t + 4j = 108": "unlabeled-variables"
+        },
+        "hints": [
+          "One equation for the item count (15) and one for the dollars ($108).",
+          "Each price multiplies its own item: $4 with towels t, $10 with jerseys j."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p1-soccer-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A team played 9 matches, each a win or a draw, earning 21 points (a win = 3 points, a draw = 1 point). Let w = number of wins and d = number of draws, so w + d = 9 and 3w + d = 21. How many WINS did they have? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "9": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The match count and the points total are two constraints; solve both together.",
+          "Subtract w + d = 9 from 3w + d = 21 to isolate w."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p1-soccer-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A striker took 13 shots, on target or off target, and the on-target shots were 5 more than the off-target shots. Let n = on-target shots and f = off-target shots, so n + f = 13 and n = f + 5. How many ON-TARGET shots were there? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "13": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The shot total and the 'how many more' fact are two constraints; use both.",
+          "Substitute n = f + 5 into n + f = 13 and solve for f, then find n."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-soccer-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A keeper faced 14 shots, saved or scored, and the saves were 6 times the goals scored. Let s = number of saves and g = number of goals, so s + g = 14 and s = 6g. Give your answer as (s, g) = (saves, goals). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(12, 2)"
+        },
+        "misconceptionMap": {
+          "(2, 12)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute s = 6g into s + g = 14 and solve for g first.",
+          "Order matters: first number is saves (s), second is goals (g)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-soccer-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A team store sold scarves at $7 and caps at $12. They sold f scarves and c caps, with f + c = 14 items sold for $128 total. Which system models this situation? Let f = scarves and c = caps.",
+        "visual": null,
+        "choices": [
+          "f + c = 14 and 7f + 12c = 128",
+          "7f + 12c = 128 only",
+          "c + f = 14 and 12f + 7c = 128",
+          "f + c = 128 and 7f + 12c = 14"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "f + c = 14 and 7f + 12c = 128"
+        },
+        "misconceptionMap": {
+          "7f + 12c = 128 only": "single-equation-for-two-constraints",
+          "c + f = 14 and 12f + 7c = 128": "unlabeled-variables"
+        },
+        "hints": [
+          "One equation for the item count (14) and one for the dollars ($128).",
+          "Each price multiplies its own item: $7 with scarves f, $12 with caps c."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p1-football-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A team scored only touchdowns (7 points each, with extra point) and field goals (3 points each), making 6 scoring plays for 30 points. Let t = number of touchdowns and g = number of field goals, so t + g = 6 and 7t + 3g = 30. How many TOUCHDOWNS were scored? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "6": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The scoring-play count and the point total are two constraints; solve both together.",
+          "From t + g = 6, write g = 6 − t, then substitute into 7t + 3g = 30."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p1-football-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A running back had 12 carries, each a run or a catch, and the runs were 4 more than the catches. Let r = number of runs and c = number of catches, so r + c = 12 and r = c + 4. How many RUNS did he have? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "12": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The total touches and the 'how many more' fact are two constraints; use both.",
+          "Substitute r = c + 4 into r + c = 12 and solve for c, then find r."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-football-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A defense made 15 tackles, solo or assisted, and the solo tackles were twice the assisted tackles. Let s = solo tackles and a = assisted tackles, so s + a = 15 and s = 2a. Give your answer as (s, a) = (solo, assisted). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(10, 5)"
+        },
+        "misconceptionMap": {
+          "(5, 10)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute s = 2a into s + a = 15 and solve for a first.",
+          "Order matters: first number is solo (s), second is assisted (a)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-football-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A stadium stand sold hot dogs at $5 and nachos at $8. They sold h hot dogs and n nachos, with h + n = 16 items sold for $98 total. Which system models this situation? Let h = hot dogs and n = nachos.",
+        "visual": null,
+        "choices": [
+          "h + n = 16 and 5h + 8n = 98",
+          "5h + 8n = 98 only",
+          "n + h = 16 and 8h + 5n = 98",
+          "h + n = 98 and 5h + 8n = 16"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "h + n = 16 and 5h + 8n = 98"
+        },
+        "misconceptionMap": {
+          "5h + 8n = 98 only": "single-equation-for-two-constraints",
+          "n + h = 16 and 8h + 5n = 98": "unlabeled-variables"
+        },
+        "hints": [
+          "One equation for the item count (16) and one for the dollars ($98).",
+          "Each price multiplies its own item: $5 with hot dogs h, $8 with nachos n."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p1-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A team scored 13 points from kills and aces. The kills were 7 more than the aces. Let k = number of kills and a = number of aces, so k + a = 13 and k = a + 7. How many KILLS were there? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "10"
+        },
+        "misconceptionMap": {
+          "13": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The point total and the 'how many more' fact are two constraints; use both.",
+          "Substitute k = a + 7 into k + a = 13 and solve for a, then find k."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p1-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A setter recorded 14 touches, sets or digs, totaling 19 'effort points' where a set = 1 and a dig = 2. Let s = number of sets and d = number of digs, so s + d = 14 and s + 2d = 19. How many DIGS were recorded? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "19": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The touch count and the effort-point total are separate facts; use both equations.",
+          "Subtract s + d = 14 from s + 2d = 19 to isolate d."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A match had 16 serves, in or faulted, and the in serves were 3 times the faulted serves. Let n = in serves and f = faulted serves, so n + f = 16 and n = 3f. Give your answer as (n, f) = (in, faulted). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(12, 4)"
+        },
+        "misconceptionMap": {
+          "(4, 12)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute n = 3f into n + f = 16 and solve for f first.",
+          "Order matters: first number is in serves (n), second is faulted serves (f)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A booster table sold posters at $3 and shirts at $9. They sold p posters and r shirts, with p + r = 13 items sold for $87 total. Which system models this situation? Let p = posters and r = shirts.",
+        "visual": null,
+        "choices": [
+          "p + r = 13 and 3p + 9r = 87",
+          "3p + 9r = 87 only",
+          "r + p = 13 and 9p + 3r = 87",
+          "p + r = 87 and 3p + 9r = 13"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "p + r = 13 and 3p + 9r = 87"
+        },
+        "misconceptionMap": {
+          "3p + 9r = 87 only": "single-equation-for-two-constraints",
+          "r + p = 13 and 9p + 3r = 87": "unlabeled-variables"
+        },
+        "hints": [
+          "One equation for the item count (13) and one for the dollars ($87).",
+          "Each price multiplies its own item: $3 with posters p, $9 with shirts r."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p1-neutral-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A jar holds 8 coins, all nickels (5 cents) and dimes (10 cents), worth 55 cents. Let n = number of nickels and d = number of dimes, so n + d = 8 and 5n + 10d = 55. How many DIMES are in the jar? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "8": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The coin count and the total value are two constraints; solve both together.",
+          "From n + d = 8, write n = 8 − d, then substitute into 5n + 10d = 55."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p1-neutral-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A store sold 10 drinks, small or large, for $26 (a small = $2, a large = $3). Let s = number of smalls and l = number of larges, so s + l = 10 and 2s + 3l = 26. How many LARGE drinks were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "10": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The drink count and the money total are two constraints; use both equations.",
+          "From s + l = 10, write s = 10 − l, then substitute into 2s + 3l = 26."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-neutral-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A class of 18 students chose pizza or pasta, and the pizza choosers were twice the pasta choosers. Let p = pizza choosers and t = pasta choosers, so p + t = 18 and p = 2t. Give your answer as (p, t) = (pizza, pasta). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(12, 6)"
+        },
+        "misconceptionMap": {
+          "(6, 12)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute p = 2t into p + t = 18 and solve for t first.",
+          "Order matters: first number is pizza (p), second is pasta (t)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p1-neutral-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A booth sold pens at $2 and notebooks at $5. They sold e pens and b notebooks, with e + b = 12 items sold for $39 total. Which system models this situation? Let e = pens and b = notebooks.",
+        "visual": null,
+        "choices": [
+          "e + b = 12 and 2e + 5b = 39",
+          "2e + 5b = 39 only",
+          "b + e = 12 and 5e + 2b = 39",
+          "e + b = 39 and 2e + 5b = 12"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "e + b = 12 and 2e + 5b = 39"
+        },
+        "misconceptionMap": {
+          "2e + 5b = 39 only": "single-equation-for-two-constraints",
+          "b + e = 12 and 5e + 2b = 39": "unlabeled-variables"
+        },
+        "hints": [
+          "One equation for the item count (12) and one for the dollars ($39).",
+          "Each price multiplies its own item: $2 with pens e, $5 with notebooks b."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p2": [
+      {
+        "id": "ALG-S05-p2-baseball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A concession stand sold 9 snacks, popcorn or peanuts, for $32. Popcorn is $4 and peanuts are $3. Set p = number of popcorns and n = number of peanuts. The system is p + n = 9 and 4p + 3n = 32. How many POPCORNS were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "9": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The snack count and the dollar total are two separate constraints — use both.",
+          "From p + n = 9, substitute n = 9 − p into 4p + 3n = 32."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p2-baseball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A player's 14 extra-base hits were doubles and home runs, producing 38 bases (a double = 2 bases, a home run = 4 bases). Let d = doubles and h = home runs, so d + h = 14 and 2d + 4h = 38. How many HOME RUNS did he hit? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "14": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The hit count and the base total are two constraints; solve them together.",
+          "Substitute d = 14 − h into 2d + 4h = 38."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-baseball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A pitcher faced 13 batters who either struck out or reached base, and the strikeouts were 3 more than the runners who reached base. Set k = strikeouts and r = batters who reached base, so k + r = 13 and k = r + 3. Give your answer as (k, r) = (strikeouts, reached base). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(8, 5)"
+        },
+        "misconceptionMap": {
+          "(5, 8)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute k = r + 3 into k + r = 13 and solve for r first.",
+          "Order matters: first number is strikeouts (k), second is reached base (r)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-baseball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A team sold 17 caps and pennants combined for $94. A cap is $7 and a pennant is $4. Let c = number of caps and p = number of pennants. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "c + p = 17 and 7c + 4p = 94",
+          "7c + 4p = 94 only",
+          "p + c = 17 and 4c + 7p = 94",
+          "c + p = 94 and 7c + 4p = 17"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "c + p = 17 and 7c + 4p = 94"
+        },
+        "misconceptionMap": {
+          "7c + 4p = 94 only": "single-equation-for-two-constraints",
+          "p + c = 17 and 4c + 7p = 94": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (17 items) and a dollars equation ($94).",
+          "Match each price to its own item: $7 with caps c, $4 with pennants p."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p2-softball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A team store sold 8 items, visors or socks, for $34. A visor is $5 and socks are $3. Set v = visors and k = socks, so v + k = 8 and 5v + 3k = 34. How many VISORS were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "8": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The item count and the dollar total are two separate constraints — use both.",
+          "From v + k = 8, substitute k = 8 − v into 5v + 3k = 34."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p2-softball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A batter's 12 hits were singles and doubles, totaling 17 bases (single = 1, double = 2). Let s = singles and d = doubles, so s + d = 12 and s + 2d = 17. How many DOUBLES did she hit? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "17": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The hit count and the base total are two constraints; solve them together.",
+          "Subtract s + d = 12 from s + 2d = 17 to isolate d."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-softball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A pitcher threw 16 pitches that were strikes or balls, and the strikes were 3 times the balls. Set t = strikes and b = balls, so t + b = 16 and t = 3b. Give your answer as (t, b) = (strikes, balls). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(12, 4)"
+        },
+        "misconceptionMap": {
+          "(4, 12)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute t = 3b into t + b = 16 and solve for b first.",
+          "Order matters: first number is strikes (t), second is balls (b)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-softball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A booster sold 15 hats and towels combined for $86. A hat is $8 and a towel is $4. Let h = number of hats and w = number of towels. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "h + w = 15 and 8h + 4w = 86",
+          "8h + 4w = 86 only",
+          "w + h = 15 and 4h + 8w = 86",
+          "h + w = 86 and 8h + 4w = 15"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "h + w = 15 and 8h + 4w = 86"
+        },
+        "misconceptionMap": {
+          "8h + 4w = 86 only": "single-equation-for-two-constraints",
+          "w + h = 15 and 4h + 8w = 86": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (15 items) and a dollars equation ($86).",
+          "Match each price to its own item: $8 with hats h, $4 with towels w."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p2-basketball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A snack bar sold 7 drinks, water or juice, for $23. Water is $2 and juice is $5. Set w = waters and j = juices, so w + j = 7 and 2w + 5j = 23. How many JUICES were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "7": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The drink count and the dollar total are two separate constraints — use both.",
+          "From w + j = 7, substitute w = 7 − j into 2w + 5j = 23."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p2-basketball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A player scored 28 points on two-point baskets and three-point baskets, making 12 baskets in all. Let x = two-point baskets and y = three-point baskets, so x + y = 12 and 2x + 3y = 28. How many THREE-POINT baskets did she make? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "12": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The basket count and the point total are two constraints; solve them together.",
+          "Substitute x = 12 − y into 2x + 3y = 28."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-basketball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A player attempted 15 shots that were makes or misses, and the misses were 4 more than the makes. Set m = makes and s = misses, so m + s = 15 and s = m + 4. Give your answer as (m, s) = (makes, misses). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(5, 10)"
+        },
+        "misconceptionMap": {
+          "(10, 5)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute s = m + 4 into m + s = 15 and solve for m first.",
+          "Order matters: first number is makes (m), second is misses (s)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-basketball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A team sold 14 shirts and hats combined for $96. A shirt is $9 and a hat is $6. Let s = number of shirts and t = number of hats. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "s + t = 14 and 9s + 6t = 96",
+          "9s + 6t = 96 only",
+          "t + s = 14 and 6s + 9t = 96",
+          "s + t = 96 and 9s + 6t = 14"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "s + t = 14 and 9s + 6t = 96"
+        },
+        "misconceptionMap": {
+          "9s + 6t = 96 only": "single-equation-for-two-constraints",
+          "t + s = 14 and 6s + 9t = 96": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (14 items) and a dollars equation ($96).",
+          "Match each price to its own item: $9 with shirts s, $6 with hats t."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p2-soccer-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A stand sold 9 items, scarves or stickers, for $33. A scarf is $5 and a sticker is $2. Set f = scarves and k = stickers, so f + k = 9 and 5f + 2k = 33. How many SCARVES were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "9": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The item count and the dollar total are two separate constraints — use both.",
+          "From f + k = 9, substitute k = 9 − f into 5f + 2k = 33."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p2-soccer-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A team played 11 games, winning or drawing, for 25 points (a win = 3, a draw = 1). Let w = wins and d = draws, so w + d = 11 and 3w + d = 25. How many WINS did they record? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "11": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The game count and the points total are two constraints; solve them together.",
+          "Subtract w + d = 11 from 3w + d = 25 to isolate w."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-soccer-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A player took 14 shots, on or off target, and the on-target shots were 6 times the off-target shots. Set n = on-target and f = off-target, so n + f = 14 and n = 6f. Give your answer as (n, f) = (on-target, off-target). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(12, 2)"
+        },
+        "misconceptionMap": {
+          "(2, 12)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute n = 6f into n + f = 14 and solve for f first.",
+          "Order matters: first number is on-target (n), second is off-target (f)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-soccer-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A store sold 16 jerseys and shorts combined for $164. A jersey is $13 and shorts are $8. Let j = number of jerseys and r = number of shorts. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "j + r = 16 and 13j + 8r = 164",
+          "13j + 8r = 164 only",
+          "r + j = 16 and 8j + 13r = 164",
+          "j + r = 164 and 13j + 8r = 16"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "j + r = 16 and 13j + 8r = 164"
+        },
+        "misconceptionMap": {
+          "13j + 8r = 164 only": "single-equation-for-two-constraints",
+          "r + j = 16 and 8j + 13r = 164": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (16 items) and a dollars equation ($164).",
+          "Match each price to its own item: $13 with jerseys j, $8 with shorts r."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p2-football-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A stand sold 8 items, foam fingers or flags, for $30. A foam finger is $5 and a flag is $3. Set f = foam fingers and g = flags, so f + g = 8 and 5f + 3g = 30. How many FOAM FINGERS were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "8": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The item count and the dollar total are two separate constraints — use both.",
+          "From f + g = 8, substitute g = 8 − f into 5f + 3g = 30."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p2-football-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A team scored 34 points on touchdowns (7 points) and field goals (3 points), making 7 scoring plays. Let t = touchdowns and g = field goals, so t + g = 7 and 7t + 3g = 34. How many TOUCHDOWNS were scored? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "7": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The scoring-play count and the point total are two constraints; solve them together.",
+          "Substitute g = 7 − t into 7t + 3g = 34."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-football-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A receiver was targeted 13 times, each a catch or a drop, and the catches were 7 more than the drops. Set c = catches and d = drops, so c + d = 13 and c = d + 7. Give your answer as (c, d) = (catches, drops). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(10, 3)"
+        },
+        "misconceptionMap": {
+          "(3, 10)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute c = d + 7 into c + d = 13 and solve for d first.",
+          "Order matters: first number is catches (c), second is drops (d)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-football-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A stadium shop sold 15 hoodies and beanies combined for $214. A hoodie is $18 and a beanie is $10. Let h = number of hoodies and b = number of beanies. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "h + b = 15 and 18h + 10b = 214",
+          "18h + 10b = 214 only",
+          "b + h = 15 and 10h + 18b = 214",
+          "h + b = 214 and 18h + 10b = 15"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "h + b = 15 and 18h + 10b = 214"
+        },
+        "misconceptionMap": {
+          "18h + 10b = 214 only": "single-equation-for-two-constraints",
+          "b + h = 15 and 10h + 18b = 214": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (15 items) and a dollars equation ($214).",
+          "Match each price to its own item: $18 with hoodies h, $10 with beanies b."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p2-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A table sold 7 items, headbands or wristbands, for $25. A headband is $4 and a wristband is $3. Set h = headbands and w = wristbands, so h + w = 7 and 4h + 3w = 25. How many HEADBANDS were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {
+          "7": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The item count and the dollar total are two separate constraints — use both.",
+          "From h + w = 7, substitute w = 7 − h into 4h + 3w = 25."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p2-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A team's 13 points came from kills (1 point) and blocks (1 point), but blocks were worth a bonus so the 'value' was kills + 2·blocks = 19. Let k = kills and b = blocks, so k + b = 13 and k + 2b = 19. How many BLOCKS were there? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "19": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The point count and the value total are two constraints; solve them together.",
+          "Subtract k + b = 13 from k + 2b = 19 to isolate b."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A server made 16 serves, in or faulted, and the in serves were 4 more than the faulted serves. Set n = in serves and f = faulted serves, so n + f = 16 and n = f + 4. Give your answer as (n, f) = (in, faulted). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(10, 6)"
+        },
+        "misconceptionMap": {
+          "(6, 10)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute n = f + 4 into n + f = 16 and solve for f first.",
+          "Order matters: first number is in serves (n), second is faulted serves (f)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A booster sold 14 shirts and pins combined for $78. A shirt is $7 and a pin is $4. Let s = number of shirts and p = number of pins. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "s + p = 14 and 7s + 4p = 78",
+          "7s + 4p = 78 only",
+          "p + s = 14 and 4s + 7p = 78",
+          "s + p = 78 and 7s + 4p = 14"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "s + p = 14 and 7s + 4p = 78"
+        },
+        "misconceptionMap": {
+          "7s + 4p = 78 only": "single-equation-for-two-constraints",
+          "p + s = 14 and 4s + 7p = 78": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (14 items) and a dollars equation ($78).",
+          "Match each price to its own item: $7 with shirts s, $4 with pins p."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p2-neutral-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A bag has 9 coins, nickels (5 cents) and quarters (25 cents), worth 165 cents. Set n = nickels and q = quarters, so n + q = 9 and 5n + 25q = 165. How many QUARTERS are in the bag? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "9": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The coin count and the value total are two separate constraints — use both.",
+          "From n + q = 9, substitute n = 9 − q into 5n + 25q = 165."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p2-neutral-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A theater sold 14 tickets, adult or student, for $96. An adult ticket is $8 and a student ticket is $5. Let a = adult tickets and s = student tickets, so a + s = 14 and 8a + 5s = 96. How many ADULT tickets were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "14": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The ticket count and the money total are two constraints; solve them together.",
+          "Substitute s = 14 − a into 8a + 5s = 96."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-neutral-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A garden has 16 flowers, roses or tulips, and the roses are 3 times the tulips. Set r = roses and t = tulips, so r + t = 16 and r = 3t. Give your answer as (r, t) = (roses, tulips). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(12, 4)"
+        },
+        "misconceptionMap": {
+          "(4, 12)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute r = 3t into r + t = 16 and solve for t first.",
+          "Order matters: first number is roses (r), second is tulips (t)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p2-neutral-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A shop sold 13 muffins and bagels combined for $41. A muffin is $4 and a bagel is $3. Let m = number of muffins and b = number of bagels. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "m + b = 13 and 4m + 3b = 41",
+          "4m + 3b = 41 only",
+          "b + m = 13 and 3m + 4b = 41",
+          "m + b = 41 and 4m + 3b = 13"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "m + b = 13 and 4m + 3b = 41"
+        },
+        "misconceptionMap": {
+          "4m + 3b = 41 only": "single-equation-for-two-constraints",
+          "b + m = 13 and 3m + 4b = 41": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (13 items) and a dollars equation ($41).",
+          "Match each price to its own item: $4 with muffins m, $3 with bagels b."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p3": [
+      {
+        "id": "ALG-S05-p3-neutral-01",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A box has 10 coins, dimes (10 cents) and quarters (25 cents), worth 175 cents. Let d = number of dimes and q = number of quarters, so d + q = 10 and 10d + 25q = 175. How many QUARTERS are in the box? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "10": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The coin count and the value total are two constraints; use both equations.",
+          "From d + q = 10, substitute d = 10 − q into 10d + 25q = 175."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-S05-p3-neutral-02",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A theater sold 12 tickets, adult or child, for $81. An adult ticket is $8 and a child ticket is $5. Let a = number of adult tickets and c = number of child tickets, so a + c = 12 and 8a + 5c = 81. How many ADULT tickets were sold? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "12": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The ticket count and the money total are two constraints; use both equations.",
+          "Substitute c = 12 − a into 8a + 5c = 81 and solve for a."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p3-neutral-03",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A chemist mixes 20 liters of solution from a 'count' constraint and a 'concentration' constraint: x liters of Mix A plus y liters of Mix B give x + y = 20 liters, and 2x + 5y = 70 'strength units'. How many liters of MIX B (y) are used? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "10"
+        },
+        "misconceptionMap": {
+          "20": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The volume total and the strength total are two constraints; use both equations.",
+          "From x + y = 20, substitute x = 20 − y into 2x + 5y = 70."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p3-neutral-04",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A jar holds 14 marbles, red or blue, and the red marbles are 6 more than the blue marbles. Let r = number of red marbles and b = number of blue marbles, so r + b = 14 and r = b + 6. Give your answer as (r, b) = (red, blue). Type as (x, y).",
+        "visual": null,
+        "answer": {
+          "kind": "coordinate",
+          "value": "(10, 4)"
+        },
+        "misconceptionMap": {
+          "(4, 10)": "unlabeled-variables"
+        },
+        "hints": [
+          "Substitute r = b + 6 into r + b = 14 and solve for b first.",
+          "Order matters: first number is red (r), second is blue (b)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-S05-p3-neutral-05",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A store sold 16 items, pens or markers, for $74. A pen is $3 and a marker is $7. Let p = number of pens and m = number of markers. Which system correctly models this situation?",
+        "visual": null,
+        "choices": [
+          "p + m = 16 and 3p + 7m = 74",
+          "3p + 7m = 74 only",
+          "m + p = 16 and 7p + 3m = 74",
+          "p + m = 74 and 3p + 7m = 16"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "p + m = 16 and 3p + 7m = 74"
+        },
+        "misconceptionMap": {
+          "3p + 7m = 74 only": "single-equation-for-two-constraints",
+          "m + p = 16 and 7p + 3m = 74": "unlabeled-variables"
+        },
+        "hints": [
+          "You need a count equation (16 items) and a dollars equation ($74).",
+          "Match each price to its own item: $3 with pens p, $7 with markers m."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-S05-p3-neutral-06",
+        "version": 1,
+        "skillId": "ALG-S05",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A piggy bank has 18 coins, nickels (5 cents) and dimes (10 cents), worth 145 cents. Let n = number of nickels and d = number of dimes, so n + d = 18 and 5n + 10d = 145. How many NICKELS are in the bank? Type a number only.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "18": "single-equation-for-two-constraints"
+        },
+        "hints": [
+          "The coin count and the value total are two constraints; use both equations.",
+          "From n + d = 18, substitute d = 18 − n into 5n + 10d = 145."
+        ],
+        "difficulty": 3
+      }
+    ]
+  }
+}

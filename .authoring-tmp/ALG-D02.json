@@ -1,0 +1,1426 @@
+{
+  "id": "ALG-D02",
+  "workedExamples": [
+    {
+      "id": "ALG-D02-we-01",
+      "title": "Histogram vs. bar chart: reading frequency from a bin",
+      "steps": [
+        {
+          "prompt": "A display shows test scores grouped into equal-width intervals: 60–69, 70–79, 80–89, 90–99. The bars touch each other with no gaps. The variable on the horizontal axis is the test score. Is the test score a NUMBER or a CATEGORY?",
+          "reveal": "Test score is a NUMBER. Because the horizontal axis shows a numeric variable split into equal-width intervals (called bins), and the bars touch, this is a HISTOGRAM. A bar chart shows separate CATEGORIES (like favorite color) with gaps between the bars."
+        },
+        {
+          "prompt": "What is the difference between the bars TOUCHING and having GAPS?",
+          "reveal": "Touching bars mean the intervals are continuous pieces of a number line — 69 flows right into 70. Gaps would mean the bars are separate categories with nothing between them. The classic trap (histogram-bar-chart-confusion) is treating each bin like its own category instead of part of one continuous numeric scale."
+        },
+        {
+          "prompt": "The 80–89 bin has a bar that reaches a height of 7. What does that 7 tell you?",
+          "reveal": "It tells you the FREQUENCY: 7 students scored somewhere in the interval 80–89. It does NOT tell you any single student's exact score. The height of a histogram bar is a count of how many data values fall inside that bin."
+        },
+        {
+          "prompt": "Why can't you say '7 students scored exactly 80'?",
+          "reveal": "Because a bin covers a RANGE (80 through 89), not one value. Reading a bin as a single category or a single score is the histogram-bar-chart-confusion error. The bar only reports how many values landed anywhere in that whole interval."
+        }
+      ]
+    },
+    {
+      "id": "ALG-D02-we-02",
+      "title": "Box plot: the five-number summary and IQR",
+      "steps": [
+        {
+          "prompt": "A box plot is built from a five-number summary: minimum, first quartile (Q1), median, third quartile (Q3), and maximum. This box plot has min 10, Q1 25, median 40, Q3 55, max 70. Where is the median shown on the plot?",
+          "reveal": "The median (40) is the line INSIDE the box, dividing the box into two parts. It is NOT the left edge of the box — that left edge is Q1 (25). Reading the median line as Q1 is a common box-plot-quartile-misread error."
+        },
+        {
+          "prompt": "Which two values form the EDGES of the box?",
+          "reveal": "The left edge of the box is Q1 (25) and the right edge is Q3 (55). The box always spans from Q1 to Q3. The min (10) and max (70) are at the ENDS of the whiskers, not the box edges."
+        },
+        {
+          "prompt": "The IQR (interquartile range) measures the spread of the middle half of the data. The formula is IQR = Q3 − Q1. Compute it.",
+          "reveal": "IQR = Q3 − Q1 = 55 − 25 = 30. Use the two BOX EDGES, not the whisker ends. A frequent mistake is using max − min (70 − 10 = 60), which is the full range, not the IQR."
+        },
+        {
+          "prompt": "Suppose someone reads the minimum (10) as if it were Q1. What IQR would they wrongly get, and why is it wrong?",
+          "reveal": "They would compute 55 − 10 = 45, which is wrong. Q1 is the LEFT EDGE OF THE BOX (25), not the left whisker tip (10). Mixing up the min with Q1 is the box-plot-quartile-misread trap. The correct IQR is 55 − 25 = 30."
+        }
+      ]
+    }
+  ],
+  "problems": {
+    "p1": [
+      {
+        "id": "ALG-D02-p1-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A box plot of a pitcher's pitch speeds (mph) has min 84, Q1 88, median 91, Q3 94, max 98. What is the median pitch speed?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "91"
+        },
+        "misconceptionMap": {
+          "88": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge of the box is Q1 (88); the median is the next line to its right."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p1-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A box plot of a hitter's hits-per-game has min 0, Q1 1, median 2, Q3 3, max 5. What is the IQR?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "5": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR = Q3 − Q1, using the two edges of the box.",
+          "Q3 is 3 and Q1 is 1, so subtract: 3 − 1."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A histogram of home runs hit per game groups games into equal-width intervals: 0–1, 2–3, 4–5, 6–7. The bars touch with no gaps. The bar for the 2–3 interval reaches a height of 9. How many games had 2 or 3 home runs?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "3": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency: how many games fall in that interval.",
+          "The interval 2–3 is one bin; its height counts every game landing anywhere in it."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A scout displays the exit velocities (mph) of batted balls, grouped into equal-width intervals with the bars touching. Which TRUE statement describes this display?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram, because exit velocity is a numeric variable split into equal-width intervals with touching bars."
+        },
+        "misconceptionMap": {
+          "It is a bar chart, because each bar stands for a separate category with gaps between them.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Histograms show a numeric variable in bins with touching bars; bar charts show categories with gaps.",
+          "Exit velocity is a number, and the bars touch."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "It is a histogram, because exit velocity is a numeric variable split into equal-width intervals with touching bars.",
+          "It is a bar chart, because each bar stands for a separate category with gaps between them."
+        ]
+      },
+      {
+        "id": "ALG-D02-p1-softball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A box plot of a pitcher's strikeouts per game has min 2, Q1 5, median 7, Q3 10, max 14. What is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "5": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge is Q1 (5); the median is the next line to its right."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p1-softball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A box plot of runs per game has min 0, Q1 2, median 4, Q3 7, max 11. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "11": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "7 − 2, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-softball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A histogram of pitch counts groups games into equal-width intervals 60–79, 80–99, 100–119, 120–139 with touching bars. The 80–99 bar has height 8. How many games fell in the 80–99 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "99": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the count of games in that interval.",
+          "Read the height, not the interval's endpoint."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-softball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A coach displays players' batting averages, grouped into equal-width intervals with the bars touching. Which TRUE statement describes this display?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram, because batting average is a numeric variable shown in equal-width intervals with touching bars."
+        },
+        "misconceptionMap": {
+          "It is a bar chart, because each bar is a separate category with gaps between them.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Numeric variable in bins with touching bars means histogram.",
+          "Batting average is a number, and the bars touch."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "It is a histogram, because batting average is a numeric variable shown in equal-width intervals with touching bars.",
+          "It is a bar chart, because each bar is a separate category with gaps between them."
+        ]
+      },
+      {
+        "id": "ALG-D02-p1-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A box plot of points per game has min 6, Q1 12, median 18, Q3 24, max 31. What is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "18"
+        },
+        "misconceptionMap": {
+          "12": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge is Q1 (12); the median is the next line to its right."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p1-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A box plot of rebounds per game has min 2, Q1 5, median 8, Q3 11, max 16. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "14": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3.",
+          "11 − 5, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A histogram of points scored per game uses equal-width intervals 0–9, 10–19, 20–29, 30–39 with touching bars. The 10–19 bar has height 12. How many games fell in the 10–19 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "19": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that whole interval.",
+          "Read the height, not the interval's endpoints."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A coach displays players' heights, grouped into equal-width intervals with touching bars. Which TRUE statement describes this display?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram, because height is a numeric variable shown in equal-width intervals with touching bars."
+        },
+        "misconceptionMap": {
+          "It is a bar chart, because each bar is a separate category with gaps between them.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Numeric variable in bins with touching bars means histogram.",
+          "Height is a number, and the bars touch."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "It is a histogram, because height is a numeric variable shown in equal-width intervals with touching bars.",
+          "It is a bar chart, because each bar is a separate category with gaps between them."
+        ]
+      },
+      {
+        "id": "ALG-D02-p1-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A box plot of goals scored per match shows min 0, Q1 1, median 2, Q3 3, max 6. What is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "1": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge is Q1 (1); the median is the next line to its right."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p1-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A box plot of shots per match has min 1, Q1 4, median 6, Q3 9, max 14. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "13": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3.",
+          "9 − 4, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A histogram of pass-completion percentages groups matches into equal-width intervals 50–59, 60–69, 70–79, 80–89 with touching bars. The 70–79 bar has height 7. How many matches fell in the 70–79 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "79": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the count of matches in that interval.",
+          "Read the height, not the interval's endpoint."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A display of players' total minutes played groups the minutes into equal-width intervals with the bars touching. Which TRUE statement applies?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram, because minutes played is numeric data shown in equal-width bins with touching bars."
+        },
+        "misconceptionMap": {
+          "It is a bar chart, because the bins are separate categories separated by gaps.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Numeric variable in bins with touching bars means histogram.",
+          "Minutes is a number and the bars touch, so the bins are not separate categories."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "It is a histogram, because minutes played is numeric data shown in equal-width bins with touching bars.",
+          "It is a bar chart, because the bins are separate categories separated by gaps."
+        ]
+      },
+      {
+        "id": "ALG-D02-p1-football-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A box plot of points scored per game has min 7, Q1 14, median 21, Q3 28, max 35. What is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "21"
+        },
+        "misconceptionMap": {
+          "14": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge is Q1 (14); the median is the next line to its right."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p1-football-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A box plot of completions per game has min 8, Q1 14, median 20, Q3 26, max 33. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "25": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3.",
+          "26 − 14, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-football-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A histogram of rushing yards per game uses equal-width intervals 0–24, 25–49, 50–74, 75–99 with touching bars. The 50–74 bar has height 6. How many games fell in the 50–74 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "74": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the count of games in that interval.",
+          "Read the height, not an endpoint of the bin."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-football-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A coach displays players' 40-yard-dash times, grouped into equal-width intervals with touching bars. Which TRUE statement describes this display?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram, because dash time is a numeric variable shown in equal-width intervals with touching bars."
+        },
+        "misconceptionMap": {
+          "It is a bar chart, because each bar is a separate category with gaps between them.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Numeric variable in bins with touching bars means histogram.",
+          "Dash time is a number, and the bars touch."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "It is a histogram, because dash time is a numeric variable shown in equal-width intervals with touching bars.",
+          "It is a bar chart, because each bar is a separate category with gaps between them."
+        ]
+      },
+      {
+        "id": "ALG-D02-p1-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A box plot of kills per set shows min 1, Q1 4, median 6, Q3 9, max 15. What is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "4": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge is Q1 (4); the median is the next line to its right."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p1-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A box plot of digs per match has min 3, Q1 7, median 11, Q3 16, max 22. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "19": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3.",
+          "16 − 7, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A histogram of serve speeds (mph) groups serves into equal-width intervals 30–39, 40–49, 50–59, 60–69 with touching bars. The 40–49 bar has height 10. How many serves fell in the 40–49 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "10"
+        },
+        "misconceptionMap": {
+          "49": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the count of serves in that interval.",
+          "Read the height, not the interval's endpoint."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A team displays serve speeds, grouped into equal-width intervals with touching bars. Which statement is TRUE of this histogram?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "Each bar's height is the frequency of serve speeds inside that interval, and the touching bars show one continuous numeric scale."
+        },
+        "misconceptionMap": {
+          "Each bar is a separate category, like in a bar chart, so the bars should have gaps.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "A histogram's bars touch because the bins form a continuous number line.",
+          "Serve speed is numeric, not a set of separate categories."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "Each bar's height is the frequency of serve speeds inside that interval, and the touching bars show one continuous numeric scale.",
+          "Each bar is a separate category, like in a bar chart, so the bars should have gaps."
+        ]
+      },
+      {
+        "id": "ALG-D02-p1-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A box plot has min 12, Q1 20, median 27, Q3 35, max 48. What is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "27"
+        },
+        "misconceptionMap": {
+          "20": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge (20) is Q1; the median is the next line to its right."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p1-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A box plot has min 5, Q1 11, median 18, Q3 26, max 33. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "15"
+        },
+        "misconceptionMap": {
+          "28": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "26 − 11, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A histogram groups a numeric variable into equal-width intervals 0–9, 10–19, 20–29, 30–39 with touching bars. The 20–29 bar has height 14. How many data values fall in the 20–29 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "14"
+        },
+        "misconceptionMap": {
+          "29": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval's endpoint."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p1-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A numeric variable is displayed in equal-width intervals with bars that touch each other. Which TRUE statement describes this display?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram: a numeric variable in equal-width bins, and each bar's height is the frequency of values in that bin."
+        },
+        "misconceptionMap": {
+          "It is a bar chart: each bar is a separate category, so the bars must be separated by gaps.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Histograms show numeric data in touching bins; bar charts show categories with gaps.",
+          "The variable is numeric and the bars touch, so the bins are not separate categories."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "It is a histogram: a numeric variable in equal-width bins, and each bar's height is the frequency of values in that bin.",
+          "It is a bar chart: each bar is a separate category, so the bars must be separated by gaps."
+        ]
+      }
+    ],
+    "p2": [
+      {
+        "id": "ALG-D02-p2-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "On a box plot of a team's runs scored per game, the line inside the box sits at 5, the left edge of the box at 3, and the right edge at 8. Which value is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "choice",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "3": "box-plot-quartile-misread",
+          "8": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line INSIDE the box, not an edge.",
+          "The edges are Q1 and Q3; the inside line is the median."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "5",
+          "3",
+          "8"
+        ]
+      },
+      {
+        "id": "ALG-D02-p2-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A box plot of stolen bases per player shows min 0, Q1 4, median 7, Q3 12, max 20. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "20": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "Use the box edges Q1 and Q3, not the whisker ends.",
+          "12 − 4."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-softball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A histogram of pitch speeds groups them into equal-width intervals with touching bars. Which statement correctly explains why this is a histogram and not a bar chart?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "Pitch speed is a numeric variable shown in equal-width intervals, so the touching bars form a histogram."
+        },
+        "misconceptionMap": {
+          "Each bar is a separate category, so the gaps between bars make it a bar chart.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Numeric + bins + touching bars = histogram.",
+          "Pitch speed is a number, and the bars touch."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "Pitch speed is a numeric variable shown in equal-width intervals, so the touching bars form a histogram.",
+          "Each bar is a separate category, so the gaps between bars make it a bar chart."
+        ]
+      },
+      {
+        "id": "ALG-D02-p2-softball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A box plot of a team's runs per game has min 1, Q1 3, median 5, Q3 9, max 14. Reading the left edge of the box, what is Q1?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "1": "box-plot-quartile-misread",
+          "5": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "Q1 is the LEFT EDGE of the box, not the inside line and not the whisker tip.",
+          "The inside line (5) is the median; the whisker tip (1) is the min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A histogram of points scored per game uses equal-width intervals 0–9, 10–19, 20–29, 30–39 with touching bars. The 10–19 bar has height 12. How many games fell in the 10–19 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "19": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that whole interval.",
+          "Read the height, not the interval's endpoints."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A box plot of rebounds per game has min 2, Q1 5, median 8, Q3 11, max 16. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "14": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3.",
+          "11 − 5, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A box plot of goals scored per match shows min 0, Q1 1, median 2, Q3 3, max 6. Which value is Q3?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "choice",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "2": "box-plot-quartile-misread",
+          "6": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "Q3 is the RIGHT EDGE of the box.",
+          "The inside line (2) is the median; the whisker tip (6) is the max."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "3",
+          "2",
+          "6"
+        ]
+      },
+      {
+        "id": "ALG-D02-p2-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A display of players' total minutes played groups the minutes into equal-width intervals with the bars touching. Which TRUE statement applies?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram, because minutes played is numeric data shown in equal-width bins with touching bars."
+        },
+        "misconceptionMap": {
+          "It is a bar chart, because the bins are separate categories separated by gaps.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Numeric variable in bins with touching bars means histogram.",
+          "Minutes is a number and the bars touch, so the bins are not separate categories."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "It is a histogram, because minutes played is numeric data shown in equal-width bins with touching bars.",
+          "It is a bar chart, because the bins are separate categories separated by gaps."
+        ]
+      },
+      {
+        "id": "ALG-D02-p2-football-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A histogram of rushing yards per game uses equal-width intervals 0–24, 25–49, 50–74, 75–99 with touching bars. The 50–74 bar has height 6. How many games fell in the 50–74 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "74": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the count of games in that interval.",
+          "Read the height, not an endpoint of the bin."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-football-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A box plot of points scored per game has min 7, Q1 14, median 21, Q3 28, max 35. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "14"
+        },
+        "misconceptionMap": {
+          "28": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR = Q3 − Q1, the two box edges.",
+          "28 − 14."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A box plot of kills per set shows min 1, Q1 4, median 6, Q3 9, max 15. Reading the inside line of the box, what is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "4": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box, not the left edge.",
+          "The left edge (4) is Q1; the inside line is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A display of serve speeds groups them into equal-width intervals with touching bars. Which statement is TRUE of this histogram?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "Each bar's height is the frequency of serve speeds inside that interval, and the touching bars show one continuous numeric scale."
+        },
+        "misconceptionMap": {
+          "Each bar is a separate category, like in a bar chart, so the bars should have gaps.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "A histogram's bars touch because the bins form a continuous number line.",
+          "Serve speed is numeric, not a set of separate categories."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "Each bar's height is the frequency of serve speeds inside that interval, and the touching bars show one continuous numeric scale.",
+          "Each bar is a separate category, like in a bar chart, so the bars should have gaps."
+        ]
+      },
+      {
+        "id": "ALG-D02-p2-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A box plot of daily high temperatures has min 50, Q1 58, median 64, Q3 72, max 80. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "14"
+        },
+        "misconceptionMap": {
+          "30": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "72 − 58, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A histogram of student heights groups them into equal-width intervals with touching bars. Which TRUE statement describes it?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram, because height is a numeric variable shown in equal-width intervals with touching bars."
+        },
+        "misconceptionMap": {
+          "It is a bar chart, because each interval is a separate category with gaps between bars.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Numeric data in equal-width bins with touching bars makes a histogram.",
+          "Height is a number; the intervals are pieces of one continuous scale."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "It is a histogram, because height is a numeric variable shown in equal-width intervals with touching bars.",
+          "It is a bar chart, because each interval is a separate category with gaps between bars."
+        ]
+      },
+      {
+        "id": "ALG-D02-p2-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A box plot of pitch counts has min 2, Q1 6, median 9, Q3 13, max 18. What is the IQR (Q3 - Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "16": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "Subtract Q1 from Q3."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A histogram of home runs per series uses equal-width intervals 0-9, 10-19, 20-29, 30-39 with touching bars. The 30-39 bar has height 5. How many series fell in the 30-39 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "39": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval endpoint."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D02-p2-softball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A box plot of strikeouts per game has min 1, Q1 5, median 8, Q3 12, max 17. What is the IQR (Q3 - Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "16": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "Subtract Q1 from Q3."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-softball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A histogram of innings pitched uses equal-width intervals 0-2, 3-5, 6-8, 9-11 with touching bars. The 3-5 bar has height 11. How many games fell in the 3-5 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "11"
+        },
+        "misconceptionMap": {
+          "5": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval endpoint."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D02-p2-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A box plot of assists per game has min 4, Q1 9, median 14, Q3 20, max 28. What is the IQR (Q3 - Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "11"
+        },
+        "misconceptionMap": {
+          "24": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "Subtract Q1 from Q3."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A histogram of steals per game uses equal-width intervals 0-1, 2-3, 4-5, 6-7 with touching bars. The 2-3 bar has height 7. How many games fell in the 2-3 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "3": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval endpoint."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D02-p2-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A box plot of saves per match has min 0, Q1 2, median 4, Q3 7, max 12. What is the IQR (Q3 - Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "12": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "Subtract Q1 from Q3."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A histogram of corner kicks per match uses equal-width intervals 0-2, 3-5, 6-8, 9-11 with touching bars. The 6-8 bar has height 9. How many matches fell in the 6-8 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "8": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval endpoint."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D02-p2-football-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A box plot of completions per game has min 8, Q1 14, median 21, Q3 28, max 35. What is the IQR (Q3 - Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "14"
+        },
+        "misconceptionMap": {
+          "27": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "Subtract Q1 from Q3."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-football-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A histogram of touchdowns per game uses equal-width intervals 0-1, 2-3, 4-5, 6-7 with touching bars. The 2-3 bar has height 6. How many games fell in the 2-3 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "3": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval endpoint."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D02-p2-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A box plot of digs per match has min 1, Q1 4, median 7, Q3 11, max 16. What is the IQR (Q3 - Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "15": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "Subtract Q1 from Q3."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A histogram of blocks per match uses equal-width intervals 0-1, 2-3, 4-5, 6-7 with touching bars. The 4-5 bar has height 8. How many matches fell in the 4-5 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "5": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval endpoint."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D02-p2-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A box plot of daily rainfall (mm) has min 10, Q1 18, median 25, Q3 34, max 47. What is the IQR (Q3 - Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "16"
+        },
+        "misconceptionMap": {
+          "37": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "Subtract Q1 from Q3."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p2-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A histogram groups a numeric variable into equal-width intervals 0-9, 10-19, 20-29, 30-39 with touching bars. The 30-39 bar has height 13. How many values fell in the 30-39 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "13"
+        },
+        "misconceptionMap": {
+          "39": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval endpoint."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p3": [
+      {
+        "id": "ALG-D02-p3-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A box plot has min 12, Q1 20, median 27, Q3 35, max 48. What is the median?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "27"
+        },
+        "misconceptionMap": {
+          "20": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "The median is the line inside the box.",
+          "The left edge (20) is Q1; the median is the next line right of it."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D02-p3-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A box plot has min 5, Q1 11, median 18, Q3 26, max 33. What is the IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "15"
+        },
+        "misconceptionMap": {
+          "28": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR = Q3 − Q1, using the two box edges.",
+          "26 − 11, not max − min."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p3-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A histogram groups a numeric variable into equal-width intervals 0–9, 10–19, 20–29, 30–39 with touching bars. The 20–29 bar has height 14. How many data values fall in the 20–29 interval?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "numeric",
+          "value": "14"
+        },
+        "misconceptionMap": {
+          "29": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "The bar height is the frequency for that interval.",
+          "Read the height, not the interval's endpoint."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D02-p3-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A box plot has min 8, Q1 15, median 22, Q3 30, max 41. Which value is Q1?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "choice",
+          "value": "15"
+        },
+        "misconceptionMap": {
+          "8": "box-plot-quartile-misread",
+          "22": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "Q1 is the LEFT EDGE of the box.",
+          "The inside line (22) is the median; the whisker tip (8) is the min."
+        ],
+        "difficulty": 2,
+        "choices": [
+          "15",
+          "22",
+          "8"
+        ]
+      },
+      {
+        "id": "ALG-D02-p3-neutral-05",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A numeric variable is displayed in equal-width intervals with bars that touch each other. Which TRUE statement describes this display?",
+        "visual": "histogram",
+        "answer": {
+          "kind": "choice",
+          "value": "It is a histogram: a numeric variable in equal-width bins, and each bar's height is the frequency of values in that bin."
+        },
+        "misconceptionMap": {
+          "It is a bar chart: each bar is a separate category, so the bars must be separated by gaps.": "histogram-bar-chart-confusion"
+        },
+        "hints": [
+          "Histograms show numeric data in touching bins; bar charts show categories with gaps.",
+          "The variable is numeric and the bars touch, so the bins are not separate categories."
+        ],
+        "difficulty": 3,
+        "choices": [
+          "It is a histogram: a numeric variable in equal-width bins, and each bar's height is the frequency of values in that bin.",
+          "It is a bar chart: each bar is a separate category, so the bars must be separated by gaps."
+        ]
+      },
+      {
+        "id": "ALG-D02-p3-neutral-06",
+        "version": 1,
+        "skillId": "ALG-D02",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A box plot has min 4, Q1 9, median 16, Q3 25, max 38. A student reports the IQR as 34 by computing max − min. What is the correct IQR (Q3 − Q1)?",
+        "visual": "boxplot",
+        "answer": {
+          "kind": "numeric",
+          "value": "16"
+        },
+        "misconceptionMap": {
+          "34": "box-plot-quartile-misread"
+        },
+        "hints": [
+          "IQR uses the box edges Q1 and Q3, not the whisker ends.",
+          "25 − 9, not 38 − 4."
+        ],
+        "difficulty": 3
+      }
+    ]
+  }
+}

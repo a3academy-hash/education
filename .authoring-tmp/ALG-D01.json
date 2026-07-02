@@ -1,0 +1,1357 @@
+{
+  "id": "ALG-D01",
+  "workedExamples": [
+    {
+      "id": "ALG-D01-we-01",
+      "title": "Mean vs. median — they are usually different",
+      "steps": [
+        {
+          "prompt": "We have the data set 3, 5, 7, 8, 12. First, what is the mean? Add the values and divide by how many there are.",
+          "reveal": "Sum = 3+5+7+8+12 = 35. There are 5 values, so mean = 35 / 5 = 7."
+        },
+        {
+          "prompt": "Now find the median. Put the values in order and find the middle one.",
+          "reveal": "Already in order: 3, 5, 7, 8, 12. With 5 values the middle (3rd) value is 7. Median = 7. Here they happen to be equal."
+        },
+        {
+          "prompt": "Change one value: use 3, 5, 7, 8, 22 instead. Recompute the mean.",
+          "reveal": "Sum = 3+5+7+8+22 = 45. Mean = 45 / 5 = 9."
+        },
+        {
+          "prompt": "Recompute the median of 3, 5, 7, 8, 22.",
+          "reveal": "Middle value is still 7. Median = 7, but the mean is now 9 — they are different."
+        },
+        {
+          "prompt": "What is the lesson about mean and median?",
+          "reveal": "Mean and median are NOT the same number in general. The mean uses every value's size; the median only cares about position. Never assume the middle of a list equals its average."
+        }
+      ]
+    },
+    {
+      "id": "ALG-D01-we-02",
+      "title": "An outlier moves the mean but barely moves the median",
+      "steps": [
+        {
+          "prompt": "Start with 10, 12, 14, 16, 18. Find the mean and the median.",
+          "reveal": "Sum = 10+12+14+16+18 = 70, mean = 70 / 5 = 14. Median is the middle value = 14."
+        },
+        {
+          "prompt": "Now add an outlier so the data is 10, 12, 14, 16, 48. Recompute the mean.",
+          "reveal": "Sum = 10+12+14+16+48 = 100, mean = 100 / 5 = 20. The mean jumped from 14 to 20."
+        },
+        {
+          "prompt": "Recompute the median of 10, 12, 14, 16, 48.",
+          "reveal": "Order: 10, 12, 14, 16, 48. Middle value = 14. Median is still 14."
+        },
+        {
+          "prompt": "Compare how far each measure moved.",
+          "reveal": "The mean moved 6 (from 14 to 20). The median did not move at all (14 to 14). The outlier pulled the mean toward itself but left the median alone."
+        },
+        {
+          "prompt": "Which measure is 'resistant' to outliers?",
+          "reveal": "The MEDIAN is resistant — outliers barely affect it. The MEAN is sensitive — one extreme value can change it a lot. Use the median to describe a center when outliers are present."
+        }
+      ]
+    }
+  ],
+  "problems": {
+    "p1": [
+      {
+        "id": "ALG-D01-p1-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A batter's hits per game over 5 games were 1, 2, 2, 2, 3. What is the mode (most frequent number of hits)?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "2.5": "mean-median-interchanged"
+        },
+        "hints": [
+          "The mode is the value that appears most often.",
+          "Count how many times each number of hits appears."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p1-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A pitcher's strikeouts per start were 4, 6, 8, 9, 13. What is the mean number of strikeouts per start?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all the strikeouts, then divide by the number of starts.",
+          "Sum = 40, and there are 5 starts."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "Runs scored per game were 2, 3, 5, 7, 8. What is the median number of runs?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Put the values in order and find the middle one.",
+          "With 5 games the 3rd value is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "Home runs per season were 3, 5, 9, 11, 15, 18, 21. Find the interquartile range (IQR = Q3 - Q1).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "13"
+        },
+        "misconceptionMap": {
+          "18": "mean-median-interchanged"
+        },
+        "hints": [
+          "The median splits the data; Q1 is the median of the lower half, Q3 of the upper half.",
+          "Q1 = 5, Q3 = 18, so IQR = 18 - 5."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p1-softball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A player's hits per game were 0, 1, 1, 1, 2. What is the mode?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "1"
+        },
+        "misconceptionMap": {
+          "1.5": "mean-median-interchanged"
+        },
+        "hints": [
+          "The mode is the most frequent value.",
+          "Which number of hits appears most often?"
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p1-softball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "Runs batted in per game were 1, 2, 4, 6, 7. What is the mean RBI per game?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "4"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add the RBIs and divide by the number of games.",
+          "Sum = 20, and there are 5 games."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-softball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "Strikeouts pitched per game were 5, 6, 9, 10, 12. What is the median?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "8.4": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-softball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "Innings pitched per game were 3, 4, 5, 6, 7, 7, 9. Find the interquartile range (Q3 - Q1).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {
+          "6": "mean-median-interchanged"
+        },
+        "hints": [
+          "Find the median first, then Q1 (median of lower half) and Q3 (median of upper half).",
+          "Q1 = 4, Q3 = 7, so IQR = 7 - 4."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p1-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A player's made three-pointers per game were 1, 2, 2, 2, 4. What is the mode?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "2.2": "mean-median-interchanged"
+        },
+        "hints": [
+          "The mode is the value that occurs most frequently.",
+          "Count occurrences of each value."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p1-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "Points scored per game were 8, 12, 16, 18, 21. What is the mean points per game?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "15"
+        },
+        "misconceptionMap": {
+          "16": "mean-median-interchanged"
+        },
+        "hints": [
+          "Add all points and divide by the number of games.",
+          "Sum = 75, and there are 5 games."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "Rebounds per game were 4, 6, 7, 10, 13. What is the median number of rebounds?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "8": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the data and find the middle value.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "Assists per game were 2, 4, 5, 7, 8, 10, 11. Find the interquartile range (Q3 - Q1).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "7": "mean-median-interchanged"
+        },
+        "hints": [
+          "Locate the median, then Q1 and Q3 from the halves.",
+          "Q1 = 4, Q3 = 10, so IQR = 10 - 4."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p1-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "Goals per game were 0, 1, 1, 1, 2. What is the mode?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "1"
+        },
+        "misconceptionMap": {
+          "1.2": "mean-median-interchanged"
+        },
+        "hints": [
+          "The mode is the most common value.",
+          "Which goal total appears most often?"
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p1-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "Shots on goal per game were 2, 3, 5, 6, 9. What is the mean number of shots on goal?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add the shots and divide by the number of games.",
+          "Sum = 25, and there are 5 games."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "Saves per game by a goalkeeper were 3, 4, 6, 8, 11. What is the median?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "6.4": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "Goals per game over 7 games were 0, 1, 2, 3, 4, 4, 6. Find the interquartile range (Q3 - Q1).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Find the median, then Q1 and Q3 from each half.",
+          "Q1 = 1, Q3 = 4, so IQR = 4 - 1."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p1-football-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "Touchdowns per game were 1, 2, 2, 2, 3. What is the mode?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "The mode is the value that appears most often.",
+          "Count how many times each value occurs."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p1-football-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "Completions per game by a quarterback were 14, 18, 20, 24, 24. What is the mean number of completions?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "20"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add the completions and divide by the number of games.",
+          "Sum = 100, and there are 5 games."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-football-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "Field goals made per game were 1, 2, 3, 4, 5. What is the median?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "3"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Order the data and find the middle value.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-football-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "Tackles per game were 3, 5, 6, 8, 9, 11, 14. Find the interquartile range (Q3 - Q1).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "8": "mean-median-interchanged"
+        },
+        "hints": [
+          "Find the median, then Q1 and Q3 from the halves.",
+          "Q1 = 5, Q3 = 11, so IQR = 11 - 5."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p1-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "Aces per match were 0, 1, 1, 1, 3. What is the mode?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "1"
+        },
+        "misconceptionMap": {
+          "1.2": "mean-median-interchanged"
+        },
+        "hints": [
+          "The mode is the most frequent value.",
+          "Which number of aces appears most often?"
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p1-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "Kills per match were 6, 9, 12, 14, 19. What is the mean number of kills?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add the kills and divide by the number of matches.",
+          "Sum = 60, and there are 5 matches."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "Digs per match were 5, 7, 9, 12, 16. What is the median number of digs?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "9.8": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "Blocks per match were 1, 2, 4, 5, 6, 8, 10. Find the interquartile range (Q3 - Q1).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "5": "mean-median-interchanged"
+        },
+        "hints": [
+          "Find the median, then Q1 and Q3 from each half.",
+          "Q1 = 2, Q3 = 8, so IQR = 8 - 2."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p1-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A data set is 4, 5, 5, 5, 7. What is the mode?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "5.2": "mean-median-interchanged"
+        },
+        "hints": [
+          "The mode is the value that appears most often.",
+          "Count how many times each value appears."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p1-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A data set is 6, 8, 11, 14, 16. What is the mean?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "11"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add the values and divide by how many there are.",
+          "Sum = 55, and there are 5 values."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A data set is 2, 4, 9, 10, 12. What is the median?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "7.4": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p1-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A data set is 3, 6, 8, 11, 13, 15, 20. Find the interquartile range (Q3 - Q1).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "11": "mean-median-interchanged"
+        },
+        "hints": [
+          "Find the median, then Q1 and Q3 from the halves.",
+          "Q1 = 6, Q3 = 15, so IQR = 15 - 6."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p2": [
+      {
+        "id": "ALG-D01-p2-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A data set of a hitter's at-bats per game is 3, 4, 4, 5, 9. Which measure changes more when the 9 is replaced by a 30 outlier — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "An outlier pulls one measure toward itself and barely touches the other.",
+          "The median only depends on position, so it resists outliers."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A data set of runs per game is 2, 5, 6, 7, 20. Find the median.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "6"
+        },
+        "misconceptionMap": {
+          "8": "mean-median-interchanged"
+        },
+        "hints": [
+          "The median is the middle value of the ordered data, not the average.",
+          "With 5 values, take the 3rd one; the mean here is 8, a different number."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p2-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A data set of stolen bases per month is 1, 3, 6, 8, 12. What is the range (max - min)?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "11"
+        },
+        "misconceptionMap": {
+          "6": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = largest value minus smallest value.",
+          "Here that is 12 - 1."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A data set of innings pitched is 4, 5, 6, 7, 13. Find the mean.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "6": "mean-median-interchanged"
+        },
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 35, and there are 5 values."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p2-softball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A data set of hits per game is 1, 2, 3, 4, 5. After adding an outlier of 25, which measure moves more — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "One extreme value drags one measure toward it.",
+          "The median is resistant to extreme values."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-softball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A data set of RBIs per game is 0, 2, 4, 6, 8. What is the range?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "4": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = max - min.",
+          "Here that is 8 - 0."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p2-softball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A data set of strikeouts per start is 4, 7, 8, 9, 12. Find the median.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-softball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A data set of pitch counts is 60, 72, 80, 88, 100. Find the mean.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "80"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 400, and there are 5 values."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p2-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A data set of points per game is 8, 10, 12, 14, 16. After adding an outlier of 50, which measure changes more — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "The outlier pulls one measure toward itself.",
+          "The median barely moves because it depends on position."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A data set of rebounds per game is 3, 6, 9, 12, 15. What is the range?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "9": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = max - min.",
+          "Here that is 15 - 3."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p2-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A data set of assists per game is 2, 5, 7, 9, 12. Find the median.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Order the data and take the middle value.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A data set of free throws made is 5, 6, 8, 9, 12. Find the mean.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 40, and there are 5 values."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p2-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A data set of goals per game is 0, 1, 2, 3, 4. After adding an outlier of 20, which measure moves more — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "An extreme value drags one measure toward it.",
+          "The median resists outliers."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A data set of shots per game is 1, 4, 6, 9, 13. What is the range?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "6": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = max - min.",
+          "Here that is 13 - 1."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p2-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A data set of saves per game is 2, 4, 5, 8, 10. Find the median.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "5"
+        },
+        "misconceptionMap": {
+          "5.8": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A data set of passes completed is 18, 22, 25, 28, 32. Find the mean.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "25"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 125, and there are 5 values."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p2-football-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A data set of rushing yards per game is 40, 55, 60, 70, 75. After adding an outlier of 200, which measure changes more — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "The outlier pulls one measure toward itself.",
+          "The median barely moves because it depends on position."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-football-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A data set of receptions per game is 2, 5, 7, 10, 14. What is the range?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "7": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = max - min.",
+          "Here that is 14 - 2."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p2-football-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A data set of sacks per game is 0, 1, 2, 3, 5. Find the median.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "2"
+        },
+        "misconceptionMap": {
+          "2.2": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-football-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A data set of passing yards per game is 180, 210, 240, 270, 300. Find the mean.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "240"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 1200, and there are 5 values."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p2-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A data set of kills per match is 6, 9, 11, 13, 16. After adding an outlier of 45, which measure moves more — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "An extreme value drags one measure toward it.",
+          "The median resists outliers."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A data set of aces per match is 0, 2, 3, 5, 7. What is the range?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "7"
+        },
+        "misconceptionMap": {
+          "3": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = max - min.",
+          "Here that is 7 - 0."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p2-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A data set of digs per match is 4, 6, 8, 11, 13. Find the median.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "8"
+        },
+        "misconceptionMap": {
+          "8.4": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A data set of assists per match is 20, 24, 30, 36, 40. Find the mean.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "30"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 150, and there are 5 values."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p2-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A data set is 4, 6, 8, 10, 12. After adding an outlier of 40, which measure changes more — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "An outlier pulls one measure toward itself.",
+          "The median resists extreme values because it depends on position."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A data set is 5, 8, 11, 14, 17. What is the range?",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "12"
+        },
+        "misconceptionMap": {
+          "11": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = max - min.",
+          "Here that is 17 - 5."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p2-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A data set is 3, 7, 9, 12, 14. Find the median.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p2-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A data set is 12, 16, 19, 22, 26. Find the mean.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "19"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 95, and there are 5 values."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p3": [
+      {
+        "id": "ALG-D01-p3-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Find the mode of 7, 9, 9, 9, 13.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {
+          "9.4": "mean-median-interchanged"
+        },
+        "hints": [
+          "The mode is the value that appears most often.",
+          "Count how many times each value occurs."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D01-p3-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Find the median of 6, 9, 13, 15, 17.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "13"
+        },
+        "misconceptionMap": {
+          "12": "mean-median-interchanged"
+        },
+        "hints": [
+          "Order the values and take the middle one.",
+          "The 3rd of 5 values is the median."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p3-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Find the mean of 14, 17, 20, 23, 26.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "20"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Add all values and divide by the count.",
+          "Sum = 100, and there are 5 values."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p3-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Find the range of 8, 13, 19, 24, 31.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "23"
+        },
+        "misconceptionMap": {
+          "19": "mean-median-interchanged"
+        },
+        "hints": [
+          "Range = max - min.",
+          "Here that is 31 - 8."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D01-p3-neutral-05",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Find the interquartile range (Q3 - Q1) of 2, 5, 7, 9, 12, 14, 19.",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "9"
+        },
+        "misconceptionMap": {},
+        "hints": [
+          "Find the median, then Q1 (median of lower half) and Q3 (median of upper half).",
+          "Q1 = 5, Q3 = 14, so IQR = 14 - 5."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D01-p3-neutral-06",
+        "version": 1,
+        "skillId": "ALG-D01",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A value is added to the data set 10, 20, 30, 40, 50 that is far above all of them. Which measure changes more — the mean or the median?",
+        "visual": null,
+        "choices": [
+          "The mean",
+          "The median"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The mean"
+        },
+        "misconceptionMap": {
+          "The median": "outlier-effect-ignored"
+        },
+        "hints": [
+          "A far-away value pulls one measure toward itself.",
+          "The median depends only on position, so it resists the change."
+        ],
+        "difficulty": 3
+      }
+    ]
+  }
+}

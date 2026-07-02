@@ -5,6 +5,7 @@
 // timeline-dominant wide left (~1.6fr) + sticky right rail (Flags on top, Mastery
 // Map below). No CTA button. All views are read-only over the immutable logs.
 
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireStaff } from "../../../../lib/auth/staff-guard";
 import { getRepository } from "../../../../lib/repository/server";
@@ -117,6 +118,13 @@ export default async function StudentInsightPage({
           title="Decision log & insight"
           subhead={`Every adaptive decision for ${profile.displayName}, composed only from logged facts and the engine's own reasons. Sport: ${profile.sport}.`}
         />
+
+        <Link
+          href={`/admin/students/${studentId}/diagnostic`}
+          className="mb-5 inline-flex items-center gap-1.5 rounded-[8px] border border-border-strong bg-surface px-3 py-1.5 text-[13px] font-medium text-accent transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          View diagnostic responses &amp; grading check →
+        </Link>
 
         {/* Thin full-width standing strip — staff MAY see per-domain bars. */}
         <Card className="mb-5" padding="compact">

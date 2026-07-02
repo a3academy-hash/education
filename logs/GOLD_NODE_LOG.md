@@ -1,0 +1,20 @@
+# GOLD_NODE_LOG — gold-standard node authoring
+
+## 2026-07-02 — Session start: context + live-bank pull
+
+- Read `new_plan/CLAUDE.md` (v0.2), `new_plan/AI_ADAPTIVE.md` (v0.2), `new_plan/STYLE_GUIDE.md` (v0.2), root `CLAUDE.md`.
+- Slope nodes located in `data/algebra1-graph.json`: **ALG-L05 "Slope as Rate of Change"** (prereqs L01, F10; CCSS 8.EE.B.5, F-IF.B.6) and **ALG-L06 "Slope from Two Points"** (prereq L05; CCSS 8.F.B.4). Prompt placeholder "[slope node ID]" unresolved → working target **ALG-L06** with the taxonomy covering the L05+L06 slope cluster, so it survives either choice. Reason: L06 subsumes L05 as prereq and carries the richest documented misconception surface (subtraction order, inversion, forgot-denominator, sign flips).
+- Supabase pull (project `ewnvknibkzloujxbanzm`, matches `.env.local`): active graph **1.9.2** (published + activated 2026-06-14). Slope node entries saved to `.authoring-tmp/gold/ALG-L05-live-1.9.2.json` and `ALG-L06-live-1.9.2.json`.
+- **Current quality bar (what we're replacing), per node:** 62 problems (28 P1 / 28 P2 / 6 P3; difficulty 1–3), all numeric-answer single-step prompts, 2 generic hints each, thin `misconceptionMap` (1–2 wrong-answer→tag entries), `visual: null` throughout, 2 worked examples. No error-analysis items, no representation variety (no table/graph/verbal), no rubric-scored explanation, no transfer-battery structure.
+- Graph `misconceptionRegistry` (153 entries) slope-relevant tags: `forgot-denominator`, `inconsistent-subtraction-order`, `inverted-ratio`, `rise-run-direction-error`; adjacent: `swaps-m-and-b`, `negative-reciprocal-error`, `k-as-y-intercept`, `treats-exponential-as-steep-linear`.
+
+## 2026-07-02 — Misconception taxonomy authored (mr-kahn)
+
+- mr-kahn (agent a6087caa8bc320a1d, continuable via SendMessage) authored the slope-cluster taxonomy → persisted at `docs/gold-node/misconception-taxonomy-slope.md`.
+- **14 entries**: 4 existing registry IDs refined (`forgot-denominator`, `inconsistent-subtraction-order`, `inverted-ratio`, `rise-run-direction-error`) + 10 new (`drops-negative-slope-sign`, `slope-as-difference`, `subtracts-within-points`, `slope-as-height`, `slope-as-single-point-ratio`, `rate-not-per-unit`, `grid-count-ignores-scale`, `slope-as-visual-steepness`, `zero-undefined-slope-swap`, `assumes-constant-rate-nonlinear`). Every entry has a closed-form deterministic detection signature; collisions documented in a matrix with disambiguation probes; merged/rejected candidates recorded (no padding).
+- **Keying contract** (§3 of the doc — the part all 73 other nodes copy): 3-rung hint ladder (root probe → targeted counter → worked micro-step, never the answer), error-analysis items must instantiate the entry's signature as shown work, rubric elements annotated with countered entry IDs (advisory evidence only), 2-hit / probe-confirmed tag activation + severity-based routing.
+- **Registry diff** ready for mechanical application (4 redefine, 10 add, 0 narrowed, 1 live-item re-key). NOT yet applied to `data/algebra1-graph.json` — that edit is gated implementation work.
+- **mr-kahn verdict: APPROVE** on ALG-L06 (with L05 as taught prereq surface) as the gold reference node.
+- Structural finding: F-IF.B.6 lives only on ALG-L05 (no downstream average-rate node) → nonlinearity-discrimination items are mandatory in L05.
+
+Next: awaiting Matt's deliverables list for the full gold-standard experience build.

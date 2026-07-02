@@ -1,0 +1,1739 @@
+{
+  "id": "ALG-Q03",
+  "workedExamples": [
+    {
+      "id": "ALG-Q03-we-01",
+      "title": "The ac method: factor 2x² + 7x + 3",
+      "steps": [
+        {
+          "prompt": "We want to factor 2x² + 7x + 3. Here a = 2, b = 7, c = 3. The first move of the ac method is to multiply a·c. What is a·c, and why NOT just use c?",
+          "reveal": "a·c = 2·3 = 6. You must use a·c = 6, not just c = 3, because the leading coefficient 2 changes which numbers split the middle term. Ignoring the 2 and looking for factors of 3 is the classic mistake that makes the factoring fail."
+        },
+        {
+          "prompt": "Find two integers that MULTIPLY to a·c = 6 and ADD to b = 7.",
+          "reveal": "1 and 6: 1·6 = 6 ✓ and 1 + 6 = 7 ✓. These are the numbers we use to split the middle term."
+        },
+        {
+          "prompt": "Split the middle term 7x using 1 and 6, then write the four-term expression.",
+          "reveal": "7x = x + 6x, so 2x² + 7x + 3 = 2x² + x + 6x + 3. The order of x and 6x does not change the result, but keeping a·c in mind kept us from splitting with the wrong numbers."
+        },
+        {
+          "prompt": "Group the four terms in pairs and factor each pair (factor by grouping).",
+          "reveal": "Group as (2x² + x) + (6x + 3). From the first pair factor x: x(2x + 1). From the second pair factor 3: 3(2x + 1). Both pairs now share the factor (2x + 1)."
+        },
+        {
+          "prompt": "Factor out the common binomial (2x + 1), then CHECK by FOIL.",
+          "reveal": "x(2x + 1) + 3(2x + 1) = (2x + 1)(x + 3). Check by FOIL: (2x)(x) + (2x)(3) + (1)(x) + (1)(3) = 2x² + 6x + x + 3 = 2x² + 7x + 3 ✓. The factored form is (2x + 1)(x + 3)."
+        }
+      ]
+    },
+    {
+      "id": "ALG-Q03-we-02",
+      "title": "Watching the signs: factor 3x² − 5x − 2",
+      "steps": [
+        {
+          "prompt": "Factor 3x² − 5x − 2. Here a = 3, b = −5, c = −2. Compute a·c, keeping the sign.",
+          "reveal": "a·c = 3·(−2) = −6. The product is NEGATIVE, which tells you the two integers you need will have OPPOSITE signs (one positive, one negative)."
+        },
+        {
+          "prompt": "Find two integers that multiply to a·c = −6 and add to b = −5.",
+          "reveal": "+1 and −6: (1)(−6) = −6 ✓ and 1 + (−6) = −5 ✓. Because the sum is negative, the larger-size number (6) takes the minus sign."
+        },
+        {
+          "prompt": "Split the middle term −5x using +1 and −6, writing each sign explicitly.",
+          "reveal": "−5x = +1x − 6x, so 3x² − 5x − 2 = 3x² + x − 6x − 2. Write the −6x with its minus sign showing — dropping or flipping a sign in this step is the most common grouping error."
+        },
+        {
+          "prompt": "Group in pairs and factor each pair, being careful with the negative pair.",
+          "reveal": "Group as (3x² + x) + (−6x − 2). First pair: factor x → x(3x + 1). Second pair: factor −2 (not +2) → −2(3x + 1). Pulling out −2 keeps the inside as (3x + 1) to match the first pair; pulling out +2 would leave (−3x − 1) and the grouping would not match."
+        },
+        {
+          "prompt": "Factor out the common binomial (3x + 1), then CHECK by FOIL.",
+          "reveal": "x(3x + 1) − 2(3x + 1) = (3x + 1)(x − 2). Check by FOIL: (3x)(x) + (3x)(−2) + (1)(x) + (1)(−2) = 3x² − 6x + x − 2 = 3x² − 5x − 2 ✓. The factored form is (3x + 1)(x − 2)."
+        }
+      ]
+    }
+  ],
+  "problems": {
+    "p1": [
+      {
+        "id": "ALG-Q03-p1-baseball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A baseball coach writes the area of a rectangular bullpen as the trinomial 2x² + 7x + 3. Factor 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p1-baseball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A baseball coach writes the area of a rectangular bullpen as the trinomial 2x² + 5x + 2. Factor 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·2 = 4; find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-baseball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A baseball coach writes the area of a rectangular bullpen as the trinomial 3x² + 7x + 2. Factor 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-baseball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A baseball coach writes the area of a rectangular bullpen as the trinomial 3x² − 5x − 2. Factor 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p1-softball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A softball coach writes the area of a rectangular warmup zone as the trinomial 2x² + 7x + 3. Factor 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p1-softball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A softball coach writes the area of a rectangular warmup zone as the trinomial 2x² + 5x + 2. Factor 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·2 = 4; find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-softball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A softball coach writes the area of a rectangular warmup zone as the trinomial 3x² + 7x + 2. Factor 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-softball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A softball coach writes the area of a rectangular warmup zone as the trinomial 2x² − x − 3. Factor 2x² − x − 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x − 3)(x + 1)"
+        },
+        "choices": [
+          "(2x − 3)(x + 1)",
+          "(x − 3)(x + 1)",
+          "(2x + 3)(x − 1)"
+        ],
+        "misconceptionMap": {
+          "(x − 3)(x + 1)": "ignores-leading-coefficient",
+          "(2x + 3)(x − 1)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·(−3) = −6, so the two integers have opposite signs and add to −1.",
+          "+2 and −3: split −x into 2x − 3x, group carefully with signs, and you get (2x − 3)(x + 1)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p1-basketball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A basketball coach writes the area of a rectangular practice area as the trinomial 2x² + 7x + 3. Factor 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p1-basketball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A basketball coach writes the area of a rectangular practice area as the trinomial 2x² + 7x + 6. Factor 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-basketball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A basketball coach writes the area of a rectangular practice area as the trinomial 5x² + 11x + 2. Factor 5x² + 11x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(5x + 1)(x + 2)"
+        },
+        "choices": [
+          "(5x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(5x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(5x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 11.",
+          "1 and 10: split 11x into x + 10x, group, and you get (5x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-basketball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A basketball coach writes the area of a rectangular practice area as the trinomial 3x² − 5x − 2. Factor 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p1-soccer-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A soccer coach writes the area of a rectangular training grid as the trinomial 2x² + 7x + 3. Factor 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p1-soccer-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A soccer coach writes the area of a rectangular training grid as the trinomial 3x² + 10x + 3. Factor 3x² + 10x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 3)"
+        },
+        "choices": [
+          "(3x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(3x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·3 = 9; find two integers that multiply to 9 and add to 10.",
+          "1 and 9: split 10x into x + 9x, group, and you get (3x + 1)(x + 3)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-soccer-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A soccer coach writes the area of a rectangular training grid as the trinomial 2x² + 5x + 2. Factor 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·2 = 4; find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-soccer-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A soccer coach writes the area of a rectangular training grid as the trinomial 2x² − x − 3. Factor 2x² − x − 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x − 3)(x + 1)"
+        },
+        "choices": [
+          "(2x − 3)(x + 1)",
+          "(x − 3)(x + 1)",
+          "(2x + 3)(x − 1)"
+        ],
+        "misconceptionMap": {
+          "(x − 3)(x + 1)": "ignores-leading-coefficient",
+          "(2x + 3)(x − 1)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·(−3) = −6, so the two integers have opposite signs and add to −1.",
+          "+2 and −3: split −x into 2x − 3x, group carefully with signs, and you get (2x − 3)(x + 1)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p1-football-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A football coach writes the area of a rectangular end-zone drill as the trinomial 2x² + 7x + 3. Factor 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p1-football-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A football coach writes the area of a rectangular end-zone drill as the trinomial 2x² + 7x + 6. Factor 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-football-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A football coach writes the area of a rectangular end-zone drill as the trinomial 3x² + 7x + 2. Factor 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-football-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A football coach writes the area of a rectangular end-zone drill as the trinomial 3x² − 5x − 2. Factor 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p1-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A volleyball coach writes the area of a rectangular court drill as the trinomial 2x² + 7x + 3. Factor 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p1-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A volleyball coach writes the area of a rectangular court drill as the trinomial 3x² + 10x + 3. Factor 3x² + 10x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 3)"
+        },
+        "choices": [
+          "(3x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(3x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·3 = 9; find two integers that multiply to 9 and add to 10.",
+          "1 and 9: split 10x into x + 9x, group, and you get (3x + 1)(x + 3)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A volleyball coach writes the area of a rectangular court drill as the trinomial 5x² + 11x + 2. Factor 5x² + 11x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(5x + 1)(x + 2)"
+        },
+        "choices": [
+          "(5x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(5x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(5x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 11.",
+          "1 and 10: split 11x into x + 10x, group, and you get (5x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A volleyball coach writes the area of a rectangular court drill as the trinomial 3x² − 5x − 2. Factor 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p1-neutral-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "Factor the trinomial 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c); find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p1-neutral-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "Factor the trinomial 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-neutral-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "Factor the trinomial 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·2 = 4; find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p1-neutral-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "Factor the trinomial 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p2": [
+      {
+        "id": "ALG-Q03-p2-baseball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 7x + 3 models an area. Using the ac method, factor T = 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p2-baseball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 5x + 2 models an area. Using the ac method, factor T = 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·2 = 4; find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-baseball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "On a coach's whiteboard the trinomial T = 5x² + 11x + 2 models an area. Using the ac method, factor T = 5x² + 11x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(5x + 1)(x + 2)"
+        },
+        "choices": [
+          "(5x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(5x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(5x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 11.",
+          "1 and 10: split 11x into x + 10x, group, and you get (5x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-baseball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² − 5x − 2 models a net change. Using the ac method, factor T = 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p2-softball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² + 7x + 2 models an area. Using the ac method, factor T = 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p2-softball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 7x + 6 models an area. Using the ac method, factor T = 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-softball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² + 10x + 3 models an area. Using the ac method, factor T = 3x² + 10x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 3)"
+        },
+        "choices": [
+          "(3x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(3x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·3 = 9; find two integers that multiply to 9 and add to 10.",
+          "1 and 9: split 10x into x + 9x, group, and you get (3x + 1)(x + 3)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-softball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² − 5x − 2 models a net change. Using the ac method, factor T = 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p2-basketball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 7x + 6 models an area. Using the ac method, factor T = 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p2-basketball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² − x − 3 models a net change. Using the ac method, factor T = 2x² − x − 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x − 3)(x + 1)"
+        },
+        "choices": [
+          "(2x − 3)(x + 1)",
+          "(x − 3)(x + 1)",
+          "(2x + 3)(x − 1)"
+        ],
+        "misconceptionMap": {
+          "(x − 3)(x + 1)": "ignores-leading-coefficient",
+          "(2x + 3)(x − 1)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·(−3) = −6, so the two integers have opposite signs and add to −1.",
+          "+2 and −3: split −x into 2x − 3x, group carefully with signs, and you get (2x − 3)(x + 1)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-basketball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² + 7x + 2 models an area. Using the ac method, factor T = 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-basketball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "On a coach's whiteboard the trinomial T = 5x² + 11x + 2 models an area. Using the ac method, factor T = 5x² + 11x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(5x + 1)(x + 2)"
+        },
+        "choices": [
+          "(5x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(5x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(5x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 11.",
+          "1 and 10: split 11x into x + 10x, group, and you get (5x + 1)(x + 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p2-soccer-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² + 10x + 3 models an area. Using the ac method, factor T = 3x² + 10x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 3)"
+        },
+        "choices": [
+          "(3x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(3x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·3 = 9; find two integers that multiply to 9 and add to 10.",
+          "1 and 9: split 10x into x + 9x, group, and you get (3x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p2-soccer-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 5x + 2 models an area. Using the ac method, factor T = 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·2 = 4; find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-soccer-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "On a coach's whiteboard the trinomial T = 5x² + 11x + 2 models an area. Using the ac method, factor T = 5x² + 11x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(5x + 1)(x + 2)"
+        },
+        "choices": [
+          "(5x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(5x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(5x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 11.",
+          "1 and 10: split 11x into x + 10x, group, and you get (5x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-soccer-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² − x − 3 models a net change. Using the ac method, factor T = 2x² − x − 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x − 3)(x + 1)"
+        },
+        "choices": [
+          "(2x − 3)(x + 1)",
+          "(x − 3)(x + 1)",
+          "(2x + 3)(x − 1)"
+        ],
+        "misconceptionMap": {
+          "(x − 3)(x + 1)": "ignores-leading-coefficient",
+          "(2x + 3)(x − 1)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·(−3) = −6, so the two integers have opposite signs and add to −1.",
+          "+2 and −3: split −x into 2x − 3x, group carefully with signs, and you get (2x − 3)(x + 1)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p2-football-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 7x + 3 models an area. Using the ac method, factor T = 2x² + 7x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 3)"
+        },
+        "choices": [
+          "(2x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(2x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·3 = 6 (use a·c, not just c), then find two integers that multiply to 6 and add to 7.",
+          "1 and 6 work: split 7x into x + 6x, group, and you get (2x + 1)(x + 3)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p2-football-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² − 5x − 2 models a net change. Using the ac method, factor T = 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-football-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 7x + 6 models an area. Using the ac method, factor T = 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-football-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² + 10x + 3 models an area. Using the ac method, factor T = 3x² + 10x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 3)"
+        },
+        "choices": [
+          "(3x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(3x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·3 = 9; find two integers that multiply to 9 and add to 10.",
+          "1 and 9: split 10x into x + 9x, group, and you get (3x + 1)(x + 3)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p2-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² + 7x + 2 models an area. Using the ac method, factor T = 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p2-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 5x + 2 models an area. Using the ac method, factor T = 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·2 = 4; find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "On a coach's whiteboard the trinomial T = 2x² + 7x + 6 models an area. Using the ac method, factor T = 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "On a coach's whiteboard the trinomial T = 3x² − 5x − 2 models a net change. Using the ac method, factor T = 3x² − 5x − 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x − 2)"
+        },
+        "choices": [
+          "(3x + 1)(x − 2)",
+          "(x + 1)(x − 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x − 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·(−2) = −6, so the two integers have opposite signs and add to −5.",
+          "+1 and −6: split −5x into x − 6x, group carefully with signs, and you get (3x + 1)(x − 2)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p2-neutral-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A trinomial T = 2x² + 7x + 6 represents an area. Using the ac method, factor T = 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p2-neutral-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A trinomial T = 2x² − x − 3 represents a net change. Using the ac method, factor T = 2x² − x − 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x − 3)(x + 1)"
+        },
+        "choices": [
+          "(2x − 3)(x + 1)",
+          "(x − 3)(x + 1)",
+          "(2x + 3)(x − 1)"
+        ],
+        "misconceptionMap": {
+          "(x − 3)(x + 1)": "ignores-leading-coefficient",
+          "(2x + 3)(x − 1)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·(−3) = −6, so the two integers have opposite signs and add to −1.",
+          "+2 and −3: split −x into 2x − 3x, group carefully with signs, and you get (2x − 3)(x + 1)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-neutral-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A trinomial T = 3x² + 7x + 2 represents an area. Using the ac method, factor T = 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p2-neutral-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A trinomial T = 5x² + 11x + 2 represents an area. Using the ac method, factor T = 5x² + 11x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(5x + 1)(x + 2)"
+        },
+        "choices": [
+          "(5x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(5x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(5x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 11.",
+          "1 and 10: split 11x into x + 10x, group, and you get (5x + 1)(x + 2)."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p3": [
+      {
+        "id": "ALG-Q03-p3-neutral-01",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Factor 2x² + 5x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 1)(x + 2)"
+        },
+        "choices": [
+          "(2x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(2x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "Multiply a·c = 2·2 = 4 (use a·c, not just c), then find two integers that multiply to 4 and add to 5.",
+          "1 and 4: split 5x into x + 4x, group, and you get (2x + 1)(x + 2)."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-Q03-p3-neutral-02",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Factor 3x² + 7x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 2)"
+        },
+        "choices": [
+          "(3x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(3x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·2 = 6; find two integers that multiply to 6 and add to 7.",
+          "1 and 6: split 7x into x + 6x, group, and you get (3x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p3-neutral-03",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Factor 3x² + 10x + 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(3x + 1)(x + 3)"
+        },
+        "choices": [
+          "(3x + 1)(x + 3)",
+          "(x + 1)(x + 3)",
+          "(3x − 1)(x + 3)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 3)": "ignores-leading-coefficient",
+          "(3x − 1)(x + 3)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 3·3 = 9; find two integers that multiply to 9 and add to 10.",
+          "1 and 9: split 10x into x + 9x, group, and you get (3x + 1)(x + 3)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p3-neutral-04",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Factor 5x² + 11x + 2.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(5x + 1)(x + 2)"
+        },
+        "choices": [
+          "(5x + 1)(x + 2)",
+          "(x + 1)(x + 2)",
+          "(5x − 1)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 1)(x + 2)": "ignores-leading-coefficient",
+          "(5x − 1)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 5·2 = 10; find two integers that multiply to 10 and add to 11.",
+          "1 and 10: split 11x into x + 10x, group, and you get (5x + 1)(x + 2)."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-Q03-p3-neutral-05",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Factor 2x² − x − 3.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x − 3)(x + 1)"
+        },
+        "choices": [
+          "(2x − 3)(x + 1)",
+          "(x − 3)(x + 1)",
+          "(2x + 3)(x − 1)"
+        ],
+        "misconceptionMap": {
+          "(x − 3)(x + 1)": "ignores-leading-coefficient",
+          "(2x + 3)(x − 1)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·(−3) = −6, so the two integers have opposite signs and add to −1.",
+          "+2 and −3: split −x into 2x − 3x, group carefully with signs, and you get (2x − 3)(x + 1)."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-Q03-p3-neutral-06",
+        "version": 1,
+        "skillId": "ALG-Q03",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "Factor 2x² + 7x + 6.",
+        "visual": null,
+        "answer": {
+          "kind": "choice",
+          "value": "(2x + 3)(x + 2)"
+        },
+        "choices": [
+          "(2x + 3)(x + 2)",
+          "(x + 3)(x + 2)",
+          "(2x − 3)(x + 2)"
+        ],
+        "misconceptionMap": {
+          "(x + 3)(x + 2)": "ignores-leading-coefficient",
+          "(2x − 3)(x + 2)": "grouping-sign-slip"
+        },
+        "hints": [
+          "a·c = 2·6 = 12; find two integers that multiply to 12 and add to 7.",
+          "3 and 4: split 7x into 3x + 4x, group, and you get (2x + 3)(x + 2)."
+        ],
+        "difficulty": 3
+      }
+    ]
+  }
+}

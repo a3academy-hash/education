@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   coordinateSeedFromProblems,
   numberlineSeedFromProblems,
+  synthesizeNumberlineSeed,
   parseEquation,
   equationSeedFromNode,
 } from "./learn-explore-seed";
@@ -176,5 +177,51 @@ describe("equationSeedFromNode", () => {
 
   it("returns null when nothing parses (degrade-safe)", () => {
     expect(equationSeedFromNode([], [prob({ prompt: "no math" })])).toBeNull();
+  });
+});
+
+describe("synthesizeNumberlineSeed", () => {
+  const we = (title: string): WorkedExample => ({ id: "we", title, steps: [] });
+
+  it("returns null for a non-numberline node", () => {
+    expect(synthesizeNumberlineSeed({ visual: "coordinate", workedExamples: [] })).toBeNull();
+    expect(synthesizeNumberlineSeed({ visual: null, workedExamples: [] })).toBeNull();
+  });
+
+  it("seeds the marker at `a` with an operationDelta from a clean WE title (ALG-F01 shape)", () => {
+    const seed = synthesizeNumberlineSeed({
+      visual: "numberline",
+      workedExamples: [we("Adding signed numbers on a number line: −4 + 7")],
+    });
+    expect(seed).toMatchObject({
+      kind: "numberline",
+      mode: "interactive",
+      markers: [{ value: -4 }],
+      operationDelta: 7,
+      range: { min: -10, max: 10 },
+    });
+  });
+
+  it("skips parenthesized titles and uses the next clean move", () => {
+    const seed = synthesizeNumberlineSeed({
+      visual: "numberline",
+      workedExamples: [we("Subtracting a negative: 5 − (−3)"), we("Then: -6 + 2")],
+    });
+    expect(seed?.markers).toEqual([{ value: -6 }]);
+    expect(seed?.operationDelta).toBe(2);
+  });
+
+  it("falls back to a symmetric −10..10 line with a marker at 0 when no move parses", () => {
+    const seed = synthesizeNumberlineSeed({
+      visual: "numberline",
+      workedExamples: [we("Integer operations overview")],
+    });
+    expect(seed).toMatchObject({
+      kind: "numberline",
+      mode: "interactive",
+      range: { min: -10, max: 10 },
+      markers: [{ value: 0 }],
+    });
+    expect(seed?.operationDelta).toBeUndefined();
   });
 });

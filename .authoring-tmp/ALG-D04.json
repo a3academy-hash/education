@@ -1,0 +1,1558 @@
+{
+  "id": "ALG-D04",
+  "workedExamples": [
+    {
+      "id": "ALG-D04-we-01",
+      "title": "Interpreting slope and predicting safely: ŷ = 4x + 20",
+      "steps": [
+        {
+          "prompt": "A coach tracks practice hours (x) and free throws made out of 100 (y) for players who practiced between 1 and 8 hours. The line of best fit is ŷ = 4x + 20. What does the slope 4 tell you?",
+          "reveal": "The slope is the change in ŷ for each 1-unit increase in x. So for each extra hour of practice, the model predicts about 4 more free throws made. Slope = rise over run = change in y per 1 unit of x."
+        },
+        {
+          "prompt": "Predict the free throws made for a player who practices 5 hours. Is 5 inside the data range of 1 to 8?",
+          "reveal": "Yes, 5 is between 1 and 8, so this is interpolation — reliable. Substitute x = 5: ŷ = 4(5) + 20 = 20 + 20 = 40. The model predicts 40 free throws made."
+        },
+        {
+          "prompt": "Now a player claims they will practice 30 hours, so the model predicts ŷ = 4(30) + 20 = 140 made. What is wrong with trusting that number?",
+          "reveal": "Two things. First, 30 is far outside the data range of 1 to 8 — that is extrapolation, and the linear trend may not hold out there (the trap: extrapolates-blindly). Second, 140 free throws out of 100 is impossible, which is a clue the line was never meant to stretch that far. Plugging numbers in is easy; trusting predictions outside the observed range is the mistake."
+        },
+        {
+          "prompt": "State the safe rule for using a line of best fit to predict.",
+          "reveal": "Predict only for x-values inside (or very near) the range where data was actually collected. Inside the range the relationship was observed and the prediction is trustworthy; far outside it, you are guessing that the pattern continues — which it may not."
+        }
+      ]
+    },
+    {
+      "id": "ALG-D04-we-02",
+      "title": "Interpreting the y-intercept in context: when x = 0 makes sense, and when it does not",
+      "steps": [
+        {
+          "prompt": "A line of best fit for cars aged 1 to 10 years is ŷ = −1500x + 22000, where x = age in years and y = resale value in dollars. What does the intercept 22000 represent?",
+          "reveal": "The intercept is the value of ŷ when x = 0. Here x = 0 means a brand-new car (zero years old), and 22000 dollars is a sensible price for a new car. Because x = 0 is meaningful and sits right at the edge of the data range, the intercept can be read as the predicted value of a brand-new car."
+        },
+        {
+          "prompt": "Now a different study fits ŷ = 2x − 100, where x = a student's height in centimeters (data from 150 to 190 cm) and y = a test score. What does the intercept −100 mean?",
+          "reveal": "Literally it is the predicted score when x = 0 — a student 0 cm tall. That is impossible and far outside the data range of 150 to 190 cm. So the intercept −100 has NO real-world meaning here; it is just where the line happens to cross the axis. Reading it as a real score is the trap: intercept-interpreted-out-of-context."
+        },
+        {
+          "prompt": "What is the difference between the two intercepts above?",
+          "reveal": "In the car example, x = 0 is real (a new car) and near the data, so the intercept is a meaningful prediction. In the height example, x = 0 is impossible and far from the data (150–190 cm), so the intercept is meaningless in context. Always ask: does x = 0 make real-world sense, and is it in or near the data?"
+        },
+        {
+          "prompt": "State the rule for interpreting an intercept.",
+          "reveal": "Interpret the y-intercept as a real-world value only when x = 0 is meaningful AND inside or near the data range. Otherwise the intercept is just a mathematical anchor for the line, not a fact about the world."
+        }
+      ]
+    }
+  ],
+  "problems": {
+    "p1": [
+      {
+        "id": "ALG-D04-p1-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A line of best fit for games 1–12 of a hitter's season is ŷ = 2x + 30 (x = game number, y = total hits so far). The slope is 2. In plain words, what does that slope mean?",
+        "visual": "scatter",
+        "choices": [
+          "Each game, the total hits go up by about 2",
+          "The total hits go up by about 30 each game",
+          "The hitter had 2 hits in game 1"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Each game, the total hits go up by about 2"
+        },
+        "misconceptionMap": {
+          "The total hits go up by about 30 each game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y for each 1-game increase in x.",
+          "The number multiplied by x is the per-game change."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p1-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "For games 1–12, a hitter's total hits follow ŷ = 2x + 30 (x = game number, y = total hits). Predict the total hits after game 7.",
+        "visual": "scatter",
+        "answer": {
+          "kind": "numeric",
+          "value": "44"
+        },
+        "misconceptionMap": {
+          "32": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 7 is inside the data range 1–12, so substituting is reliable.",
+          "Compute 2(7) + 30."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "A pitcher's data covers innings 1–9 with ŷ = 14x + 6 (x = inning, y = pitches thrown so far). Someone uses it to predict pitches at inning 40: ŷ = 14(40) + 6 = 566. Is that prediction reliable?",
+        "visual": "scatter",
+        "choices": [
+          "No, inning 40 is far outside the data range 1–9",
+          "Yes, just plug it in and trust the result"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, inning 40 is far outside the data range 1–9"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in and trust the result": "extrapolates-blindly"
+        },
+        "hints": [
+          "The data only goes up to inning 9. A real game rarely reaches inning 40.",
+          "Predictions far outside the observed range may not follow the same trend."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "baseball",
+        "prompt": "For games 1–10, team runs scored follow ŷ = 1x + 4 (x = game number, y = cumulative run differential). The intercept is 4. What does it mean here, and can you trust it?",
+        "visual": "scatter",
+        "choices": [
+          "It is the model's run differential just before game 1 (x = 0), right at the edge of the data, so it is a sensible starting value",
+          "It means the team scores 4 runs every single game no matter what"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "It is the model's run differential just before game 1 (x = 0), right at the edge of the data, so it is a sensible starting value"
+        },
+        "misconceptionMap": {
+          "It means the team scores 4 runs every single game no matter what": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is the value of y when x = 0.",
+          "x = 0 here means before game 1 — is that near the data and sensible?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p1-softball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A line of best fit for games 1–15 is ŷ = 3x + 10 (x = game number, y = total runs batted in). The slope is 3. What does the slope tell you?",
+        "visual": "scatter",
+        "choices": [
+          "The total RBIs go up by about 3 each game",
+          "The total RBIs go up by about 10 each game",
+          "The player had 3 RBIs total all season"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The total RBIs go up by about 3 each game"
+        },
+        "misconceptionMap": {
+          "The total RBIs go up by about 10 each game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y for each 1-game step in x.",
+          "The coefficient on x is the per-game change, not the intercept."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p1-softball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "For games 1–15, total runs batted in follow ŷ = 3x + 10 (x = game number, y = total RBIs). Predict the total RBIs after game 9.",
+        "visual": "scatter",
+        "answer": {
+          "kind": "numeric",
+          "value": "37"
+        },
+        "misconceptionMap": {
+          "13": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 9 is inside the data range 1–15, so the prediction is reliable.",
+          "Compute 3(9) + 10."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-softball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "A pitcher's strikeout data covers games 1–14 with ŷ = 5x + 8 (x = game number, y = total strikeouts). A fan predicts strikeouts at game 100: ŷ = 5(100) + 8 = 508. Is that prediction reliable?",
+        "visual": "scatter",
+        "choices": [
+          "No, game 100 is far outside the data range 1–14",
+          "Yes, just plug it in and trust the result"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, game 100 is far outside the data range 1–14"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in and trust the result": "extrapolates-blindly"
+        },
+        "hints": [
+          "The season's data only reaches game 14.",
+          "A prediction far past the data assumes the trend keeps going — it may not."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-softball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "softball",
+        "prompt": "For practices 1–12, a fitted line is ŷ = −2x + 60 (x = practice number, y = errors made in fielding drills, totaled across the team). The intercept is 60. What does it mean, and can you trust it?",
+        "visual": "scatter",
+        "choices": [
+          "It is the model's error count just before practice 1 (x = 0), at the edge of the data, so it is a sensible starting value",
+          "It means the team will always have 60 errors forever"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "It is the model's error count just before practice 1 (x = 0), at the edge of the data, so it is a sensible starting value"
+        },
+        "misconceptionMap": {
+          "It means the team will always have 60 errors forever": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0.",
+          "x = 0 here means before practice 1 — near the data and sensible?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p1-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A line of best fit for games 1–20 is ŷ = 4x + 12 (x = game number, y = total points scored so far). The slope is 4. What does the slope tell you?",
+        "visual": "scatter",
+        "choices": [
+          "The total points go up by about 4 each game",
+          "The total points go up by about 12 each game",
+          "The player scored 4 points all season"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The total points go up by about 4 each game"
+        },
+        "misconceptionMap": {
+          "The total points go up by about 12 each game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y for each 1-game increase in x.",
+          "The number multiplied by x is the per-game change."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p1-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "For games 1–20, total points follow ŷ = 4x + 12 (x = game number, y = total points). Predict the total points after game 8.",
+        "visual": "scatter",
+        "answer": {
+          "kind": "numeric",
+          "value": "44"
+        },
+        "misconceptionMap": {
+          "12": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 8 is inside the data range 1–20, so substituting is reliable.",
+          "Compute 4(8) + 12."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "Minutes-played data covers games 1–18 with ŷ = 2x + 20 (x = game number, y = total minutes played). A fan predicts minutes at game 200: ŷ = 2(200) + 20 = 420. Is that prediction reliable?",
+        "visual": "scatter",
+        "choices": [
+          "No, game 200 is far outside the data range 1–18",
+          "Yes, just plug it in and trust the result"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, game 200 is far outside the data range 1–18"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in and trust the result": "extrapolates-blindly"
+        },
+        "hints": [
+          "The data only goes up to game 18.",
+          "A season does not reach game 200; the trend may not hold there."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "basketball",
+        "prompt": "A fitted line for a shooter is ŷ = 3x + 5 (x = shots attempted in a session, data from 5 to 40 attempts, y = shots made). The intercept is 5. What does it mean, and can you trust it?",
+        "visual": "scatter",
+        "choices": [
+          "x = 0 attempts is outside the data, so the intercept has no real-world meaning here",
+          "It means the player makes 5 shots even when taking 0 shots"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "x = 0 attempts is outside the data, so the intercept has no real-world meaning here"
+        },
+        "misconceptionMap": {
+          "It means the player makes 5 shots even when taking 0 shots": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0 attempts.",
+          "With 0 attempts you cannot make 5 shots, and x = 0 is outside the 5–40 range."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p1-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A line of best fit for matches 1–18 is ŷ = 1x + 8 (x = match number, y = total goals scored by the team so far). The slope is 1. What does the slope tell you?",
+        "visual": "scatter",
+        "choices": [
+          "The total goals go up by about 1 each match",
+          "The total goals go up by about 8 each match",
+          "The team scored 1 goal all season"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The total goals go up by about 1 each match"
+        },
+        "misconceptionMap": {
+          "The total goals go up by about 8 each match": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y for each 1-match step in x.",
+          "The coefficient on x is the per-match change."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p1-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "For matches 1–18, total goals follow ŷ = 1x + 8 (x = match number, y = total goals). Predict the total goals after match 10.",
+        "visual": "scatter",
+        "answer": {
+          "kind": "numeric",
+          "value": "18"
+        },
+        "misconceptionMap": {
+          "8": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Match 10 is inside the data range 1–18, so the prediction is reliable.",
+          "Compute 1(10) + 8."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A line for matches 1–16 is ŷ = 6x + 3 (x = match number, y = total shots on target). Someone predicts the value at match 90: ŷ = 6(90) + 3 = 543. Is that prediction reliable?",
+        "visual": "scatter",
+        "choices": [
+          "No, match 90 is far outside the data range 1–16",
+          "Yes, just plug it in and trust the result"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, match 90 is far outside the data range 1–16"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in and trust the result": "extrapolates-blindly"
+        },
+        "hints": [
+          "The data only reaches match 16.",
+          "A season does not reach match 90; the trend may break down."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "soccer",
+        "prompt": "A fitted line for sprint times is ŷ = −1x + 40 (x = weeks of training from 1 to 12, y = sprint time in seconds for a fixed distance, scaled). The intercept is 40. What does it mean, and can you trust it?",
+        "visual": "scatter",
+        "choices": [
+          "It is the model's sprint time just before training begins (x = 0), at the edge of the data, so it is a sensible starting value",
+          "It means the player will always run in 40 seconds no matter how long they train"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "It is the model's sprint time just before training begins (x = 0), at the edge of the data, so it is a sensible starting value"
+        },
+        "misconceptionMap": {
+          "It means the player will always run in 40 seconds no matter how long they train": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0 weeks.",
+          "x = 0 means before training starts — near the data and sensible?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p1-football-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A line of best fit for games 1–10 is ŷ = 80x + 50 (x = game number, y = total rushing yards so far). The slope is 80. What does the slope tell you?",
+        "visual": "scatter",
+        "choices": [
+          "The total rushing yards go up by about 80 each game",
+          "The total rushing yards go up by about 50 each game",
+          "The runner had 80 yards all season"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The total rushing yards go up by about 80 each game"
+        },
+        "misconceptionMap": {
+          "The total rushing yards go up by about 50 each game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y for each 1-game step in x.",
+          "The number multiplied by x is the per-game change."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p1-football-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "For games 1–10, total rushing yards follow ŷ = 80x + 50 (x = game number, y = total yards). Predict the total rushing yards after game 6.",
+        "visual": "scatter",
+        "answer": {
+          "kind": "numeric",
+          "value": "530"
+        },
+        "misconceptionMap": {
+          "50": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 6 is inside the data range 1–10, so substituting is reliable.",
+          "Compute 80(6) + 50."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-football-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A line for games 1–10 is ŷ = 15x + 20 (x = game number, y = total completions). Someone predicts the value at game 75: ŷ = 15(75) + 20 = 1145. Is that prediction reliable?",
+        "visual": "scatter",
+        "choices": [
+          "No, game 75 is far outside the data range 1–10",
+          "Yes, just plug it in and trust the result"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, game 75 is far outside the data range 1–10"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in and trust the result": "extrapolates-blindly"
+        },
+        "hints": [
+          "The season's data stops at game 10.",
+          "A football season does not reach game 75; the trend may not hold."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-football-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "football",
+        "prompt": "A fitted line relates kick distance to leg-strength score: ŷ = 2x + 10 (x = strength score from 30 to 90, y = kick distance in yards). The intercept is 10. What does it mean, and can you trust it?",
+        "visual": "scatter",
+        "choices": [
+          "x = 0 strength is outside the data, so the intercept has no real-world meaning here",
+          "It means a kicker with 0 strength still kicks the ball 10 yards"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "x = 0 strength is outside the data, so the intercept has no real-world meaning here"
+        },
+        "misconceptionMap": {
+          "It means a kicker with 0 strength still kicks the ball 10 yards": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0 strength.",
+          "x = 0 is far below the 30–90 data range, so reading it literally is risky."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p1-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A line of best fit for matches 1–16 is ŷ = 5x + 7 (x = match number, y = total kills so far). The slope is 5. What does the slope tell you?",
+        "visual": "scatter",
+        "choices": [
+          "The total kills go up by about 5 each match",
+          "The total kills go up by about 7 each match",
+          "The player had 5 kills all season"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The total kills go up by about 5 each match"
+        },
+        "misconceptionMap": {
+          "The total kills go up by about 7 each match": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y for each 1-match step in x.",
+          "The coefficient on x is the per-match change."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p1-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "For matches 1–16, total kills follow ŷ = 5x + 7 (x = match number, y = total kills). Predict the total kills after match 8.",
+        "visual": "scatter",
+        "answer": {
+          "kind": "numeric",
+          "value": "47"
+        },
+        "misconceptionMap": {
+          "7": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Match 8 is inside the data range 1–16, so the prediction is reliable.",
+          "Compute 5(8) + 7."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A line for matches 1–14 is ŷ = 9x + 4 (x = match number, y = total digs). Someone predicts the value at match 80: ŷ = 9(80) + 4 = 724. Is that prediction reliable?",
+        "visual": "scatter",
+        "choices": [
+          "No, match 80 is far outside the data range 1–14",
+          "Yes, just plug it in and trust the result"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, match 80 is far outside the data range 1–14"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in and trust the result": "extrapolates-blindly"
+        },
+        "hints": [
+          "The data only reaches match 14.",
+          "A season does not reach match 80; the trend may not continue."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "volleyball",
+        "prompt": "A fitted line for serves is ŷ = 4x + 11 (x = match number from 1 to 16, y = total aces so far). The intercept is 11. What does it mean, and can you trust it?",
+        "visual": "scatter",
+        "choices": [
+          "It is the model's ace total just before match 1 (x = 0), at the edge of the data, so it is a sensible starting value",
+          "It means the player serves 11 aces in every single match"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "It is the model's ace total just before match 1 (x = 0), at the edge of the data, so it is a sensible starting value"
+        },
+        "misconceptionMap": {
+          "It means the player serves 11 aces in every single match": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0.",
+          "x = 0 means before match 1 — near the data and sensible?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p1-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A line of best fit for weeks 1–12 is ŷ = 6x + 25 (x = week number, y = total books read by a class). The slope is 6. What does the slope tell you?",
+        "visual": "scatter",
+        "choices": [
+          "The total books read go up by about 6 each week",
+          "The total books read go up by about 25 each week",
+          "The class read 6 books all term"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The total books read go up by about 6 each week"
+        },
+        "misconceptionMap": {
+          "The total books read go up by about 25 each week": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y for each 1-week step in x.",
+          "The number multiplied by x is the per-week change."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p1-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "For weeks 1–12, total books read follow ŷ = 6x + 25 (x = week number, y = total books). Predict the total books read after week 7.",
+        "visual": "scatter",
+        "answer": {
+          "kind": "numeric",
+          "value": "67"
+        },
+        "misconceptionMap": {
+          "25": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Week 7 is inside the data range 1–12, so the prediction is reliable.",
+          "Compute 6(7) + 25."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A line for days 1–10 is ŷ = 12x + 30 (x = day number, y = total visitors to a museum exhibit). Someone predicts the value at day 365: ŷ = 12(365) + 30 = 4410. Is that prediction reliable?",
+        "visual": "scatter",
+        "choices": [
+          "No, day 365 is far outside the data range 1–10",
+          "Yes, just plug it in and trust the result"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, day 365 is far outside the data range 1–10"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in and trust the result": "extrapolates-blindly"
+        },
+        "hints": [
+          "The data only covers days 1–10.",
+          "A prediction at day 365 is far past the observed range; the trend may not hold."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p1-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 1,
+        "sport": "neutral",
+        "prompt": "A fitted line relates study time to quiz score: ŷ = 3x + 40 (x = minutes studied from 20 to 80, y = quiz score). The intercept is 40. What does it mean, and can you trust it?",
+        "visual": "scatter",
+        "choices": [
+          "x = 0 minutes is outside the data, so the intercept has limited real-world meaning here",
+          "It means a student who studies 0 minutes is guaranteed exactly 40 on the quiz"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "x = 0 minutes is outside the data, so the intercept has limited real-world meaning here"
+        },
+        "misconceptionMap": {
+          "It means a student who studies 0 minutes is guaranteed exactly 40 on the quiz": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0 minutes.",
+          "x = 0 is outside the 20–80 data range, so reading it as a guarantee is risky."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p2": [
+      {
+        "id": "ALG-D04-p2-baseball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A scatter plot of games 1–12 is summarized by ŷ = 2x + 30 (x = game, y = total hits). Reading the graph, what does the slope of 2 represent?",
+        "visual": "scatter",
+        "choices": [
+          "The line rises 2 hits for every 1 game across the plot",
+          "The line rises 30 hits for every 1 game",
+          "The points all lie exactly on the line"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The line rises 2 hits for every 1 game across the plot"
+        },
+        "misconceptionMap": {
+          "The line rises 30 hits for every 1 game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "On the graph, slope is the vertical rise per 1 unit moved right.",
+          "Match the slope number, not the intercept number."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p2-baseball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "On a scatter plot for games 1–12, the line of best fit is ŷ = 2x + 30 (x = game, y = total hits). Use the graphed line to predict total hits at game 11.",
+        "visual": "graph",
+        "answer": {
+          "kind": "numeric",
+          "value": "52"
+        },
+        "misconceptionMap": {
+          "30": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 11 is inside the plotted range 1–12.",
+          "Read the line at x = 11: compute 2(11) + 30."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-baseball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "A scatter plot covers games 1–12 with line ŷ = 2x + 30. A teammate extends the line on the graph to game 50 to predict 130 hits. Why is that risky?",
+        "visual": "graph",
+        "choices": [
+          "Game 50 is far past the plotted data 1–12, so the extended line may not match reality",
+          "It is fine; the line on the graph keeps going forever"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Game 50 is far past the plotted data 1–12, so the extended line may not match reality"
+        },
+        "misconceptionMap": {
+          "It is fine; the line on the graph keeps going forever": "extrapolates-blindly"
+        },
+        "hints": [
+          "The points on the graph stop at game 12.",
+          "Extending a fitted line far beyond the data is extrapolation."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-baseball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "baseball",
+        "prompt": "On a scatter plot for games 1–10, the line ŷ = 1x + 4 crosses the y-axis at 4. What does that y-intercept mean on this graph?",
+        "visual": "graph",
+        "choices": [
+          "The model's run differential at game 0 (just before the season), at the edge of the plotted data, so a sensible starting value",
+          "The team always scores exactly 4 runs in every game"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The model's run differential at game 0 (just before the season), at the edge of the plotted data, so a sensible starting value"
+        },
+        "misconceptionMap": {
+          "The team always scores exactly 4 runs in every game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The y-intercept is where the line meets x = 0 on the graph.",
+          "x = 0 means before game 1 — near the data and sensible?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p2-softball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A scatter plot of games 1–15 has line ŷ = 3x + 10 (x = game, y = total RBIs). On the graph, what does the slope 3 represent?",
+        "visual": "scatter",
+        "choices": [
+          "The line rises 3 RBIs for every 1 game",
+          "The line rises 10 RBIs for every 1 game",
+          "The line is flat"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The line rises 3 RBIs for every 1 game"
+        },
+        "misconceptionMap": {
+          "The line rises 10 RBIs for every 1 game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope on a graph is rise per 1 unit right.",
+          "Use the coefficient on x, not the intercept."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p2-softball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "On a scatter plot for games 1–15, the fitted line is ŷ = 3x + 10. Use the line to predict total RBIs at game 12.",
+        "visual": "graph",
+        "answer": {
+          "kind": "numeric",
+          "value": "46"
+        },
+        "misconceptionMap": {
+          "10": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 12 is inside the plotted range 1–15.",
+          "Compute 3(12) + 10."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-softball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "A scatter plot covers games 1–14 with ŷ = 5x + 8. Someone extends the graphed line to game 60 to predict 308 strikeouts. Why is that risky?",
+        "visual": "graph",
+        "choices": [
+          "Game 60 is far beyond the plotted data 1–14, so the extended line may not hold",
+          "It is fine; just read the line wherever you like"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Game 60 is far beyond the plotted data 1–14, so the extended line may not hold"
+        },
+        "misconceptionMap": {
+          "It is fine; just read the line wherever you like": "extrapolates-blindly"
+        },
+        "hints": [
+          "The plotted points stop at game 14.",
+          "Reading far past the data is extrapolation and may be unreliable."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-softball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "softball",
+        "prompt": "On a scatter plot for practices 1–12, the line ŷ = −2x + 60 crosses the y-axis at 60. What does that y-intercept mean here?",
+        "visual": "graph",
+        "choices": [
+          "The model's error count just before practice 1 (x = 0), at the edge of the data, so a sensible starting value",
+          "The team will have 60 errors at every practice forever"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The model's error count just before practice 1 (x = 0), at the edge of the data, so a sensible starting value"
+        },
+        "misconceptionMap": {
+          "The team will have 60 errors at every practice forever": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is where the line meets x = 0.",
+          "x = 0 means before practice 1 — sensible and near the data?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p2-basketball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A scatter plot of games 1–20 has line ŷ = 4x + 12 (x = game, y = total points). On the graph, what does the slope 4 mean?",
+        "visual": "scatter",
+        "choices": [
+          "The line rises 4 points for every 1 game",
+          "The line rises 12 points for every 1 game",
+          "The points form a perfect circle"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The line rises 4 points for every 1 game"
+        },
+        "misconceptionMap": {
+          "The line rises 12 points for every 1 game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is rise per 1 unit right on the graph.",
+          "Use the number on x, not the intercept."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p2-basketball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "On a scatter plot for games 1–20, the fitted line is ŷ = 4x + 12. Use the line to predict total points at game 15.",
+        "visual": "graph",
+        "answer": {
+          "kind": "numeric",
+          "value": "72"
+        },
+        "misconceptionMap": {
+          "12": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 15 is inside the plotted range 1–20.",
+          "Compute 4(15) + 12."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-basketball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "A scatter plot covers games 1–18 with ŷ = 2x + 20. Someone extends the graphed line to game 150 to predict 320 minutes. Why is that risky?",
+        "visual": "graph",
+        "choices": [
+          "Game 150 is far past the plotted data 1–18, so the extended line may not match reality",
+          "It is fine; the line continues forever"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Game 150 is far past the plotted data 1–18, so the extended line may not match reality"
+        },
+        "misconceptionMap": {
+          "It is fine; the line continues forever": "extrapolates-blindly"
+        },
+        "hints": [
+          "The points stop at game 18.",
+          "Extending a line far past data is extrapolation."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-basketball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "basketball",
+        "prompt": "On a scatter plot of attempts (5 to 40) vs makes, the line ŷ = 3x + 5 crosses the y-axis at 5. What does that y-intercept mean here?",
+        "visual": "graph",
+        "choices": [
+          "x = 0 attempts is outside the plotted data, so the intercept has no real-world meaning here",
+          "The player makes 5 shots even when taking 0 shots"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "x = 0 attempts is outside the plotted data, so the intercept has no real-world meaning here"
+        },
+        "misconceptionMap": {
+          "The player makes 5 shots even when taking 0 shots": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is where the line meets x = 0.",
+          "x = 0 is outside the 5–40 data, and 0 shots cannot make 5."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p2-soccer-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A scatter plot of matches 1–18 has line ŷ = 1x + 8 (x = match, y = total goals). On the graph, what does the slope 1 mean?",
+        "visual": "scatter",
+        "choices": [
+          "The line rises 1 goal for every 1 match",
+          "The line rises 8 goals for every 1 match",
+          "The line goes downward"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The line rises 1 goal for every 1 match"
+        },
+        "misconceptionMap": {
+          "The line rises 8 goals for every 1 match": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is rise per 1 unit right.",
+          "Use the coefficient on x, not the intercept."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p2-soccer-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "On a scatter plot for matches 1–18, the fitted line is ŷ = 1x + 8. Use the line to predict total goals at match 14.",
+        "visual": "graph",
+        "answer": {
+          "kind": "numeric",
+          "value": "22"
+        },
+        "misconceptionMap": {
+          "8": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Match 14 is inside the plotted range 1–18.",
+          "Compute 1(14) + 8."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-soccer-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "A scatter plot covers matches 1–16 with ŷ = 6x + 3. Someone extends the graphed line to match 70 to predict 423 shots. Why is that risky?",
+        "visual": "graph",
+        "choices": [
+          "Match 70 is far beyond the plotted data 1–16, so the extended line may not hold",
+          "It is fine; just read the line anywhere"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Match 70 is far beyond the plotted data 1–16, so the extended line may not hold"
+        },
+        "misconceptionMap": {
+          "It is fine; just read the line anywhere": "extrapolates-blindly"
+        },
+        "hints": [
+          "The plotted points stop at match 16.",
+          "Reading far past the data is extrapolation."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-soccer-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "soccer",
+        "prompt": "On a scatter plot of training weeks 1–12, the line ŷ = −1x + 40 crosses the y-axis at 40. What does that y-intercept mean here?",
+        "visual": "graph",
+        "choices": [
+          "The model's sprint time just before training (x = 0), at the edge of the data, so a sensible starting value",
+          "The player always runs in 40 seconds no matter the training"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The model's sprint time just before training (x = 0), at the edge of the data, so a sensible starting value"
+        },
+        "misconceptionMap": {
+          "The player always runs in 40 seconds no matter the training": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is where the line meets x = 0.",
+          "x = 0 means before training starts — near the data and sensible?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p2-football-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A scatter plot of games 1–10 has line ŷ = 80x + 50 (x = game, y = total rushing yards). On the graph, what does the slope 80 mean?",
+        "visual": "scatter",
+        "choices": [
+          "The line rises 80 yards for every 1 game",
+          "The line rises 50 yards for every 1 game",
+          "The line is horizontal"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The line rises 80 yards for every 1 game"
+        },
+        "misconceptionMap": {
+          "The line rises 50 yards for every 1 game": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is rise per 1 unit right.",
+          "Use the coefficient on x, not the intercept."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p2-football-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "On a scatter plot for games 1–10, the fitted line is ŷ = 80x + 50. Use the line to predict total rushing yards at game 8.",
+        "visual": "graph",
+        "answer": {
+          "kind": "numeric",
+          "value": "690"
+        },
+        "misconceptionMap": {
+          "50": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Game 8 is inside the plotted range 1–10.",
+          "Compute 80(8) + 50."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-football-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "A scatter plot covers games 1–10 with ŷ = 15x + 20. Someone extends the graphed line to game 60 to predict 920 completions. Why is that risky?",
+        "visual": "graph",
+        "choices": [
+          "Game 60 is far past the plotted data 1–10, so the extended line may not match reality",
+          "It is fine; the line keeps going forever"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Game 60 is far past the plotted data 1–10, so the extended line may not match reality"
+        },
+        "misconceptionMap": {
+          "It is fine; the line keeps going forever": "extrapolates-blindly"
+        },
+        "hints": [
+          "The points stop at game 10.",
+          "Extending far past the data is extrapolation."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-football-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "football",
+        "prompt": "On a scatter plot of strength scores (30 to 90) vs kick distance, the line ŷ = 2x + 10 crosses the y-axis at 10. What does that y-intercept mean here?",
+        "visual": "graph",
+        "choices": [
+          "x = 0 strength is outside the plotted data, so the intercept has no real-world meaning here",
+          "A kicker with 0 strength still kicks the ball 10 yards"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "x = 0 strength is outside the plotted data, so the intercept has no real-world meaning here"
+        },
+        "misconceptionMap": {
+          "A kicker with 0 strength still kicks the ball 10 yards": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is where the line meets x = 0.",
+          "x = 0 is far below the 30–90 data range."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p2-volleyball-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A scatter plot of matches 1–16 has line ŷ = 5x + 7 (x = match, y = total kills). On the graph, what does the slope 5 mean?",
+        "visual": "scatter",
+        "choices": [
+          "The line rises 5 kills for every 1 match",
+          "The line rises 7 kills for every 1 match",
+          "The line slopes down"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The line rises 5 kills for every 1 match"
+        },
+        "misconceptionMap": {
+          "The line rises 7 kills for every 1 match": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is rise per 1 unit right.",
+          "Use the coefficient on x, not the intercept."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p2-volleyball-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "On a scatter plot for matches 1–16, the fitted line is ŷ = 5x + 7. Use the line to predict total kills at match 13.",
+        "visual": "graph",
+        "answer": {
+          "kind": "numeric",
+          "value": "72"
+        },
+        "misconceptionMap": {
+          "7": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Match 13 is inside the plotted range 1–16.",
+          "Compute 5(13) + 7."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-volleyball-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "A scatter plot covers matches 1–14 with ŷ = 9x + 4. Someone extends the graphed line to match 65 to predict 589 digs. Why is that risky?",
+        "visual": "graph",
+        "choices": [
+          "Match 65 is far beyond the plotted data 1–14, so the extended line may not hold",
+          "It is fine; read the line wherever you like"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Match 65 is far beyond the plotted data 1–14, so the extended line may not hold"
+        },
+        "misconceptionMap": {
+          "It is fine; read the line wherever you like": "extrapolates-blindly"
+        },
+        "hints": [
+          "The plotted points stop at match 14.",
+          "Reading far past the data is extrapolation."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-volleyball-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "volleyball",
+        "prompt": "On a scatter plot for matches 1–16, the line ŷ = 4x + 11 crosses the y-axis at 11. What does that y-intercept mean here?",
+        "visual": "graph",
+        "choices": [
+          "The model's ace total just before match 1 (x = 0), at the edge of the data, so a sensible starting value",
+          "The player serves 11 aces in every single match"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The model's ace total just before match 1 (x = 0), at the edge of the data, so a sensible starting value"
+        },
+        "misconceptionMap": {
+          "The player serves 11 aces in every single match": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is where the line meets x = 0.",
+          "x = 0 means before match 1 — near the data and sensible?"
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p2-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A scatter plot of weeks 1–12 has line ŷ = 6x + 25 (x = week, y = total books read). On the graph, what does the slope 6 mean?",
+        "visual": "scatter",
+        "choices": [
+          "The line rises 6 books for every 1 week",
+          "The line rises 25 books for every 1 week",
+          "The line is flat"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The line rises 6 books for every 1 week"
+        },
+        "misconceptionMap": {
+          "The line rises 25 books for every 1 week": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is rise per 1 unit right.",
+          "Use the coefficient on x, not the intercept."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p2-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "On a scatter plot for weeks 1–12, the fitted line is ŷ = 6x + 25. Use the line to predict total books read at week 9.",
+        "visual": "graph",
+        "answer": {
+          "kind": "numeric",
+          "value": "79"
+        },
+        "misconceptionMap": {
+          "25": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Week 9 is inside the plotted range 1–12.",
+          "Compute 6(9) + 25."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "A scatter plot covers days 1–10 with ŷ = 12x + 30. Someone extends the graphed line to day 200 to predict 2430 visitors. Why is that risky?",
+        "visual": "graph",
+        "choices": [
+          "Day 200 is far past the plotted data 1–10, so the extended line may not match reality",
+          "It is fine; the line continues forever"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "Day 200 is far past the plotted data 1–10, so the extended line may not match reality"
+        },
+        "misconceptionMap": {
+          "It is fine; the line continues forever": "extrapolates-blindly"
+        },
+        "hints": [
+          "The points stop at day 10.",
+          "Extending far past the data is extrapolation."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p2-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 2,
+        "sport": "neutral",
+        "prompt": "On a scatter plot of study minutes (20 to 80) vs quiz score, the line ŷ = 3x + 40 crosses the y-axis at 40. What does that y-intercept mean here?",
+        "visual": "graph",
+        "choices": [
+          "x = 0 minutes is outside the plotted data, so the intercept has limited real-world meaning here",
+          "A student who studies 0 minutes is guaranteed exactly 40 on the quiz"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "x = 0 minutes is outside the plotted data, so the intercept has limited real-world meaning here"
+        },
+        "misconceptionMap": {
+          "A student who studies 0 minutes is guaranteed exactly 40 on the quiz": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is where the line meets x = 0.",
+          "x = 0 is outside the 20–80 data range."
+        ],
+        "difficulty": 3
+      }
+    ],
+    "p3": [
+      {
+        "id": "ALG-D04-p3-neutral-01",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A line of best fit for data with x from 1 to 20 is ŷ = 7x + 9. What does the slope 7 tell you?",
+        "visual": null,
+        "choices": [
+          "y increases by 7 for each 1-unit increase in x",
+          "y increases by 9 for each 1-unit increase in x",
+          "y equals 7 when x equals 0"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "y increases by 7 for each 1-unit increase in x"
+        },
+        "misconceptionMap": {
+          "y increases by 9 for each 1-unit increase in x": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "Slope is the change in y per 1-unit change in x.",
+          "The coefficient on x is the slope."
+        ],
+        "difficulty": 1
+      },
+      {
+        "id": "ALG-D04-p3-neutral-02",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A line of best fit for data with x from 1 to 20 is ŷ = 7x + 9. Predict y when x = 8 (inside the data range).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "65"
+        },
+        "misconceptionMap": {
+          "9": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "x = 8 is inside the range 1–20, so substituting is reliable.",
+          "Compute 7(8) + 9."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p3-neutral-03",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A line of best fit for data with x from 5 to 25 is ŷ = 5x + 11. Predict y when x = 20 (inside the data range).",
+        "visual": null,
+        "answer": {
+          "kind": "numeric",
+          "value": "111"
+        },
+        "misconceptionMap": {
+          "11": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "x = 20 is inside the range 5–25, so the prediction is reliable.",
+          "Compute 5(20) + 11."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p3-neutral-04",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A line of best fit was built from data with x from 2 to 18, giving ŷ = 5x + 11. Is a prediction at x = 90 reliable?",
+        "visual": null,
+        "choices": [
+          "No, x = 90 is far outside the data range 2–18",
+          "Yes, just plug it in"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "No, x = 90 is far outside the data range 2–18"
+        },
+        "misconceptionMap": {
+          "Yes, just plug it in": "extrapolates-blindly"
+        },
+        "hints": [
+          "The data only covers x from 2 to 18.",
+          "Predicting far outside the observed range is extrapolation."
+        ],
+        "difficulty": 2
+      },
+      {
+        "id": "ALG-D04-p3-neutral-05",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A line of best fit for data with x from 1 to 30 is ŷ = 8x + 50, where x = 0 represents a real, meaningful starting condition just before the data begins. What does the intercept 50 mean?",
+        "visual": null,
+        "choices": [
+          "The predicted value of y at x = 0, a sensible starting value near the data",
+          "y increases by 50 for each unit of x"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "The predicted value of y at x = 0, a sensible starting value near the data"
+        },
+        "misconceptionMap": {
+          "y increases by 50 for each unit of x": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0.",
+          "Here x = 0 is meaningful and near the data, so the intercept is interpretable."
+        ],
+        "difficulty": 3
+      },
+      {
+        "id": "ALG-D04-p3-neutral-06",
+        "version": 1,
+        "skillId": "ALG-D04",
+        "phase": 3,
+        "sport": "neutral",
+        "prompt": "A line of best fit for data with x from 40 to 100 is ŷ = 2x + 15. The value x = 0 is impossible in this context and far below the data. What does the intercept 15 mean here?",
+        "visual": null,
+        "choices": [
+          "x = 0 is outside the data, so the intercept has no real-world meaning here",
+          "It is the guaranteed value of y whenever x = 0 in the real world"
+        ],
+        "answer": {
+          "kind": "choice",
+          "value": "x = 0 is outside the data, so the intercept has no real-world meaning here"
+        },
+        "misconceptionMap": {
+          "It is the guaranteed value of y whenever x = 0 in the real world": "intercept-interpreted-out-of-context"
+        },
+        "hints": [
+          "The intercept is y when x = 0.",
+          "x = 0 is far outside the 40–100 data range and impossible here."
+        ],
+        "difficulty": 3
+      }
+    ]
+  }
+}
