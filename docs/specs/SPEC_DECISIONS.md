@@ -3,10 +3,10 @@
 These are the two 20-decision summaries **verbatim** as first presented (2026-07-02), one per spec, for quick review.
 
 > **Superseded figures (2026-07-03 revisions):** a few line items below were changed after this snapshot — kept verbatim here as the original record, but the **specs themselves are the source of truth**:
-> - Model IDs: `claude-sonnet-5` → `claude-sonnet-4-6`; Haiku fallback → `claude-haiku-4-5-20251001` (approved-set conformance). All model IDs now live once per spec in a "Model configuration" table.
+> - Model IDs: **`claude-sonnet-5` confirmed final (Matt, 2026-07-03)** for both `RUNTIME_MODEL` and `GENERATION_MODEL_ALT` — matching these lists; Haiku fallback pinned to dated `claude-haiku-4-5-20251001`. (An interim pass had briefly moved Sonnet to `claude-sonnet-4-6`; reverted.) All model IDs now live once per spec in a "Model configuration" table.
 > - BATCH_REGEN audit gate (item 16): now **ramped 10% for the first two batches → 5% after two consecutive clean batches** (not flat 5%).
 > - BATCH_REGEN cost: now **~$61 (up to ~$70)**, not ~$58, reflecting the ramped audit.
-> - Graph version: confirmed git-current **1.11.0**, with a flagged divergence from the Supabase-active **1.9.2** (see `logs/REMOTE_DESIGN_LOG.md`).
+> - Graph version: **git `1.11.0` pinned as the authoritative baseline (Matt, 2026-07-03)**; Supabase (`1.9.2`) reconciliation deferred to a gated promotion precondition (see `logs/REMOTE_DESIGN_LOG.md` and BATCH_REGEN §8).
 > - RUNTIME cost (item 15): now shows both intro ($2/$10) and standard ($3/$15) scenarios; budgeted against standard (~$0.24/session).
 
 ---

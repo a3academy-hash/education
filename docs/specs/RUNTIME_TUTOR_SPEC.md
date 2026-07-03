@@ -26,7 +26,7 @@ Every model ID used by this runtime is defined **once** here. The rest of the sp
 
 | Constant | Model ID | Standard price ($/1M in / out) | Role |
 |---|---|---|---|
-| `RUNTIME_MODEL` | `claude-sonnet-4-6` | $3 / $15 | Tutor turn, grading, interest-variant, report narration |
+| `RUNTIME_MODEL` | `claude-sonnet-5` | $3 / $15 (intro $2 / $10 through 2026-08-31) | Tutor turn, grading, interest-variant, report narration |
 | `GRADING_FALLBACK_MODEL` | `claude-haiku-4-5-20251001` | $1 / $5 | Latency fallback for simple (≤4-element) grading |
 
 ---
@@ -232,7 +232,7 @@ Every response is validated host-side. On validation failure: **retry once** wit
 
 **Budget against the standard row (~$0.24/session).** The intro row is a temporary floor, not a planning basis — it expires 2026-08-31 and the budget must survive the September step-up to $3/$15. Prompt-cache the frozen system prompt + registry slice per node (cache read ~0.1×) to cut input cost materially on repeat calls within a session.
 
-> **Pricing-track caveat (flag for Matt):** the pinned `RUNTIME_MODEL` is `claude-sonnet-4-6`, which bills at flat **$3/$15 with no intro window** — i.e. it is *already* on the standard row and has **no September cliff to survive**. The intro row applies only if the runtime is switched to the `claude-sonnet-5` pricing track (intro $2/$10 → standard $3/$15). Either way the planning basis is the same $0.24/session standard figure, so the budget is robust to the step-up. Decision for Matt: keep `RUNTIME_MODEL = claude-sonnet-4-6` (flat, no cliff) or move to `claude-sonnet-5` (newer, cheaper until Aug 31, then identical). Both are one-line changes in the model-config table.
+> **Pricing track (confirmed — Matt, 2026-07-03):** `RUNTIME_MODEL = claude-sonnet-5`, final. Its intro pricing ($2/$10) runs through **2026-08-31**, then steps up to standard ($3/$15) in September. The intro row above is therefore the *current* per-session cost (~$0.16), but the budget is deliberately planned against the **standard row (~$0.24/session)** so it survives the September step-up rather than depending on the intro window.
 
 **Latency budget:** the only hard requirement is the interaction feels fast (`AI_ADAPTIVE.md` §0, §9). Tutor turns are the only blocking LLM path and carry the <800ms TTFT target via streaming + `effort: low` + `thinking: disabled`. Everything else is async-optimistic, precomputed, or cached, so it never gates the UI. Async engine updates (BKT/retention) run server-side without blocking (§6).
 

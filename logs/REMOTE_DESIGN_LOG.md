@@ -50,3 +50,18 @@ Verified every hardcoded model ID in both specs against the approved valid set {
 3. Graph version in BATCH_REGEN corrected/annotated: 1.11.0 confirmed correct, with the git-vs-Supabase(1.9.2) divergence + registry-diff re-verify note added to §0 dependency table, the node-inventory paragraph, and F-DEP (§7).
 
 **TASK 3 — commit:** created `docs/specs/SPEC_DECISIONS.md` (both 20-decision lists **verbatim**, with a dated "superseded figures" header pointing to the specs as source of truth for the items Task 2 / the model-ID pass changed). Committed Task 2 fixes + the decisions doc + this log entry; pushed to `claude/batch-regen-runtime-tutor-specs-u79i6t`.
+
+### 2026-07-03 — Matt's two pinned decisions applied
+
+**1. Graph baseline = git `1.11.0`, authoritative (final).**
+- BATCH_REGEN **F-DEP** updated: graph-baseline hard-stop is now **RESOLVED** (pinned to git 1.11.0). Remaining F-DEP hard-stops = un-pinned archetype version / pre-diff registry only. The Supabase-active `1.9.2` divergence is no longer a *run* blocker — moved to a *promotion* precondition.
+- §0 graph-version note updated to record the pin + "pinned but pending content review."
+- **Promotion checklist (§8, item 7)** gains two gated preconditions before any regen output promotes: **(7a) [mr-kahn]** re-verify the registry diff's 1 live-item re-key against the 1.11.0 bank before applying the diff; **(7b) [mr-gates]** Supabase reconciliation to 1.11.0 must complete before promotion.
+- **Pending Matt (desktop return):** review `OVERHAUL_LOG.md` + the `74de0f8` diff — baseline is pinned but his content review of the Phase-2 item-bank rewrite is still open.
+
+**2. `RUNTIME_MODEL = claude-sonnet-5`, `GENERATION_MODEL_ALT = claude-sonnet-5` — confirmed final.**
+- Reverted the interim `claude-sonnet-4-6` pin in both config tables back to `claude-sonnet-5` (with intro-pricing annotation: $2/$10 in / $3/$15 std through→after 2026-08-31; Batch alt $1/$5 intro → $1.50/$7.50 std).
+- RUNTIME pricing-track caveat rewritten from a "flag for Matt" open question to a confirmed decision: intro row is the current cost (~$0.16/session) but budget is planned against **standard (~$0.24/session)** so it survives the September step-up. The dual-scenario table from Task 2.2 now correctly reflects the actual pinned model (sonnet-5 genuinely has the intro→standard step-up).
+- `SPEC_DECISIONS.md` superseded-header corrected: the sonnet-5 IDs in the verbatim lists are accurate again; noted the brief 4-6 interim was reverted.
+
+Committed + pushed to `claude/batch-regen-runtime-tutor-specs-u79i6t`.
