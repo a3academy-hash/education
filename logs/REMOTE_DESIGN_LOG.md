@@ -66,6 +66,15 @@ Verified every hardcoded model ID in both specs against the approved valid set {
 
 Committed + pushed to `claude/batch-regen-runtime-tutor-specs-u79i6t`.
 
+### 2026-07-03 — fitness/social guardrails promoted to hard cross-spec constraints
+
+Elevated the fitness and social-media guardrails from advisory realistic-number flags to **hard, child-safety generation constraints with enumerated banned quantities**, carried into all three specs:
+- **`INTEREST_DOMAINS.md` §6 restructured:** new **§6.1 Hard generation constraints (fatal-class)** for fitness + social with explicit BANNED-quantity lists — fitness: body weight, weight-change/loss/gain targets, calories-as-weight-lever, body-fat%/BMI/body-composition, sizes, before/after/deficit framing (performance quantities only: pace/distance/time/reps/load/HR-zones). social: follower/like/view counts framed as norm/goal/target/benchmark, "going viral", real/identifiable accounts, personal data, comparative vanity — growth-rate math on a clearly fictional account only; COPPA posture (audience <13, no personal data / real accounts / third-party trackers). Old table demoted to **§6.2 advisory** (finance/gaming/cooking/music).
+- **`BATCH_REGEN_SPEC.md` §6.2/§6.3:** added `fitnessFramingSafe` + `socialFramingSafe` to the Fable audit checks JSON as **fatal-class** (false ⇒ `severity: "fatal"`); injected the §6.1 banned-quantity lists into the audit prompt for skinned items; §6.3 pass/fail now names both as fatal — a single sampled violation fails the whole batch.
+- **`RUNTIME_TUTOR_SPEC.md` §1.3/§3.3/§4:** added a **template-certification requirement** on the interest-variant call — fitness/social variants must pass the §6.1 constraints before render; new schema field `domainSafetyCertified` (host-verified, not model-self-attested); §4 fallback row now routes a cert failure to the neutral template ("no fitness/social variant that trips a §6.1 banned quantity is ever rendered"). Runtime mirror of the BATCH_REGEN fatal audit check, since variants are instantiated live.
+
+Committed + pushed.
+
 ### 2026-07-03 — F-IF.B.6 decision record + interest-domain spec
 
 Design-only session; all gates honored (no graph edits, no registry-diff application, no Supabase writes, no `docs/gold-node/` edits). Graph facts read-only-verified against pinned baseline `1.11.0`.

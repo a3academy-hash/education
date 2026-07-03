@@ -55,7 +55,8 @@ The runtime makes **exactly four** call types. Anything not on this list does no
 - **Trigger:** the deterministic selector has *already chosen* the node, difficulty, representation, and phase. This call only re-skins a **pre-certified item template** into the student's interest context.
 - **Job:** fill the interest slot of a template the engine selected — batting-average framing for a ratio, etc. Constrained slot-filling, **not** open generation (`new_plan/CLAUDE.md` §9 prefers constrained slot-filling + solver verification over open LLM skinning).
 - **Hard rules:** structural-skin rule (the math *is* the context; no seductive-detail narrative wrapper); the re-skin must be psychometric-equivalence-safe — it may not change the underlying math, units, difficulty, or answer. Output is solver-verified before display.
-- **Output:** the filled item + a flag asserting "structure unchanged" for the downstream equivalence check.
+- **Template-certification requirement — domain safety (fatal, blocks display):** when the target template is a **fitness** or **social-media** skin, the filled variant must pass the **§6.1 hard domain-safety constraints from `INTEREST_DOMAINS.md`** *before it is shown to a student*. Fitness: no body weight, weight-change target, calories-as-weight-lever, body-composition, sizes, or before/after framing — performance quantities only (pace/distance/time/reps/load/HR-zones). Social: no follower/like/view counts framed as norm/goal/target, no "going viral," no real or identifiable accounts, no personal data — growth-rate math on a **clearly fictional** account only (COPPA posture: audience largely under 13, `CLAUDE.md` privacy). A variant that trips a banned quantity is **rejected and never rendered**; the runtime falls back to the neutral certified template (§4). This is the runtime mirror of the BATCH_REGEN §6 fatal audit check — the same constraint enforced at render time, since interest-variant items are instantiated live rather than pre-audited.
+- **Output:** the filled item + a flag asserting "structure unchanged" for the downstream equivalence check + a domain-safety attestation (§3.3).
 - **Latency:** precompute likely next-item variants ahead of need (`AI_ADAPTIVE.md` §9 "precompute likely next-item candidates"); this call should rarely be on the blocking path. `effort: low`.
 
 ### 1.4 Report narration
@@ -176,9 +177,18 @@ This is the exact triple the D4 rubric contract specifies — **score per elemen
   "filledItem": { "prompt": "string", "answer": "string", "visual": null },
   "structureUnchanged": true,           // assertion; must pass solver-equivalence check before display
   "slotFilled": "context",
-  "seductiveDetailFree": true           // structural-skin rule self-attestation; audited
+  "seductiveDetailFree": true,          // structural-skin rule self-attestation; audited
+  "domain": "string",                   // interest skin, or "neutral"
+  "domainSafetyCertified": true         // FATAL cert gate for fitness/social skins (INTEREST_DOMAINS §6.1).
+                                        //   fitness: no body weight / weight-change / calories-as-weight-lever /
+                                        //     body-composition / sizes / before-after framing (performance quantities only).
+                                        //   social: no follower/like/view counts as norm/goal/target, no "going viral",
+                                        //     no real/identifiable accounts, no personal data; fictional account, COPPA posture.
+                                        //   false (or unverifiable) => reject variant, fall back to neutral template (§4).
 }
 ```
+
+For a fitness or social-media skin, `domainSafetyCertified` MUST be independently verified host-side against the §6.1 banned-quantity lists (not trusted from the model's self-attestation alone) before the variant renders. Failure routes to the neutral-template fallback in §4 — the same fatal-class treatment the BATCH_REGEN §6 audit applies at generation time.
 
 ### 3.4 Report narration
 
@@ -200,7 +210,7 @@ Every response is validated host-side. On validation failure: **retry once** wit
 |---|---|---|---|
 | **Tutor turn** | Schema valid; `revealedAnswer == false`; `hintRung` within ladder; no answer string leakage (regex/solver check against `canonicalAnswer`) | 1× with "do not reveal the answer" reinforced | Serve the **pre-authored static hint** for the current ladder rung from the item's `hintLadder` (authored in the regen pipeline). Every item ships with 3 static rungs precisely so the tutor is optional. |
 | **Free-response grading** | Schema valid; `perElement` covers all rubric elements; confidences in [0,1] | 1× | **Do not grade the open response this attempt.** Fall back to the deterministic answer-check on any closed-form component; mark the explanation "ungraded — queued for human review." Provisional state advances only on the deterministic evidence, never on a failed grade. |
-| **Interest-variant** | Schema valid; `structureUnchanged`; **solver-equivalence check passes** | 1× | Serve the **neutral (no-story) certified template** — the default-floor item the selector already had. The no-story path is first-class (`new_plan/CLAUDE.md` §4), so this is a graceful, not degraded, fallback. |
+| **Interest-variant** | Schema valid; `structureUnchanged`; **solver-equivalence check passes**; **`domainSafetyCertified` (host-verified for fitness/social skins, §1.3/§3.3)** | 1× | Serve the **neutral (no-story) certified template** — the default-floor item the selector already had. The no-story path is first-class (`new_plan/CLAUDE.md` §4), so this is a graceful, not degraded, fallback. A domain-safety cert failure takes this same path — **no fitness/social variant that trips a §6.1 banned quantity is ever rendered.** |
 | **Report narration** | Schema valid; `citedFacts ⊆ reportFacts`; `introducedNewQuantitativeClaim == false`; no number appears that isn't in `reportFacts` | 1× | Render the **deterministic templated report** (fixed sentence templates filled from `reportFacts`). Numbers are always the engine's; only the prose polish is lost. |
 
 **Global fallback (LLM path slow/unavailable):** per `AI_ADAPTIVE.md` §9, the common path never waits on a model call, and there is a graceful non-LLM fallback everywhere. A full Sonnet outage means: static hints, deterministic answer-checking, neutral templates, templated reports — the student experiences slightly less tailored help, **never** a stalled lesson or a wrong mastery state.

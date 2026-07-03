@@ -228,11 +228,12 @@ Sampling is **stratified** at either rate so the sample spans every node in the 
 
 ### 6.2 Fable audit prompt spec
 
-One audit request per sampled item (batched as a Fable sub-batch). Injected: the item JSON, its node's objective + standards, the taxonomy-keying contract, the archetype it claims to instantiate, and the D4 rubric contract (for rubric-explanation items). Forced structured output:
+One audit request per sampled item (batched as a Fable sub-batch). Injected: the item JSON, its node's objective + standards, the taxonomy-keying contract, the archetype it claims to instantiate, the D4 rubric contract (for rubric-explanation items), and — when the item carries a fitness or social-media skin — the **§6.1 hard domain-safety constraints from `INTEREST_DOMAINS.md`** (the banned-quantity lists). Forced structured output:
 
 ```json
 {
   "itemId": "string",
+  "domain": "string",                 // interest skin, or "neutral"
   "checks": {
     "mathematicallyCorrect": "bool",
     "answerMatchesWork": "bool",
@@ -242,7 +243,15 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
     "representationFaithful": "bool", // table/graph/verbal actually encodes the structure
     "rubricElementsScoreable": "bool",// rubric-explanation only; matches D4 contract
     "structuralSkinRuleRespected": "bool", // interest context IS the math, no seductive-detail wrapper
-    "difficultyPlausible": "bool"
+    "difficultyPlausible": "bool",
+    "fitnessFramingSafe": "bool",     // FATAL-CLASS. n/a (true) unless domain=fitness. false if ANY banned quantity
+                                      //   present: body weight, weight-change/loss/gain target, calories-as-weight-lever,
+                                      //   body-fat%/BMI/body-composition, sizes, before/after/deficit framing
+                                      //   (INTEREST_DOMAINS §6.1). Item must read "how fast/far/many reps", never weight/calories.
+    "socialFramingSafe": "bool"       // FATAL-CLASS. n/a (true) unless domain=social-media. false if follower/like/view
+                                      //   counts framed as norm/goal/target/benchmark, "going viral", real or
+                                      //   student-identifiable accounts, personal data, or comparative vanity framing.
+                                      //   Growth-rate math on a clearly fictional account only; COPPA posture (INTEREST_DOMAINS §6.1).
   },
   "severity": "none | minor | major | fatal",
   "failingChecks": ["string"],
@@ -250,10 +259,12 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
 }
 ```
 
+`fitnessFramingSafe` and `socialFramingSafe` are **fatal-class**: if either is `false`, the auditor MUST set `severity: "fatal"`. They are child-safety constraints, not quality flags — no offsetting item quality applies.
+
 ### 6.3 Pass/fail criteria
 
 - **Item fails** if any check is `false` with `severity ∈ {major, fatal}`. `minor` findings are logged, not failing.
-- **Batch passes** if the sampled failure rate is **≤ 5%** AND there are **0 `fatal`** findings. Any `fatal` (wrong math, tag that would mis-route a student, answer/work mismatch) fails the batch regardless of rate — these are accreditation-evidence integrity failures.
+- **Batch passes** if the sampled failure rate is **≤ 5%** AND there are **0 `fatal`** findings. Any `fatal` fails the batch regardless of rate. Fatal-class findings are: wrong math, a tag that would mis-route a student, answer/work mismatch (accreditation-evidence integrity), **and any `fitnessFramingSafe: false` or `socialFramingSafe: false`** — a banned fitness/social quantity per `INTEREST_DOMAINS.md` §6.1 (child-safety integrity). A single sampled fatal of either kind fails the whole batch.
 - **Clean batch** (the stricter bar that governs the §6.1 rate step-down) = **0 `fatal` AND 0 `major`** findings in the sample. A batch can *pass* (≤5% failure, 0 fatal) while still not being *clean* — passing lets the batch advance; only two consecutive clean batches unlock the 5% sampling rate. The larger 10% sample on the first two batches makes the failure-rate estimate tighter exactly when the pass/clean decision is least certain.
 
 ### 6.4 Rejection and regeneration loop

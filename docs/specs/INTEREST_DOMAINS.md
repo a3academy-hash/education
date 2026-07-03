@@ -120,15 +120,32 @@ Every skin is a **structure-frozen re-render** of an already-certified neutral i
 
 ---
 
-## 6. Domains needing extra realistic-number care (flagged)
+## 6. Domain safety constraints
+
+Two tiers. **§6.1 hard constraints** are non-negotiable generation constraints with enumerated **banned quantities** — a violation is a **fatal-class failure**, not a quality flag. They carry into the downstream specs: enforced as **fatal audit checks** in `BATCH_REGEN_SPEC` §6 and as **template-certification requirements** on the RUNTIME interest-variant call (`RUNTIME_TUTOR_SPEC` §1.3 / §3.3). **§6.2 advisory guardrails** are realistic-number quality flags enforced at item certification.
+
+### 6.1 Hard generation constraints (fatal-class — child-safety, not quality)
+
+These bind at **generation**, at the **Fable audit gate** (fatal), and at **RUNTIME interest-variant template certification**. A skin that trips a banned quantity is **rejected outright and falls back to neutral** — it never advances to staging (regen) and never renders to a student (runtime). No amount of "otherwise-good" item quality offsets a violation.
+
+**Fitness / training — performance-framed only.**
+- **Required framing:** every quantity is a *training-performance* measure — pace, distance, time, speed, reps, sets, training load (volume as sets × reps × resistance, framed as performance), heart-rate *zones*.
+- **BANNED quantities (fatal if present as a quantity, target, or framing):** body weight; weight change / weight-loss / weight-gain targets; **calories** (intake or burn used as a weight lever); body-fat %, BMI, or any body-composition figure; measurement/clothing sizes; any "before/after" or deficit/surplus framing. Rationale: disordered-eating risk in an 11–14 audience.
+- **Test:** the item must read as *"how fast / how far / how many reps,"* never *"how much you weigh / how many calories / how much to lose."*
+
+**Social media analytics — growth-rate math on fictional accounts only.**
+- **Required framing:** the math is **rate-of-change / growth-rate** work (percent change, doubling time, linear/exponential growth) on a **clearly fictional, generic account** ("a fictional creator's channel," made-up handle).
+- **BANNED quantities/framings (fatal if present):** follower / subscriber / like / view **counts presented as a norm, goal, target, or benchmark** ("you'd need X to…", "a good channel has…"); "going viral" or overnight-growth framing; any **real or student-identifiable account** or personal data; comparative vanity framing between the student and the numbers. Raw counts are allowed **only** as neutral inputs to a growth-rate computation, never as an aspiration.
+- **COPPA posture:** the audience is largely under 13 → COPPA applies. **No** personal data, **no** real accounts, **no** third-party trackers or live-platform references in any student surface; accounts are fictional and inert. Consistent with `CLAUDE.md` privacy posture (COPPA, data minimization, no third-party trackers in student surfaces).
+- **Test:** the item must read as *"this fictional channel grew from A to B — what's the rate?"*, never *"how many followers should you get."*
+
+### 6.2 Advisory guardrails (realistic-number quality — enforced at item certification)
 
 | Domain | Care | Guardrail |
 |---|---|---|
 | **Personal finance** | ⚠️ Plausible rates & prices | Savings **1–5% APY**; credit/loan **15–25% APR**; prices in real market ranges; simple before compound. **No** "double your money" / get-rich figures. Interest-rate items must use rates a student would actually encounter. |
-| **Fitness / training** | ⚠️⚠️ Teen-safe, performance-framed | Realistic teen paces/distances/reps; progressive overload in small real increments. **No** weight-loss, calorie-deficit, or body-composition framing; **no** extreme figures. Frame as *training performance*, never *weight management* — disordered-eating risk. |
-| **Social media analytics** | ⚠️⚠️ Values + COPPA | Generic *creator channel*, never a student's personal account; no personal data, no third-party trackers in the surface. Realistic growth curves — **not** overnight-viral numbers that normalize vanity-metric fixation. |
 | **Gaming** | ⚠️ No monetization framing | XP/scores/resources only. **No** loot-box, gacha, or gambling-style probability/spend framing — keep it to skill/progression math. |
 | **Cooking** | ⚠️ Real portions | Serving sizes and ingredient ratios that reflect actual recipes; scaling factors that stay in plausible ranges. |
 | **Music (light)** | ⚠️ Avoid log-as-linear | Use tempo/time/count framings for linear items; keep dB/pitch (logarithmic) out of linear contexts to avoid mis-teaching linearity. |
 
-All flagged guardrails are enforced at **item certification** (unit/context sanity, `new_plan/CLAUDE.md` §9.4) — a skin that violates a guardrail fails certification and falls back to neutral (§4 swap-validity gate).
+The §6.2 guardrails are enforced at **item certification** (unit/context sanity, `new_plan/CLAUDE.md` §9.4) — a skin that violates one fails certification and falls back to neutral (§4 swap-validity gate). The §6.1 hard constraints are enforced *additionally* as **fatal** at the audit gate and at runtime template certification — a stricter bar because they are child-safety, not realism.
