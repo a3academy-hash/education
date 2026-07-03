@@ -65,3 +65,25 @@ Verified every hardcoded model ID in both specs against the approved valid set {
 - `SPEC_DECISIONS.md` superseded-header corrected: the sonnet-5 IDs in the verbatim lists are accurate again; noted the brief 4-6 interim was reverted.
 
 Committed + pushed to `claude/batch-regen-runtime-tutor-specs-u79i6t`.
+
+### 2026-07-03 — F-IF.B.6 decision record + interest-domain spec
+
+Design-only session; all gates honored (no graph edits, no registry-diff application, no Supabase writes, no `docs/gold-node/` edits). Graph facts read-only-verified against pinned baseline `1.11.0`.
+
+**Graph verification (read-only):** F-IF.B.6 is carried **only** by ALG-L05 (standards `[8.EE.B.5, F-IF.B.6]`, objective "constant rate: change in output per unit input", prereqs `[L01, F10]`). L06 prereqs `[L05]`, standard `8.F.B.4`. The "functions cluster" = the linear domain's function nodes L02 (F-IF.A.1) / L03 (F-IF.A.2, function notation) / L04 (F-IF.B.5) / L05 (F-IF.B.6). F-IF.B.4 is on Q12 (quadratics). L-ids contiguous 1–18 → next free `L19`.
+
+**TASK 1 — `docs/specs/DECISION_F-IF-B6.md` (PROPOSED, NOT a graph change):**
+- Gap stated precisely vs the standard's actual language: F-IF.B.6 needs average/secant rate over a *specified interval*, symbolic `(f(b)−f(a))/(b−a)` (⇒ function notation, L03), on *nonlinear* functions, across table/symbolic/graph. L05 covers only *constant* rate (8.EE.B.5). Current mitigation = the §2.14 nonlinearity discrimination items forced onto L05 (necessary guard, not instruction/assessment of the standard).
+- Options: (a) extend L05 — rejected (L05 already overloaded: mandatory home of the nonlinearity BLOCKER + backward-routing sink for several BLOCKERs + lacks the L03 prereq; "constant" vs "average" conflates opposites); (b) new node — **recommended**; (c) accept gap — rejected on **accreditation exposure** (named CCSS standard claimed-but-not-delivered; Cognia scope-and-sequence + NCAA defined-scope hole; evidence trail would *show* the gap).
+- Recommendation (b) justified against (a) by L05's load. Draft node: **`ALG-L19`** (append; DAG order via prereqs, no renumber), title "Average Rate of Change over an Interval", domain linear/tier 2, prereqs `[L05, L06]` + recommend `L03`, 4 objectives mapping to F-IF.B.6's representations, F-IF.B.6 re-homed here (L05 keeps 8.EE.B.5), misconception surface = `assumes-constant-rate-nonlinear` (§2.14, natural primary home — currently forced onto L05) + `rate-not-per-unit` (§2.10, non-normalized) + adjacent `slope-as-single-point-ratio`/`forgot-denominator`/`slope-as-difference`; ~100 enriched items.
+- **Sequencing GATE:** node mutation applies together with the gold-node registry diff in ONE Matt-reviewed batch on desktop return (coupled because the node keys tags the diff *adds* — assumes-constant-rate-nonlinear #14, rate-not-per-unit #10). Inherits BATCH_REGEN §8 promotion preconditions (re-key re-verify, Supabase reconcile). Status: PROPOSED, awaiting Matt.
+
+**TASK 2 — `docs/specs/INTEREST_DOMAINS.md`:**
+- 5 vetting criteria (quantitative surface density, age-appropriateness/COPPA, realistic-number availability, cultural accessibility, structural-skin+equivalence compatibility).
+- Vetted 15+ candidates. **Accepted:** 6 platform sports (baseball anchor, softball, basketball, football, soccer, volleyball — added softball+volleyball, which the given list omitted but are committed platform sports), personal finance, gaming, fitness, cooking (narrow), music (light), social media (light), + added weather, travel, automotive. **Rejected:** astrology, plot/franchise trivia, fashion-as-style (→ route to finance). Neutral = first-class default floor, not a domain.
+- Per-domain quantitative surface map (● / ◐ / ○ across 8 concept families), realistic-number guidelines, known failure modes (cooking→slope/exp/quad contrived; music dB/pitch is log not linear; sports systems/exp contrived; etc.).
+- Invariance contract = the D5 swap-template envelope: SWAP nouns/framing/unit-labels; FROZEN numeric structure+values, misconception signatures+collision constraints, difficulty tier/IRT, hint-ladder mapping, phase. Swap-validity gate → fall back to neutral on any violation.
+- Declaration UX: diagnostic preference sampler (see problems then pick; no-story first-class); 1 primary +≤2 secondary, but only **one skin per concept** (interleave by confusable concept not story domain); rotate domains across nodes; fallback via interest-suitability triage to secondary→baseline anchor→neutral; cold-start = same-quality default.
+- Extra realistic-number care flagged: finance (plausible rates/prices), fitness (teen-safe, performance-not-weight framing), social (values+COPPA, no viral norms), gaming (no loot-box/gambling), cooking (real portions), music (no log-as-linear).
+
+Committed + pushed to `claude/batch-regen-runtime-tutor-specs-u79i6t`.
