@@ -213,7 +213,8 @@ Every response is validated host-side. On validation failure: **retry once** wit
 - A "session" ≈ 30 min, ~25 item attempts.
 - LLM fires only on stuck/low-confidence states + open-response items + occasional variant/narration — **not every interaction** (`AI_ADAPTIVE.md` §9).
 - Empirically assume ~20% of attempts hit a tutor turn (~5), ~4 open-response gradings, ~3 pre-computed variant instantiations (mostly off the blocking path), 1 end-of-session narration.
-- Batch pricing is not used here (runtime is synchronous); `RUNTIME_MODEL` standard = $3/$15 per 1M. `GRADING_FALLBACK_MODEL` grading fallback = $1/$5.
+- Batch pricing is not used here (runtime is synchronous). `GRADING_FALLBACK_MODEL` grading fallback = $1/$5.
+- **Two Sonnet-tier pricing scenarios are budgeted below. Plan against standard ($3/$15) — the budget must survive the September 2026 step-up, not depend on the intro window.**
 
 | Call | Count/session | ~Input tok | ~Output tok | Latency posture |
 |---|---|---|---|---|
@@ -222,7 +223,16 @@ Every response is validated host-side. On validation failure: **retry once** wit
 | Interest-variant | 3 | 2k | 1k | Precomputed ahead of need |
 | Report narration | 1 | 2k | 0.8k | Non-critical; cached by state-hash |
 
-**Per-session token total:** ≈ 40k input + 8k output. **Cost/session (`RUNTIME_MODEL` standard):** ≈ 40k×$3/1M + 8k×$15/1M ≈ **$0.12 + $0.12 = ~$0.24** (~$0.16 if grading runs on `GRADING_FALLBACK_MODEL`). Prompt-cache the frozen system prompt + registry slice per node (cache read ~0.1×) to cut input cost materially on repeat calls within a session.
+**Per-session token total:** ≈ 40k input + 8k output.
+
+| Pricing scenario | in / out ($/1M) | Cost/session (std grading) | With `GRADING_FALLBACK_MODEL` grading |
+|---|---|---|---|
+| Intro (Sonnet-5 track, through 2026-08-31) | $2 / $10 | ~$0.16 | ~$0.13 |
+| **Standard — planning basis** | **$3 / $15** | **~$0.24** | **~$0.16** |
+
+**Budget against the standard row (~$0.24/session).** The intro row is a temporary floor, not a planning basis — it expires 2026-08-31 and the budget must survive the September step-up to $3/$15. Prompt-cache the frozen system prompt + registry slice per node (cache read ~0.1×) to cut input cost materially on repeat calls within a session.
+
+> **Pricing-track caveat (flag for Matt):** the pinned `RUNTIME_MODEL` is `claude-sonnet-4-6`, which bills at flat **$3/$15 with no intro window** — i.e. it is *already* on the standard row and has **no September cliff to survive**. The intro row applies only if the runtime is switched to the `claude-sonnet-5` pricing track (intro $2/$10 → standard $3/$15). Either way the planning basis is the same $0.24/session standard figure, so the budget is robust to the step-up. Decision for Matt: keep `RUNTIME_MODEL = claude-sonnet-4-6` (flat, no cliff) or move to `claude-sonnet-5` (newer, cheaper until Aug 31, then identical). Both are one-line changes in the model-config table.
 
 **Latency budget:** the only hard requirement is the interaction feels fast (`AI_ADAPTIVE.md` §0, §9). Tutor turns are the only blocking LLM path and carry the <800ms TTFT target via streaming + `effort: low` + `thinking: disabled`. Everything else is async-optimistic, precomputed, or cached, so it never gates the UI. Async engine updates (BKT/retention) run server-side without blocking (§6).
 

@@ -28,12 +28,14 @@ This pipeline **cannot start** until all of the following exist and are frozen:
 | Dependency | Produced by | State needed | This spec's stance |
 |---|---|---|---|
 | Gold reference node (ALG-L06 + L05 taught surface) | Desktop session (under review) | APPROVED + merged | **Input only.** Referenced, never regenerated. |
-| Misconception registry diff (4 redefine, 10 add, 1 re-key) | mr-kahn | Applied to `data/algebra1-graph.json` | **Blocking input.** Regeneration keys tags against the *post-diff* registry. If the diff is not yet applied, this pipeline stops (see §7 failure mode F-DEP). |
+| Misconception registry diff (4 redefine, 10 add, 1 re-key) | mr-kahn | Applied to `data/algebra1-graph.json` | **Blocking input.** Regeneration keys tags against the *post-diff* registry. If the diff is not yet applied, this pipeline stops (see §7 F-DEP). **Verified 2026-07-03:** the registry is structurally identical across 1.9.2→1.11.0 (153 entries, same IDs, all 4 refined slope tags present), so the **4-redefine + 10-add** apply cleanly. **BUT** the diff's **1 live-item re-key** targets an item identified against the 1.9.2 bank; Phase 2 rewrote the entire bank (100% re-tag + dedup), so that single re-key **must be re-verified against 1.11.0** before application. |
 | **Archetype library** (`archetypes/` — does not exist yet) | Follow-on authoring task | Authored + frozen at a pinned version | Interface defined in §4.2. This is the load-bearing missing input. |
 | D4 rubric contract (score-per-element + tags + confidence) | Gold-node deliverable set | Frozen schema | Consumed by the rubric-item generator and by `RUNTIME_TUTOR_SPEC` grading. |
 | Node taxonomy-keying contract (§3 of the slope taxonomy doc) | mr-kahn | Frozen | The 3-rung hint ladder / error-analysis / rubric-annotation rules every node copies. |
 
-**Node inventory (verified against `data/algebra1-graph.json`, schema v1.11.0):** 74 nodes total across 7 domains (foundations→data, tiers 0–6). One is the gold reference (ALG-L06). **73 remain** for regeneration. Current per-node baseline (the quality bar being replaced), per `logs/GOLD_NODE_LOG.md`: 62 problems (28 P1 / 28 P2 / 6 P3), difficulty 1–3, numeric single-step prompts, 2 generic hints/item, thin `misconceptionMap` (1–2 entries), `visual: null`, 2 worked examples. No error-analysis, no representation variety, no rubric-scored explanation, no transfer-battery structure.
+**Graph version — verified 2026-07-03 (see `logs/REMOTE_DESIGN_LOG.md` graph-version investigation):** the git file `data/algebra1-graph.json` is at **schema `1.11.0`** (bumped from `1.9.2` by commit `74de0f8`, "Phase 2 item bank," 2026-06-16 — item-bank certification + 100% `equivalenceClass`/`calculatorFlag` tagging + dedup; registry unchanged). ⚠️ **Divergence:** the **Supabase-active/published graph is still `1.9.2`** (activated 2026-06-14), which is what the gold-node work pulled. This pipeline targets the **git-current `1.11.0`** state. Before any run, reconcile which state is authoritative for regeneration (git vs. Supabase-active) — a precondition tracked under F-DEP (§7).
+
+**Node inventory (verified against `data/algebra1-graph.json`, schema `1.11.0`):** 74 nodes across 7 domains (foundations→data, tiers 0–6), 114 edges, 153-entry `misconceptionRegistry`. One is the gold reference (ALG-L06). **73 remain** for regeneration. Current per-node baseline (the quality bar being replaced): 62 problems/node avg (the 1.11.0 bank is 4,588 items / 74 nodes ≈ 62, matching the `logs/GOLD_NODE_LOG.md` 1.9.2 pull of 28 P1 / 28 P2 / 6 P3), difficulty 1–3, numeric single-step prompts, 2 generic hints/item, thin `misconceptionMap`, `visual: null`, 2 worked examples. Phase 2 (1.11.0) added `equivalenceClass`/`calculatorFlag` tagging (relevant to the archetype `solverContract`, §4.2) but **not** the pedagogical enrichment — no error-analysis, representation variety, rubric-scored explanation, or transfer-battery structure. The enrichment delta the regen targets is therefore unaffected by the 1.9.2→1.11.0 move.
 
 ---
 
@@ -119,14 +121,16 @@ Anchored on the measured baseline (63 KB / ~16k-token live node file) and the go
 
 Per node (`GENERATION_MODEL`, Batch 50%): input ≈ (20k shared amortized ≈ 2k/node effective + 15k unique) × $2.50/1M ≈ **$0.043**; output 40k × $12.50/1M ≈ **$0.50**. ≈ **$0.55/node**.
 
+Audit cost scales with the §6.1 ramped sampling rate. `AUDIT_MODEL` at 5% (~50 items/batch) ≈ **$1.5/batch**; at 10% (~100 items/batch) ≈ **$3/batch**. With the first two batches at 10% and the rest at 5% (the expected path if batches 1–2 come back clean): 2×$3 + 6×$1.5 = **~$15**. Worst case (no batch ever earns the step-down, all 8 at 10%): 8×$3 = **~$24**.
+
 | Line | Nodes | Est. cost |
 |---|---|---|
 | Generation (`GENERATION_MODEL`, Batch) | 73 | ~$40 |
 | Regeneration loop overhead (~15% reruns) | — | ~$6 |
-| Audit (Fable 5, Batch, 5% item sampling) | 8 batches | ~$12 |
-| **Total** | | **~$58** |
+| Audit (`AUDIT_MODEL`, Batch, ramped 10%→5% sampling) | 8 batches | ~$15 (up to ~$24) |
+| **Total** | | **~$61** (up to ~$70) |
 
-Assumptions stated: no cache-miss penalty modeled beyond the amortization above; ~15% of nodes require one regeneration; audit samples 5% of items per batch (§6.1). A `GENERATION_MODEL_ALT` generator would cut the generation line ~40% (~$24 total) — pursue only if the §1.1 pilot clears audit parity. **These are planning numbers; the harness emits actuals per batch from `response.usage`.**
+Assumptions stated: no cache-miss penalty modeled beyond the amortization above; ~15% of nodes require one regeneration; audit samples **10% of items on the first two batches, stepping to 5% after two consecutive clean batches** (§6.1). A `GENERATION_MODEL_ALT` generator would cut the generation line ~40% (~$40 → ~$24; project total ~$43 with the unchanged `AUDIT_MODEL` audit) — pursue only if the §1.1 pilot clears audit parity. **These are planning numbers; the harness emits actuals per batch from `response.usage`.**
 
 ---
 
@@ -213,9 +217,14 @@ Validation failures never advance and never touch `data/`; they route to QUARANT
 
 ## 6. Audit gate mechanics
 
-### 6.1 Sampling
+### 6.1 Sampling — ramped
 
-**5% of generated items per batch**, stratified so the sample spans every node in the batch and every item form (closed-form, error-analysis, representation-variety, rubric-explanation, transfer-battery). At ~100 items/node × 10 nodes = ~1000 items/batch → **~50 audited items/batch**. Stratification guarantees no node and no form is unaudited even at 5%.
+The sampling rate **starts high and steps down only once the generator has proven itself**:
+
+- **First two batches: 10% of generated items per batch.** At ~100 items/node × 10 nodes = ~1000 items/batch → **~100 audited items/batch**.
+- **Drop to 5% (~50 audited items/batch) only after two *consecutive* clean batches** (a clean batch = passes §6.3 with 0 `fatal` and 0 `major`). Any batch with a `major`-or-worse finding **resets the counter** — sampling stays (or returns to) 10% until two consecutive clean batches are again observed. In the worst case every batch runs at 10%.
+
+Sampling is **stratified** at either rate so the sample spans every node in the batch and every item form (closed-form, error-analysis, representation-variety, rubric-explanation, transfer-battery). Stratification guarantees no node and no form is unaudited even at 5%. Front-loading to 10% concentrates audit spend where the pipeline is least calibrated (earliest batches, closest to the gold exemplars per §2) and earns the cheaper 5% rate only on a demonstrated track record.
 
 ### 6.2 Fable audit prompt spec
 
@@ -245,6 +254,7 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
 
 - **Item fails** if any check is `false` with `severity ∈ {major, fatal}`. `minor` findings are logged, not failing.
 - **Batch passes** if the sampled failure rate is **≤ 5%** AND there are **0 `fatal`** findings. Any `fatal` (wrong math, tag that would mis-route a student, answer/work mismatch) fails the batch regardless of rate — these are accreditation-evidence integrity failures.
+- **Clean batch** (the stricter bar that governs the §6.1 rate step-down) = **0 `fatal` AND 0 `major`** findings in the sample. A batch can *pass* (≤5% failure, 0 fatal) while still not being *clean* — passing lets the batch advance; only two consecutive clean batches unlock the 5% sampling rate. The larger 10% sample on the first two batches makes the failure-rate estimate tighter exactly when the pass/clean decision is least certain.
 
 ### 6.4 Rejection and regeneration loop
 
@@ -262,7 +272,7 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
 | **F-TAG** | Taxonomy tag misuse (unknown tag, or valid tag on a non-matching distractor) | §5.2 step 2 (existence) + audit `misconceptionTagsValid` (semantic) | Existence failure → quarantine + regenerate. Semantic failure → audit-fail path (§6.4). Mis-keyed tags corrupt runtime routing, so treated as ≥major. |
 | **F-OVERFLOW** | Context/output overflow on a large node (item count × enrichment exceeds `max_tokens`) | `stop_reason == "max_tokens"` or truncated JSON | Split node generation by phase (P1 request, P2 request, P3 request) and merge host-side; re-validate the merged node. Large nodes are flagged in the archetype manifest so they're split preemptively. |
 | **F-PARTIAL** | Partial batch failure (some `custom_id`s error/expire) | Batch result `.result.type ∈ {errored, expired}` | Key by `custom_id`; resubmit only the failed ids in a follow-up batch. Never re-key by position. Succeeded nodes proceed independently. |
-| **F-DEP** | Registry diff not yet applied / archetype library not frozen | Precondition check at harness start | **Hard stop.** Pipeline refuses to run against an un-pinned archetype version or pre-diff registry (would key tags against a stale vocabulary). |
+| **F-DEP** | Registry diff not yet applied / archetype library not frozen / **git-vs-Supabase graph state unreconciled** | Precondition check at harness start | **Hard stop.** Pipeline refuses to run against an un-pinned archetype version, a pre-diff registry, or an ambiguous graph baseline. Git is at `1.11.0`; Supabase-active is `1.9.2` (§0) — the run must pin exactly one authoritative state and the registry-diff's 1 live-item re-key must be re-verified against it. |
 | **F-DRIFT** | Generator quality drifts mid-run (later batches worse) | Audit pass-rate trend across batches in `_reports/` | If pass-rate degrades across ≥2 batches, halt and re-pin exemplars / re-pilot model choice before continuing. |
 
 ---
@@ -291,8 +301,8 @@ Per `CLAUDE.md` workflow. Gated (curriculum/accreditation-touching) content **ca
 | Structured output | `output_config.format` = `json_schema` (strict), re-validated host-side |
 | `max_tokens` | 64000 (split-by-phase for manifest-flagged large nodes) |
 | Batch size | 10 nodes (8 batches) |
-| Audit sampling | 5% of items/batch, stratified by node × item-form |
-| Batch pass bar | ≤5% sampled failure AND 0 fatal |
+| Audit sampling | Ramped: 10%/batch for the first two batches → 5% after two consecutive clean batches (§6.1), stratified by node × item-form |
+| Batch pass bar | ≤5% sampled failure AND 0 fatal. *Clean* (unlocks 5% rate) = 0 fatal AND 0 major |
 | Max auto-regen rounds | 2, then session fallback |
 | Archetype library version | PIN before run (F-DEP hard-stops if unset) |
 | Registry state | post-diff, frozen (F-DEP hard-stops if pre-diff) |
