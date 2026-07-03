@@ -30,3 +30,6 @@ Phase 5 Sonnet runtime, advisory-only. Restated the load-bearing constraint at t
 - **Human gates** marked: mr-gates (routes/envelope), mr-kahn (grading fidelity + evidence mapping), pee-wee (tutor/report surfaces), Matt (evidence-weighting changes + expert-label validation before any hard-gate influence).
 
 Next: Matt reviews the 20-line-per-spec summary (below / in chat) from mobile; on approval these move from DRAFT toward the gated implementation tasks each spec names.
+
+### 2026-07-03 — model-ID audit + config refactor (follow-up)
+Verified every hardcoded model ID in both specs against the approved valid set {`claude-fable-5`, `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`}. Fixes: `claude-sonnet-5` → `claude-sonnet-4-6` (BATCH_REGEN alt-generator + RUNTIME runtime model); `claude-haiku-4-5` → `claude-haiku-4-5-20251001` (RUNTIME grading fallback). `claude-opus-4-8` / `claude-fable-5` already valid. Refactored so IDs live **once** per spec in a "Model configuration (single source of truth)" table; all inline uses now reference named constants (`GENERATION_MODEL`, `GENERATION_MODEL_ALT`, `AUDIT_MODEL`; `RUNTIME_MODEL`, `GRADING_FALLBACK_MODEL`). Dropped Sonnet-5-only intro pricing from RUNTIME cost math (4.6 has none). Note: `claude-sonnet-5` is itself a live model, but conformed to the project's approved set per instruction.

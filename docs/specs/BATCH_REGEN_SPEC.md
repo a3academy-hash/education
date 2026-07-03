@@ -9,6 +9,18 @@
 
 ---
 
+## Model configuration (single source of truth)
+
+Every model ID used by this pipeline is defined **once** here. The rest of the spec refers to these constants by name — do not inline a raw model string anywhere else. To change a model, edit this table only.
+
+| Constant | Model ID | Batch price ($/1M in / out) | Role |
+|---|---|---|---|
+| `GENERATION_MODEL` | `claude-opus-4-8` | $2.50 / $12.50 | Node generation (default) |
+| `GENERATION_MODEL_ALT` | `claude-sonnet-4-6` | $1.50 / $7.50 | Cost-down pilot candidate (§1.1) |
+| `AUDIT_MODEL` | `claude-fable-5` | $5.00 / $25.00 | Independent audit (§6) |
+
+---
+
 ## 0. Preconditions and dependencies
 
 This pipeline **cannot start** until all of the following exist and are frozen:
@@ -35,9 +47,9 @@ Generation runs through the **Message Batches API** (`POST /v1/messages/batches`
 - **Throughput without orchestration code.** One batch submits ≤100k requests / ≤256 MB; results return typically <1h (24h ceiling). No client-side concurrency, retry, or rate-limit handling to build.
 - **Deterministic, replayable.** Each request carries a `custom_id`; results arrive **unordered** and are keyed back by `custom_id` (never by position). The harness is a pure function of (frozen inputs, pinned model, pinned prompt template).
 
-**Generation model: `claude-opus-4-8`** (Batch: $2.50/$12.50 per 1M in/out). Curriculum content is accreditation evidence; we do not downgrade the generator for cost. "Cheapest for this volume" is achieved by the Batch discount, not by model tier. Sonnet 5 (`claude-sonnet-5`, Batch $1.50/$7.50, or intro $1.00/$5.00 through 2026-08-31) is a **cost-down candidate to A/B against the gold exemplars** on a 3-node pilot before committing — adopt only if audit pass-rate is statistically indistinguishable from Opus on the pilot.
+**Generation model: `GENERATION_MODEL`** (see model-config table). Curriculum content is accreditation evidence; we do not downgrade the generator for cost. "Cheapest for this volume" is achieved by the Batch discount, not by model tier. `GENERATION_MODEL_ALT` is a **cost-down candidate to A/B against the gold exemplars** on a 3-node pilot before committing — adopt only if audit pass-rate is statistically indistinguishable from `GENERATION_MODEL` on the pilot.
 
-**Audit model: `claude-fable-5`** (Batch: $5/$25) — a stronger, independent model grades the generator's output (§6). Using a *different, more capable* model for audit than for generation is deliberate: it avoids a model grading its own failure modes.
+**Audit model: `AUDIT_MODEL`** — a stronger, independent model grades the generator's output (§6). Using a *different, more capable* model for audit than for generation is deliberate: it avoids a model grading its own failure modes.
 
 Harness responsibilities (pure, no side effects on `data/` or Supabase):
 1. Load frozen inputs (graph node JSON, archetype library at pinned version, taxonomy contract, gold exemplars).
@@ -105,16 +117,16 @@ Anchored on the measured baseline (63 KB / ~16k-token live node file) and the go
 
 ### 3.3 Cost estimate (Batch pricing)
 
-Per node (Opus 4.8, Batch 50%): input ≈ (20k shared amortized ≈ 2k/node effective + 15k unique) × $2.50/1M ≈ **$0.043**; output 40k × $12.50/1M ≈ **$0.50**. ≈ **$0.55/node**.
+Per node (`GENERATION_MODEL`, Batch 50%): input ≈ (20k shared amortized ≈ 2k/node effective + 15k unique) × $2.50/1M ≈ **$0.043**; output 40k × $12.50/1M ≈ **$0.50**. ≈ **$0.55/node**.
 
 | Line | Nodes | Est. cost |
 |---|---|---|
-| Generation (Opus 4.8, Batch) | 73 | ~$40 |
+| Generation (`GENERATION_MODEL`, Batch) | 73 | ~$40 |
 | Regeneration loop overhead (~15% reruns) | — | ~$6 |
 | Audit (Fable 5, Batch, 5% item sampling) | 8 batches | ~$12 |
 | **Total** | | **~$58** |
 
-Assumptions stated: no cache-miss penalty modeled beyond the amortization above; ~15% of nodes require one regeneration; audit samples 5% of items per batch (§6.1). A Sonnet-5 generator would cut the generation line ~40% (~$24 total) — pursue only if the §1.1 pilot clears audit parity. **These are planning numbers; the harness emits actuals per batch from `response.usage`.**
+Assumptions stated: no cache-miss penalty modeled beyond the amortization above; ~15% of nodes require one regeneration; audit samples 5% of items per batch (§6.1). A `GENERATION_MODEL_ALT` generator would cut the generation line ~40% (~$24 total) — pursue only if the §1.1 pilot clears audit parity. **These are planning numbers; the harness emits actuals per batch from `response.usage`.**
 
 ---
 
@@ -162,7 +174,7 @@ Each archetype entry MUST provide:
 
 ### 4.3 Context budget
 
-Per-request input ≈ **35k tokens** (20k shared + 15k unique), output ≈ **40k**. Total well within Opus 4.8's 1M context. Output at 40k is under the 128k cap but **requires streaming inside the harness** for non-batch pilot calls; batch requests are not subject to the SDK HTTP timeout. `max_tokens` set to **64k** (headroom over the 40k target; truncation → `stop_reason: max_tokens` → treated as F-OVERFLOW, §7). Archetype-cluster intra-batch ordering (§2) maximizes cache reads on the archetype block.
+Per-request input ≈ **35k tokens** (20k shared + 15k unique), output ≈ **40k**. Total well within `GENERATION_MODEL`'s 1M context. Output at 40k is under the 128k cap but **requires streaming inside the harness** for non-batch pilot calls; batch requests are not subject to the SDK HTTP timeout. `max_tokens` set to **64k** (headroom over the 40k target; truncation → `stop_reason: max_tokens` → treated as F-OVERFLOW, §7). Archetype-cluster intra-batch ordering (§2) maximizes cache reads on the archetype block.
 
 ---
 
@@ -273,8 +285,8 @@ Per `CLAUDE.md` workflow. Gated (curriculum/accreditation-touching) content **ca
 
 | Parameter | Value |
 |---|---|
-| Generation model | `claude-opus-4-8` (pilot A/B vs `claude-sonnet-5`) |
-| Audit model | `claude-fable-5` |
+| Generation model | `GENERATION_MODEL` (pilot A/B vs `GENERATION_MODEL_ALT`) — see model-config table |
+| Audit model | `AUDIT_MODEL` — see model-config table |
 | API surface | Message Batches (`/v1/messages/batches`), 50% pricing |
 | Structured output | `output_config.format` = `json_schema` (strict), re-validated host-side |
 | `max_tokens` | 64000 (split-by-phase for manifest-flagged large nodes) |
