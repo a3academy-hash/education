@@ -42,3 +42,10 @@ Next: awaiting Matt's deliverables list for the full gold-standard experience bu
 - Phase split 4 P1 / 6 P2 / 5 P3; ids namespaced `ALG-L06-gold-*`; every misconceptionMap entry carries trigger + tag + instantiated signature; hintLadderRef convention `HL-L06-generic` + `HL-<tag>` (D2 will define these ladders, keyed by exactly these ids).
 - schemaNote documents the extension over the live 1.9.2 item schema (string phases, object misconceptionMap with explicit signatures, archetype bodies, mandatory visual).
 - HARD STOP: one complete error-analysis item surfaced to Matt for review before D2.
+
+### D1 v2 — voice revision (Matt REJECTED v1 language)
+
+- Matt's complaints (verbatim themes): "an authentic workload — what does that even mean? why is that added to a math question?"; "the tempting idea — what does this even mean?"; "Your hits went up by 12, so 12 is your rate — WHAT? What hits? … why is there no relevant context?"; "why cant you talk normal?"
+- Diagnosis (now standing voice contract, recorded in the doc's global rules): (1) never ventriloquize a misconception in the lesson's own voice — re-establish concrete context first, then attribute the wrong idea to a named fictional peer in quoted speech; (2) no insider pedagogy meta-labels in student text ("The tempting idea," "You say it"); (3) authoring/realism rationale never leaks into student-visible text ("an authentic workload" moved to Authoring notes); (4) numbers never appear without units + context, "rate" never bare; (5) read-aloud test — plain coach/teacher speech.
+- Rewrite by mr-kahn (agent a71d1d8a7dce217f9): all pedagogy, datasets, distractor values, taxonomy keying, and the 10 visual specs unchanged; student-facing text only. Confrontations now voiced by named peers (Priya §5.1, Eli §5.2, Marcus §5.3). Appendix gains constraint (f) v2 voice contract. Status → DRAFT v2 pending re-review.
+- Matt also supplied a register benchmark (Claude-chat "Radar Gun Log" item: week 3 74 mph / week 8 86 mph → 2.4 mph per week) — adopted as the voice bar; same pass to be applied to D3 next, with the radar-gun item integrated as a scaffolded item.
