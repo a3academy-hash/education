@@ -18,3 +18,18 @@
 - Structural finding: F-IF.B.6 lives only on ALG-L05 (no downstream average-rate node) → nonlinearity-discrimination items are mandatory in L05.
 
 Next: awaiting Matt's deliverables list for the full gold-standard experience build.
+
+## 2026-07-05 — Rebuild session (post-outage): branch + D1
+
+- Prior desktop session lost to power outage; D1–D6 were never persisted (see `docs/gold-node/REVIEW_DIGEST.md`, committed `1c28e0d`). Rebuild ordered by Matt with the DURABILITY RULE: write + commit + push per deliverable, one commit each, log per deliverable.
+- Branch `gold-node-alg-l06` created off `b62fa21` (overhaul/v0.2 tip), pushed to origin.
+- Deliverable order (Matt): D1 → D3 → D2 → D4 → D5 → D6, hard stops after D1 and D3.
+- Gates: no registry-diff application, no Supabase writes, no `data/algebra1-graph.json` edits.
+
+### D1 — GOLD_NODE_LESSON.md (DONE, DRAFT pending Matt review)
+
+- Authored by mr-kahn (agent a9e27d802a12603a1, continuable via SendMessage) → `docs/gold-node/GOLD_NODE_LESSON.md`.
+- Full ALG-L06 instructional sequence, 7 sections: scout's-notebook hook (baseball P1, per-sport substitution table for all 7 tracks) → ramp concrete anchor (no formula/coordinates) → 4 worked examples with fading (P1 concrete → P2 graph → P2 negative slope → P3 abstract), each with taxonomy-rooted self-explanation prompts → 4 embedded checks, every distractor = a taxonomy detection signature computed on the item's numbers (EC3 carries the −m/|m| collision-matrix handling) → 3 misconception-confrontation segments (§2.1 + §2.6 BLOCKERs, §2.2 top HIGH with documented tie-break) → formalization LAST (formula derived as "naming what you already did"; §2.7 subscript treatment; §2.15 full-reversal correctness) → L05→L06 bridge with the mandatory §2.14 nonconstant-rate discrimination moment.
+- 10 fully-specified `visual` blocks (renderer/Manim-buildable: exact data, annotations, reveal beats); zero nulls. Constraint self-check appendix included.
+- Datasets: (2,4)/(6,16)→3 · (8,24)/(20,60)→3 · (8,18)/(12,10)→−2 · (2,7)/(6,19)→3 · ramps 6/4 vs 12/10 · §2.14 table.
+- HARD STOP: hook + anchor + first worked example surfaced to Matt for review before D3.
