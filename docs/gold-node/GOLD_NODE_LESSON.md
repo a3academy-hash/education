@@ -30,12 +30,12 @@
 > A scout watched your whole season but only wrote down two lines about you:
 > **After game 2: 4 hits. After game 6: 16 hits.**
 >
-> Her report has to say exactly how fast you were producing — hits per game, one number. She never saw games 3, 4, or 5.
+> His report has to say exactly how fast you were producing — hits per game, one number. He never saw games 3, 4, or 5.
 >
-> Can two snapshots really tell her your exact pace? And is there a way to get that number every time, no matter which two snapshots she kept? By the end of this lesson, you'll do it in about ten seconds.
+> Can two snapshots really tell him your exact pace? And is there a way to get that number every time, no matter which two snapshots he kept? By the end of this lesson, you'll do it in about ten seconds.
 
 **Authoring notes**
-- Knowledge gap: the student can find a rate from a full story or table (L05) but has never extracted it from *two isolated points*. The "she never saw games 3–5" clause plants the constancy question that Section 7 pays off (`assumes-constant-rate-nonlinear` §2.14).
+- Knowledge gap: the student can find a rate from a full story or table (L05) but has never extracted it from *two isolated points*. The "he never saw games 3–5" clause plants the constancy question that Section 7 pays off (`assumes-constant-rate-nonlinear` §2.14).
 - Dataset D1 = (2, 4), (6, 16), m = 3 — the taxonomy's canonical example (§2.1, §2.6, §2.7); reused through the lesson.
 - Structural-skin rule check: the math *is* the context — cumulative hits vs. games is genuinely linear data with a per-game rate. No narrative padding.
 
