@@ -4,7 +4,7 @@
   "standard": "8.F.B.4",
   "taxonomyVersion": "docs/gold-node/misconception-taxonomy-slope.md (2026-07-02)",
   "status": "DRAFT - pending Matt review",
-  "schemaNote": "Extends the live 1.9.2 item schema (id/skillId/sport/difficulty/misconceptionMap) with: phase as 'P1'|'P2'|'P3' strings (live used numeric 1-3), misconceptionMap as an array of {trigger, tag, signature} objects (live used a flat trap->tag object; signatures are now explicit for audit), and new required fields archetype, standard, hintLadderRef, authoringNote, plus a full D1-convention visual object (id/type/purpose/data/annotations/reveal_beats) replacing the nullable visual/visualSpec pair. Archetype-specific bodies (parts, shownWork+questions+errorAnalysisOf, predict/reveal, interaction) are additive; scaffolded items carry per-part maps and a part-prefixed flattened item-level map so the attempt log stays reconstructable per taxonomy §3.4.",
+  "schemaNote": "Extends the live 1.9.2 item schema (id/skillId/sport/difficulty/misconceptionMap) with: phase as 'P1'|'P2'|'P3' strings (live used numeric 1-3), misconceptionMap as an array of {trigger, tag, signature} objects (live used a flat trap->tag object; signatures are now explicit for audit), and new required fields archetype, standard, hintLadderRef, authoringNote, plus a full D1-convention visual object (id/type/purpose/data/annotations/reveal_beats) replacing the nullable visual/visualSpec pair. Archetype-specific bodies (parts, shownWork+questions+errorAnalysisOf, predict/reveal, interaction) are additive; scaffolded items carry per-part maps and a part-prefixed flattened item-level map so the attempt log stays reconstructable per taxonomy §3.4. v2 (QUESTION_VOICE §11 ADJUSTs): predict-reveal items may carry resolveAcceptedEquivalents, the resolve-prefixed mirror of the parts-level acceptedEquivalents field.",
   "counts": {
     "scaffolded-multistep": 4,
     "error-analysis": 3,
@@ -81,6 +81,47 @@
               "signature": "Δy - Δx = 20 - 5 = 15 (§2.6 variant (a); y1 = 10 != x1 = 4)"
             }
           ]
+        },
+        {
+          "partId": "d",
+          "prompt": "Last one: you found a slope of 4. Which sentence says what that slope of 4 means?",
+          "answerType": "choice",
+          "correctAnswer": "A",
+          "choices": [
+            {
+              "id": "A",
+              "text": "The team's run total climbs by 4 runs each game."
+            },
+            {
+              "id": "B",
+              "text": "It takes 4 games for the run total to climb by 1 run."
+            },
+            {
+              "id": "C",
+              "text": "The run total climbed 20 runs over those 5 games."
+            },
+            {
+              "id": "D",
+              "text": "The run total is always 4 times the game number."
+            }
+          ],
+          "misconceptionMap": [
+            {
+              "trigger": "B",
+              "tag": "inverted-ratio",
+              "signature": "swaps the referent: reads the 4 as games-per-run instead of runs-per-game - 1/m verbalized (§2.3, mirroring scaf-03 part (c)'s convention)"
+            },
+            {
+              "trigger": "C",
+              "tag": "rate-not-per-unit",
+              "signature": "pairs the true Δy = 20 runs with the whole 5-game interval and offers it as the meaning of the 4 - correct change, never normalized to per-1 game (§2.10's unit-labeled-choice detection)"
+            },
+            {
+              "trigger": "D",
+              "tag": "slope-as-single-point-ratio",
+              "signature": "reads the slope as 'total = 4 x game number,' i.e. y = 4x - armed because b = -6 != 0: game 4 would give 16 runs, but the total was 10 (§2.9)"
+            }
+          ]
         }
       ],
       "misconceptionMap": [
@@ -118,6 +159,21 @@
           "trigger": "c:15",
           "tag": "slope-as-difference",
           "signature": "Δy - Δx = 15 (§2.6a)"
+        },
+        {
+          "trigger": "d:B",
+          "tag": "inverted-ratio",
+          "signature": "games-per-run referent swap (§2.3 interpretation form)"
+        },
+        {
+          "trigger": "d:C",
+          "tag": "rate-not-per-unit",
+          "signature": "20 runs per 5 games offered as the meaning of the 4 (§2.10)"
+        },
+        {
+          "trigger": "d:D",
+          "tag": "slope-as-single-point-ratio",
+          "signature": "y = 4x proportional reading, b = -6 != 0 (§2.9)"
         }
       ],
       "visual": {
@@ -188,7 +244,8 @@
           "Axes, both points, and the line appear.",
           "On part (a) resolve: rise arrow draws upward with its label.",
           "On part (b) resolve: run arrow draws rightward with its label.",
-          "On part (c) resolve: readout appears in Plex Mono."
+          "On part (c) resolve: readout appears in Plex Mono.",
+          "On part (d) resolve: one single-game step highlights on the line with the caption '+4 runs each game - that is the 4.'"
         ]
       },
       "hintLadderRef": {
@@ -198,10 +255,12 @@
           "slope-as-height": "HL-slope-as-height",
           "forgot-denominator": "HL-forgot-denominator",
           "inverted-ratio": "HL-inverted-ratio",
-          "slope-as-difference": "HL-slope-as-difference"
+          "slope-as-difference": "HL-slope-as-difference",
+          "rate-not-per-unit": "HL-rate-not-per-unit",
+          "slope-as-single-point-ratio": "HL-slope-as-single-point-ratio"
         }
       },
-      "authoringNote": "P1 on-ramp mirroring the lesson's three moves on fresh numbers (4,10)-(9,30). Traps instantiate §2.1/§2.2/§2.3/§2.6; generator constraints |Δx| != 1, |m| != 1, y1 != x1, y1 != 0 all hold and all trap values are pairwise distinct from the key 4."
+      "authoringNote": "P1 on-ramp mirroring the lesson's three moves on fresh numbers (4,10)-(9,30). Traps instantiate §2.1/§2.2/§2.3/§2.6; generator constraints |Δx| != 1, |m| != 1, y1 != x1, y1 != 0 all hold and all trap values are pairwise distinct from the key 4. v2 (QUESTION_VOICE §11 ADJUST): part (d) interpretation capstone added - distractors key §2.3 (swapped referent), §2.10 (true 20-runs-over-5-games interval reading offered as the meaning of the 4), and §2.9 (proportional reading, armed by b = -6 != 0 on the line y = 4x - 6); no distractor restates the correct per-game reading (cumulative-context hazard checked)."
     },
     {
       "id": "ALG-L06-gold-scaf-02",
@@ -419,7 +478,7 @@
       "difficulty": 3,
       "standard": "8.F.B.4",
       "skillId": "ALG-L06",
-      "prompt": "No story. A line passes through (3, 5) and (11, 11).",
+      "prompt": "A line passes through (3, 5) and (11, 11).",
       "parts": [
         {
           "partId": "a",
@@ -511,6 +570,47 @@
               "signature": "reads the slope as an additive gap between y and x instead of a ratio of changes (§2.6 root in interpretation form)"
             }
           ]
+        },
+        {
+          "partId": "d",
+          "prompt": "Now drop the numbers: a line passes through the points (x₁, y₁) and (x₂, y₂). Which expression gives its slope?",
+          "answerType": "choice",
+          "correctAnswer": "A",
+          "choices": [
+            {
+              "id": "A",
+              "text": "(y₂ - y₁) / (x₂ - x₁)"
+            },
+            {
+              "id": "B",
+              "text": "(y₂ - y₁) / (x₁ - x₂)"
+            },
+            {
+              "id": "C",
+              "text": "(x₂ - x₁) / (y₂ - y₁)"
+            },
+            {
+              "id": "D",
+              "text": "(y₂ - x₂) / (y₁ - x₁)"
+            }
+          ],
+          "misconceptionMap": [
+            {
+              "trigger": "B",
+              "tag": "inconsistent-subtraction-order",
+              "signature": "numerator runs point 1 -> point 2 while the denominator runs point 2 -> point 1: the mismatched-orientation quotient, equal to -m (§2.2)"
+            },
+            {
+              "trigger": "C",
+              "tag": "inverted-ratio",
+              "signature": "run over rise: Δx/Δy = 1/m, the inverted quotient (§2.3)"
+            },
+            {
+              "trigger": "D",
+              "tag": "subtracts-within-points",
+              "signature": "differences formed inside each point instead of across points: (y₂ - x₂)/(y₁ - x₁) (§2.7)"
+            }
+          ]
         }
       ],
       "misconceptionMap": [
@@ -558,6 +658,21 @@
           "trigger": "c:D",
           "tag": "slope-as-difference",
           "signature": "additive reading of 3/4 (§2.6)"
+        },
+        {
+          "trigger": "d:B",
+          "tag": "inconsistent-subtraction-order",
+          "signature": "mismatched-orientation quotient = -m (§2.2, general form)"
+        },
+        {
+          "trigger": "d:C",
+          "tag": "inverted-ratio",
+          "signature": "Δx/Δy = 1/m (§2.3, general form)"
+        },
+        {
+          "trigger": "d:D",
+          "tag": "subtracts-within-points",
+          "signature": "(y₂ - x₂)/(y₁ - x₁) (§2.7, general form)"
         }
       ],
       "visual": {
@@ -632,7 +747,8 @@
         "reveal_beats": [
           "(No visual during parts (a) and (b) - abstract stage.)",
           "On part (b) resolve: plane, the two given points, line, and arrows appear with the readout.",
-          "The extension point (19, 17) pulses on the same line - 'the picture agrees with your arithmetic.'"
+          "The extension point (19, 17) pulses on the same line - 'the picture agrees with your arithmetic.'",
+          "(No visual change on parts (c) and (d) - the interpretation and the general formula stand on their own.)"
         ]
       },
       "hintLadderRef": {
@@ -642,10 +758,11 @@
           "inverted-ratio": "HL-inverted-ratio",
           "slope-as-difference": "HL-slope-as-difference",
           "inconsistent-subtraction-order": "HL-inconsistent-subtraction-order",
-          "slope-as-single-point-ratio": "HL-slope-as-single-point-ratio"
+          "slope-as-single-point-ratio": "HL-slope-as-single-point-ratio",
+          "subtracts-within-points": "HL-subtracts-within-points"
         }
       },
-      "authoringNote": "Required P3-neutral scaffold with fraction slope and a taxonomy-keyed interpretation part (c). Part (b) traps are deterministic propagations of part (a) misconceptions, so a consistent wrong model leaves a two-hit evidence trail (§3.4: 2 hits = tag active). §2.9 armed via b = 11/4 != 0; choice format sidesteps §2.9's numeric-tolerance separation concern."
+      "authoringNote": "Required P3-neutral scaffold with fraction slope and a taxonomy-keyed interpretation part (c). Part (b) traps are deterministic propagations of part (a) misconceptions, so a consistent wrong model leaves a two-hit evidence trail (§3.4: 2 hits = tag active). §2.9 armed via b = 11/4 != 0; choice format sidesteps §2.9's numeric-tolerance separation concern. v2 (QUESTION_VOICE §11 ADJUSTs): meta-label 'No story.' deleted from the stem; part (d) adds the generalization capstone (compute -> use -> interpret -> generalize) as choice-for-expressions because the Phase-8 keypad is fraction-only and cannot take symbolic input; choices use exactly the lesson §6 subscript notation (x₁, y₁, x₂, y₂); distractors key §2.2 (mixed-order quotient), §2.3 (inverted quotient), §2.7 (within-point differences). Part count 4 <= 5."
     },
     {
       "id": "ALG-L06-gold-scaf-04",
@@ -714,6 +831,38 @@
               "signature": "gives the rate 0 where the value was asked - the same value/rate conflation as §2.8, run in reverse"
             }
           ]
+        },
+        {
+          "partId": "d",
+          "prompt": "You found a slope of 0. Which sentence says what that slope of 0 means?",
+          "answerType": "choice",
+          "correctAnswer": "A",
+          "choices": [
+            {
+              "id": "A",
+              "text": "The error total did not change - the team added 0 new errors per game."
+            },
+            {
+              "id": "B",
+              "text": "A slope of 0 means the line has no slope - it is really undefined."
+            },
+            {
+              "id": "C",
+              "text": "The team has 0 total errors."
+            }
+          ],
+          "misconceptionMap": [
+            {
+              "trigger": "B",
+              "tag": "zero-undefined-slope-swap",
+              "signature": "relabels the horizontal line's real slope 0 as 'no slope/undefined' - the memorized labels swapped instead of running 0/6 = 0 (§2.13 in belief form)"
+            },
+            {
+              "trigger": "C",
+              "tag": "slope-as-height",
+              "signature": "reads the rate 0 as the team's total - the total is 8 errors, not 0; §2.8's value/rate conflation, fourth surface in this item"
+            }
+          ]
         }
       ],
       "misconceptionMap": [
@@ -736,6 +885,16 @@
           "trigger": "c:0",
           "tag": "slope-as-height",
           "signature": "rate given where value asked (§2.8 reversed)"
+        },
+        {
+          "trigger": "d:B",
+          "tag": "zero-undefined-slope-swap",
+          "signature": "slope 0 relabeled 'no slope/undefined' (§2.13 belief form)"
+        },
+        {
+          "trigger": "d:C",
+          "tag": "slope-as-height",
+          "signature": "rate 0 read as the total (§2.8, fourth surface)"
         }
       ],
       "visual": {
@@ -806,7 +965,8 @@
           "Axes, points, and the flat line appear.",
           "On part (a) resolve: run arrow and the 'rise = 0' pin appear.",
           "On part (b) resolve: readout '0 / 6 = 0' appears - run the formula, do not recite a label.",
-          "On part (c) resolve: dashed extension draws to (12, 8)."
+          "On part (c) resolve: dashed extension draws to (12, 8).",
+          "On part (d) resolve: caption 'the height is 8 errors; the tilt is 0 - flat means 0 new errors per game.'"
         ]
       },
       "hintLadderRef": {
@@ -816,7 +976,7 @@
           "zero-undefined-slope-swap": "HL-zero-undefined-slope-swap"
         }
       },
-      "authoringNote": "Degenerate-case coverage the live bank lacks: horizontal line, keyed to §2.13 with §2.13's own remediation stance (compute 0/6, don't recite the label). §2.8 appears three ways (height-for-change, height-for-slope, rate-for-value) giving a clean two-hit activation path."
+      "authoringNote": "Degenerate-case coverage the live bank lacks: horizontal line, keyed to §2.13 with §2.13's own remediation stance (compute 0/6, don't recite the label). §2.8 appears three ways (height-for-change, height-for-slope, rate-for-value) giving a clean two-hit activation path. v2 (QUESTION_VOICE §11 ADJUST): part (d) interpretation capstone - correct reading is the 0-new-errors-per-game pace; distractors key §2.13 in belief form and §2.8's fourth surface (rate read as the value); both tags were already in hintLadderRef.perTag, so no ladder additions were needed."
     },
     {
       "id": "ALG-L06-gold-ea-01",
@@ -1197,12 +1357,12 @@
       "standard": "8.F.B.4",
       "skillId": "ALG-L06",
       "errorAnalysisOf": "slope-as-single-point-ratio",
-      "prompt": "A line passes through (4, 14) and (10, 32). Priya's work for its slope is below. Find where it breaks.",
+      "prompt": "A line passes through the points (2.5, 11) and (12.5, 30), and Priya's work for its slope is shown below.",
       "shownWork": [
-        "Step 1: The line passes through (4, 14) and (10, 32).",
+        "Step 1: The line passes through (2.5, 11) and (12.5, 30).",
         "Step 2: Slope means y divided by x at a point on the line.",
-        "Step 3: Use (10, 32): 32 / 10 = 3.2.",
-        "Step 4: The slope is 3.2."
+        "Step 3: Use (12.5, 30): 30 / 12.5 = 2.4.",
+        "Step 4: The slope is 2.4."
       ],
       "questions": [
         {
@@ -1240,11 +1400,11 @@
             },
             {
               "id": "B",
-              "text": "The slope is the y-value where you look at the line - here, 32."
+              "text": "The slope is the y-value where you look at the line - here, 30."
             },
             {
               "id": "C",
-              "text": "The slope is how much y changed: 32 - 14."
+              "text": "The slope is how much y changed: 30 - 11."
             },
             {
               "id": "D",
@@ -1258,17 +1418,17 @@
         {
           "trigger": "diagnose:B",
           "tag": "slope-as-height",
-          "signature": "§2.8 would produce 32, not the shown 3.2 - belief does not match the work"
+          "signature": "§2.8 would produce 30, not the shown 2.4 - belief does not match the work"
         },
         {
           "trigger": "diagnose:C",
           "tag": "forgot-denominator",
-          "signature": "§2.1 would produce Δy = 18, not 3.2 - belief does not match the work"
+          "signature": "§2.1 would produce Δy = 19, not 2.4 - belief does not match the work"
         },
         {
           "trigger": "diagnose:D",
           "tag": "subtracts-within-points",
-          "signature": "§2.7 would produce (32 - 10)/(14 - 4) = 2.2, not 3.2 - belief does not match the work"
+          "signature": "§2.7 would produce (30 - 12.5)/(11 - 2.5) = 17.5/8.5 = 35/17, not 2.4 - belief does not match the work"
         }
       ],
       "visual": {
@@ -1280,7 +1440,7 @@
             "label": "x",
             "range": [
               0,
-              12
+              14
             ],
             "gridline_every": 1
           },
@@ -1288,62 +1448,62 @@
             "label": "y",
             "range": [
               0,
-              36
+              32
             ],
             "gridline_every": 4
           },
           "points": [
             {
-              "x": 4,
-              "y": 14,
-              "label": "(4, 14)"
+              "x": 2.5,
+              "y": 11,
+              "label": "(2.5, 11)"
             },
             {
-              "x": 10,
-              "y": 32,
-              "label": "(10, 32)"
+              "x": 12.5,
+              "y": 30,
+              "label": "(12.5, 30)"
             },
             {
               "x": 0,
-              "y": 2,
-              "label": "(0, 2)"
+              "y": 6.25,
+              "label": "(0, 6.25)"
             }
           ],
           "line": "solid through all three points",
           "arrows": {
             "run": {
               "from": [
-                4,
-                14
+                2.5,
+                11
               ],
               "to": [
-                10,
-                14
+                12.5,
+                11
               ],
-              "label": "6"
+              "label": "10"
             },
             "rise": {
               "from": [
-                10,
-                14
+                12.5,
+                11
               ],
               "to": [
-                10,
-                32
+                12.5,
+                30
               ],
-              "label": "18"
+              "label": "19"
             }
           },
-          "readout": "y/x at (10, 32): 3.2 | y/x at (4, 14): 3.5 | slope everywhere: 18/6 = 3"
+          "readout": "y/x at (12.5, 30): 2.4 | y/x at (2.5, 11): 4.4 | slope everywhere: 19/10 = 1.9"
         },
         "annotations": [
-          "the intercept point (0, 2) is hidden until diagnose resolves - it is the reveal payoff (b = 2 != 0)",
+          "the intercept point (0, 6.25) is hidden until diagnose resolves - it is the reveal payoff (b = 6.25 != 0)",
           "the two conflicting y/x values render side by side: a 'slope' that changes point to point is not a slope"
         ],
         "reveal_beats": [
-          "Plane with the two given points and the line; Priya's 3.2 shown beside it.",
-          "On locate resolve: y/x computed at BOTH points (3.2 vs 3.5) - her own rule gives two different answers on one line.",
-          "On diagnose resolve: the intercept (0, 2) appears; arrows draw; readout 'slope everywhere: 3.'"
+          "Plane with the two given points and the line; Priya's 2.4 shown beside it.",
+          "On locate resolve: y/x computed at BOTH points (2.4 vs 4.4) - her own rule gives two different answers on one line.",
+          "On diagnose resolve: the intercept (0, 6.25) appears; arrows draw; readout 'slope everywhere: 1.9.'"
         ]
       },
       "hintLadderRef": {
@@ -1355,7 +1515,7 @@
           "subtracts-within-points": "HL-subtracts-within-points"
         }
       },
-      "authoringNote": "§2.9 chosen for its distinct root (illusion of proportionality - the key Axis-B discriminator vs the 7.RP unit-rate schema), completing three error-analysis items with three distinct cognitive roots (additive, notational, proportional-overgeneralization). b = 2 != 0 arms the trap; the shown 3.2 equals y2/x2 exactly; the y1/x1 variant (3.5) is used inside the reveal as the self-contradiction. Choice format avoids §2.9's numeric-tolerance separation issue."
+      "authoringNote": "§2.9 chosen for its distinct root (illusion of proportionality - the key Axis-B discriminator vs the 7.RP unit-rate schema), completing three error-analysis items with three distinct cognitive roots (additive, notational, proportional-overgeneralization). Choice format avoids §2.9's numeric-tolerance separation issue. v2 (QUESTION_VOICE §11 ADJUST #10) compressed the stem to the assessment register with the ask carried by the locate/diagnose questions. v3 (realism re-fix for ADJUST #10): v2's (4, 15)-(10, 36) was still small clean integers, so the corpus instrument kept measuring the item CLEAN; retuned so the student-visible data is schema-realistic (decimal-bearing): points (2.5, 11) and (12.5, 30), m = 19/10 = 1.9, b = 6.25 != 0 (§2.9 stays armed), with a tractable path (Δy = 19, Δx = 10, one division). Constraints re-verified on the final numbers: |Δx| = 10 != 1, |m| = 1.9 != 1, y1 = 11 != x1 = 2.5, y1 != 0. The shown 2.4 equals y2/x2 = 30/12.5 exactly; the y1/x1 variant (4.4) survives as the reveal's self-contradiction, and the true slope 1.9 differs from both. Distractor-belief values (30, 19, 35/17) all mismatch the shown 2.4 per §3.2 rule 3 and are pairwise distinct."
     },
     {
       "id": "ALG-L06-gold-pr-01",
@@ -1499,7 +1659,7 @@
       "difficulty": 2,
       "standard": "8.F.B.4",
       "skillId": "ALG-L06",
-      "predictPrompt": "A line passes through (2, 17) and (8, 5). Before you compute anything: as x grows from 2 to 8, does y climb or fall - so will the slope be positive or negative?",
+      "predictPrompt": "A line passes through (1.5, 22.4) and (9.5, 8.4). From the coordinates alone, before any arithmetic: will the slope be positive or negative?",
       "commitRequired": true,
       "predictionLogged": true,
       "predictAnswerType": "choice",
@@ -1515,26 +1675,30 @@
       ],
       "reveal": {
         "visualRef": "V-GN-PR02",
-        "shows": "The plane draws both points and the line, which visibly falls left to right; the rise arrow points downward with label 5 - 17 = -12 and the run arrow points rightward with label 8 - 2 = 6."
+        "shows": "The plane draws both points and the line, which visibly falls left to right; the rise arrow points downward with label 8.4 - 22.4 = -14 and the run arrow points rightward with label 9.5 - 1.5 = 8."
       },
-      "resolvePrompt": "Now compute the exact slope.",
+      "resolvePrompt": "What is the exact slope of the line?",
       "resolveAnswerType": "numeric",
-      "resolveCorrectAnswer": "-2",
+      "resolveCorrectAnswer": "-7/4",
+      "resolveAcceptedEquivalents": [
+        "-1.75",
+        "-14/8"
+      ],
       "misconceptionMap": [
         {
-          "trigger": "2",
+          "trigger": "7/4",
           "tag": "inconsistent-subtraction-order",
-          "signature": "-m = |m| = 2 since m = -2 < 0: ambiguous between §2.2 and §2.5 per the collision matrix - log the pair, tag neither active, queue a positive-slope follow-up probe"
+          "signature": "-m = |m| = 7/4 since m = -7/4 < 0: ambiguous between §2.2 and §2.5 per the collision matrix - log the pair, tag neither active, queue a positive-slope follow-up probe"
         },
         {
-          "trigger": "-12",
+          "trigger": "-14",
           "tag": "forgot-denominator",
-          "signature": "Δy = 5 - 17 = -12 reported as the slope (§2.1; |Δx| = 6 != 1)"
+          "signature": "Δy = 8.4 - 22.4 = -14 reported as the slope (§2.1; |Δx| = 8 != 1)"
         },
         {
-          "trigger": "-1/2",
+          "trigger": "-4/7",
           "tag": "inverted-ratio",
-          "signature": "Δx/Δy = 6/(-12) = -1/2 = 1/m (§2.3; |m| = 2 != 1)"
+          "signature": "Δx/Δy = 8/(-14) = -4/7 = 1/m (§2.3; |m| = 7/4 != 1)"
         }
       ],
       "visual": {
@@ -1554,48 +1718,48 @@
             "label": "y",
             "range": [
               0,
-              20
+              24
             ],
             "gridline_every": 2
           },
           "points": [
             {
-              "x": 2,
-              "y": 17,
-              "label": "(2, 17)"
+              "x": 1.5,
+              "y": 22.4,
+              "label": "(1.5, 22.4)"
             },
             {
-              "x": 8,
-              "y": 5,
-              "label": "(8, 5)"
+              "x": 9.5,
+              "y": 8.4,
+              "label": "(9.5, 8.4)"
             }
           ],
           "line": "solid through both points",
           "arrows": {
             "run": {
               "from": [
-                2,
-                17
+                1.5,
+                22.4
               ],
               "to": [
-                8,
-                17
+                9.5,
+                22.4
               ],
-              "label": "run = 8 - 2 = 6"
+              "label": "run = 9.5 - 1.5 = 8"
             },
             "rise": {
               "from": [
-                8,
-                17
+                9.5,
+                22.4
               ],
               "to": [
-                8,
-                5
+                9.5,
+                8.4
               ],
-              "label": "rise = 5 - 17 = -12"
+              "label": "rise = 8.4 - 22.4 = -14"
             }
           },
-          "readout": "-12 / 6 = -2"
+          "readout": "-14 / 8 = -7/4"
         },
         "annotations": [
           "nothing renders before the commit - the prediction must come from the coordinates alone",
@@ -1616,7 +1780,7 @@
           "inverted-ratio": "HL-inverted-ratio"
         }
       },
-      "authoringNote": "Sign-targeted predict-reveal per the deliverable (§2.2/§2.5): a 'positive' prediction is logged advisory evidence that raises the prior on the sign cluster before the numeric trap even fires. Resolve trap 2 handles the -m/|m| collision exactly per the matrix (pair logged, probe queued). P3-neutral, giving the archetype its neutral transfer surface."
+      "authoringNote": "Sign-targeted predict-reveal per the deliverable (§2.2/§2.5): a 'positive' prediction is logged advisory evidence that raises the prior on the sign cluster before the numeric trap even fires. Resolve trap 1 handles the -m/|m| collision exactly per the matrix (pair logged, probe queued). P3-neutral, giving the archetype its neutral transfer surface. v2 (QUESTION_VOICE §11 ADJUST #10) compressed the stem and resolve ask to the assessment register with interrogative closes. v3 (realism re-fix for ADJUST #10): v2's (2, 19)-(8, 4) was still small clean-integer data, so the corpus instrument kept measuring the item CLEAN; retuned to schema-realistic decimal-bearing coordinates (1.5, 22.4) and (9.5, 8.4), m = -14/8 = -7/4 - messy-looking inputs, tractable path (8.4 - 22.4 = -14 and 9.5 - 1.5 = 8 each resolve in one clean step, then one reduction). Constraints re-verified on the final numbers: |Δx| = 8 != 1, |m| = 7/4 != 1, y1 = 22.4 != x1 = 1.5, y1 != 0 (no §2.9 trap on this item, so b is unconstrained). Traps 7/4, -14, -4/7 are pairwise distinct and distinct from the key -7/4; the accepted equivalents (-1.75, -14/8) were collision-checked against all three traps (no matches). resolveAcceptedEquivalents mirrors the parts-level acceptedEquivalents convention with the resolve- prefix; the canonical answer stays in fraction form for the fraction-first keypad."
     },
     {
       "id": "ALG-L06-gold-int-01",
@@ -1822,7 +1986,7 @@
       "difficulty": 4,
       "standard": "8.F.B.4",
       "skillId": "ALG-L06",
-      "prompt": "The table shows a linear pattern: x = 0, 2, 4, 6 with y = 1, 7, 13, 19. Drag the line's two handles (fixed at x = 0 and x = 6) until the line passes through every point in the table.",
+      "prompt": "The table shows a linear pattern: x = 0, 2, 4, 6 with y = 1, 7, 13, 19. Drag the line's two handles - one pinned at x = 0, one at x = 6 - until the line passes through every point in the table.",
       "interaction": {
         "tool": "line-handles",
         "manipulates": "the y-positions of two handles pinned at x = 0 and x = 6 (integer snap); the line through the handles renders live over the plotted table points",
@@ -1960,7 +2124,7 @@
           "inverted-ratio": "HL-inverted-ratio"
         }
       },
-      "authoringNote": "Table-to-graph representation transfer (difficulty 4) with Δx = 2 between rows so the row jump (6) and the slope (3) genuinely differ - §2.1 stays live in table form. The origin-forced pattern is §2.9's stated L08-facing re-surface (drops b), caught here first. All three wrong states are exact and pairwise distinct."
+      "authoringNote": "Table-to-graph representation transfer (difficulty 4) with Δx = 2 between rows so the row jump (6) and the slope (3) genuinely differ - §2.1 stays live in table form. The origin-forced pattern is §2.9's stated L08-facing re-surface (drops b), caught here first. All three wrong states are exact and pairwise distinct. v2 (QUESTION_VOICE §11 ADJUST): register pass only - wording tightened; the imperative drag instruction stays (intrinsic to the archetype); one context sentence + one instruction, within the <= 2-context-sentence bound. Clean values retained: integer-snap scoring requires them."
     },
     {
       "id": "ALG-L06-gold-disc-01",
@@ -1970,7 +2134,7 @@
       "difficulty": 4,
       "standard": "8.F.B.4",
       "skillId": "ALG-L06",
-      "prompt": "Look at the whole table before computing anything: x = 1, 2, 3, 4 with y = 3, 8, 15, 24. Does this table grow at one constant rate?",
+      "prompt": "A table pairs the inputs x = 1, 2, 3, 4 with the outputs y = 3, 8, 15, 24. Does y grow at one constant rate?",
       "answerType": "choice",
       "correctAnswer": "B",
       "choices": [
@@ -2105,7 +2269,7 @@
           "assumes-constant-rate-nonlinear": "HL-assumes-constant-rate-nonlinear"
         }
       },
-      "authoringNote": "The required constant-vs-nonconstant discrimination item: option A is the deliverable's specified signature (endpoint two-point slope asserted as 'the rate,' §2.14(b)) on a fresh table distinct from the lesson §7 bridge table. Both traps key §2.14 through different computations (endpoints vs first interval), sharpening the boundary the lesson's 'check the middle' rule owns."
+      "authoringNote": "The required constant-vs-nonconstant discrimination item: option A is the deliverable's specified signature (endpoint two-point slope asserted as 'the rate,' §2.14(b)) on a fresh table distinct from the lesson §7 bridge table. Both traps key §2.14 through different computations (endpoints vs first interval), sharpening the boundary the lesson's 'check the middle' rule owns. v2 (QUESTION_VOICE §11 ADJUST): register pass only - the coaching clause ('look at the whole table before computing') removed so checking the middle unprompted stays the assessed behavior; interrogative close kept. Numbers untouched: the clean +5/+7/+9 first differences ARE the construct."
     },
     {
       "id": "ALG-L06-gold-disc-02",

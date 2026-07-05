@@ -5,7 +5,7 @@
 | Node | ALG-L06 — Slope from Two Points (tier 2, domain: linear, prereq: ALG-L05) |
 | Standard | CCSS 8.F.B.4 (construct/interpret rate of change from two (x, y) values); state code: `STATE-PLACEHOLDER` |
 | Taxonomy version | `docs/gold-node/misconception-taxonomy-slope.md` (mr-kahn, 2026-07-02) — §3 keying contract binding |
-| Status | DRAFT v2 — voice revision per Matt review, pending re-review |
+| Status | DRAFT v3 — QUESTION_VOICE §11 ADJUSTs applied (EC2 reframed as interpretation check), pending re-review |
 | Inputs | misconception-taxonomy-slope.md; `.authoring-tmp/gold/ALG-L06-live-1.9.2.json`, `ALG-L05-live-1.9.2.json`; `new_plan/CLAUDE.md` (Axis A/B/C); `new_plan/STYLE_GUIDE.md`; root `CLAUDE.md` |
 | Replaces | Live L06 instruction (2 generic worked examples, 2-rung generic hints, null visuals) |
 
@@ -255,7 +255,7 @@ reveal_beats:
 
 ## 4. EMBEDDED CHECKS — one per fading stage
 
-**Authoring notes (contract).** One choice item per stage, inserted immediately after its worked example. Every distractor below is the taxonomy detection signature evaluated on the item's actual numbers (§3.2 spirit); the `misconceptionMap` for each item is exactly this list. A distractor hit triggers the entry's three-rung hint ladder (§3.1) — Hints 1–2 never mention the formula. All trap values verified pairwise distinct and distinct from the key (taxonomy global generator rule). The "Correct" line under each item doubles as student-visible feedback: units attached, no design rationale.
+**Authoring notes (contract).** One choice item per stage, inserted immediately after its worked example. Every distractor below is keyed to a taxonomy detection signature evaluated on the item's actual numbers (§3.2 spirit) — as the trap value itself on computation checks (EC1, EC3, EC4), or as the entry's belief verbalized with its asserted quantities recomputed on the item's numbers on the interpretation check (EC2); either way the keyed choice is unique and deterministic. The `misconceptionMap` for each item is exactly this list. A distractor hit triggers the entry's three-rung hint ladder (§3.1) — Hints 1–2 never mention the formula. All trap values verified pairwise distinct and distinct from the key (taxonomy global generator rule). The "Correct" line under each item doubles as student-visible feedback: units attached, no design rationale.
 
 ### EC1 — Concrete stage (after 3.1)
 
@@ -285,16 +285,19 @@ reveal_beats:
 
 ### EC2 — Representational stage (after 3.2)
 
-> The graph shows a soccer team's total goals for the season: through match 8 they had 24 goals, and through match 20 they had 60 — the points **(8, 24)** and **(20, 60)**. What is the slope, in goals per match?
+> The graph shows a soccer team's total goals for the season: 24 goals through match 8 and 60 through match 20 — the points **(8, 24)** and **(20, 60)**. The slope of the line through those two points works out to **3**. Which sentence says what this slope means?
 >
-> **A)** 3  **B)** 36  **C)** 1/3  **D)** 24
+> **A)** The team's goal total grows by 3 goals each match
+> **B)** The goal total grew by 3 goals in all between match 8 and match 20
+> **C)** It takes 3 matches for the goal total to grow by 1 goal
+> **D)** The goal total is always 3 more than the number of matches played
 
-- **Correct: A.** The goal total climbed from 24 to 60, a rise of 60 − 24 = 36 goals. That took from match 8 to match 20, a run of 20 − 8 = 12 matches. 36 ÷ 12 = 3 goals per match.
-- **Distractor B = 36** ← `forgot-denominator` §2.1 (signature Δy): 60 − 24 = 36; |Δx| = 12 ≠ 1, so the trap is live per §2.1 generator constraints.
-- **Distractor C = 1/3** ← `inverted-ratio` §2.3 (signature Δx/Δy): 12/36 = 1/3; |m| = 3 ≠ 1 so the trap is distinct. Named-quantity item ("goals per match" in prose) → tags §2.3 directly, not `reverses-x-and-y`, per the §2.3 collision rule.
-- **Distractor D = 24** ← `slope-as-difference` §2.6 variant (a) (signature Δy − Δx): 36 − 12 = 24. (Variant (b) y₂ − x₂ = 60 − 20 = 40, not offered; y₁ ≠ x₁ so variants stay distinct per §2.6 constraints.)
+- **Correct: A.** The slope 3 is a per-match pace: each match played adds 3 goals to the season total. Over the whole stretch, that pace adds up to the full climb of 60 − 24 = 36 goals in 12 matches.
+- **Distractor B** ← `forgot-denominator` §2.1 in interpretation form (change-not-rate reading): treats the slope as the total amount the goals changed. Recomputed on these numbers, the actual total change is 60 − 24 = 36 goals — reading the 3 as "the change" contradicts the item's own data.
+- **Distractor C** ← `inverted-ratio` §2.3 in interpretation form (swapped referent): reads the 3 as matches-per-goal instead of goals-per-match — 1/m = 1/3 verbalized. Named-quantity item (goals and matches in prose) → tags §2.3 directly, not `reverses-x-and-y`, per the §2.3 collision rule.
+- **Distractor D** ← `slope-as-difference` §2.6 in interpretation form (additive reading): treats the 3 as a constant additive gap between goals and matches (goal total = matches + 3), which already fails at (8, 24).
 
-**Authoring notes.** Soccer skin (P2 blend retained; team goal totals of 3/match are authentic for a strong club side). Visual: reuse V-WE2-01 geometry with these axis labels ("Matches played" / "Total goals") and NO rise/run arrows pre-answer; arrows draw on resolve.
+**Authoring notes.** v3: reworded from a compute-the-slope check into the interpretation frame (QUESTION_VOICE §11 ADJUST #8 — at least one embedded check must ask meaning, not computation); the stem supplies the already-computed slope 3, and each distractor carries the same tag as before, in interpretation form. Soccer skin (P2 blend retained; team goal totals of 3/match are authentic for a strong club side). Visual: reuse V-WE2-01 geometry with these axis labels ("Matches played" / "Total goals") and NO rise/run arrows pre-answer; arrows and the 36-over-12 readout draw on resolve (showing them pre-answer would give away distractor B).
 
 ### EC3 — Negative-slope stage (after 3.3)
 
@@ -504,10 +507,10 @@ reveal_beats:
 | Constraint | Status |
 |---|---|
 | (a) Formula/m/Δ/subscripts absent from student text before §6 | PASS — §§1–5 use rise, run, change, steepness/slope only; formula first appears in §6 |
-| (b) Every distractor cites entry ID + trap computed on item numbers | PASS — EC1 (§2.8: 12 vs 6; §2.6: 2 = 2), EC2 (§2.1: 36; §2.3: 1/3; §2.6: 24), EC3 (§2.2/§2.5 pair: 15; §2.1: −45; §2.3: −1/15), EC4 (§2.1: 12; §2.7: 13/5; §2.9: 19/6); collisions handled per matrix (EC3 ambiguous pair logs + queues positive-slope probe) |
+| (b) Every distractor cites entry ID + trap computed on item numbers | PASS — EC1 (§2.8: 12 vs 6; §2.6: 2 = 2), EC2 (interpretation form — §2.1: "grew by 3 goals in all," contradicted by the actual Δy = 36; §2.3: matches-per-goal referent swap = 1/m verbalized; §2.6: "always 3 more," fails at (8, 24)), EC3 (§2.2/§2.5 pair: 15; §2.1: −45; §2.3: −1/15), EC4 (§2.1: 12; §2.7: 13/5; §2.9: 19/6); collisions handled per matrix (EC3 ambiguous pair logs + queues positive-slope probe) |
 | (c) Confrontations = 3 highest severities | PASS — §2.1 BLOCKER, §2.6 BLOCKER, §2.2 top HIGH (only HIGH with L06 as stated primary home; tie-break documented in §5) |
 | (d) Nonconstant-rate discrimination moment | PASS — §7, keyed to §2.14, on the taxonomy's own table |
 | (e) Zero null/unspecified visuals | PASS — 10 fenced visual specs (V-HOOK-01, V-ANCHOR-01, V-WE1-01…V-WE4-01, V-EC1-01, V-C2-01, V-C3-01, V-FORM-01, V-BRIDGE-01); EC2/EC3/EC4 reuse specified geometries with stated substitutions |
-| (f) v2 voice contract | PASS — no meta-labels in student text; §5 misconceptions voiced only by named fictional peers (Priya §5.1, Eli §5.2, Marcus §5.3) with context and units re-established first; realism rationale confined to Authoring notes (EC3 workload note relocated); every rate carries units ("hits per game," "goals per match," "pitches per inning") |
+| (f) v2 voice contract | PASS — no meta-labels in student text; §5 misconceptions voiced only by named fictional peers (Priya §5.1, Eli §5.2, Marcus §5.3) with context and units re-established first; realism rationale confined to Authoring notes (EC3 workload note relocated); every rate carries units ("hits per game," "goals each match," "pitches per inning") |
 | Datasets reused | D1 (2,4)/(6,16)→3; D2 (8,24)/(20,60)→3; D3 (8,18)/(12,10)→−2; D4 (2,7)/(6,19)→3 (b=1); ramps 6/4 vs 12/10; §2.14 table |
 | Phase discipline | P1: §1–3.1 · P2: §3.2–3.3, EC2–EC3 · P3: §3.4, EC4, §6 — sport is the on-ramp; neutral transfer remains the mastery bar |

@@ -113,12 +113,17 @@ Bucketed by regex over the final ask clause (frequencies per source):
 |---|---|---|---|---|---|
 | "What is the value/slope/…?" | **27%** | 3% | – | 10% | "What is the slope of line k?" |
 | "Which …" (select) | 23% | 10% | **50%** | 20% | "Which equation represents this relationship?" |
-| Meaning/interpretation | 10% | 13% | 7% | 10% | "…best interpretation of the slope in this context?" |
+| Meaning/interpretation | 10% | 13% | – | – | "…best interpretation of the slope in this context?" |
 | "How many/much/long…?" | 13% | 12% | – | – | "How many minutes will it take…?" |
 | "Write/create an equation…" | – | **21%** | – | 20% | "Write an equation relating C and n." |
-| Explain/justify | – | 9% | 7% | – | "Explain how you know." |
+| Explain/justify | – | 9% | – | – | "Explain how you know." |
 | Find/determine/state | – | 4% | 7% | 10% | "Determine and state the rate of change." |
+| Graph/complete/match | – | 3% | 7% | – | "Complete the table." |
 | Other (multi-clause, interaction, SPR) | 27% | 25% | 36% | 40% | |
+
+(Note: FL *does* ask interpretation — see the second table — but phrases it inside "Which…"
+selection stems, so the phrasing bucket credits which-select; Regents asks none in this
+sample. Table corrected 2026-07-05 after an instrument fix; each column sums to 100%.)
 
 Interpretation-vs-computation split (final ask classification):
 
@@ -261,7 +266,9 @@ Instruction register (P1/P2 learn + practice items):
 
 Assessment register (P3 items, summative, transfer checks):
 - Stem ≤ ~48 words (SAT p75); 0–2 context sentences; single ask; ask ends with "?" (target
-  ≥90% of the bank); no sub-parts.
+  ≥90% of the bank); no sub-parts. The no-sub-parts rule binds standalone P3 items;
+  P3-phase scaffolded practice items follow the instruction register's part rules under
+  P3 phase discipline (neutral context throughout).
 - MC: exactly 3 distractors, **each one produced by a named taxonomy error path** — 0 random.
 - ≥13% of the bank asks interpretation, using a stable frame ("Which sentence says what this
   slope means?" / "…best interpretation of…").
@@ -306,5 +313,27 @@ diagnosis (traps, visuals, taxonomy) but under-asks for *meaning* and under-rehe
 *assessment register*. Both are additive fixes — extend final parts, retune P3 items — and
 neither touches the misconception machinery.
 
-Per instruction, **no gold-node items were modified** in this pass; the ADJUST rows are
-recommendations awaiting Matt's decision.
+Per instruction, **no gold-node items were modified** in the measurement pass; the ADJUST
+rows above record the divergences as measured on 2026-07-05 before any fix.
+
+### 11.1 ADJUSTs applied — post-change re-measurement (2026-07-05)
+
+Matt approved the ADJUSTs; mr-kahn gated the changes (APPROVE WITH CHANGES, all changes
+applied); the identical pipeline was re-run on the updated gold node. Rows 8–11 restated
+with measured values:
+
+| # | Dimension | Target | Re-measured | Status |
+|---|---|---|---|---|
+| 8 | Interpretation demand | instruction ≥25% woven (IM: 29%) | items: 20% final ask, **26.7% anywhere** (interpretation capstones added to scaf-01/scaf-04; scaf-02/03 already had meaning parts); D1 checks: **25%** (EC2 reframed from computation to interpretation, same three taxonomy tags in belief form) | **closed** |
+| 9 | Multipart composition | final parts interpret or generalize; ≥1 archetype fades abstraction | 4/4 scaffolded items now end interpret-or-generalize; scaf-03 gained a numeric→subscript-notation fading capstone (choice-for-expressions — keypad cannot accept symbolic input); multipart median 2 parts (p75 4), inside the 2–5 contract | **closed** |
+| 10 | P3 realistic values | ~30–40% of P3 items non-clean (SAT: 30%) | **40%** (2/5: ea-03 now (2.5, 11)/(12.5, 30), m = 1.9; pr-02 now (1.5, 22.4)/(9.5, 8.4), m = −7/4) — decimal-bearing student-visible data, arithmetic path ≤2 clean steps, all generator constraints and trap distinctness re-verified on the new numbers | **closed** |
+| 11 | P3 reading register | FK 6–8 on P3 surfaces | pr-02 FK 6.8, int-03 FK 7.4 (in band). scaf-03 (0.7), disc-01 (3.0), ea-03 (1.1) score below band as **instrument artifacts**: nine-word abstract stems and worked-step lines make FK statistically meaningless; per mr-kahn's ruling the band is a *ceiling* over the full student-visible surface, not a per-sentence floor — minimal P3 stems below band are compliant by design | **closed (scoped)** |
+
+Collateral: traps rose 57 → 65 on items (**4.33/item, still 100% taxonomy-keyed**); item
+count, archetype mix, phases, and all pre-existing trap tag identities unchanged. EC2's
+rewording is reflected in the D1 lesson's §4 contract preamble, appendix audit table, and
+status line (trust-layer rule: the audit trail describes what exists now).
+
+Instrument note: the interpretation regex was extended on 2026-07-05 to catch the
+"…says what this slope means" phrasing (a false negative on our own items); re-running
+the full corpus under the extended instrument changed **no** corpus value in §3/§7.
