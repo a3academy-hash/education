@@ -33,3 +33,12 @@ Next: awaiting Matt's deliverables list for the full gold-standard experience bu
 - 10 fully-specified `visual` blocks (renderer/Manim-buildable: exact data, annotations, reveal beats); zero nulls. Constraint self-check appendix included.
 - Datasets: (2,4)/(6,16)→3 · (8,24)/(20,60)→3 · (8,18)/(12,10)→−2 · (2,7)/(6,19)→3 · ramps 6/4 vs 12/10 · §2.14 table.
 - HARD STOP: hook + anchor + first worked example surfaced to Matt for review before D3.
+- Matt review: APPROVED with one copy fix — scout persona pronoun her→his ("scouts are usually male"). Applied + committed `85fbbbb`. Standing content rule recorded: named personas match realistic demographics for the role.
+
+### D3 — gold-node-items.json (DONE, DRAFT pending Matt review)
+
+- Authored by mr-kahn (agent a95d7b34c2aaa777c) → `docs/gold-node/gold-node-items.json`; persisted, JSON-validated, structurally checked (all taxonomy tags valid, zero null visuals, §3.2 fields present) by main session.
+- 15 items, 5 archetypes: 4 scaffolded-multistep (parts a/b/c deterministically checkable, per-part misconceptionMaps) · 3 error-analysis (`subtracts-within-points` §2.7, `slope-as-difference` §2.6, `slope-as-single-point-ratio` §2.9 — distinct cognitive roots; §3.2 four-rule construction: shown work instantiates the signature, locate + diagnose questions, non-matching distractor beliefs, errorAnalysisOf metadata) · 2 predict-reveal (scale betrayal §2.11/§2.12; sign §2.2/§2.5) · 3 interactive (full interaction contracts: manipulated state, submitted state object, deterministic scoring incl. formula-valid many-answer states) · 3 discrimination (incl. constant-vs-nonconstant table keyed to §2.14).
+- Phase split 4 P1 / 6 P2 / 5 P3; ids namespaced `ALG-L06-gold-*`; every misconceptionMap entry carries trigger + tag + instantiated signature; hintLadderRef convention `HL-L06-generic` + `HL-<tag>` (D2 will define these ladders, keyed by exactly these ids).
+- schemaNote documents the extension over the live 1.9.2 item schema (string phases, object misconceptionMap with explicit signatures, archetype bodies, mandatory visual).
+- HARD STOP: one complete error-analysis item surfaced to Matt for review before D2.
