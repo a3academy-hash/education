@@ -2,10 +2,10 @@
 
 **Status:** DRAFT (design-only). No code, no data writes, no Supabase writes authorized by this document.
 **Owner:** Main session (orchestrator). Gated approvals required before any implementation (see §8).
-**Scope:** Regenerate lessons + enriched question banks for the **73 non-gold nodes**, measured against the gold-node archetype library (ALG-L06 cluster reference).
+**Scope:** Regenerate lessons + enriched question banks for the **74 non-gold nodes**, measured against the gold-node archetype library (ALG-L06 cluster reference).
 **Companion docs:** `CLAUDE.md`, `new_plan/CLAUDE.md` (v0.2), `new_plan/AI_ADAPTIVE.md` (v0.2), `logs/GOLD_NODE_LOG.md`, `docs/gold-node/misconception-taxonomy-slope.md` (referenced as an *input contract*, not modified or depended on for its build artifacts).
 
-> **Session constraint honored:** the gold-node artifacts under review in `docs/gold-node/` are BLOCKED. This spec references the archetype library and gold exemplars **as named input dependencies with a defined interface**. It does not read, regenerate, or depend on the blocked build artifacts, does not apply the registry diff to `data/algebra1-graph.json`, and writes nothing to `data/` or Supabase.
+> **Session constraint honored:** the gold-node artifacts under review in `docs/gold-node/` are BLOCKED. This spec references the archetype library and gold exemplars **as named input dependencies with a defined interface**. It does not read, regenerate, or depend on the blocked build artifacts, does not apply the registry diff to `data/algebra1-graph.json`, and writes nothing to `data/` or Supabase. *(2026-07-06 consolidation note: this drafting-session constraint is historical — the gold node has since merged and the registry diff applied at graph `1.12.0`; retained as an audit record of the drafting conditions.)*
 
 ---
 
@@ -27,15 +27,15 @@ This pipeline **cannot start** until all of the following exist and are frozen:
 
 | Dependency | Produced by | State needed | This spec's stance |
 |---|---|---|---|
-| Gold reference node (ALG-L06 + L05 taught surface) | Desktop session (under review) | APPROVED + merged | **Input only.** Referenced, never regenerated. |
-| Misconception registry diff (4 redefine, 10 add, 1 re-key) | mr-kahn | Applied to `data/algebra1-graph.json` | **Blocking input.** Regeneration keys tags against the *post-diff* registry. If the diff is not yet applied, this pipeline stops (see §7 F-DEP). **Verified 2026-07-03:** the registry is structurally identical across 1.9.2→1.11.0 (153 entries, same IDs, all 4 refined slope tags present), so the **4-redefine + 10-add** apply cleanly. **BUT** the diff's **1 live-item re-key** targets an item identified against the 1.9.2 bank; Phase 2 rewrote the entire bank (100% re-tag + dedup), so that single re-key **must be re-verified against 1.11.0** before application. |
-| **Archetype library** (`archetypes/` — does not exist yet) | Follow-on authoring task | Authored + frozen at a pinned version | Interface defined in §4.2. This is the load-bearing missing input. |
-| D4 rubric contract (score-per-element + tags + confidence) | Gold-node deliverable set | Frozen schema | Consumed by the rubric-item generator and by `RUNTIME_TUTOR_SPEC` grading. |
+| Gold reference node (ALG-L06 + L05 taught surface) | Desktop session | APPROVED + merged | **Input only.** Referenced, never regenerated. **SATISFIED 2026-07-06: APPROVED + merged at branch consolidation.** |
+| Misconception registry diff (4 redefine, 10 add, 1 re-key) | mr-kahn | Applied to `data/algebra1-graph.json` | **SATISFIED — APPLIED at graph `1.12.0` (2026-07-06, commit `ec29b36`):** 4 redefine + 10 add applied, and the 1 live-item re-key **re-verified against the current bank and applied** (§8 gate 7a satisfied; see `DECISION_F-IF-B6.md` §7 addendum). Regeneration keys tags against the post-diff (163-entry) registry. **Gate 7b remains open:** Supabase reconciliation, target now `1.12.0`. *(Historical — verified 2026-07-03: the registry was structurally identical across 1.9.2→1.11.0 (153 entries, same IDs, all 4 refined slope tags present), so the 4-redefine + 10-add applied cleanly; the 1 re-key targeted an item identified against the 1.9.2 bank, which Phase 2 rewrote, so it required — and at application received — re-verification.)* |
+| **Archetype library** | Follow-on authoring task | Authored + frozen at a pinned version | **SATISFIED — EXISTS, frozen at v`1.1.0`:** 9 entries + MANIFEST at `docs/archetypes/` (F-DEP pin value `1.1.0`). Interface defined in §4.2. The machine `manifest.json` derivation is still a separate gated task (per-node class-assignment sign-off open under §8 gate 1). *(Was: "does not exist yet — the load-bearing missing input.")* |
+| D4 rubric contract (score-per-element + tags + confidence) | Gold-node deliverable set | Frozen schema | Consumed by the rubric-item generator and by `RUNTIME_TUTOR_SPEC` grading. **SATISFIED — EXISTS:** `docs/gold-node/GOLD_NODE_RUBRICS.md` (mr-kahn-gated). |
 | Node taxonomy-keying contract (§3 of the slope taxonomy doc) | mr-kahn | Frozen | The 3-rung hint ladder / error-analysis / rubric-annotation rules every node copies. |
 
-**Graph version — verified 2026-07-03 (see `logs/REMOTE_DESIGN_LOG.md` graph-version investigation):** the git file `data/algebra1-graph.json` is at **schema `1.11.0`** (bumped from `1.9.2` by commit `74de0f8`, "Phase 2 item bank," 2026-06-16 — item-bank certification + 100% `equivalenceClass`/`calculatorFlag` tagging + dedup; registry unchanged). ⚠️ **Divergence:** the **Supabase-active/published graph is still `1.9.2`** (activated 2026-06-14), which is what the gold-node work pulled. **Baseline pinned (Matt, 2026-07-03): git `1.11.0` is authoritative for regeneration** — this resolves the F-DEP graph-baseline hard-stop (§7). The Supabase-active `1.9.2` divergence no longer blocks a run; it is deferred to **promotion-time reconciliation** — Supabase must be reconciled to `1.11.0` before any regen output promotes (§8, gated). *Pinned but pending content review:* Matt to review `OVERHAUL_LOG.md` + the `74de0f8` diff on desktop return.
+**Graph version — updated 2026-07-06 (consolidation):** the git file `data/algebra1-graph.json` is at **schema `1.12.0`** (graph-mutations batch: ALG-L19 added + misconception registry diff applied — `DECISION_F-IF-B6.md` §7 addendum). *History:* `1.9.2` → `1.11.0` by commit `74de0f8` ("Phase 2 item bank," 2026-06-16 — item-bank certification + 100% `equivalenceClass`/`calculatorFlag` tagging + dedup; registry unchanged); `1.11.0` → `1.12.0` on 2026-07-06. ⚠️ **Divergence (still open):** the **Supabase-active/published graph is still `1.9.2`** (activated 2026-06-14), which is what the gold-node work pulled. **Baseline: git `1.12.0` is authoritative for regeneration** (supersedes the 2026-07-03 Matt pin to `1.11.0`, which resolved the F-DEP graph-baseline hard-stop, §7). The Supabase-active `1.9.2` divergence does not block a run; it is deferred to **promotion-time reconciliation** — Supabase must be reconciled to **`1.12.0`** before any regen output promotes (§8 gate 7b). *Pinned but pending content review:* Matt to review `OVERHAUL_LOG.md` + the `74de0f8` diff on desktop return.
 
-**Node inventory (verified against `data/algebra1-graph.json`, schema `1.11.0`):** 74 nodes across 7 domains (foundations→data, tiers 0–6), 114 edges, 153-entry `misconceptionRegistry`. One is the gold reference (ALG-L06). **73 remain** for regeneration. Current per-node baseline (the quality bar being replaced): 62 problems/node avg (the 1.11.0 bank is 4,588 items / 74 nodes ≈ 62, matching the `logs/GOLD_NODE_LOG.md` 1.9.2 pull of 28 P1 / 28 P2 / 6 P3), difficulty 1–3, numeric single-step prompts, 2 generic hints/item, thin `misconceptionMap`, `visual: null`, 2 worked examples. Phase 2 (1.11.0) added `equivalenceClass`/`calculatorFlag` tagging (relevant to the archetype `solverContract`, §4.2) but **not** the pedagogical enrichment — no error-analysis, representation variety, rubric-scored explanation, or transfer-battery structure. The enrichment delta the regen targets is therefore unaffected by the 1.9.2→1.11.0 move.
+**Node inventory (updated 2026-07-06 against `data/algebra1-graph.json`, schema `1.12.0`):** **75 nodes** across 7 domains (foundations→data, tiers 0–6), 117 edges, 163-entry `misconceptionRegistry` (ALG-L19 added at `1.12.0` as a stub — empty banks pending its Phase-3 bank). One is the gold reference (ALG-L06). **74 remain** for regeneration — note: **ALG-L19 is non-gold and needs full authoring INCLUDING its own per-node taxonomy** (it has no baseline bank to transform; its binding authoring constraint is recorded in `DECISION_F-IF-B6.md` §7). Current per-node baseline (the quality bar being replaced): 62 problems/node avg on the 74 populated nodes (the Phase-2/`1.11.0` bank — unchanged at `1.12.0` apart from the L19 stub — is 4,588 items / 74 nodes ≈ 62, matching the `logs/GOLD_NODE_LOG.md` 1.9.2 pull of 28 P1 / 28 P2 / 6 P3), difficulty 1–3, numeric single-step prompts, 2 generic hints/item, thin `misconceptionMap`, `visual: null`, 2 worked examples. Phase 2 (1.11.0) added `equivalenceClass`/`calculatorFlag` tagging (relevant to the archetype `solverContract`, §4.2) but **not** the pedagogical enrichment — no error-analysis, representation variety, rubric-scored explanation, or transfer-battery structure. The enrichment delta the regen targets is therefore unaffected by the 1.9.2→1.11.0 move.
 
 ---
 
@@ -45,7 +45,7 @@ This pipeline **cannot start** until all of the following exist and are frozen:
 
 Generation runs through the **Message Batches API** (`POST /v1/messages/batches`) driven by a Python harness using the `anthropic` SDK. Rationale:
 
-- **50% cost reduction** on all token usage vs. synchronous calls — this is the single largest lever at 73-node volume.
+- **50% cost reduction** on all token usage vs. synchronous calls — this is the single largest lever at 74-node volume.
 - **Throughput without orchestration code.** One batch submits ≤100k requests / ≤256 MB; results return typically <1h (24h ceiling). No client-side concurrency, retry, or rate-limit handling to build.
 - **Deterministic, replayable.** Each request carries a `custom_id`; results arrive **unordered** and are keyed back by `custom_id` (never by position). The harness is a pure function of (frozen inputs, pinned model, pinned prompt template).
 
@@ -68,13 +68,13 @@ An agent-session approach (one mr-grunt/mr-kahn session per node or cluster, as 
 
 | | Batch API + Python | Claude Code sessions |
 |---|---|---|
-| Cost @ 73 nodes | ~$60 total (§3.3) | 5–15× higher (interactive tokens, tool calls, re-reads, no batch discount) |
+| Cost @ 73 nodes *(computed at 73 nodes; +1 node ≈ +$0.55 generation — §3.3 annotation)* | ~$60 total (§3.3) | 5–15× higher (interactive tokens, tool calls, re-reads, no batch discount) |
 | Per-node latency | Amortized (<1h/batch) | Minutes/node, serial-ish |
 | Determinism / replay | High (pinned template) | Low (model-driven trajectory) |
 | Tool access mid-gen (grep graph, cross-check edges) | None | Full |
 | Best for | High-volume uniform transform against a fixed archetype | Novel/ambiguous nodes needing live cross-referencing |
 
-**When sessions win:** the gold node itself (novel, needed live registry cross-checks, human iteration) — correctly built as a session. For the remaining 73, the transform is *uniform against a now-fixed archetype*, which is exactly the Batch API's sweet spot. **Recommendation: Batch API for the 73, with a session fallback for individual nodes that fail audit twice** (§6.4) — those are, by definition, the non-uniform cases where tool-equipped iteration pays off.
+**When sessions win:** the gold node itself (novel, needed live registry cross-checks, human iteration) — correctly built as a session. For the remaining 74, the transform is *uniform against a now-fixed archetype*, which is exactly the Batch API's sweet spot. **Recommendation: Batch API for the 74, with a session fallback for individual nodes that fail audit twice** (§6.4) — those are, by definition, the non-uniform cases where tool-equipped iteration pays off.
 
 ---
 
@@ -82,7 +82,7 @@ An agent-session approach (one mr-grunt/mr-kahn session per node or cluster, as 
 
 Two candidate orderings for how nodes are assigned to batches:
 
-**A. Dependency-cluster order** — walk the prerequisite DAG (114 edges; `prereqs[]` is source of truth) tier-by-tier (foundations → equations → linear → systems → exponents/polynomials → quadratics → data), batching nodes that share prerequisite context together (e.g. the linear cluster L01–L18 around the gold L05/L06 slope reference).
+**A. Dependency-cluster order** — walk the prerequisite DAG (117 edges at `1.12.0`; `prereqs[]` is source of truth) tier-by-tier (foundations → equations → linear → systems → exponents/polynomials → quadratics → data), batching nodes that share prerequisite context together (e.g. the linear cluster L01–L18 around the gold L05/L06 slope reference).
 
 **B. Archetype-similarity order** — cluster nodes by the *item archetypes* they instantiate (e.g. "solve-for-x linear" nodes together, "rate/slope" nodes together, "factoring" nodes together) regardless of graph position.
 
@@ -100,7 +100,7 @@ Justification:
 
 ### 3.1 Sizing: ~10 nodes per batch
 
-Batch = **10 nodes**, giving **8 batches** (7×10 + 1×3). Rationale for 10 (well under the 100k-request API ceiling — the constraint is human review, not the API):
+Batch = **10 nodes**, giving **8 batches** (7×10 + 1×4). Rationale for 10 (well under the 100k-request API ceiling — the constraint is human review, not the API):
 - Each batch is a **human audit + approval unit** (§6, §8). 10 nodes ≈ one reviewable sitting for mr-kahn.
 - Small enough that a batch-level rejection (regenerate the whole batch) is cheap.
 - Large enough to amortize the shared cached prefix (§4.3) across the batch.
@@ -111,7 +111,7 @@ Anchored on the measured baseline (63 KB / ~16k-token live node file) and the go
 
 | Component | Tokens | Notes |
 |---|---|---|
-| **Input — shared, cached across batch** | ~20k (write once, read ×9 @ ~0.1×) | System prompt + output schema + archetype library slice + full taxonomy-keying contract + registry tag slice |
+| **Input — shared, cached across batch** | ~23k (write once, read ×9 @ ~0.1×) | System prompt + output schema + archetype library slice + full taxonomy-keying contract + registry tag slice + voice-contract slice (~3k, §4.1 — was ~20k pre-voice-patch) |
 | **Input — per-node unique** | ~15k | Live node JSON (~16k raw, trimmed to relevant fields) + 2–3 gold exemplar items (~4k) + node-specific archetype selection |
 | **Output — enriched node** | ~40k | See enrichment target below |
 
@@ -119,13 +119,13 @@ Anchored on the measured baseline (63 KB / ~16k-token live node file) and the go
 
 ### 3.3 Cost estimate (Batch pricing)
 
-Per node (`GENERATION_MODEL`, Batch 50%): input ≈ (20k shared amortized ≈ 2k/node effective + 15k unique) × $2.50/1M ≈ **$0.043**; output 40k × $12.50/1M ≈ **$0.50**. ≈ **$0.55/node**.
+Per node (`GENERATION_MODEL`, Batch 50%): input ≈ (23k shared amortized ≈ 2.3k/node effective + 15k unique) × $2.50/1M ≈ **$0.044** (the voice-contract slice adds ≈ +0.3k effective input/node ≈ +$0.001/node — noise); output 40k × $12.50/1M ≈ **$0.50**. ≈ **$0.55/node**.
 
 Audit cost scales with the §6.1 ramped sampling rate. `AUDIT_MODEL` at 5% (~50 items/batch) ≈ **$1.5/batch**; at 10% (~100 items/batch) ≈ **$3/batch**. With the first two batches at 10% and the rest at 5% (the expected path if batches 1–2 come back clean): 2×$3 + 6×$1.5 = **~$15**. Worst case (no batch ever earns the step-down, all 8 at 10%): 8×$3 = **~$24**.
 
 | Line | Nodes | Est. cost |
 |---|---|---|
-| Generation (`GENERATION_MODEL`, Batch) | 73 | ~$40 |
+| Generation (`GENERATION_MODEL`, Batch) | 73 *(computed at 73 nodes; +1 node ≈ +$0.55 generation)* | ~$40 |
 | Regeneration loop overhead (~15% reruns) | — | ~$6 |
 | Audit (`AUDIT_MODEL`, Batch, ramped 10%→5% sampling) | 8 batches | ~$15 (up to ~$24) |
 | **Total** | | **~$61** (up to ~$70) |
@@ -145,6 +145,7 @@ One request per node. Rendered from a single pinned template; only the per-node 
 | System prompt (author-role, constraints, phase rules P1→P3, structural-skin rule) | This spec, pinned | Frozen instruction | Shared (cached) |
 | Output JSON schema (strict) | `types/problem.ts`-derived, pinned | Constrains output shape (§5.1) | Shared (cached) |
 | Taxonomy-keying contract (§3 of taxonomy doc) | `docs/gold-node/misconception-taxonomy-slope.md` | The copy-to-all-nodes keying rules | Shared (cached) |
+| Voice contract slice: QUESTION_VOICE §10 (register contract) + §3 (ask-phrasing catalog) + §9 (register-fit table) | `docs/specs/QUESTION_VOICE.md`, pinned at commit | Binds stem architecture, instruction-vs-assessment register selection, ask phrasing, number realism, reading level | **Shared (cached)** |
 | Misconception registry slice | post-diff `data/algebra1-graph.json` registry | Legal tag vocabulary for this node's domain | Shared per domain-cluster |
 | Archetype templates for this node's item types | Archetype library (§4.2) | The item molds to fill | Shared per archetype-cluster |
 | **Node JSON** (target node) | live graph node | What to regenerate: objective, standards, prereqs, existing items, contextHooks | Per-node |
@@ -152,9 +153,15 @@ One request per node. Rendered from a single pinned template; only the per-node 
 
 Render order (for prompt-cache correctness, per `shared/prompt-caching.md`): `tools` (none) → `system` (frozen) → cached contract/schema/archetype blocks with a `cache_control` breakpoint on the last shared block → per-node volatile payload last. Stable-before-volatile; the node JSON and exemplars change every request and therefore sit after the final breakpoint.
 
-### 4.2 Archetype library — required interface (does not exist yet)
+**Voice-slice placement** (folded 2026-07-06 from `BATCH_REGEN_PATCH_voice` §1): inside the shared cached block, after the taxonomy-keying contract and before the archetype templates (stable-before-volatile ordering unchanged; the `cache_control` breakpoint still sits on the last shared block).
 
-The library is the missing load-bearing input. This spec defines the contract it must satisfy; authoring it is a separate gated task (mr-kahn APPROVE).
+Inject the **slice**, not the whole file: §10 + §3 + §9 ≈ 3k tokens. The corpus-measurement sections (§1–§8, §11) are evidence, not instructions — the generator needs the contract, not the archaeology. (License note: the spec file contains only <15-word measure-only fragments and attributed CC BY quotes, so injection poses no licensing issue regardless.)
+
+### 4.2 Archetype library — required interface
+
+*(2026-07-06 update: the library now EXISTS, frozen at v`1.1.0` — 9 entries + MANIFEST at `docs/archetypes/`, §0. This section was drafted when it did not; the interface below is the contract it was authored against. The machine `manifest.json` derivation remains a separate gated task.)*
+
+This spec defines the contract the library must satisfy; authoring it was a separate gated task (mr-kahn APPROVE — §8 gate 1).
 
 ```
 archetypes/
@@ -174,11 +181,18 @@ Each archetype entry MUST provide:
 - `visualSpecShape`: schema reference for the `visual` field when non-null
 - `solverContract`: how the harness (or a downstream cert step) can symbolically verify the item (item-certification pipeline, `new_plan/CLAUDE.md` §9)
 
-`manifest.json` maps each of the 73 nodes to its archetype set **and target item count**, so the enriched output volume is data-driven, not prompt-hard-coded.
+Voice fields (folded 2026-07-06 from `BATCH_REGEN_PATCH_voice` §2 — each archetype entry MUST additionally provide):
+
+- `voiceRegister`: `instruction` | `assessment` | `per-phase`. Resolution rule when `per-phase`: P1/P2 instantiations → instruction register; **standalone** P3 items → assessment register; P3-phase *scaffolded practice* items → instruction-register part rules under P3 phase discipline (neutral context) — exactly the QUESTION_VOICE §10 scoping sentence.
+- `askPatterns`: the allowed final-ask frames for this archetype, drawn from the QUESTION_VOICE §3 catalog (e.g. `what-is-value`, `which-select`, `meaning/interpretation`, `write/create`, `how-many/much`). Mechanically checkable: the generated item's final ask must match one declared pattern. Archetypes with novel frames that have no corpus analog (error-analysis peer-diagnosis, predict-reveal, interactive builds — QUESTION_VOICE §11 row 12) declare their own frame strings here; declaring is what makes drift detectable.
+- `stemBand`: word-count band for the student-visible stem. Defaults (an archetype may **narrow, never widen**): instruction register **30–60 words**; assessment register **≤48 words** (SAT p75). Minimal-stem P3 forms (bare-points) may set a lower bound of 0 — short is compliant, long is not.
+- `interpretationSlot`: `true` if this archetype carries a meaning-in-context ask (capstone part or whole-item). The manifest uses this to satisfy the node-level interpretation floors in §5.2 step 5 — `manifest.json` MUST select, per node, an archetype mix whose `interpretationSlot` coverage can meet the floors.
+
+`manifest.json` maps each of the 74 nodes to its archetype set **and target item count**, so the enriched output volume is data-driven, not prompt-hard-coded.
 
 ### 4.3 Context budget
 
-Per-request input ≈ **35k tokens** (20k shared + 15k unique), output ≈ **40k**. Total well within `GENERATION_MODEL`'s 1M context. Output at 40k is under the 128k cap but **requires streaming inside the harness** for non-batch pilot calls; batch requests are not subject to the SDK HTTP timeout. `max_tokens` set to **64k** (headroom over the 40k target; truncation → `stop_reason: max_tokens` → treated as F-OVERFLOW, §7). Archetype-cluster intra-batch ordering (§2) maximizes cache reads on the archetype block.
+Per-request input ≈ **38k tokens** (23k shared + 15k unique — the shared prefix grew ~20k → ~23k with the voice-contract slice, §4.1), output ≈ **40k**. Total well within `GENERATION_MODEL`'s 1M context. Output at 40k is under the 128k cap but **requires streaming inside the harness** for non-batch pilot calls; batch requests are not subject to the SDK HTTP timeout. `max_tokens` set to **64k** (headroom over the 40k target; truncation → `stop_reason: max_tokens` → treated as F-OVERFLOW, §7). Archetype-cluster intra-batch ordering (§2) maximizes cache reads on the archetype block.
 
 ---
 
@@ -210,6 +224,18 @@ Every `raw.json` passes, before it can become `node.json`:
 2. **Taxonomy validation:** every `misconceptionMap` value and every rubric-element `counteredEntryId` must exist in the post-diff `misconceptionRegistry`. Unknown tag → validation fail (F-TAG, §7).
 3. **Structural invariants:** `prereqs[]` unchanged from source graph; phase distribution present (P1/P2/P3, with P3 non-empty — mastery requires neutral transfer); every item has the 3-rung hint ladder; `skillId` matches node id; standards codes preserved.
 4. **Solver check (where `solverContract` present):** each closed-form item's stated answer is symbolically verified (item-certification pipeline hook). Mismatch → validation fail.
+5. **Deterministic voice validation (per node, host-side)** — folded 2026-07-06 from `BATCH_REGEN_PATCH_voice` §3.1, band table carried with its post-1.1.0 corrections (whole-bank floor scoping per MANIFEST §7; SAT 13% as the operative floor-2 anchor; realistic-values 2/5-of-P3 gold anchor with construct-integrity exemptions). Computed by the harness with the QUESTION_VOICE instrument (same word/sentence/ask-bucket definitions; the pipeline under `.authoring-tmp/voice-corpus/tools/analyze.py` is the reference implementation). Bands cite QUESTION_VOICE §10 (contract) and §11.1 (post-ADJUST measured values on the gold node — the bar generated nodes are held to):
+
+   | Check | Band | Empirical anchor (§11.1 post-adjust / corpus) |
+   |---|---|---|
+   | Stem-length band conformance | ≥90% of a node's items inside their register's `stemBand` | gold items median 35 words (27.5–42) inside the 30–60 instruction band; SAT p75 = 48 |
+   | Interpretation-ratio floor — instruction items | ≥25% of the node's instruction-register items carry a meaning-in-context ask **anywhere** in the item | gold post-adjust 26.7% anywhere; IM 29% |
+   | Interpretation-ratio floor — assessment/P3 bank | ≥13% of standalone-P3 items ask interpretation as the **final** ask | SAT 13% (the operative anchor). Gold's §11.1 "20% final" is an all-items figure — its enriched standalone-P3 slice carries no interpretation-final ask; the floor binds the whole bank and is satisfied by core-bank scheduling (MANIFEST §7) |
+   | Ask-phrasing catalog conformance | 100% of items: final ask matches one of the item's archetype `askPatterns`; ask lands **last** (context → data → ask) in 100% of items | universal corpus invariant (QUESTION_VOICE §1) |
+   | Interrogative close — standalone P3 | ≥90% end with "?" | SAT 93%; gold 73% overall only because interactive imperatives are archetype-declared exceptions |
+   | Realistic-values share — standalone P3 | 30–40% of the node's standalone-P3 items non-clean (decimal-bearing student-visible data, tractable path); binds the whole-bank standalone-P3 slice; construct-integrity exemptions (integer-snap interactives, boundary-construct clean numbers) per the archetype entries | SAT 30% (operative); gold post-ADJUST 2/5 of P3 enriched items (§11.1 row 10's own denominator) |
+
+   **Severity: `major`, never fatal.** A violation does NOT quarantine (that is F-SCHEMA/F-TAG territory) and does NOT fail the batch by itself — it is emitted as a `major` finding into the batch report, which per §6.3 (a) denies the batch *clean* status, holding §6.1 sampling at 10%, and (b) routes the node through the §6.4 regeneration loop with the violated bands injected as negative constraints.
 
 Validation failures never advance and never touch `data/`; they route to QUARANTINE for regeneration or session-fallback.
 
@@ -228,7 +254,7 @@ Sampling is **stratified** at either rate so the sample spans every node in the 
 
 ### 6.2 Fable audit prompt spec
 
-One audit request per sampled item (batched as a Fable sub-batch). Injected: the item JSON, its node's objective + standards, the taxonomy-keying contract, the archetype it claims to instantiate, the D4 rubric contract (for rubric-explanation items), and — when the item carries a fitness or social-media skin — the **§6.1 hard domain-safety constraints from `INTEREST_DOMAINS.md`** (the banned-quantity lists). Forced structured output:
+One audit request per sampled item (batched as a Fable sub-batch). Injected: the item JSON, its node's objective + standards, the taxonomy-keying contract, the archetype it claims to instantiate, the D4 rubric contract (for rubric-explanation items), the **voice-contract slice** (QUESTION_VOICE §10/§3/§9 — the same slice already in the generation prefix, so the auditor grades against the identical contract the generator saw; cache-shared with the generation prefix where the audit sub-batch reuses the block), and — when the item carries a fitness or social-media skin — the **§6.1 hard domain-safety constraints from `INTEREST_DOMAINS.md`** (the banned-quantity lists). Forced structured output:
 
 ```json
 {
@@ -248,10 +274,16 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
                                       //   present: body weight, weight-change/loss/gain target, calories-as-weight-lever,
                                       //   body-fat%/BMI/body-composition, sizes, before/after/deficit framing
                                       //   (INTEREST_DOMAINS §6.1). Item must read "how fast/far/many reps", never weight/calories.
-    "socialFramingSafe": "bool"       // FATAL-CLASS. n/a (true) unless domain=social-media. false if follower/like/view
+    "socialFramingSafe": "bool",      // FATAL-CLASS. n/a (true) unless domain=social-media. false if follower/like/view
                                       //   counts framed as norm/goal/target/benchmark, "going viral", real or
                                       //   student-identifiable accounts, personal data, or comparative vanity framing.
                                       //   Growth-rate math on a clearly fictional account only; COPPA posture (INTEREST_DOMAINS §6.1).
+    "voiceConformant": "bool"         // MAJOR-CLASS CEILING. Register matches phase per the archetype's voiceRegister
+                                      //   rule; context -> data -> ask ordering; no padding/meta-labels/authoring-speak
+                                      //   in student text; units named in the ask for rate items; scenario data actually
+                                      //   consumed by the math (structural-skin rule, voice edition). If false, severity
+                                      //   is at least "major" and at most "major" on this check alone - voice NEVER
+                                      //   escalates to fatal.
   },
   "severity": "none | minor | major | fatal",
   "failingChecks": ["string"],
@@ -266,6 +298,8 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
 - **Item fails** if any check is `false` with `severity ∈ {major, fatal}`. `minor` findings are logged, not failing.
 - **Batch passes** if the sampled failure rate is **≤ 5%** AND there are **0 `fatal`** findings. Any `fatal` fails the batch regardless of rate. Fatal-class findings are: wrong math, a tag that would mis-route a student, answer/work mismatch (accreditation-evidence integrity), **and any `fitnessFramingSafe: false` or `socialFramingSafe: false`** — a banned fitness/social quantity per `INTEREST_DOMAINS.md` §6.1 (child-safety integrity). A single sampled fatal of either kind fails the whole batch.
 - **Clean batch** (the stricter bar that governs the §6.1 rate step-down) = **0 `fatal` AND 0 `major`** findings in the sample. A batch can *pass* (≤5% failure, 0 fatal) while still not being *clean* — passing lets the batch advance; only two consecutive clean batches unlock the 5% sampling rate. The larger 10% sample on the first two batches makes the failure-rate estimate tighter exactly when the pass/clean decision is least certain.
+
+**Why `voiceConformant` is major and not fatal (explicit — folded from `BATCH_REGEN_PATCH_voice` §3.2):** this section reserves `fatal` for integrity — wrong math, mis-routing tags, answer/work mismatch, child-safety framing. Voice drift degrades quality, not correctness or safety. Classing it `major` still gives it teeth: one `major` denies the batch *clean* status (sampling stays at 10%) and a sampled-failure rate >5% fails the batch — but a single stilted stem can never torch a batch the way a banned fitness quantity must.
 
 ### 6.4 Rejection and regeneration loop
 
@@ -283,7 +317,7 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
 | **F-TAG** | Taxonomy tag misuse (unknown tag, or valid tag on a non-matching distractor) | §5.2 step 2 (existence) + audit `misconceptionTagsValid` (semantic) | Existence failure → quarantine + regenerate. Semantic failure → audit-fail path (§6.4). Mis-keyed tags corrupt runtime routing, so treated as ≥major. |
 | **F-OVERFLOW** | Context/output overflow on a large node (item count × enrichment exceeds `max_tokens`) | `stop_reason == "max_tokens"` or truncated JSON | Split node generation by phase (P1 request, P2 request, P3 request) and merge host-side; re-validate the merged node. Large nodes are flagged in the archetype manifest so they're split preemptively. |
 | **F-PARTIAL** | Partial batch failure (some `custom_id`s error/expire) | Batch result `.result.type ∈ {errored, expired}` | Key by `custom_id`; resubmit only the failed ids in a follow-up batch. Never re-key by position. Succeeded nodes proceed independently. |
-| **F-DEP** | Registry diff not yet applied / archetype library not frozen | Precondition check at harness start | **Hard stop.** Pipeline refuses to run against an un-pinned archetype version or a pre-diff registry. **Graph baseline: RESOLVED — pinned to git `1.11.0` as authoritative (Matt, 2026-07-03), §0.** The Supabase-active `1.9.2` divergence is no longer a *run* blocker; it moves to a *promotion* precondition (§8). |
+| **F-DEP** | Registry diff not yet applied / archetype library not frozen / voice-contract slice missing or unpinned | Precondition check at harness start | **Hard stop.** Pipeline refuses to run against an un-pinned archetype version or a pre-diff registry. The precondition check MUST also verify the voice-contract slice (QUESTION_VOICE §10/§3/§9) is present in the rendered shared prefix and pinned to a commit hash — missing/unpinned → **hard stop**, same class as an un-pinned archetype version (folded 2026-07-06 from `BATCH_REGEN_PATCH_voice` §1). **Graph baseline: RESOLVED — git `1.12.0` authoritative (2026-07-06 consolidation; supersedes the 2026-07-03 pin to `1.11.0`), §0.** State at consolidation: the registry-diff arm is satisfied (applied at `1.12.0`, §0) and the archetype-library arm is satisfied at pin `1.1.0` — the check still runs every harness start. The Supabase-active `1.9.2` divergence is no longer a *run* blocker; it moves to a *promotion* precondition targeting `1.12.0` (§8 gate 7b). |
 | **F-DRIFT** | Generator quality drifts mid-run (later batches worse) | Audit pass-rate trend across batches in `_reports/` | If pass-rate degrades across ≥2 batches, halt and re-pin exemplars / re-pilot model choice before continuing. |
 
 ---
@@ -292,15 +326,15 @@ One audit request per sampled item (batched as a Fable sub-batch). Injected: the
 
 Per `CLAUDE.md` workflow. Gated (curriculum/accreditation-touching) content **cannot** be implemented without the marked approvals.
 
-1. **[GATE — mr-kahn APPROVE]** Archetype library design + per-node manifest, *before* any generation. (Touches problem content + standards mapping.)
-2. **[GATE — mr-kahn APPROVE]** Confirmation that the misconception registry diff is applied and the tag vocabulary is frozen. (Mastery-tag posture.)
+1. **RESOLVED 2026-07-05 (partially — see residue):** mr-kahn APPROVE WITH CHANGES ×2; library frozen at v`1.1.0`. **The per-node `manifest.json` class-assignment sign-off REMAINS OPEN under this gate.** Original gate text: **[GATE — mr-kahn APPROVE]** Archetype library design + per-node manifest, *before* any generation. (Touches problem content + standards mapping.)
+2. **RESOLVED 2026-07-06:** registry diff applied + tag vocabulary frozen at graph `1.12.0`. Original gate text: **[GATE — mr-kahn APPROVE]** Confirmation that the misconception registry diff is applied and the tag vocabulary is frozen. (Mastery-tag posture.)
 3. **[GATE — mr-gates APPROVE]** The harness itself (spans batch I/O + schema/types + validation) before it runs — read-only against `data/`, but it's a 3+-module tool.
 4. **[HUMAN CHECKPOINT — Matt]** Pilot result (3-node Opus vs. Sonnet A/B) → approve generator model + go/no-go on the full run.
 5. **[GATE — per batch, mr-kahn APPROVE]** Each batch's audit report before the batch is considered done. Audit PASS is necessary but not sufficient — mr-kahn signs off.
 6. **[HUMAN CHECKPOINT — Matt, END OF PHASE]** Full-run demo summary + diff of `.authoring-tmp/regen/` + open questions.
 7. **[SEPARATE GATED TASK — NOT THIS SPEC]** Promotion of approved nodes from `.authoring-tmp/regen/` into `data/algebra1-graph.json` / Supabase. Requires mr-gates (schema/migration) + mr-kahn (content) + Matt (commit). This document's authority ends at staging. **Two gated preconditions must clear before any promotion (Matt, 2026-07-03):**
-   - **(7a) [GATE — mr-kahn]** Re-verify the misconception registry diff's **1 live-item re-key** against the **1.11.0** bank *before* applying the diff — the target item was identified against 1.9.2, which Phase 2 rewrote (§0 deps table). Confirm the intended item still exists and the re-key is still correct, or re-derive it.
-   - **(7b) [GATE — mr-gates]** **Supabase reconciliation to `1.11.0` must complete** before any regen output promotes. The active/published graph is currently `1.9.2`; promoting regen output onto a `1.9.2`-active Supabase would create a graph/runtime mismatch. Reconcile Supabase to the pinned git baseline first.
+   - **(7a) RESOLVED 2026-07-06:** re-key re-verified and applied at graph `1.12.0` (`DECISION_F-IF-B6.md` §7 addendum; §0 deps table). Original gate text: **[GATE — mr-kahn]** Re-verify the misconception registry diff's **1 live-item re-key** against the **1.11.0** bank *before* applying the diff — the target item was identified against 1.9.2, which Phase 2 rewrote (§0 deps table). Confirm the intended item still exists and the re-key is still correct, or re-derive it.
+   - **(7b) [GATE — mr-gates] — OPEN; target updated 2026-07-06 to `1.12.0` (was `1.11.0`).** **Supabase reconciliation to `1.12.0` must complete** before any regen output promotes. The active/published graph is currently `1.9.2`; promoting regen output onto a `1.9.2`-active Supabase would create a graph/runtime mismatch. Reconcile Supabase to the pinned git baseline first.
 
 ---
 
@@ -317,6 +351,7 @@ Per `CLAUDE.md` workflow. Gated (curriculum/accreditation-touching) content **ca
 | Audit sampling | Ramped: 10%/batch for the first two batches → 5% after two consecutive clean batches (§6.1), stratified by node × item-form |
 | Batch pass bar | ≤5% sampled failure AND 0 fatal. *Clean* (unlocks 5% rate) = 0 fatal AND 0 major |
 | Max auto-regen rounds | 2, then session fallback |
-| Archetype library version | PIN before run (F-DEP hard-stops if unset) |
-| Registry state | post-diff, frozen (F-DEP hard-stops if pre-diff) |
+| Archetype library version | `1.1.0` (frozen 2026-07-05; F-DEP hard-stops if unpinned) |
+| Registry state | post-diff, frozen (applied at graph `1.12.0`, 2026-07-06; F-DEP hard-stops if pre-diff) |
+| Voice-contract slice | QUESTION_VOICE §10 + §3 + §9, pinned at commit (F-DEP hard-stops if missing/unpinned) |
 | Output root | `.authoring-tmp/regen/` (never `data/`, never Supabase) |

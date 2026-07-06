@@ -1,10 +1,10 @@
 # BATCH_REGEN_PATCH_voice — voice-contract addendum to BATCH_REGEN_SPEC
 
-**Status:** PATCH NOTE (design-only; no code, no data writes, no Supabase writes authorized).
-**Patches:** `docs/specs/BATCH_REGEN_SPEC.md` @ `13ec37c` on the unmerged remote branch
-`claude/batch-regen-runtime-tutor-specs-u79i6t`. That spec is not on this branch, so this
-patch lives standalone; **fold it into BATCH_REGEN_SPEC.md §4/§5/§6 when the branch merges.**
-Until then it is the authoritative voice addendum to the regeneration pipeline design.
+**Status:** SUPERSEDED (2026-07-06) — folded into `BATCH_REGEN_SPEC.md` §3.2/§4.1/§4.2/§4.3/§5.2/§6.2/§7 at branch consolidation; retained as audit trail. The §3.1 band table's corrected anchors carried; MANIFEST §7 remains authoritative for floor arithmetic.
+**Patches:** `docs/specs/BATCH_REGEN_SPEC.md` — originally authored against `13ec37c` on the
+then-unmerged remote branch `claude/batch-regen-runtime-tutor-specs-u79i6t`; that branch merged
+at consolidation (2026-07-06) and the fold instruction below was executed the same day. The
+folded spec text is now authoritative; this file is history.
 **Basis:** `docs/specs/QUESTION_VOICE.md` (committed `e7b3d23`, ADJUSTs re-measured in §11.1
 @ `8f13ffd`) — the empirically measured voice contract. All bands below cite measured values,
 not vibes. Gates unchanged: this patch adds inputs and audit criteria; every human/agent gate
