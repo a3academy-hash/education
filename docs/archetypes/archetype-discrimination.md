@@ -9,8 +9,8 @@ Gold exemplars (cite only, never copy): `docs/gold-node/gold-node-items.json` it
 | Field | Value |
 |---|---|
 | id | `discrimination` |
-| version | `1.0.0` |
-| itemForm | `closed-form`. Note: near fit; these items are also the natural fillers for `transfer-battery-slot` positions on the boundary/representation dimensions, and a manifest may count them there — gradability class remains closed-form. |
+| version | `1.1.0` |
+| itemForm | `closed-form`. Note: gradability class remains closed-form. Battery items with discrimination shape are authored as transfer-battery instances under that entry's rules — a teaching-bank item is by definition *seen* and never counts into a battery. |
 | phaseApplicability | P1, P2, P3 (gold: P3, P2, P1 — the boundary is assessable at every phase; only the surface changes) |
 | representation | table \| graph \| verbal — the representation is the discrimination surface (nonconstant table, unequal-scale graph, head-start table), so representation choice is dictated by the boundary being tested, not by variety quotas |
 | hintLadderShape | Taxonomy §3.1 three-rung ladder via `hintLadderRef: {generic, perTag}`; `perTag` covers every tag in the misconceptionMap (disc-01 legitimately carries a single perTag entry — both traps key the same boundary entry). |
@@ -57,7 +57,7 @@ Gold exemplars (cite only, never copy): `docs/gold-node/gold-node-items.json` it
 
 - **Answer types:** `choice` (exact option id) or `numeric` (exact string; `acceptedEquivalents` available under the parts-level convention if a key is fractional — unused in gold discrimination, whose keys are `50`, `A`, `A`). RUNTIME_TUTOR_SPEC §6 list item 1 applies: "**Answer checking on closed-form items** — numeric/symbolic/exact-match verification against the certified answer. Solver, not model."
 - **Bare triggers:** one scored ask → unprefixed exact-string triggers in the misconceptionMap, standard `{trigger, tag, signature}` objects; signatures carry the full computation and arming citation for the audit trail.
-- **Transfer-battery consistency:** discrimination items frequently feed gate/transfer decisions, which are RUNTIME §6 list item 4 — "**Mastery gating** — provisional→locked transitions; the retention firewall…; the transfer-battery pass decision across D1–D4" — deterministic and prohibited from LLM dependency. The item's keyed traps are what make a boundary miss machine-attributable without judgment calls.
+- **Transfer-battery consistency:** teaching discrimination items feed **provisional state**; the mastery gate reads delayed, unseen transfer-battery instances exclusively (archetype-transfer-battery). The gate decision is RUNTIME §6 list item 4 — "**Mastery gating** — provisional→locked transitions; the retention firewall…; the transfer-battery pass decision across D1–D4" — deterministic and prohibited from LLM dependency. The item's keyed traps are what make a boundary miss machine-attributable without judgment calls.
 - **Solver contract** (interface row): all confusable readings recomputed, matched to their keyed traps, distinctness and arming constraints verified, displayed data verified against the true model. Every check is host-side arithmetic.
 
 ## e. Visual spec requirements
