@@ -7,8 +7,8 @@
 | Field | Value |
 |---|---|
 | `id` | `worked-example` |
-| `version` | `1.0.0` (tracks MANIFEST §1 `archetypeLibraryVersion`) |
-| `itemForm` | `rubric-explanation` (closest enum — the closing self-explanation prompt is rubric-scored per taxonomy §3.3). Note: lesson-embedded instructional segment, not a bank item; the worked steps themselves are shown, not graded. |
+| `version` | `1.1.0` |
+| `itemForm` | `rubric-explanation` — a **grading-channel classification**: the closing self-explanation prompt genuinely routes through the same RUNTIME §1.2 free-response grading call and is rubric-scored per taxonomy §3.3. Bank-item owner of this enum form: `archetype-rubric-explanation`; this segment is lesson-embedded and is never scheduled by §4.2. Note: the worked steps themselves are shown, not graded. |
 | `phaseApplicability` | Stage-mapped, fixed: stage 1 → P1, stages 2–3 → P2, stage 4 → P3 (gold global rules: §3.1 P1, §3.2–3.3 P2, §3.4 P3). |
 | `representation` | Fades with stage: concrete/countable (stage 1) → the node's formal representation arrives (stage 2: coordinates/table/symbols) → same representation + the contrast dimension (stage 3) → bare numeric-symbolic with confirmation-only visual (stage 4). |
 | `hintLadderShape` | n/a — no wrong-answer path. The self-explanation prompt produces advisory rubric evidence only. |
