@@ -1,0 +1,311 @@
+{
+  "file": "gold-node-transfer.json",
+  "node": "ALG-L06",
+  "standard": "8.F.B.4",
+  "batteryVersion": "1.0-gold",
+  "status": "DRAFT - pending Matt review",
+  "taxonomyVersion": "docs/gold-node/misconception-taxonomy-slope.md (2026-07-02)",
+  "schemaNote": "Extends the gold-node-items.json schema conventions (misconceptionMap as {trigger, tag, signature}[] with signatures computed on the item's numbers; acceptedEquivalents where fractional; full visual objects; authoringNote with generator-constraint verification). Battery-specific deltas: batteryDimension field on every item; hintPolicy REPLACES hintLadderRef (battery items are assessment - no ladder is served while the battery runs; wrong answers still log trigger/tag/signature evidence and remediation schedules after the battery resolves); visual may be null ONLY with a visualNote arguing why no spec is needed. Namespace caution (MANIFEST §2): the four battery dimensions are written 'transfer dimension 1-4'; 'D4' elsewhere in gold-node docs names the rubric-contract deliverable.",
+  "passRule": {
+    "statement": "A node passes the gate only when it clears all four dimensions at the §3 confidence bound on delayed, unseen items. (new_plan/CLAUDE.md §5, verbatim)",
+    "confidenceBound": "lower-bound P(mastery) > 0.90 for prerequisite nodes, 0.85 for leaf nodes (new_plan/CLAUDE.md §3; MUST-VALIDATE - pilot-calibrated, A/B-testable parameter)",
+    "evidencePerDimension": "3-5 successful items per transfer dimension (new_plan/CLAUDE.md §3). The gold items below are the certified exemplar of each dimension's item family; the full battery renders parameter-randomized unseen instances from these families under each item's generator constraints (new_plan/CLAUDE.md §11: randomize numeric parameters per render; novel item families at the gate).",
+    "delayGate": "spaced-scheduler-controlled",
+    "delayGateNote": "Delayed checks at 1, 7, and 21 days; locked mastery is computed ONLY from delayed unseen items - one-sitting accuracy never locks a node (new_plan/CLAUDE.md §2 step 6, §3). AI_ADAPTIVE.md §7 retention firewall: 'Mastery locks only on spaced, delayed, UNSEEN retrieval'; the objective is retained, transferable mastery at delay, never time-to-first-pass.",
+    "unseenRule": "Every battery render must be an item instance the student has never seen: numeric parameters re-randomized per render under the item's generator constraints; item families structurally absent from the teaching bank (verified per item in authoringNote against the 62 live ALG-L06 items and the 15 gold-node enriched items); practiced and in-session items feed provisional state only and never count toward the lock (new_plan/CLAUDE.md §3, §11).",
+    "gatingAuthority": "The transfer-dimension 1-4 pass decision is deterministic engine logic on the RUNTIME_TUTOR_SPEC §6 never-LLM list (item 4: 'the transfer-battery pass decision across D1-D4'). The rubric-scored explanation element on ALG-L06-gold-tb-d1-01 produces advisory misconception evidence only and never enters the pass computation; that item's closed-form part is its sole gating evidence (RUNTIME §4: provisional state advances only on deterministic evidence; GOLD_NODE_RUBRICS.md §1.2)."
+  },
+  "voiceConformance": {
+    "register": "assessment (QUESTION_VOICE §10): stems <= 48 words, 0-2 context sentences, interrogative close, units attached, ask last",
+    "realisticValuesRate": "2/5 = 40% (tb-d1-01 decimal lapse-rate data; tb-d1-02 dollar amounts) - inside the 30-40% band; tb-d2-01 and tb-d4-01 are clean by construct (grid alignment; integer inverse path), tb-d3-01 is minimal-symbolic",
+    "stemWordCounts": {
+      "ALG-L06-gold-tb-d1-01": "24 stem + 12 ask (part a) / 22 ask (part b) - see GOLD_NODE_RUBRICS.md §6.2",
+      "ALG-L06-gold-tb-d1-02": 42,
+      "ALG-L06-gold-tb-d2-01": 24,
+      "ALG-L06-gold-tb-d3-01": 29,
+      "ALG-L06-gold-tb-d4-01": 33
+    }
+  },
+  "counts": {
+    "dimension1": 2,
+    "dimension2": 1,
+    "dimension3": 1,
+    "dimension4": 1,
+    "total": 5
+  },
+  "dimensions": {
+    "dimension1": {
+      "definition": "Same structure, changed story - interest domain -> foreign domain (>=2 foreign domains). (new_plan/CLAUDE.md §5.1)",
+      "foreignDomains": ["atmospheric science", "print-shop economics"],
+      "items": [
+        {
+          "itemRef": "ALG-L06-gold-tb-d1-01",
+          "source": "docs/gold-node/GOLD_NODE_RUBRICS.md §4",
+          "foreignDomain": "atmospheric science (weather-balloon temperature vs altitude)",
+          "construct": "negative decimal slope (-6.5 °C per km) computed and interpreted in a foreign science domain; deterministic closed-form anchor + 4-element rubric explanation (RUB-L06-transfer-d1, advisory-only)",
+          "note": "Full item JSON, rubric, and two graded samples live in GOLD_NODE_RUBRICS.md. Structural freshness argued there: x is altitude - a continuous spatial measure; every contextualized teaching-item x (live + gold) is a sequential event count or clock time, the rest are bare coordinates, and no teaching item uses a physical-gradient construct; decimal-bearing realistic values; computation + rubric interpretation pairing absent from the teaching bank. The closed-form part is the item's sole gating evidence."
+        },
+        {
+          "id": "ALG-L06-gold-tb-d1-02",
+          "archetype": "transfer-battery",
+          "batteryDimension": "transfer dimension 1 (same structure, changed story - foreign domain)",
+          "foreignDomain": "print-shop economics",
+          "phase": "P3",
+          "sport": "neutral",
+          "difficulty": 3,
+          "standard": "8.F.B.4",
+          "skillId": "ALG-L06",
+          "prompt": "A print shop charges $23.00 for an order of 20 posters and $47.00 for an order of 60 posters. The charge climbs at a steady rate with each added poster. How much does each additional poster add to the charge, in dollars?",
+          "answerType": "numeric",
+          "correctAnswer": "0.60",
+          "acceptedEquivalents": ["0.6", ".60", "3/5"],
+          "misconceptionMap": [
+            {
+              "trigger": "24",
+              "tag": "forgot-denominator",
+              "signature": "Δy = 47 - 23 = 24 (dollars) reported as the per-poster rate; Δx never consulted (§2.1; |Δx| = 40 != 1)"
+            },
+            {
+              "trigger": "5/3",
+              "tag": "inverted-ratio",
+              "signature": "Δx/Δy = 40/24 = 5/3 = 1/m: posters-per-dollar where dollars-per-poster was asked (§2.3; |m| = 0.6 != 1); decimal form 1.67 maps to the same tag via the checker's equivalence pass"
+            },
+            {
+              "trigger": "1.15",
+              "tag": "slope-as-single-point-ratio",
+              "signature": "y1/x1 = 23/20 = 1.15 from one order, ignoring the setup fee b = 11 != 0 (§2.9, armed; separation |1.15 - 0.6| = 0.55 exceeds 2x grading tolerance)"
+            },
+            {
+              "trigger": "47/60",
+              "tag": "slope-as-single-point-ratio",
+              "signature": "y2/x2 = 47/60 ≈ 0.783 - the §2.9 variant computed at the other point (both variants computed per the entry; separation 0.183 exceeds 2x grading tolerance for exact numeric entry)"
+            },
+            {
+              "trigger": "-16",
+              "tag": "slope-as-difference",
+              "signature": "Δy - Δx = 24 - 40 = -16 (§2.6 variant (a); y1 = 23 != x1 = 20)"
+            },
+            {
+              "trigger": "-13",
+              "tag": "slope-as-difference",
+              "signature": "y2 - x2 = 47 - 60 = -13 (§2.6 variant (b))"
+            }
+          ],
+          "visual": {
+            "id": "V-GN-TBD102",
+            "type": "table",
+            "purpose": "Data vehicle only - an assessment surface, not a scaffold; the two order-size/charge pairs as a table.",
+            "data": {
+              "columns": ["Posters in the order", "Total charge"],
+              "rows": [
+                [20, "$23.00"],
+                [60, "$47.00"]
+              ],
+              "caption": "Two orders from the same price list."
+            },
+            "annotations": [
+              "no per-interval brackets or change labels - the battery assesses unaided transfer",
+              "no mid-item reveals; feedback defers to battery review"
+            ],
+            "reveal_beats": [
+              "Table and prompt appear together; nothing else renders.",
+              "(Assessment surface: no reveal on resolve - results surface in the post-battery review.)"
+            ]
+          },
+          "hintPolicy": "none-during-battery",
+          "hintPolicyNote": "Assessment item: no hint ladder during the battery; taxonomy evidence still logs and remediation schedules after the battery resolves.",
+          "authoringNote": "Transfer dimension 1, foreign domain #2 (>=2 foreign domains satisfied with atmospheric science on tb-d1-01). Structurally fresh, not a reskin: x is ORDER SIZE - a chosen batch size, not a sequential count - so the slope is a unit price ($0.60 per poster over a setup fee), not a pace; the money context differs structurally from the taught savings-over-time neutral item (ALG-L06-p1-neutral-04), whose x is weeks. Realistic dollar values at a tractable path (47 - 23 = 24, 60 - 20 = 40, one division). Generator constraints verified on (20, 23)-(60, 47): |Δx| = 40 != 1, |m| = 0.6 != 1, y1 = 23 != x1 = 20, y1 != 0, b = 11 != 0 (arms §2.9, both variants). Armed traps {24, 5/3, 1.15, 47/60, -16, -13} pairwise distinct and distinct from the key 0.60; accepted equivalents collision-checked against all traps (no matches). Unseen verified: live ALG-L06 x-variables do include event counts (plate appearances, fouls committed, play number) - all sequential counts; what is absent, live and gold, is an order-size/unit-price construct - no item prices a batch against a setup fee."
+        }
+      ]
+    },
+    "dimension2": {
+      "definition": "Changed representation, same structure - table <-> graph <-> equation <-> word <-> verbal. (new_plan/CLAUDE.md §5.2; the §5 note: this dimension IS representation transfer - fluent mapping across representations, not bare symbolic)",
+      "coverageNote": "Per-node GENERATED batteries require >=2 distinct representation pairings for dimension 2 (drawn from table <-> graph <-> equation <-> word <-> verbal). The single gold graph -> table family below is the pattern exemplar, not the coverage standard.",
+      "items": [
+        {
+          "id": "ALG-L06-gold-tb-d2-01",
+          "archetype": "transfer-battery",
+          "batteryDimension": "transfer dimension 2 (changed representation, same structure)",
+          "representationPairing": "graph -> table (unseen pairing; teaching had table -> graph construction and graph -> numeric reads, never graph -> table matching)",
+          "phase": "P3",
+          "sport": "neutral",
+          "difficulty": 4,
+          "standard": "8.F.B.4",
+          "skillId": "ALG-L06",
+          "prompt": "The graph shows a line through the labeled points (1, 25) and (3, 55). Which table climbs at the same rate as this line?",
+          "answerType": "choice",
+          "correctAnswer": "A",
+          "choices": [
+            {
+              "id": "A",
+              "table": {
+                "columns": ["x", "y"],
+                "rows": [[0, 10], [1, 25], [2, 40], [3, 55]]
+              }
+            },
+            {
+              "id": "B",
+              "table": {
+                "columns": ["x", "y"],
+                "rows": [[0, 10], [1, 13], [2, 16], [3, 19]]
+              }
+            },
+            {
+              "id": "C",
+              "table": {
+                "columns": ["x", "y"],
+                "rows": [[0, 10], [1, 40], [2, 70], [3, 100]]
+              }
+            },
+            {
+              "id": "D",
+              "table": {
+                "columns": ["x", "y"],
+                "rows": [[0, 10], [1, 65], [2, 120], [3, 175]]
+              }
+            }
+          ],
+          "misconceptionMap": [
+            {
+              "trigger": "B",
+              "tag": "grid-count-ignores-scale",
+              "signature": "table rate 3 = m*(s_x/s_y) = 15*(1/5): the line rises 3 gridsquares per square right, and squares were never converted to axis units (§2.11; armed because s_x = 1 != s_y = 5). §2.11's severity note says this error is invisible on equal-scale teaching graphs and detonates in the transfer battery's representation dimension - this item is that detonation point, authored deliberately"
+            },
+            {
+              "trigger": "C",
+              "tag": "forgot-denominator",
+              "signature": "table rate 30 = Δy = 55 - 25: the change between the labeled points taken as the per-step rate (§2.1; |Δx| = 2 != 1)"
+            },
+            {
+              "trigger": "D",
+              "tag": "slope-as-height",
+              "signature": "table rate 55 = y2: the height of the line at the right labeled point read as its rate (§2.8; y1 = 25 != 0 so y2 != Δy, and y2 = 55 != m = 15)"
+            }
+          ],
+          "visual": {
+            "id": "V-GN-TBD201",
+            "type": "coordinate-plane",
+            "purpose": "Deliberately unequal axis scales (§2.11's authoring mandate at the gate): square-counting and axis-reading give different rates on the same picture, and only the axis-read rate matches a choice correctly.",
+            "data": {
+              "x_axis": { "label": "x", "range": [0, 4], "gridline_every": 1, "units_per_gridline": 1 },
+              "y_axis": { "label": "y", "range": [0, 60], "gridline_every": 5, "units_per_gridline": 5 },
+              "points": [
+                { "x": 1, "y": 25, "label": "(1, 25)" },
+                { "x": 3, "y": 55, "label": "(3, 55)" }
+              ],
+              "line": "solid through both points, extended across the plot (y = 15x + 10)"
+            },
+            "annotations": [
+              "every y-axis tick label (0, 5, 10, ... 60) rendered - the scale is fully available; consulting it is the assessed behavior",
+              "choice tables render beside the plane; no rate readouts anywhere before resolve"
+            ],
+            "reveal_beats": [
+              "Plane with unequal scales, both labeled points, the line, and the four candidate tables appear; student answers.",
+              "(Assessment surface: no reveal on resolve - results surface in the post-battery review.)"
+            ]
+          },
+          "hintPolicy": "none-during-battery",
+          "hintPolicyNote": "Assessment item: no hint ladder during the battery; taxonomy evidence still logs and remediation schedules after the battery resolves.",
+          "authoringNote": "Transfer dimension 2 with the unseen pairing graph -> table: teaching covered table -> graph construction (int-03) and graph -> numeric slope reads (disc-02, pr-01), never matching a graphed line to a table by rate. Assessment-register MC: exactly 3 distractors, each produced by a named taxonomy error path (rates 3, 30, 55 vs key rate 15 - pairwise distinct). All four tables share start value 10 so ONLY the rate discriminates. Line y = 15x + 10 puts both labeled points and the intercept on gridline intersections (25 = 5 squares, 55 = 11 squares). Generator constraints verified: s_x = 1 != s_y = 5 (arms §2.11), |Δx| = 2 != 1 (§2.1 live), y1 = 25 != 0 and y2 = 55 != m (arms §2.8), m = 15 (|m| != 1). Clean values by construct: gridline alignment requires them (construct-integrity exemption, MANIFEST §5)."
+        }
+      ]
+    },
+    "dimension3": {
+      "definition": "No story, symbolic - decontextualized form. (new_plan/CLAUDE.md §5.3)",
+      "items": [
+        {
+          "id": "ALG-L06-gold-tb-d3-01",
+          "archetype": "transfer-battery",
+          "batteryDimension": "transfer dimension 3 (no story, symbolic - decontextualized)",
+          "phase": "P3",
+          "sport": "neutral",
+          "difficulty": 3,
+          "standard": "8.F.B.4",
+          "skillId": "ALG-L06",
+          "prompt": "Two points on a line are recorded as x₁ = 4, y₁ = 21, x₂ = 10, and y₂ = 6. What is the slope m of the line?",
+          "answerType": "numeric",
+          "correctAnswer": "-5/2",
+          "acceptedEquivalents": ["-2.5", "-15/6"],
+          "misconceptionMap": [
+            {
+              "trigger": "-15",
+              "tag": "forgot-denominator",
+              "signature": "Δy = 6 - 21 = -15 reported as the slope (§2.1; |Δx| = 6 != 1)"
+            },
+            {
+              "trigger": "5/2",
+              "tag": "inconsistent-subtraction-order",
+              "signature": "-m = |m| = 5/2 since m = -5/2 < 0: ambiguous between §2.2 and §2.5 - log the pair, tag neither active, queue a positive-slope probe per the collision matrix"
+            },
+            {
+              "trigger": "-2/5",
+              "tag": "inverted-ratio",
+              "signature": "Δx/Δy = 6/(-15) = -2/5 = 1/m (§2.3; |m| = 5/2 != 1)"
+            },
+            {
+              "trigger": "-4/17",
+              "tag": "subtracts-within-points",
+              "signature": "(y₂ - x₂)/(y₁ - x₁) = (6 - 10)/(21 - 4) = -4/17: differences formed inside each subscript group instead of across points (§2.7; y1 = 21 != x1 = 4). The subscript-assignment surface is exactly where §2.7's '2-stuff over the 1-stuff' parsing lives - this item is its sharpest probe"
+            },
+            {
+              "trigger": "-21",
+              "tag": "slope-as-difference",
+              "signature": "Δy - Δx = -15 - 6 = -21 (§2.6 variant (a))"
+            },
+            {
+              "trigger": "-4",
+              "tag": "slope-as-difference",
+              "signature": "y₂ - x₂ = 6 - 10 = -4 (§2.6 variant (b))"
+            }
+          ],
+          "visual": null,
+          "visualNote": "Deliberately none (argued, per the no-nulls convention): transfer dimension 3 assesses the decontextualized symbolic form; a plane or table would reintroduce exactly the representation support this dimension exists to remove. The lesson §6 subscript notation (x₁, y₁, x₂, y₂ as 'name tags') is the item's entire surface.",
+          "hintPolicy": "none-during-battery",
+          "hintPolicyNote": "Assessment item: no hint ladder during the battery; taxonomy evidence still logs and remediation schedules after the battery resolves.",
+          "authoringNote": "Transfer dimension 3 in the lesson §6 notation. Structurally fresh: every teaching item (live and gold) presents coordinates as ordered pairs '(4, 21)'; here they arrive as four separated subscript assignments, so the student must bind each subscript to its role before any arithmetic - unseen surface, same structure. Generator constraints verified on x₁=4, y₁=21, x₂=10, y₂=6: |Δx| = 6 != 1, |m| = 5/2 != 1, y1 = 21 != x1 = 4 (§2.6 variants and §2.7 denominators live), y1 != 0. Armed traps {-15, 5/2, -2/5, -4/17, -21, -4} pairwise distinct and distinct from the key -5/2; accepted equivalents (-2.5, -15/6) collision-checked against all traps (no matches). Negative fraction slope keeps the §2.2/§2.5 ambiguity honest at the gate (pair logged, probe queued, per the matrix)."
+        }
+      ]
+    },
+    "dimension4": {
+      "definition": "Novel problem form - a question shape not seen during teaching. (new_plan/CLAUDE.md §5.4)",
+      "items": [
+        {
+          "id": "ALG-L06-gold-tb-d4-01",
+          "archetype": "transfer-battery",
+          "batteryDimension": "transfer dimension 4 (novel problem form)",
+          "novelForm": "inverse: slope and one point given, a second point's y-coordinate given - find its x-coordinate (the slope relation run backward, solving for the input)",
+          "phase": "P3",
+          "sport": "neutral",
+          "difficulty": 4,
+          "standard": "8.F.B.4",
+          "skillId": "ALG-L06",
+          "prompt": "A line has a slope of 5 and passes through the point (4, 7). The line also passes through a second point with y-coordinate 42. What is the x-coordinate of that second point?",
+          "answerType": "numeric",
+          "correctAnswer": "11",
+          "misconceptionMap": [
+            {
+              "trigger": "8.4",
+              "tag": "slope-as-single-point-ratio",
+              "signature": "x = y/m = 42/5 = 8.4: believes every point satisfies y/x = m, solving 42/x = 5 (§2.9; armed because b = 7 - 5*4 = -13 != 0; separation |8.4 - 11| = 2.6 exceeds 2x grading tolerance)"
+            },
+            {
+              "trigger": "179",
+              "tag": "inverted-ratio",
+              "signature": "believes m = Δx/Δy, so Δx = 5 * 35 = 175 and x = 4 + 175 = 179 - the §2.3 inversion run through the inverse form (|m| = 5 != 1)"
+            },
+            {
+              "trigger": "34",
+              "tag": "slope-as-difference",
+              "signature": "believes slope compares the changes by subtraction: 5 = 35 - Δx gives Δx = 30 and x = 4 + 30 = 34 - §2.6 solved inversely (y1 = 7 != x1 = 4)"
+            }
+          ],
+          "visual": null,
+          "visualNote": "Deliberately none (argued, per the no-nulls convention): the novel form asks the student to run the slope relation backward from the symbolic statement alone. Plotting the line with the target height y = 42 would let rise and run be read off the picture, collapsing the inverse move into a forward graph-read and voiding the dimension.",
+          "hintPolicy": "none-during-battery",
+          "hintPolicyNote": "Assessment item: no hint ladder during the battery; taxonomy evidence still logs and remediation schedules after the battery resolves.",
+          "authoringNote": "Transfer dimension 4. Novel-form verification against the full teaching bank: all 62 live ALG-L06 items are forward two-point slope computations; the gold bank's only coordinate-finding part (scaf-03 part (b)) is forward (x given, find y, slope self-computed from part (a)). No item anywhere gives m and asks for a missing coordinate, and solving for the INPUT coordinate x is doubly absent - the question shape is unseen. Correct path: Δy = 42 - 7 = 35; Δx = Δy/m = 35/5 = 7; x = 4 + 7 = 11. Generator constraints verified: |m| = 5 != 1 (else the §2.3 inverse trap collapses onto the key), Δx = 7 != 1, Δy/m integral (keeps the inverse path clean by construct), b = -13 != 0 (arms §2.9). Armed traps {8.4, 179, 34} pairwise distinct and distinct from the key 11. The bare answer '7' (Δx typed instead of the coordinate) is a slip, not a taxonomy belief: it logs misconception_tag null per §2.15 and feeds the taxonomy-growth loop."
+        }
+      ]
+    }
+  }
+}
