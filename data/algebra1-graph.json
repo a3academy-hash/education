@@ -26,7 +26,7 @@
       "needs_review",
       "prerequisite_gap"
     ],
-    "notes": "prereqs[] are the source of truth; edges[] must mirror them exactly (validated). problems p1/p2/p3 and workedExamples are authored later per prompts/03-curriculum-graph-builder.md; misconceptionTags must exist in the top-level misconceptionRegistry; standards codes pending mr-kahn verification pass"
+    "notes": "prereqs[] are the source of truth; edges[] must mirror them exactly (validated). problems p1/p2/p3 and workedExamples are authored later per prompts/03-curriculum-graph-builder.md; misconceptionTags must exist in the top-level misconceptionRegistry; standards codes pending mr-kahn verification pass ALG-L19 is a stub (empty banks + workedExamples) pending its Phase 3 enriched bank; remove this sentence when the bank lands."
   },
   "domains": [
     {
@@ -50544,8 +50544,7 @@
       ],
       "standards": {
         "ccss": [
-          "8.EE.B.5",
-          "F-IF.B.6"
+          "8.EE.B.5"
         ],
         "state": null
       },
@@ -78594,6 +78593,47 @@
             "calculatorFlag": "no_calculator"
           }
         ]
+      }
+    },
+    {
+      "id": "ALG-L19",
+      "title": "Average Rate of Change over an Interval",
+      "domain": "linear",
+      "tier": 2,
+      "prereqs": [
+        "ALG-L03",
+        "ALG-L05",
+        "ALG-L06"
+      ],
+      "standards": {
+        "ccss": [
+          "F-IF.B.6"
+        ],
+        "state": null
+      },
+      "objective": "Calculate the average rate of change of a function over a specified interval [a, b] from a table, symbolically as (f(b) − f(a))/(b − a), or estimated from a graph, and interpret its sign, size, and interval-dependence for nonlinear functions.",
+      "misconceptionTags": [
+        "assumes-constant-rate-nonlinear",
+        "rate-not-per-unit",
+        "slope-as-single-point-ratio",
+        "forgot-denominator",
+        "slope-as-difference"
+      ],
+      "visual": "coordinate",
+      "contextHooks": {
+        "baseball": "8 hits through game 10, 44 through game 30: (44 − 8)/(30 − 10) = 1.8 hits per game over that stretch — hotter than his 0.8 start.",
+        "softball": "A pitcher's strikeout total: 30 through game 5, 48 through game 10 — an average of 3.6 per game lately, down from her 6.0 early pace.",
+        "basketball": "Season points: 120 through game 10, 210 through game 15 — an average of 18 per game over that stretch, up from 12 before it.",
+        "soccer": "10 goals through match 10, 22 through match 16 — the club averaged 2 per match over the last six, double its early rate.",
+        "football": "Cumulative rushing yards: 400 through game 4, 1000 through game 8 — 600 over 4 games is 150 per game, up from 100.",
+        "volleyball": "Her kill total: 6 through set 2, 18 through set 5 — (18 − 6)/(5 − 2) = 4 kills per set late, up from 3.",
+        "neutral": "For f(x) = x² on [1, 4]: (f(4) − f(1))/(4 − 1) = 15/3 = 5 — the average rate over that interval, not the rate everywhere."
+      },
+      "workedExamples": [],
+      "problems": {
+        "p1": [],
+        "p2": [],
+        "p3": []
       }
     },
     {
@@ -135912,6 +135952,18 @@
     {
       "from": "ALG-Q03",
       "to": "ALG-Q07"
+    },
+    {
+      "from": "ALG-L03",
+      "to": "ALG-L19"
+    },
+    {
+      "from": "ALG-L05",
+      "to": "ALG-L19"
+    },
+    {
+      "from": "ALG-L06",
+      "to": "ALG-L19"
     }
   ]
 }

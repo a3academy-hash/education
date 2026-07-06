@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { validateGraph } from "../index";
 import realGraph from "../../../data/algebra1-graph.json";
 import type { ValidationIssue } from "@/types";
@@ -97,9 +97,9 @@ describe("validateGraph — real data/algebra1-graph.json", () => {
     expect(report.valid).toBe(true);
   });
 
-  it("has the expected shape: 74 nodes, 114 edges, single root ALG-F01", () => {
-    expect(report.stats.nodes).toBe(74);
-    expect(report.stats.edges).toBe(114);
+  it("has the expected shape: 75 nodes, 117 edges, single root ALG-F01", () => {
+    expect(report.stats.nodes).toBe(75);
+    expect(report.stats.edges).toBe(117);
     expect(report.stats.roots).toEqual(["ALG-F01"]);
   });
 });

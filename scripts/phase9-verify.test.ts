@@ -1,4 +1,4 @@
-// scripts/phase9-verify.test.ts — Phase 9 FULL VERIFICATION harness (GOAL.md).
+﻿// scripts/phase9-verify.test.ts — Phase 9 FULL VERIFICATION harness (GOAL.md).
 // Runs via the vitest resolver (NOT bare node — dir imports + @/ alias). Proves
 // the measurable GOAL.md domains over the LIVE artifacts and writes a report to
 // phases/phase-9-verify-report.md when PHASE9_REPORT=1. Each block ASSERTS its
@@ -155,7 +155,7 @@ describe("Phase 9 — full verification (GOAL.md)", () => {
     const median = samples[Math.floor(samples.length / 2)];
     const p95 = samples[Math.floor(samples.length * 0.95)];
     line(
-      `## Performance (74-node graph, all assessed, 30 runs)\n- median engine loop: **${median.toFixed(1)}ms**\n- p95: ${p95.toFixed(1)}ms\n- budget: <800ms`,
+      `## Performance (75-node graph, all assessed, 30 runs)\n- median engine loop: **${median.toFixed(1)}ms**\n- p95: ${p95.toFixed(1)}ms\n- budget: <800ms`,
     );
     expect(median).toBeLessThan(800);
     expect(p95).toBeLessThan(800);

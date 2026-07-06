@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { computeOverlay, MASTERY_GATE, propagateDiagnosticCredit } from "./overlay";
 import { computeMasteryAll, MASTERY_CONFIG } from "../mastery-engine";
 import realGraphJson from "../../data/algebra1-graph.json";
@@ -8,16 +8,16 @@ const realGraph = realGraphJson as unknown as CurriculumGraph;
 const NOW = "2026-06-10T00:00:00.000Z";
 
 describe("computeOverlay — smoke test over the real graph", () => {
-  it("with empty state: 74 nodes, ALG-F01 on the frontier, no recommendation field", () => {
+  it("with empty state: 75 nodes, ALG-F01 on the frontier, no recommendation field", () => {
     const { results } = computeMasteryAll("stu-1", {}, realGraph, NOW);
     const overlay = computeOverlay(realGraph, {}, results);
-    expect(overlay.nodes).toHaveLength(74);
+    expect(overlay.nodes).toHaveLength(75);
 
     const root = overlay.nodes.find((n) => n.skillId === "ALG-F01");
     expect(root?.frontier).toBe(true);
     expect(root?.effectiveStatus).toBe("unknown");
     expect(overlay.summary.frontier).toBe(1);
-    expect(overlay.summary.locked).toBe(73);
+    expect(overlay.summary.locked).toBe(74);
 
     // Recommendations are owned by the adaptive router now.
     expect("recommendation" in overlay).toBe(false);
