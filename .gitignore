@@ -24,3 +24,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# scratch authoring workspace (never commit - may hold copyrighted analysis corpora)
+.authoring-tmp/
