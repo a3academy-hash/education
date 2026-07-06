@@ -1,0 +1,765 @@
+{
+  "file": "gold-node-variants.json",
+  "node": "ALG-L06",
+  "standard": "8.F.B.4",
+  "envelopeVersion": "1.0.0-D5",
+  "status": "DRAFT - pending Matt review",
+  "sources": {
+    "consumerSpec": ".authoring-tmp/remote-specs/INTEREST_DOMAINS.md (domain list SS2, surface map SS3, invariance contract SS4, triage SS5, hard constraints SS6.1/SS6.2)",
+    "runtimeCall": ".authoring-tmp/remote-specs/RUNTIME_TUTOR_SPEC.md SS3.3 (interest-variant instantiation: filledItem + structureUnchanged assertion + solver-equivalence check + host-verified domainSafetyCertified)",
+    "items": "docs/gold-node/gold-node-items.json (15 items)",
+    "archetypeSkinningRules": "docs/archetypes/archetype-*.md, section f of each",
+    "d1Precedent": "docs/gold-node/GOLD_NODE_LESSON.md SS1 per-sport hook substitution table (covers the LESSON hook; this envelope covers the ITEMS)"
+  },
+  "invarianceContract": {
+    "frozenFields": [
+      "numericValues (every parameter, coordinate, delta, coefficient, magnitude - labels swap, numbers never)",
+      "correctAnswers and acceptedEquivalents (including resolveCorrectAnswer / resolveAcceptedEquivalents)",
+      "trapValues and misconceptionMap entries (trigger values/predicates, tags, signatures, entry IDs - a skin may not change which wrong answer keys which taxonomy tag)",
+      "collisionAvoidanceGeneratorConstraints (|dx| != 1, |m| != 1, y1 != x1, y1 != 0, b != 0 where armed - hold trivially since numbers are frozen)",
+      "partStructureAndOrder (part count, part sequence, questionId order, answerType per part)",
+      "choiceStructureAndKeying (choice count, correct choice ID, distractor-to-tag keying)",
+      "shownWorkArithmeticStrings (error-analysis: step count, break-step index, every arithmetic string byte-identical; nouns only swap)",
+      "interactionScoringPredicates (correctWhen formulas, trap-state predicates, submittedState ranges, snap resolution, fixed points, start states)",
+      "visualGeometry (axis ranges, gridline_every, units_per_gridline, point positions, arrow anchors, panel scales and the s_x/s_y relationship, reveal_beat sequence - only axis-label NOUNS swap)",
+      "difficulty",
+      "phase (P1/P2/P3 designation and the P3-neutral mastery requirement)",
+      "standard and skillId",
+      "hintLadderRef keying (generic + perTag refs; only nouns inside templated hint text swap)",
+      "presentationClass (named-quantity vs bare-pair - a skin must never flip it; taxonomy collision rules key on it)"
+    ],
+    "swappableSlots": [
+      {
+        "slotType": "persona",
+        "rule": "Peer/persona names and roles; demographically realistic per the content-persona realism rule; always fictional."
+      },
+      {
+        "slotType": "context-noun",
+        "rule": "Entity nouns (team/jar/gauge), x-entity nouns (game/week/day), y-entity nouns (runs/dollars/mm). The context quantities must BE the axes' quantities, never decoration (structural-skin rule)."
+      },
+      {
+        "slotType": "unit-label",
+        "rule": "Unit NAMES only (games, dollars, mm, miles); the quantity type stays dimensionally faithful - a rate stays a rate, a cumulative total stays cumulative."
+      },
+      {
+        "slotType": "scenario-sentence",
+        "rule": "The one-sentence situation the numbers live in; must not add reading load, ambiguity, or prior-knowledge barriers the certified item lacked (psychometric equivalence, new_plan/CLAUDE.md SS9.5)."
+      }
+    ],
+    "byteIdenticalRule": "Every frozen element of a rendered variant must be byte-identical to the certified item; the only permitted diffs are noun/unit-label token substitutions inside the declared slots (INTEREST_DOMAINS SS4 swap-validity gate (a)).",
+    "presentationClassFreeze": true,
+    "solverEquivalenceRequired": true,
+    "swapValidityGate": {
+      "a": "All frozen elements byte-identical except declared noun/unit-label slots",
+      "b": "The domain's realistic-number guidelines are satisfied by the LABELS without touching the VALUES (if realism and the frozen number conflict, the domain does not carry the item)",
+      "c": "The domain's SS3 surface map marks the item's concept (slope / rate of change for ALG-L06) at full or workable fidelity",
+      "onFail": "Fall back to the neutral certified template (first-class, not degraded - RUNTIME_TUTOR_SPEC SS4)"
+    },
+    "runtimeConsumer": {
+      "call": "RUNTIME_TUTOR_SPEC SS3.3 interest-variant instantiation",
+      "outputs": ["filledItem", "structureUnchanged", "slotFilled", "seductiveDetailFree", "domain", "domainSafetyCertified"],
+      "hostChecks": [
+        "solver-equivalence check must pass before display (structureUnchanged is an assertion, not proof)",
+        "domainSafetyCertified is host-verified against the SS6.1 banned-quantity lists for fitness/social skins - never trusted from model self-attestation",
+        "on any failure: retry once, then serve the neutral certified template; the lesson never stalls"
+      ]
+    }
+  },
+  "domainRegistry": [
+    { "id": "baseball", "triageClass": "high-fidelity (platform sport, default anchor)", "slopeFidelity": "full", "hardConstraintsRef": null, "fillTarget": false, "note": "Platform-sport surfaces already exist per item (currentSurface) and per the D1 hook substitution table; sport-to-sport swaps follow that precedent, not this envelope's perDomain fills." },
+    { "id": "softball", "triageClass": "high-fidelity (platform sport)", "slopeFidelity": "full", "hardConstraintsRef": null, "fillTarget": false, "note": "Reuses baseball surfaces 1:1 with noun swaps (INTEREST_DOMAINS SS2 #2)." },
+    { "id": "basketball", "triageClass": "high-fidelity (platform sport)", "slopeFidelity": "full", "hardConstraintsRef": null, "fillTarget": false, "note": "Certified surface for pr-01, ea-02, disc-03." },
+    { "id": "soccer", "triageClass": "high-fidelity (platform sport)", "slopeFidelity": "full", "hardConstraintsRef": null, "fillTarget": false, "note": "Certified surface for int-01." },
+    { "id": "football", "triageClass": "high-fidelity (platform sport)", "slopeFidelity": "full", "hardConstraintsRef": null, "fillTarget": false, "note": "Certified surface for scaf-02, int-02, disc-02." },
+    { "id": "volleyball", "triageClass": "high-fidelity (platform sport)", "slopeFidelity": "workable", "hardConstraintsRef": null, "fillTarget": false, "note": "Narrower stat vocabulary (SS3 marks slope/RoC workable); per-sport surfaces via the D1 precedent." },
+    { "id": "personal-finance", "triageClass": "high-fidelity", "slopeFidelity": "full", "hardConstraintsRef": "SS6.2 advisory: plausible rates and prices only (savings 1-5% APY, no get-rich figures); simple counted dollar totals are safe ground", "fillTarget": true },
+    { "id": "gaming", "triageClass": "high-fidelity", "slopeFidelity": "full", "hardConstraintsRef": "SS6.2 advisory: XP/scores/quests/resources only; NO loot-box, gacha, or gambling-style monetization framing", "fillTarget": true },
+    { "id": "fitness", "triageClass": "high-fidelity (scoped, hard-constrained)", "slopeFidelity": "full", "hardConstraintsRef": "SS6.1 HARD (fatal-class): performance quantities only (pace/distance/time/reps/sets/training load); BANNED as quantity, target, or framing: body weight, weight change/loss/gain targets, calories, body-fat/BMI/body-composition, measurement/clothing sizes, before/after or deficit/surplus framing. Test: 'how fast / how far / how many reps', never 'how much you weigh / how many calories / how much to lose'. Host-verified at runtime (RUNTIME SS3.3).", "fillTarget": true },
+    { "id": "weather", "triageClass": "high-fidelity", "slopeFidelity": "full", "hardConstraintsRef": "Realistic-number guideline only: regionally plausible temps/precip", "fillTarget": true },
+    { "id": "travel", "triageClass": "high-fidelity", "slopeFidelity": "full", "hardConstraintsRef": "Realistic-number guideline only: legal speeds, real distances, plausible mpg", "fillTarget": true },
+    { "id": "automotive", "triageClass": "high-fidelity (scoped)", "slopeFidelity": "full", "hardConstraintsRef": "Realistic-number guideline only: real mpg, market prices; slightly higher prior-knowledge barrier - prefer fuel-log/speed framings", "fillTarget": true },
+    { "id": "cooking", "triageClass": "route-to-default (for this node)", "slopeFidelity": "contrived", "hardConstraintsRef": "SS6.2 advisory: real portions", "fillTarget": false, "note": "INTEREST_DOMAINS SS3 marks cooking slope/rate-of-change as contrived ('no natural rate of change over an interval; forcing it invents fake scenarios' - SS3 known failure mode). Every ALG-L06 item routes cooking-declared students to a secondary domain, the baseball anchor, or neutral (SS5 triage step 2). No fills authored - by spec, not omission." },
+    { "id": "music", "triageClass": "light-treatment (opt-in, narrow)", "slopeFidelity": "workable (BPM/tempo/count framings ONLY; dB/pitch are logarithmic and banned from linear contexts)", "hardConstraintsRef": "SS6.2 advisory: avoid log-as-linear", "fillTarget": false, "note": "Light domains are opt-in and never a default floor (SS1 criterion 4, SS2 #11). Not part of the high-fidelity fill set; fills authored on demand under the tempo/count-only rule." },
+    { "id": "social-media", "triageClass": "light-treatment (opt-in, hard-constrained)", "slopeFidelity": "workable", "hardConstraintsRef": "SS6.1 HARD (fatal-class): growth-rate math on clearly fictional accounts only; BANNED: follower/like/view counts as norm/goal/target, 'going viral' or overnight-growth framing, real or student-identifiable accounts, personal data, comparative vanity framing. COPPA posture: no personal data, no third-party trackers, no live-platform references. Host-verified at runtime.", "fillTarget": false, "note": "Light + opt-in (SS2 #12), and ALG-L06's cumulative-count item premises sit close to the count-as-goal banned framing, so this envelope routes social-media to default for this node rather than authoring borderline fills. Not a spec gap - the SS5 triage's route-to-default arm." }
+  ],
+  "highFidelityFillSet": ["personal-finance", "gaming", "fitness", "weather", "travel", "automotive"],
+  "densityConvention": "EXPLICIT DENSITY CONVENTION (stated so it is not mistaken for missing work): two exemplar items - ALG-L06-gold-scaf-01 (scaffolded P1) and ALG-L06-gold-ea-01 (error-analysis P2) - carry COMPLETE perDomain fills across all six domains in highFidelityFillSet (with an explicit route-to-default where a domain cannot carry the item). Every OTHER skinnable item carries full slot definitions plus demonstrable fills for exactly TWO domains; its remaining high-fidelity fills are mechanical applications of the same slots, authored at batch-regen time under the same swap-validity gate. Platform-sport fills are never authored in this envelope (see domainRegistry notes).",
+  "itemEnvelopes": [
+    {
+      "itemId": "ALG-L06-gold-scaf-01",
+      "archetype": "scaffolded-multistep",
+      "phase": "P1",
+      "currentSurface": "baseball",
+      "skinnable": true,
+      "skinnableReason": "P1 cumulative-count two-snapshot premise; the archetype 'skins well overall' (archetype-scaffolded-multistep section f); slope is full fidelity in every fill-set domain.",
+      "fillDensity": "exemplar-complete",
+      "constraints": [
+        "Capstone re-verification: part (d) distractors are context-worded; after any fill, re-verify no distractor has become a restatement of the correct per-unit reading in the new context (the cumulative-context hazard travels with the skin). Verified below for all fills.",
+        "Numbers frozen: (4,10)-(9,30), rise 20, run 5, m = 4, b = -6; all trap values and their tag keying unchanged."
+      ],
+      "slots": [
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "A team had 10 total runs scored after game 4 and 30 total runs after game 9. Find the team's scoring pace one move at a time.",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "personal-finance": "A student's savings jar held 10 dollars after week 4 and 30 dollars after week 9. Find the saving pace one move at a time.",
+            "gaming": "A player had 10 total quests cleared after day 4 and 30 total quests after day 9. Find the questing pace one move at a time.",
+            "fitness": "A runner's training log showed 10 total miles after workout 4 and 30 total miles after workout 9. Find the training pace one move at a time.",
+            "weather": "A rain gauge showed 10 mm of total rainfall after day 4 and 30 mm after day 9. Find the rainfall pace one move at a time.",
+            "travel": "A walking-challenge app showed 10 total miles after day 4 and 30 total miles after day 9. Find the walking pace one move at a time.",
+            "automotive": "A family's fuel log showed 10 total gallons pumped after week 4 and 30 total gallons after week 9. Find the fuel pace one move at a time."
+          }
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "game",
+          "appearsIn": ["parts a/b/c prompts", "part d choices", "visual x_axis label 'Games played'", "reveal_beats captions", "templated hint nouns"],
+          "perDomain": { "personal-finance": "week", "gaming": "day", "fitness": "workout", "weather": "day", "travel": "day", "automotive": "week" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "runs (run total)",
+          "appearsIn": ["parts a/c prompts", "part d choices", "visual y_axis label 'Total runs'", "visual readout", "reveal_beats captions"],
+          "perDomain": { "personal-finance": "dollars (jar total)", "gaming": "quests (quest total)", "fitness": "miles (mileage total)", "weather": "mm of rain (rainfall total)", "travel": "miles (mileage total)", "automotive": "gallons (fuel total)" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "runs per game",
+          "appearsIn": ["part c prompt", "part d choice A", "visual readout '20 / 5 = 4 runs per game'", "reveal beat '+4 runs each game'"],
+          "perDomain": { "personal-finance": "dollars per week", "gaming": "quests per day", "fitness": "miles per workout", "weather": "mm per day", "travel": "miles per day", "automotive": "gallons per week" }
+        },
+        {
+          "slotId": "capstone-choice-nouns",
+          "slotType": "context-noun",
+          "currentValue": "part (d) choices A-D worded with 'run total / runs / game(s)'; e.g. D = 'The run total is always 4 times the game number.'",
+          "appearsIn": ["part d choices"],
+          "perDomain": {
+            "personal-finance": "'jar total / dollars / week(s)'; D = 'The jar total is always 4 times the week number.' (still false: b = -6)",
+            "gaming": "'quest total / quests / day(s)'; D = 'The quest total is always 4 times the day number.'",
+            "fitness": "'mileage total / miles / workout(s)'; D = 'The mileage total is always 4 times the workout number.'",
+            "weather": "'rainfall total / mm / day(s)'; D = 'The rainfall total is always 4 times the day number.'",
+            "travel": "'mileage total / miles / day(s)'; D = 'The mileage total is always 4 times the day number.'",
+            "automotive": "'fuel total / gallons / week(s)'; D = 'The fuel total is always 4 times the week number.' (still false: b = -6)"
+          }
+        }
+      ],
+      "frozen": [
+        "points (4,10) and (9,30); answers a=20, b=5, c=4, d=A",
+        "trap values a:-20, a:30, b:-5, c:20, c:-4, c:1/4, c:15, d:B, d:C, d:D and their tags/signatures/entry IDs",
+        "part structure a-d and answerTypes; choice count and keying",
+        "visual V-GN-SCAF01 geometry: axis ranges [0,10]/[0,32], gridlines 1/4, point positions, arrow anchors, reveal_beat sequence",
+        "difficulty 2, phase P1, hintLadderRef keying",
+        "presentation class: named-quantity two-snapshot (never rendered as a bare coordinate pair)"
+      ],
+      "authenticityCheck": {
+        "personal-finance": "4 dollars/week is allowance-scale saving; a jar total is a genuinely cumulative counted quantity - weeks/dollars ARE the axes (structural-skin rule).",
+        "gaming": "4 quests/day is an ordinary casual-play pace; cumulative quest counts are native to the domain; no monetization surface (SS6.2 clean).",
+        "fitness": "4 miles per workout is a teen-safe running volume; pure how-far performance quantity - no SS6.1 banned quantity in stem, parts, choices, or visual.",
+        "weather": "4 mm/day steady accumulation is regionally plausible; a rain-gauge total is cumulative by physical construction.",
+        "travel": "4 miles/day on a walking-challenge app is realistic; app mileage totals are cumulative by design.",
+        "automotive": "4 gallons/week on a household fuel log matches light real-world driving (same week-scale reading already ruled authentic for ea-01's automotive fill); gallons-pumped-through-week-N is genuinely cumulative - weeks/gallons ARE the axes. Supersedes the earlier null, which tested only hour-scale readings (4 gallons/hour, 4 miles/hour) and never the week-scale fuel log. Capstone re-verified per archetype-scaffolded-multistep section f: under the fuel-log context, (d) A reads 'The fuel total climbs by 4 gallons each week' (the per-unit key); B ('It takes 4 weeks for the fuel total to climb by 1 gallon') stays false and keeps its inverted-ratio keying; C ('The fuel total climbed 20 gallons over those 5 weeks') stays a whole-interval truth that is NOT a restatement of the per-unit reading - the SS2.10 keying, exactly as on the baseball surface; D stays false (b = -6: week 4 shows 10 gallons, not 16). No distractor becomes a true reading of the slope's meaning."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-scaf-02",
+      "archetype": "scaffolded-multistep",
+      "phase": "P2",
+      "currentSurface": "football",
+      "skinnable": true,
+      "skinnableReason": "Negative-slope scaffold; skinnable wherever a domain has an authentic FALLING remaining-quantity (a 'to-go' total) at 6 units per interval on the frozen values.",
+      "fillDensity": "demonstrative-2-domain",
+      "constraints": [
+        "The falling quantity must be a real remaining/countdown measure in the domain - never a rising total relabeled (the sign is the construct).",
+        "The -m/|m| collision handling (pair logged, neither tagged, positive-slope probe queued) is part of the frozen misconception structure and travels with every skin.",
+        "Part (c) choice C (24 per 4 plays, SS2.10 detection) keeps its interval wording under every fill - re-verify it never collapses into a restatement of A."
+      ],
+      "slots": [
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "A long drive is charted as yards-to-go against play number: 40 yards to go at play 2 and 16 to go at play 6 - the points (2, 40) and (6, 16).",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "travel": "A bike ride is charted as miles-to-go against hour number: 40 miles to go at hour 2 and 16 to go at hour 6 - the points (2, 40) and (6, 16).",
+            "gaming": "A season pass is charted as quests-to-go against day number: 40 quests to go at day 2 and 16 to go at day 6 - the points (2, 40) and (6, 16)."
+          },
+          "remainingDomains": "personal-finance (balance-to-go on a savings goal), fitness (miles-to-go in a distance challenge), weather, automotive - slots defined; fills authored at batch-regen per densityConvention."
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "play",
+          "appearsIn": ["parts a/b prompts", "part c choices", "visual x_axis label 'Play number'"],
+          "perDomain": { "travel": "hour", "gaming": "day" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "yards-to-go",
+          "appearsIn": ["prompt", "part b prompt", "part c choices", "visual y_axis label 'Yards to go'"],
+          "perDomain": { "travel": "miles-to-go", "gaming": "quests-to-go" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "yards-to-go per play",
+          "appearsIn": ["part b prompt", "visual readout '-24 / 4 = -6 per play'"],
+          "perDomain": { "travel": "miles-to-go per hour", "gaming": "quests-to-go per day" }
+        },
+        {
+          "slotId": "interpretation-choice-nouns",
+          "slotType": "context-noun",
+          "currentValue": "part (c) choices worded with 'yards-to-go / play(s) / drive'; A = 'The yards-to-go drops by 6 on each play.'",
+          "appearsIn": ["part c prompt and choices"],
+          "perDomain": {
+            "travel": "'miles-to-go / hour(s) / ride'; A = 'The miles-to-go drops by 6 on each hour.'",
+            "gaming": "'quests-to-go / day(s) / season pass'; A = 'The quests-to-go drops by 6 on each day.'"
+          }
+        }
+      ],
+      "frozen": [
+        "points (2,40) and (6,16); answers a=-24, b=-6, c=A",
+        "trap values a:24, b:6, b:-24, b:-1/6, c:B, c:C, c:D and their tags/signatures (including the SS2.2/SS2.5 pair-log rule)",
+        "part structure a-c; visual V-GN-SCAF02 geometry (ranges [0,8]/[0,45], gridlines 1/5, downward rise-arrow convention, reveal beats)",
+        "difficulty 3, phase P2, hintLadderRef keying, presentation class: named-quantity two-snapshot"
+      ],
+      "authenticityCheck": {
+        "travel": "A casual bike ride closing 6 miles per hour of remaining distance is a real pace; 'miles to go' is native to trip tracking (d = rt surface, SS2 #14).",
+        "gaming": "Season-pass quest backlogs genuinely burn down per day; clearing 6 quests/day is an observed pace; progression math only, no monetization (SS6.2 clean)."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-scaf-03",
+      "archetype": "scaffolded-multistep",
+      "phase": "P3",
+      "currentSurface": "neutral",
+      "skinnable": false,
+      "skinnableReason": "P3 phase discipline: P3 items are never skinned (archetype-scaffolded-multistep section f: 'P3 instances are neutral by phase discipline - never skinned'; INTEREST_DOMAINS SS4 freezes phase and the P3-neutral mastery requirement). Mastery requires demonstrated neutral transfer - skinning this item would corrupt the transfer signal.",
+      "renderPolicy": "Always the certified neutral surface, for every student, in every domain."
+    },
+    {
+      "itemId": "ALG-L06-gold-scaf-04",
+      "archetype": "scaffolded-multistep",
+      "phase": "P1",
+      "currentSurface": "baseball",
+      "skinnable": true,
+      "skinnableReason": "Skinnable, with the archetype's degenerate-case caution: zero slope must be AUTHENTIC in the fill domain (scaf-04's clean fielding streak makes a zero rate meaningful); a domain that cannot motivate a genuinely flat cumulative total routes this item to a carrying domain or neutral (section f caution + SS5 triage).",
+      "fillDensity": "demonstrative-2-domain",
+      "constraints": [
+        "Degenerate-case motivation: the flat stretch must be a real, desirable-or-natural zero in the domain (dry spell, no-spend streak) - never a contrived 'nothing happened'.",
+        "SS2.13 zero-vs-undefined keying and SS2.8 height-vs-slope keying are frozen; the fill's y-quantity must make 'height 8, tilt 0' readable."
+      ],
+      "slots": [
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "A team's fielding has been perfect lately: 8 total errors through game 3, and still 8 total errors through game 9 - the points (3, 8) and (9, 8).",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "weather": "A dry spell has settled in: 8 mm of total rainfall through day 3, and still 8 mm through day 9 - the points (3, 8) and (9, 8).",
+            "personal-finance": "A no-spend streak is holding: 8 dollars of total spending through day 3, and still 8 dollars through day 9 - the points (3, 8) and (9, 8)."
+          },
+          "remainingDomains": "gaming (deathless-run counter frozen mid-streak), fitness (rest-week: total race miles unchanged), travel, automotive - slots defined; fills authored at batch-regen per densityConvention."
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "game",
+          "appearsIn": ["part c prompt ('through game 12')", "part d choices", "visual x_axis label 'Game'"],
+          "perDomain": { "weather": "day", "personal-finance": "day" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "errors (error total)",
+          "appearsIn": ["parts a-d", "part d choices", "visual y_axis label 'Total errors'", "reveal captions ('the height is 8 errors; the tilt is 0')"],
+          "perDomain": { "weather": "mm of rain (rainfall total)", "personal-finance": "dollars (spending total)" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "errors per game",
+          "appearsIn": ["part d choice A ('added 0 new errors per game')", "visual readout '0 / 6 = 0 errors per game'"],
+          "perDomain": { "weather": "mm per day", "personal-finance": "dollars per day" }
+        },
+        {
+          "slotId": "capstone-choice-nouns",
+          "slotType": "context-noun",
+          "currentValue": "part (d) choices; C = 'The team has 0 total errors.' (wrong: the total is 8)",
+          "appearsIn": ["part d choices"],
+          "perDomain": {
+            "weather": "C = 'The gauge shows 0 mm of total rain.' (still wrong: the total is 8 - SS2.8 keying preserved)",
+            "personal-finance": "C = 'The total spending is 0 dollars.' (still wrong: the total is 8)"
+          }
+        }
+      ],
+      "frozen": [
+        "points (3,8) and (9,8), extension to (12,8); answers a=0, b=A, c=8, d=A",
+        "trap values a:8, b:B, b:C, c:0, d:B, d:C and their tags/signatures",
+        "visual V-GN-SCAF04 geometry (ranges [0,12]/[0,12], pinned zero-rise dot, dashed extension beat)",
+        "difficulty 2, phase P1, hintLadderRef keying, presentation class: named-quantity two-snapshot"
+      ],
+      "authenticityCheck": {
+        "weather": "A multi-day dry spell is the canonical authentic zero rate: the gauge total genuinely stays flat while days advance - the degenerate case is the story, not a trick.",
+        "personal-finance": "A no-spend streak is a real budgeting practice; a spending total that adds 0 dollars per day is meaningful and desirable, motivating slope 0."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-ea-01",
+      "archetype": "error-analysis",
+      "phase": "P2",
+      "currentSurface": "baseball",
+      "skinnable": true,
+      "skinnableReason": "The archetype 'skins adequately' (archetype-error-analysis section f); no collision-probe construction here; the peer must be working on the domain's own quantities, and a cumulative counting chart at 4 per interval exists authentically in every fill-set domain.",
+      "fillDensity": "exemplar-complete",
+      "constraints": [
+        "Shown-work steps swap NOUNS ONLY - the arithmetic strings ('28 - 7 = 21', '12 - 3 = 9', '21/9 = 7/3') are byte-identical across every skin (quasi-frozen prose rule).",
+        "Persona kept demographically realistic (content-persona realism); Ava's ROLE swaps with the domain, the mistake stays hers.",
+        "Diagnose distractor beliefs keep their signature mismatches (16, -4, 1/4 vs shown 21/9) - noun swaps must not alter any belief's implied computation."
+      ],
+      "slots": [
+        {
+          "slotId": "persona",
+          "slotType": "persona",
+          "currentValue": "Ava (charting a pitcher's strikeouts per start)",
+          "appearsIn": ["prompt", "diagnose prompt 'What did Ava think was true?'"],
+          "perDomain": {
+            "personal-finance": "Ava (charting her own savings jar by week)",
+            "gaming": "Ava (charting a teammate's boss clears by session)",
+            "fitness": "Ava (charting her swim-practice lap totals)",
+            "weather": "Ava (keeping the class rain-gauge chart)",
+            "travel": "Ava (logging her walking-challenge app by day)",
+            "automotive": "Ava (keeping the family fuel-purchase log by week)"
+          }
+        },
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "Ava charted a pitcher's strikeouts on a graph: 12 strikeouts through start 3 and 28 through start 7 - the points (3, 12) and (7, 28). Here is her work for his strikeouts-per-start. Find where it breaks.",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "personal-finance": "Ava charted her savings jar on a graph: 12 dollars through week 3 and 28 through week 7 - the points (3, 12) and (7, 28). Here is her work for her dollars-per-week pace. Find where it breaks.",
+            "gaming": "Ava charted a teammate's boss clears on a graph: 12 bosses through session 3 and 28 through session 7 - the points (3, 12) and (7, 28). Here is her work for his bosses-per-session pace. Find where it breaks.",
+            "fitness": "Ava charted her swim laps on a graph: 12 total laps through practice 3 and 28 through practice 7 - the points (3, 12) and (7, 28). Here is her work for her laps-per-practice pace. Find where it breaks.",
+            "weather": "Ava charted the class rain gauge on a graph: 12 mm through day 3 and 28 through day 7 - the points (3, 12) and (7, 28). Here is her work for the gauge's mm-per-day pace. Find where it breaks.",
+            "travel": "Ava charted her walking app on a graph: 12 total miles through day 3 and 28 through day 7 - the points (3, 12) and (7, 28). Here is her work for her miles-per-day pace. Find where it breaks.",
+            "automotive": "Ava charted the family fuel log on a graph: 12 gallons through week 3 and 28 through week 7 - the points (3, 12) and (7, 28). Here is her work for the gallons-per-week pace. Find where it breaks."
+          }
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "start",
+          "appearsIn": ["prompt", "shown-work step 4 unit label", "diagnose choice D", "visual left-panel column 'Start' and x_axis 'Starts'"],
+          "perDomain": { "personal-finance": "week", "gaming": "session", "fitness": "practice", "weather": "day", "travel": "day", "automotive": "week" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "strikeouts",
+          "appearsIn": ["prompt", "diagnose choices A/D", "visual column 'Total strikeouts' and y_axis label"],
+          "perDomain": { "personal-finance": "dollars", "gaming": "bosses", "fitness": "laps", "weather": "mm of rain", "travel": "miles", "automotive": "gallons" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "strikeouts per start",
+          "appearsIn": ["shown-work step 4 ('Slope = 21/9 = 7/3 strikeouts per start')", "visual readout '16 / 4 = 4 per start'"],
+          "perDomain": { "personal-finance": "dollars per week", "gaming": "bosses per session", "fitness": "laps per practice", "weather": "mm per day", "travel": "miles per day", "automotive": "gallons per week" }
+        }
+      ],
+      "frozen": [
+        "points (3,12) and (7,28); shown-work arithmetic strings and step count; break-step index (step 2); shown final answer 21/9 = 7/3",
+        "locate key step-2; diagnose key C; distractor beliefs A/B/D and their tag keying (forgot-denominator, inconsistent-subtraction-order, inverted-ratio) with signature values 16, -4, 1/4",
+        "visual V-GN-EA01 dual-representation geometry (table rows, axis ranges [0,8]/[0,32], arrow anchors, one-color within-point highlight convention, reveal beats)",
+        "difficulty 2, phase P2, hintLadderRef keying, presentation class: named-quantity two-snapshot"
+      ],
+      "authenticityCheck": {
+        "personal-finance": "A weekly jar chart rising 4 dollars/week is allowance-scale and genuinely cumulative; the peer's within-point subtraction is a mistake the chart itself makes visible.",
+        "gaming": "Boss-clear totals per session are a native progression stat; 4 clears/session is an ordinary pace; no monetization surface.",
+        "fitness": "Cumulative swim laps across practices is a pure how-many performance count (SS6.1 test passes); 4 laps/practice growth in a season log is teen-plausible.",
+        "weather": "A class rain-gauge chart is a standard middle-school data artifact; 4 mm/day over four days is regionally plausible.",
+        "travel": "Walking-app mileage accumulating 4 miles/day is realistic; the app's own chart IS the graph in the item.",
+        "automotive": "A household fuel log adding 4 gallons/week matches light real-world driving; gallons-through-week-N is genuinely cumulative."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-ea-02",
+      "archetype": "error-analysis",
+      "phase": "P2",
+      "currentSurface": "basketball",
+      "skinnable": true,
+      "skinnableReason": "Same archetype rules as ea-01; the SS2.6 subtract-instead-of-divide construction is context-independent as long as the domain generates a cumulative count at 6 per interval authentically.",
+      "fillDensity": "demonstrative-2-domain",
+      "constraints": [
+        "Shown-work steps 2-4 arithmetic byte-identical ('42 - 18 = 24', '6 - 2 = 4', '24 - 4 = 20'); nouns only swap.",
+        "Persona realism: Marcus stays a realistic peer; his role swaps with the domain.",
+        "Diagnose distractor signature mismatches (9/4, 24, '24 per 4') frozen."
+      ],
+      "slots": [
+        {
+          "slotId": "persona",
+          "slotType": "persona",
+          "currentValue": "Marcus (tracking a teammate's season points)",
+          "appearsIn": ["prompt", "diagnose prompt"],
+          "perDomain": {
+            "personal-finance": "Marcus (tracking his own savings by week)",
+            "weather": "Marcus (tracking the rain gauge by day)"
+          }
+        },
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "Marcus tracked a teammate's season points on a graph: 18 points through game 2 and 42 through game 6 - the points (2, 18) and (6, 42). Here is his work for her points-per-game rate. Find where it breaks.",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "personal-finance": "Marcus tracked his savings on a graph: 18 dollars through week 2 and 42 through week 6 - the points (2, 18) and (6, 42). Here is his work for his dollars-per-week rate. Find where it breaks.",
+            "weather": "Marcus tracked the rain gauge on a graph: 18 mm through day 2 and 42 through day 6 - the points (2, 18) and (6, 42). Here is his work for the gauge's mm-per-day rate. Find where it breaks."
+          },
+          "remainingDomains": "gaming, fitness, travel, automotive - slots defined; fills authored at batch-regen per densityConvention."
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "game",
+          "appearsIn": ["prompt", "shown-work steps 3-4 nouns", "visual column 'Game', x_axis 'Games'"],
+          "perDomain": { "personal-finance": "week", "weather": "day" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "points",
+          "appearsIn": ["prompt", "shown-work steps 2/4 nouns", "diagnose choices B/C", "visual column 'Total points', y_axis label"],
+          "perDomain": { "personal-finance": "dollars", "weather": "mm of rain" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "points per game",
+          "appearsIn": ["shown-work step 4 ('the rate is 24 - 4 = 20 points per game')", "visual readout '24 / 4 = 6 points per game'"],
+          "perDomain": { "personal-finance": "dollars per week", "weather": "mm per day" }
+        }
+      ],
+      "frozen": [
+        "points (2,18) and (6,42); shown-work arithmetic and step count; break-step index (step 4); shown answer 20",
+        "locate key step-4; diagnose key B; distractors A/C/D with tag keying and signature values 9/4, 24, '24 per 4'",
+        "visual V-GN-EA02 geometry (axis ranges [0,8]/[0,48], checkmark-then-glow convention, stacked '24 - 4' vs '24 / 4' reveal)",
+        "difficulty 2, phase P2, hintLadderRef keying, presentation class: named-quantity two-snapshot"
+      ],
+      "authenticityCheck": {
+        "personal-finance": "6 dollars/week saving is allowance-scale; comparing 'dollars changed' with 'weeks changed' is exactly the computation the domain generates.",
+        "weather": "6 mm/day accumulation over four days is a plausible wet stretch; the gauge chart makes the subtract-vs-divide confusion visible on real quantities."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-ea-03",
+      "archetype": "error-analysis",
+      "phase": "P3",
+      "currentSurface": "neutral",
+      "skinnable": false,
+      "skinnableReason": "P3 phase discipline: 'P3 instances neutral by phase discipline - never skinned (ea-03 class)' (archetype-error-analysis section f). The proportionality-overgeneralization diagnosis (SS2.9) is the node's key neutral-transfer discriminator.",
+      "renderPolicy": "Always the certified neutral surface."
+    },
+    {
+      "itemId": "ALG-L06-gold-pr-01",
+      "archetype": "predict-reveal",
+      "phase": "P2",
+      "currentSurface": "basketball",
+      "skinnable": false,
+      "skinnableReason": "Two independent neutral-default flags (archetype-predict-reveal section f): (1) collision-probe construction - the resolve implements the SS2.12/SS2.11 disambiguation pair, whose diagnostic value lives in exact parameter relationships; (2) the 'skins poorly - flagged' rule - the keyed construction needs domain-authentic values on all surfaces simultaneously (3 vs 20 per game is an authentic role-player/star spread in basketball; no fill-set domain was verified to sustain that exact engineered order-of-magnitude spread on the frozen numbers). Route to the certified basketball surface (platform students) or neutral - never bend the numbers.",
+      "renderPolicy": "Certified basketball surface for sport-track students per the existing per-sport mechanism; neutral for everyone else. No interest-domain fills authored - per the section f flag, not omission."
+    },
+    {
+      "itemId": "ALG-L06-gold-pr-02",
+      "archetype": "predict-reveal",
+      "phase": "P3",
+      "currentSurface": "neutral",
+      "skinnable": false,
+      "skinnableReason": "P3 phase discipline ('abstract P3 instantiations are neutral-default - pr-02 class') AND a collision-probe construction (the resolve's 7/4 trap implements the SS2.2/SS2.5 ambiguity-pair logging rule). Never skinned on both grounds.",
+      "renderPolicy": "Always the certified neutral surface."
+    },
+    {
+      "itemId": "ALG-L06-gold-int-01",
+      "archetype": "interactive",
+      "phase": "P1",
+      "currentSurface": "soccer",
+      "skinnable": true,
+      "skinnableReason": "Skinnable at P1 per the archetype (skins moderately well at P1/P2), under the integer-snap constraint: a snap step of 1 must correspond to a countable, authentic unit in the fill domain - fractional-only quantities cannot wear an integer-snap item (archetype-interactive section f).",
+      "fillDensity": "demonstrative-2-domain",
+      "constraints": [
+        "Integer-snap: y-axis unit must be countable in whole numbers (stars, whole dollars); a domain whose natural quantity is fractional at this scale (e.g. gallons, km at 0.1 resolution) fails gate (b) for this item.",
+        "Grid geometry, fixed point (2,3), start state (6,6), correctWhen '(y - 3) == 2 * (x - 2)', and every trap predicate are frozen - the state space IS the item.",
+        "The SS2.1/SS2.3 pattern-overlap handling inside the first trap predicate travels with every skin."
+      ],
+      "slots": [
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "A club has 3 total goals after match 2 - the fixed point (2, 3). Drag the second point anywhere on the grid so the club's scoring pace works out to exactly 2 goals per match.",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "gaming": "A player has 3 total stars after level 2 - the fixed point (2, 3). Drag the second point anywhere on the grid so the star pace works out to exactly 2 stars per level.",
+            "personal-finance": "A jar holds 3 dollars after week 2 - the fixed point (2, 3). Drag the second point anywhere on the grid so the saving pace works out to exactly 2 dollars per week."
+          },
+          "remainingDomains": "fitness (total sets after workout N, 2 sets per workout), weather (whole-mm gauge), travel - slots defined; fills authored at batch-regen per densityConvention. Automotive: likely fails the countable-unit test at this scale - triage at fill time."
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "match",
+          "appearsIn": ["prompt", "visual x_axis label 'Matches played'", "live readout 'goals per match'"],
+          "perDomain": { "gaming": "level", "personal-finance": "week" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "goals",
+          "appearsIn": ["prompt", "visual y_axis label 'Total goals'", "live readout"],
+          "perDomain": { "gaming": "stars", "personal-finance": "dollars" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "goals per match",
+          "appearsIn": ["prompt ('exactly 2 goals per match')", "live readout", "submit-incorrect pin 'target: 2 per match'"],
+          "perDomain": { "gaming": "stars per level", "personal-finance": "dollars per week" }
+        }
+      ],
+      "frozen": [
+        "fixed point (2,3); draggable start (6,6); snap: integer grid; ranges x [0,12], y [0,24]",
+        "correctWhen '(y - 3) == 2 * (x - 2)' with x != 2; all three trap predicates and their tags/signatures (including the SS2.15 pair-log rule inside trap 1)",
+        "visual V-GN-INT01 geometry, live-readout behavior (current ratio only, no answer leakage), reveal beats (valid-family ghost-in)",
+        "difficulty 2, phase P1, hintLadderRef keying"
+      ],
+      "authenticityCheck": {
+        "gaming": "Stars-per-level (3 stars per level max, 2 earned at a steady pace) is a native, countable progression quantity; integer snap matches whole stars.",
+        "personal-finance": "Whole-dollar jar totals at 2 dollars/week are countable and allowance-scale; integer snap matches whole dollars."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-int-02",
+      "archetype": "interactive",
+      "phase": "P2",
+      "currentSurface": "football",
+      "skinnable": true,
+      "skinnableReason": "Skinnable at P2; the arrow-builder embodies the SS2.2 remediation move and is already context-light, but the falling 'to-go' quantity has authentic carriers in the fill set. Not a disambiguation probe (no collision pair in its map), so the construct-probe neutral-default flag does not bind.",
+      "fillDensity": "demonstrative-2-domain",
+      "constraints": [
+        "The y-quantity must be an authentic remaining/countdown measure falling 3 per interval on the frozen coordinates (2,30)-(8,12).",
+        "All four consistent-traversal acceptance states and both trap predicates (mixed-direction, role-swap) are frozen - direction is the assessed object.",
+        "Integer grid snap: quantities countable in whole units."
+      ],
+      "slots": [
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "A drive's chart passes through (2, 30) and (8, 12) - yards-to-go falling as plays go by. Build the run arrow and the rise arrow that walk from one point to the other around the right-angle corner.",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "gaming": "A quest log's chart passes through (2, 30) and (8, 12) - quests-to-go falling as days go by. Build the run arrow and the rise arrow that walk from one point to the other around the right-angle corner.",
+            "fitness": "A distance challenge's chart passes through (2, 30) and (8, 12) - miles-to-go falling as workouts go by. Build the run arrow and the rise arrow that walk from one point to the other around the right-angle corner."
+          },
+          "remainingDomains": "travel (miles-to-go by day on a trek), personal-finance (dollars-to-go on a goal), weather, automotive - slots defined; fills authored at batch-regen per densityConvention."
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "play",
+          "appearsIn": ["prompt", "visual x_axis label 'Play number'", "post-submit readout '-18 / 6 = -3 per play'"],
+          "perDomain": { "gaming": "day", "fitness": "workout" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "yards-to-go",
+          "appearsIn": ["prompt", "visual y_axis label 'Yards to go'"],
+          "perDomain": { "gaming": "quests-to-go", "fitness": "miles-to-go" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "per play",
+          "appearsIn": ["post-submit readout"],
+          "perDomain": { "gaming": "per day", "fitness": "per workout" }
+        }
+      ],
+      "frozen": [
+        "points (2,30) and (8,12); all four accepted traversal states; both trap predicates with tags/signatures (SS2.2 opposite-walk = +3, SS2.3 role-swap = -1/3)",
+        "visual V-GN-INT02 geometry (ranges [0,10]/[0,35], arrow palette colors, mandatory arrowheads, walking-figure contradiction animation)",
+        "difficulty 3, phase P2, hintLadderRef keying"
+      ],
+      "authenticityCheck": {
+        "gaming": "A quest backlog of 30 falling to 12 at 3 clears/day is an ordinary season-pass burn-down; 'to-go' counters are literally rendered in game UIs.",
+        "fitness": "Miles-to-go in a 36-mile monthly distance challenge falling 3 per workout is a pure how-far performance quantity (SS6.1 test passes; no banned quantity anywhere)."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-int-03",
+      "archetype": "interactive",
+      "phase": "P3",
+      "currentSurface": "neutral",
+      "skinnable": false,
+      "skinnableReason": "P3 phase discipline: 'abstract P3 instantiations are neutral-default (int-03 class)' (archetype-interactive section f). The table-to-graph transfer with bare x/y IS the neutral transfer surface; skinning it would destroy what it certifies.",
+      "renderPolicy": "Always the certified neutral surface."
+    },
+    {
+      "itemId": "ALG-L06-gold-disc-01",
+      "archetype": "discrimination",
+      "phase": "P3",
+      "currentSurface": "neutral",
+      "skinnable": false,
+      "skinnableReason": "Abstract P3 boundary item: 'abstract P3 boundary items are neutral-default (disc-01 class; P3 phase discipline already requires neutral)' (archetype-discrimination section f). The constant-vs-nonconstant boundary on a bare table is the assessed discrimination.",
+      "renderPolicy": "Always the certified neutral surface."
+    },
+    {
+      "itemId": "ALG-L06-gold-disc-02",
+      "archetype": "discrimination",
+      "phase": "P2",
+      "currentSurface": "football",
+      "skinnable": true,
+      "skinnableReason": "Skinnable under the discrimination archetype's sharpest structural-skin test: the context must MOTIVATE the boundary - here, naturally mismatched axis scales. A domain qualifies only if a quantity authentically spans 0-300 y-units over 0-6 x-units at exactly 50 per unit (frozen). Travel and personal-finance both do. Not one of the section f collision-probe classes (no disambiguation pair; single SS2.11 keying).",
+      "fillDensity": "demonstrative-2-domain",
+      "constraints": [
+        "units_per_gridline VALUES frozen (y: 25, x: 1) - the s_x/s_y mismatch IS the construction; only the unit NAMES swap.",
+        "The fill's y-quantity must make an unequal-scale rendering the NATURAL choice (a 0-300 range against 0-6), never a contrivance.",
+        "Trap values 2 (square-count), 200 (dy), 1/50 (inverted) and their keying frozen."
+      ],
+      "slots": [
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "The graph shows a running back's total rushing yards. The line passes through the gridpoints (1, 50) and (5, 250). Read the axes carefully: each y-gridline is 25 yards; each x-gridline is 1 game. What is his rushing rate, in yards per game?",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "travel": "The graph shows a road trip's total miles. The line passes through the gridpoints (1, 50) and (5, 250). Read the axes carefully: each y-gridline is 25 miles; each x-gridline is 1 hour. What is the trip's speed, in miles per hour?",
+            "personal-finance": "The graph shows a class fundraiser's total dollars. The line passes through the gridpoints (1, 50) and (5, 250). Read the axes carefully: each y-gridline is 25 dollars; each x-gridline is 1 week. What is the fundraising rate, in dollars per week?"
+          },
+          "remainingDomains": "gaming (total XP at 50 per match, 0-300 axis), weather (seasonal rainfall in mm), fitness, automotive - slots defined; fills authored at batch-regen per densityConvention."
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "game",
+          "appearsIn": ["prompt", "visual x_axis label 'Games'"],
+          "perDomain": { "travel": "hour", "personal-finance": "week" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "rushing yards",
+          "appearsIn": ["prompt", "visual y_axis label 'Total rushing yards'", "post-resolve overlay ('each square up is worth 25 yards')"],
+          "perDomain": { "travel": "miles", "personal-finance": "dollars" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "yards per game",
+          "appearsIn": ["prompt", "post-resolve overlay '2 x 25 = 50 yards per game'"],
+          "perDomain": { "travel": "miles per hour", "personal-finance": "dollars per week" }
+        }
+      ],
+      "frozen": [
+        "gridpoints (1,50) and (5,250); answer 50; traps 2, 200, 1/50 with tags/signatures",
+        "visual V-GN-DISC02 geometry: ranges [0,6]/[0,300], gridline_every 1/25, units_per_gridline 1/25 (the SS2.11 arming condition), one-graph-two-readings overlay",
+        "difficulty 3, phase P2, hintLadderRef keying, presentation class: named-quantity graph-read"
+      ],
+      "authenticityCheck": {
+        "travel": "50 miles per hour is a legal, ordinary highway speed; a 250-mile trip charted over 5 hours naturally forces the 0-300-vs-0-6 unequal scales.",
+        "personal-finance": "A class fundraiser accumulating 50 dollars/week to 250 is school-plausible; dollars-vs-weeks naturally renders with a compressed y-axis."
+      }
+    },
+    {
+      "itemId": "ALG-L06-gold-disc-03",
+      "archetype": "discrimination",
+      "phase": "P1",
+      "currentSurface": "basketball",
+      "skinnable": true,
+      "skinnableReason": "Skinnable under the boundary-motivation test: the context must supply an AUTHENTIC head start (disc-03 works because a career total entering the season IS a nonzero intercept). A domain qualifies only if a real carried-over total of exactly 5 exists; finance (money already in the jar) and gaming (career trophies carried into a new season) both do.",
+      "fillDensity": "demonstrative-2-domain",
+      "constraints": [
+        "The head-start row (0, 5) is frozen and must be a real thing in the story, not a parameter - a domain with no authentic carried-over total routes to default.",
+        "Choice values (2, 8, 3.25, 21) and their tag keying frozen; only unit words in choice texts swap.",
+        "The visual's head-start row treatment ('present from first paint, because noticing it is the discrimination') is frozen behavior."
+      ],
+      "slots": [
+        {
+          "slotId": "scenario-stem",
+          "slotType": "scenario-sentence",
+          "currentValue": "A guard entered this season with 5 career three-pointers already made. Through 4 games this season her career total is 13; through 8 games it is 21. At what rate is she adding threes this season, per game?",
+          "appearsIn": ["prompt"],
+          "perDomain": {
+            "personal-finance": "A student started the year with 5 dollars already in her savings jar. Through week 4 her jar total is 13; through week 8 it is 21. At what rate is she adding dollars, per week?",
+            "gaming": "A player entered the new season with 5 career trophies already earned. Through 4 matches this season her career total is 13; through 8 matches it is 21. At what rate is she adding trophies this season, per match?"
+          },
+          "remainingDomains": "fitness (entered the training block with 5 total sessions already logged), travel, weather, automotive - slots defined; fills authored at batch-regen per densityConvention (each must re-pass the authentic-head-start test)."
+        },
+        {
+          "slotId": "x-entity",
+          "slotType": "context-noun",
+          "currentValue": "game",
+          "appearsIn": ["prompt", "choices A-D unit words", "visual column 'Games this season'"],
+          "perDomain": { "personal-finance": "week", "gaming": "match" }
+        },
+        {
+          "slotId": "y-entity",
+          "slotType": "context-noun",
+          "currentValue": "career threes",
+          "appearsIn": ["prompt", "visual column 'Career threes', caption, resolve caption ('dividing 13 by 4 assumes she started at zero')"],
+          "perDomain": { "personal-finance": "jar dollars", "gaming": "career trophies" }
+        },
+        {
+          "slotId": "rate-unit-label",
+          "slotType": "unit-label",
+          "currentValue": "per game",
+          "appearsIn": ["prompt", "choices A-D ('2 per game', '8 per game', ...)"],
+          "perDomain": { "personal-finance": "per week", "gaming": "per match" }
+        },
+        {
+          "slotId": "head-start-caption",
+          "slotType": "scenario-sentence",
+          "currentValue": "She started the season already at 5 career threes.",
+          "appearsIn": ["visual caption", "'head start' row tag"],
+          "perDomain": {
+            "personal-finance": "She started the year already at 5 dollars in the jar.",
+            "gaming": "She started the season already at 5 career trophies."
+          }
+        }
+      ],
+      "frozen": [
+        "table rows (0,5), (4,13), (8,21); answer A = 2 per unit; traps B=8, C=3.25, D=21 with tags/signatures (SS2.1, SS2.9 armed by b=5, SS2.8)",
+        "visual V-GN-DISC03 table geometry, muted head-start row from first paint, resolve brackets '+8 / 4'",
+        "difficulty 2, phase P1, hintLadderRef keying, presentation class: named-quantity table-read"
+      ],
+      "authenticityCheck": {
+        "personal-finance": "Money already in the jar at the start of the year is the most natural nonzero intercept in the whole fill set - the head start is a real thing in the story.",
+        "gaming": "Career totals carried across seasons are native to ranked/trophy systems; a 5-trophy carry-in motivates b = 5 exactly as a career stat does."
+      }
+    }
+  ],
+  "envelopeStats": {
+    "items": 15,
+    "skinnable": 9,
+    "neutralOrDefaultOnly": 6,
+    "skinnableItems": ["ALG-L06-gold-scaf-01", "ALG-L06-gold-scaf-02", "ALG-L06-gold-scaf-04", "ALG-L06-gold-ea-01", "ALG-L06-gold-ea-02", "ALG-L06-gold-int-01", "ALG-L06-gold-int-02", "ALG-L06-gold-disc-02", "ALG-L06-gold-disc-03"],
+    "neutralItems": {
+      "ALG-L06-gold-scaf-03": "P3 phase discipline",
+      "ALG-L06-gold-ea-03": "P3 phase discipline",
+      "ALG-L06-gold-pr-01": "collision-probe neutral-default + predict-reveal 'skins poorly' flag (engineered 3-vs-20 spread is basketball-authentic only)",
+      "ALG-L06-gold-pr-02": "P3 phase discipline + collision-probe (SS2.2/SS2.5 pair)",
+      "ALG-L06-gold-int-03": "P3 phase discipline",
+      "ALG-L06-gold-disc-01": "P3 phase discipline + abstract boundary neutral-default"
+    },
+    "exemplarItems": ["ALG-L06-gold-scaf-01", "ALG-L06-gold-ea-01"],
+    "routeToDefaultFindings": [
+      "cooking: routes to default for the ENTIRE node (slope/rate-of-change is contrived per INTEREST_DOMAINS SS3) - no ALG-L06 fills will ever be authored for cooking",
+      "social-media: routed to default for this node (light/opt-in + cumulative-count premises sit close to the SS6.1 count-as-goal ban); music: light/opt-in, fills only under tempo/count framings on demand",
+      "automotive x scaf-01: FILLED (was null in the first draft) - the week-scale household fuel log carries the frozen 4-per-interval pace authentically, reconciling with ea-01's automotive ruling; the retired null had tested only hour-scale readings",
+      "pr-01: no interest domain verified to carry the engineered order-of-magnitude spread - renders certified basketball surface or neutral"
+    ]
+  }
+}
