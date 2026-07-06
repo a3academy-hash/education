@@ -1,0 +1,904 @@
+{
+  "version": "1.0.0",
+  "status": "APPROVED WITH CHANGES (mr-kahn gate 2, 2026-07-06) - all 8 changes applied; kahn verifies at batch-1 F-DEP",
+  "registryBasis": "163 entries @ graph 1.12.0 (batch-1 pin)",
+  "generatedBy": {
+    "layer1_pairwiseSignatures": "deterministic python harness (.authoring-tmp/confusable_pairwise.py), K=30 stratified samples, grading-tolerance-separated — VERIFIED",
+    "layer1b_errorFormClassification": "claude-opus-4-8 draft tier — PROVISIONAL pending per-node taxonomy signatures",
+    "layers2to4_clustersProbesPilot": "claude-fable-5 judgment tier — gated by mr-kahn (gate 2)"
+  },
+  "documentMirror": "docs/specs/CONFUSABLE_CLUSTERS.md (same version; the two files change together)",
+  "clusters": [
+    {
+      "id": "CC-01",
+      "name": "sign-family",
+      "type": "A",
+      "confidence": "verified-core",
+      "members": [
+        {
+          "tag": "inconsistent-subtraction-order",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "drops-negative-slope-sign",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "rise-run-direction-error",
+          "provisional": false,
+          "standing": "gold-matrix-verified"
+        },
+        {
+          "tag": "sign-error-on-point",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "|m| = -m when m < 0 (largest structural collision, 15/30 samples); construct placement lands on |m| for direction errors",
+      "realizingCondition": "m < 0 (trap dead when m > 0: |m| = m key collision)",
+      "nodes": [
+        "ALG-L06",
+        "ALG-L09",
+        "ALG-L11",
+        "ALG-L05",
+        "ALG-L08"
+      ],
+      "probeContract": {
+        "varies": "sign regime (positive-slope follow-up item) + task type (construct vs numeric read)",
+        "separates": "inconsistent-order answers -|m| on the positive item (decisive); sign-droppers answer correctly; construct items key rise-run-direction-error directly",
+        "defaultRule": "log-both-tag-neither"
+      }
+    },
+    {
+      "id": "CC-02",
+      "name": "ratio-inversion-family",
+      "type": "A",
+      "confidence": "verified-core",
+      "members": [
+        {
+          "tag": "inverted-ratio",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "reverses-x-and-y",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "negative-reciprocal-error",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "plots-table-pairs-reversed",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "ratio-order-flipped",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "mismatched-units-in-ratio",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "Δx/Δy = 1/m — identical ALWAYS for rate inversion and coordinate transposition on bare-pair items",
+      "realizingCondition": "|m| != 1 arming (else 1/m = ±m); -1/m reserved compound (L14 contexts)",
+      "nodes": [
+        "ALG-F10",
+        "ALG-E07",
+        "ALG-L01",
+        "ALG-L05",
+        "ALG-L06",
+        "ALG-L07",
+        "ALG-L14"
+      ],
+      "probeContract": {
+        "varies": "presentation class (named-quantity prose vs bare pair) + a plot probe + verbalized-units follow-up",
+        "separates": "named-quantity items tag inverted-ratio outright; bare-pair default-tags inverted-ratio and queues plot probe — plot failure re-attributes to reverses-x-and-y; units follow-up separates word-order members",
+        "defaultRule": "default-tag inverted-ratio + queue plot probe (gold §2.3 asymmetric default)"
+      },
+      "internalStrandNote": "kahn gate-2 change 8: plots-table-pairs-reversed (L07) vs reverses-x-and-y (L01) is a same-belief Type-B strand inside this Type-A cluster — L07 duty is pooling/merge-or-separate, NOT a sibling probe"
+    },
+    {
+      "id": "CC-03",
+      "name": "normalization-family",
+      "type": "A",
+      "confidence": "verified",
+      "members": [
+        {
+          "tag": "forgot-denominator",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "rate-not-per-unit",
+          "provisional": false,
+          "standing": "verified"
+        }
+      ],
+      "sharedSurfaceForm": "the numeric answer Δy — identity collision, ALWAYS on bare numeric entry (beliefs and remediations differ)",
+      "realizingCondition": "|Δx| != 1 arming (else Δy = m); y1 != 0 against slope-as-height",
+      "nodes": [
+        "ALG-L05",
+        "ALG-L06",
+        "ALG-L19"
+      ],
+      "probeContract": {
+        "varies": "unit labeling (unit-labeled choice: '... per game' vs '... per 4 games')",
+        "separates": "correct-magnitude-wrong-referent choice re-attributes to rate-not-per-unit; failure to coordinate two quantities stays forgot-denominator",
+        "defaultRule": "bare-numeric Δy default-tags forgot-denominator + queue unit-labeled probe (gold asymmetric default)"
+      }
+    },
+    {
+      "id": "CC-04",
+      "name": "value-for-rate-family",
+      "type": "A",
+      "confidence": "verified-core",
+      "members": [
+        {
+          "tag": "slope-as-height",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "slope-as-single-point-ratio",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "k-as-y-intercept",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "single-snapshot answer where a two-point comparison is required (y at point, or y/x at one point; internal collision at x=1)",
+      "realizingCondition": "b != 0 (else y/x = m, single-point-ratio invisible); queried x != 1; y1 != 0 vs CC-03",
+      "nodes": [
+        "ALG-L05",
+        "ALG-L06",
+        "ALG-L19",
+        "ALG-L18",
+        "ALG-L08",
+        "ALG-L10",
+        "ALG-L13"
+      ],
+      "probeContract": {
+        "varies": "what is queried on one display (value-at-x vs how-fast, student indicates where each lives)",
+        "separates": "y-at-point response → slope-as-height; y/x → slope-as-single-point-ratio; constant-as-start-value → boundary re-attribution toward k-as-y-intercept",
+        "defaultRule": "log-both-tag-neither"
+      }
+    },
+    {
+      "id": "CC-05",
+      "name": "scale-perception-family",
+      "type": "A",
+      "confidence": "verified-core",
+      "members": [
+        {
+          "tag": "grid-count-ignores-scale",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "slope-as-visual-steepness",
+          "provisional": false,
+          "standing": "gold-matrix-verified"
+        },
+        {
+          "tag": "reads-intersection-imprecisely",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "graph answers derived from counted squares / visual appearance instead of axis units (m·sx/sy vs visually-steeper panel); indistinguishable AND invisible on equal-scale graphs",
+      "realizingCondition": "sx != sy — plus the silent-survival warning: unequal-scale items must be authored into practice deliberately",
+      "nodes": [
+        "ALG-L09",
+        "ALG-L05",
+        "ALG-L06",
+        "ALG-S01",
+        "data-domain scatterplot nodes"
+      ],
+      "probeContract": {
+        "varies": "axis-scale regime (single-graph unequal-scale numeric item after a steepness-comparison hit)",
+        "separates": "answer = m·sx/sy → grid-count-ignores-scale; answer unrelated to counts → slope-as-visual-steepness",
+        "defaultRule": "log-both-tag-neither"
+      }
+    },
+    {
+      "id": "CC-06",
+      "name": "linearity-illusion-family",
+      "type": "A",
+      "confidence": "gold-documented-boundary",
+      "members": [
+        {
+          "tag": "assumes-constant-rate-nonlinear",
+          "provisional": false,
+          "standing": "gold-matrix-verified"
+        },
+        {
+          "tag": "treats-exponential-as-steep-linear",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "a two-point/endpoint constant rate applied everywhere on nonlinear data (linear extrapolation of a curve)",
+      "realizingCondition": "nonlinear presented data; boundary rule: exponential-presented keys the P04 tag, measurement-on-nonlinear keys assumes-constant-rate-nonlinear",
+      "nodes": [
+        "ALG-L19",
+        "ALG-L05",
+        "ALG-P04"
+      ],
+      "probeContract": {
+        "varies": "the interval (middle-point betrayal: compute P1→P2 and P2→P3 rates on the student's own numbers)",
+        "separates": "consistent endpoint-only reasoning → assumes-constant-rate-nonlinear; additive extension of an exponential pattern → P04 tag",
+        "defaultRule": "log-both-tag-neither; L19 pilot lands the keyed-choice signatures before harness coverage"
+      },
+      "dualMembership": {
+        "treats-exponential-as-steep-linear": "also CC-07"
+      }
+    },
+    {
+      "id": "CC-07",
+      "name": "additive-for-multiplicative-family",
+      "type": "A/B-hybrid",
+      "confidence": "mixed",
+      "members": [
+        {
+          "tag": "slope-as-difference",
+          "provisional": false,
+          "standing": "verified"
+        },
+        {
+          "tag": "additive-instead-of-multiplicative",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "treats-exponential-as-steep-linear",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "adds-percents-directly",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "an additive answer where a multiplicative one is required (Δy − Δx; next = last + constant; p1 + p2)",
+      "realizingCondition": "y1 != x1 for the Δy−Δx form (gold); table-extension items where additive and multiplicative predictions diverge",
+      "nodes": [
+        "ALG-F10",
+        "ALG-E08",
+        "ALG-L05",
+        "ALG-L06",
+        "ALG-L19",
+        "ALG-P04"
+      ],
+      "probeContract": {
+        "varies": "representation and gap size (equal-differences/unequal-ratios contrast + ratio-labeled choice)",
+        "separates": "consistent additive behavior across representations raises the F10 root tag; slope-context Δy−Δx keys slope-as-difference directly",
+        "defaultRule": "node-local tag + advisory pooling to the root tag (feeds routing priors, never cross-node activation)"
+      },
+      "hybridNote": "kahn gate-2 change 3: slope-as-difference vs the others = Type-B same-root pairs (never co-live on one item; no disambiguation rows owed by F10/E08/P04); ramp-contrast probe is root-confirmation machinery; BLOCKER routing preserved"
+    },
+    {
+      "id": "CC-08",
+      "name": "exponent-rule-swap",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "adds-exponents-on-power",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "multiplies-exponents-on-product",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "multiplies-base-by-exponent",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "squares-as-double",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "kahn gate-2 change 4: the two documented coincidences (P01 mirror pair; F04 exponent-2 identity b*n = 2b) are WITHIN-NODE 2.3-class matrix rows in their own nodes; the CLUSTER content is the Type-B cross-node linking hypothesis that F04 multiply-the-base re-surfaces as P01 swapped-rule — P01 taxonomy confirms or refutes (cross-link/merge or separating observable)",
+      "realizingCondition": "F04 collision realizes exactly on squares (exponent = 2)",
+      "nodes": [
+        "ALG-F04",
+        "ALG-P01"
+      ],
+      "probeContract": {
+        "varies": "P01: matched product + power items; F04: the exponent off 2 (b³: 3b vs unarmed)",
+        "separates": "swap pattern on both P01 forms → single swapped-rule belief (merge proposal duty); error on one form only → separate beliefs; any non-square power separates the F04 pair",
+        "defaultRule": "log-both-tag-neither on exponent-2 items"
+      }
+    },
+    {
+      "id": "CC-09",
+      "name": "degenerate-outcome-family",
+      "type": "A",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "identity-means-zero",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "contradiction-read-as-solution",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "vanishing-variable-as-no-solution",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "parallel-as-one-solution",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "zero-equals-zero-as-no-solution",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "wrong solution-count verdict on a degenerate simplification outcome (0=0 / 0=k); the S04 pair are E14 beliefs re-surfacing in systems form",
+      "realizingCondition": "author-controlled: degenerate-case items are deliberate (gold §2.13 pattern)",
+      "nodes": [
+        "ALG-E14",
+        "ALG-S04"
+      ],
+      "probeContract": {
+        "varies": "the degenerate type (serve the OTHER case after a hit) and the representation (graphed parallel/coincident lines)",
+        "separates": "verdict pattern across the case pair identifies the belief (both-'no solution' → vanishing-variable; split verdicts → case-specific)",
+        "defaultRule": "log-both-tag-neither within a node; advisory pooling across E14/S04"
+      }
+    },
+    {
+      "id": "CC-10",
+      "name": "order-of-operations",
+      "type": "A",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "add-before-multiply",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "left-to-right-always",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "ignores-grouping",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "on a + b × c shapes, add-before-multiply and left-to-right-always produce the identical (a+b)·c",
+      "realizingCondition": "addition written before multiplication; ignores-grouping arms only with parentheses present",
+      "nodes": [
+        "ALG-F03"
+      ],
+      "probeContract": {
+        "varies": "operator order (a × b + c: multiplication first)",
+        "separates": "left-to-right-always is coincidentally correct there while add-before-multiply still errs — decisive",
+        "defaultRule": "log-both-tag-neither"
+      }
+    },
+    {
+      "id": "CC-11",
+      "name": "intercept-role-swap",
+      "type": "A",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "intercept-as-x-value",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "plots-b-on-x-axis",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "sets-wrong-variable-to-zero",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "x- and y-intercept roles swapped across read/plot/compute task types — plausibly one belief in three task types",
+      "realizingCondition": "both intercepts exist and are distinct (b != 0, |b| != |x-intercept|)",
+      "nodes": [
+        "ALG-L08",
+        "ALG-L09",
+        "ALG-L10"
+      ],
+      "probeContract": {
+        "varies": "task type while holding the line fixed (construct task with both intercepts as marked candidates)",
+        "separates": "consistent axis-swap across both intercepts and task types → single cluster belief (pool + cross-link proposal); one-task-type-only errors → node-local tag",
+        "defaultRule": "node-local tagging + advisory pooling"
+      }
+    },
+    {
+      "id": "CC-12",
+      "name": "dropped-middle-term",
+      "type": "A",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "multiplies-firsts-and-lasts-only",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "square-of-sum-drops-middle",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "on (a+b)² items both produce a² + b² exactly, ALWAYS",
+      "realizingCondition": "perfect-square items; separable everywhere else",
+      "nodes": [
+        "ALG-P08",
+        "ALG-P09"
+      ],
+      "probeContract": {
+        "varies": "to a general binomial product (a+b)(c+d) with distinct factors",
+        "separates": "firsts-and-lasts errs again (ac + bd); square-pattern member is unarmed and expands correctly — decisive",
+        "defaultRule": "log-both-tag-neither on perfect-square items"
+      }
+    },
+    {
+      "id": "CC-13",
+      "name": "partial-distribution",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "distributes-to-first-term-only",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "distributes-partially",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "point-slope-partial-distribution",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "partial-distribution",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "multiplier applied to the first term inside the parentheses only — identical wrong expansion wherever a(b+c) appears; the map's strongest merge-candidate case",
+      "nodes": [
+        "ALG-F08",
+        "ALG-E03",
+        "ALG-L11",
+        "ALG-P07"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe — different nodes' items key their own node-local tag",
+        "defaultRule": "node-local tagging; advisory pooling only; touching taxonomies must propose cross-link/merge or document the separating observable"
+      }
+    },
+    {
+      "id": "CC-14",
+      "name": "negative-distribution",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "sign-error-distributing-negative",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "loses-negative-distributing",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "drops-negative-across-subtraction",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "sign-error-subtracting-equations",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "the negative distributed to the first term only; later signs unchanged (equation-pair family included: same mechanism)",
+      "nodes": [
+        "ALG-F08",
+        "ALG-E03",
+        "ALG-P06",
+        "ALG-S03"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge or separating observable duty"
+      }
+    },
+    {
+      "id": "CC-15",
+      "name": "missing-parentheses-negative",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "substitutes-without-parentheses",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "b-squared-sign-error",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "(−k)² computed as −k² — the identical missing-parentheses trap at substitution time",
+      "nodes": [
+        "ALG-F06",
+        "ALG-Q10"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-16",
+      "name": "partial-division",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "divides-single-term",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "clears-denominator-one-term",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "divides-only-radical-by-2a",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "a divide/multiply applied to one term instead of every term of a sum",
+      "nodes": [
+        "ALG-E05",
+        "ALG-E06",
+        "ALG-Q10"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-17",
+      "name": "one-side-only",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "operates-one-side-only",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "unbalanced-completion",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "equality broken by operating on one side only",
+      "nodes": [
+        "ALG-E01",
+        "ALG-Q09"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-18",
+      "name": "one-case-only",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "single-case-only",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "forgets-negative-root",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "only the positive case reported where ± cases exist — identical answer set",
+      "nodes": [
+        "ALG-E12",
+        "ALG-Q08"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-19",
+      "name": "variable-as-label",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "treats-variable-as-label",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "defines-variable-vaguely",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "unlabeled-variables",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "variable stands for an object, not a quantity — the same defective definition; mostly rubric-scored surfaces (choice-keyed/rubric-element signatures)",
+      "nodes": [
+        "ALG-F05",
+        "ALG-E13",
+        "ALG-S05"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "first duty: establish whether one entry re-homed or three beliefs",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-20",
+      "name": "radical-linearity",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "splits-sum-under-radical",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "roots-a-sum",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "√(a+b) = √a + √b — the same distributive overgeneralization, two homes",
+      "nodes": [
+        "ALG-Q05",
+        "ALG-Q08"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-21",
+      "name": "unlike-term-combination",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "combines-unlike-terms",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "combines-unlike-degrees",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "unlike terms merged by adding coefficients — same output form on polynomial parameter families",
+      "nodes": [
+        "ALG-F07",
+        "ALG-P06"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-22",
+      "name": "boundary-line-type",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "solid-vs-dashed-confusion",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "boundary-type-mismatch",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "strict/inclusive boundary rendered with the wrong line type — identical construct-state error",
+      "nodes": [
+        "ALG-L15",
+        "ALG-S06"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    },
+    {
+      "id": "CC-23",
+      "name": "inverse-operation-swap",
+      "type": "B",
+      "confidence": "provisional",
+      "members": [
+        {
+          "tag": "wrong-inverse-operation",
+          "provisional": true,
+          "standing": "provisional"
+        },
+        {
+          "tag": "subtracted-not-divided",
+          "provisional": true,
+          "standing": "provisional"
+        }
+      ],
+      "sharedSurfaceForm": "undoing a multiplication by subtracting (and kin) — same substituted-operation output",
+      "nodes": [
+        "ALG-E01",
+        "ALG-E02"
+      ],
+      "probeContract": {
+        "varies": null,
+        "separates": "no runtime probe",
+        "defaultRule": "node-local tagging; advisory pooling; cross-link/merge duty"
+      }
+    }
+  ],
+  "withinNodePairs": [
+    {
+      "node": "ALG-L02",
+      "pair": [
+        "fails-vertical-line-test-reading",
+        "one-to-one-confusion"
+      ],
+      "separator": "which relation type each rejects (one-to-many-x vs many-to-one-y)"
+    },
+    {
+      "node": "ALG-L13",
+      "pair": [
+        "b-as-given-y-coordinate",
+        "mixes-point-coordinates"
+      ],
+      "separator": "b = y1 exactly vs scrambled coordinates; separate where y1 != scrambled b"
+    },
+    {
+      "node": "ALG-D03",
+      "pair": [
+        "joint-vs-marginal",
+        "row-column-percent-confusion"
+      ],
+      "separator": "which marginal the wrong answer normalizes against"
+    },
+    {
+      "node": "ALG-D04",
+      "pair": [
+        "extrapolates-blindly",
+        "intercept-interpreted-out-of-context"
+      ],
+      "separator": "prediction vs intercept reading"
+    },
+    {
+      "node": "ALG-P03",
+      "pair": [
+        "coefficient-out-of-range",
+        "exponent-off-by-one"
+      ],
+      "separator": "value-correct/form-wrong vs value-wrong"
+    },
+    {
+      "node": "ALG-F11",
+      "pair": [
+        "percent-as-whole-number",
+        "moves-decimal-wrong-way"
+      ],
+      "separator": "powers-of-ten directions differ — item-level distinctness, not ambiguity"
+    }
+  ],
+  "unclusteredCount": 95,
+  "unclusteredNote": "95 of 163 entries belong to no cluster (163 − 68 unique cluster-member tags) — the honest state, not a gap (cluster admission rule, doc §1). Within-node pair members (12 tags, doc §2.3) are counted among the 95: they carry matrix-row duties but are not clusters. Gold singletons: subtracts-within-points, zero-undefined-slope-swap.",
+  "pilotObligations": {
+    "ALG-L19": [
+      "CC-03",
+      "CC-04",
+      "CC-07",
+      "CC-06",
+      "CC-01"
+    ],
+    "ALG-L11": [
+      "CC-01",
+      "CC-13"
+    ],
+    "ALG-L09": [
+      "CC-01",
+      "CC-05",
+      "CC-11"
+    ]
+  },
+  "pilotNotes": {
+    "ALG-L19": "CC-06 primary-home duty (executes the deferred gold §2.14 revision); binding DECISION_F-IF-B6 §7 presented-only constraint on all rows and probes; the unapproved 'reads average rate as f(b)' candidate is CC-04's function-notation face, kahn-gated",
+    "ALG-L11": "confirms or refutes sign-error-on-point's provisional CC-01 membership; CC-13 pooling duty; inherits gold §2.7 subtracts-within-points re-surface (documented, never re-invented); third CC-01 surface (kahn change 6): rise-run-direction-error re-surfaces when stepping from (x1, y1) — construct-vs-numeric split applies to point-slope stepping items",
+    "ALG-L09": "CC-05 primary-home duty incl. the silent-survival rule (unequal-scale items in practice sets); CC-01 construct-vs-numeric task-type split is L09's own machinery; CC-11 coordinates with L08/L10; gold re-surface (kahn change 7): zero-undefined-slope-swap on x=a / y=b equation items — inherited signature + deliberate special-case authoring duty"
+  },
+  "maintenance": {
+    "updateCadence": "per gated registry-mutation batch (TAXONOMY_REGEN_SPEC §0 rolling-pin semantics / §11 gate 6); each batch _manifest.json records the map version; F-DEP on mismatch",
+    "newEntryCheck": "every registry entry a batch ADDs is classified against existing clusters before the batch closes: errorForm + parameterFamily + pairwise harness run vs every signature-bearing member of any parameter-family-sharing cluster; outcome = join / singleton / found-new-cluster (judgment + gate 2)",
+    "versioning": "patch bump for promotions and row edits; minor bump for new clusters or contract changes; doc and JSON move together with the Appendix-A pin",
+    "promotion": "when a node taxonomy lands computable signatures (harness §3 pass + kahn APPROVE), the harness re-runs the pairwise pass over the grown signature set; realized predictions promote to verified, failed ones are struck with the finding recorded",
+    "ownership": "mechanical re-runs = harness; regrouping/striking/founding = judgment layer, mr-kahn-gated (gate 2 posture persists)"
+  },
+  "standingSemantics": {
+    "verified": "coincidence harness-computed (numeric or construct-state comparison)",
+    "gold-matrix-verified": "rests on kahn-approved gold-matrix documentation; non-numeric form; not provisional, not harness-promotable (doc 5.4 kahn-confirmed path)",
+    "provisional": "judgment-asserted over layer-1b; re-verified mechanically when the home node taxonomy lands signatures"
+  }
+}
