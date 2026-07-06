@@ -77,10 +77,10 @@ measured values on the gold node — the bar generated nodes are held to):
 |---|---|---|
 | Stem-length band conformance | ≥90% of a node's items inside their register's `stemBand` | gold items median 35 words (27.5–42) inside the 30–60 instruction band; SAT p75 = 48 |
 | Interpretation-ratio floor — instruction items | ≥25% of the node's instruction-register items carry a meaning-in-context ask **anywhere** in the item | gold post-adjust 26.7% anywhere; IM 29% |
-| Interpretation-ratio floor — assessment/P3 bank | ≥13% of standalone-P3 items ask interpretation as the **final** ask | gold post-adjust 20% final; SAT 13% |
+| Interpretation-ratio floor — assessment/P3 bank | ≥13% of standalone-P3 items ask interpretation as the **final** ask | SAT 13% (the operative anchor). Gold's §11.1 "20% final" is an all-items figure — its enriched standalone-P3 slice carries no interpretation-final ask; the floor binds the whole bank and is satisfied by core-bank scheduling (MANIFEST §7) |
 | Ask-phrasing catalog conformance | 100% of items: final ask matches one of the item's archetype `askPatterns`; ask lands **last** (context → data → ask) in 100% of items | universal corpus invariant (QUESTION_VOICE §1) |
 | Interrogative close — standalone P3 | ≥90% end with "?" | SAT 93%; gold 73% overall only because interactive imperatives are archetype-declared exceptions |
-| Realistic-values share — standalone P3 | 30–40% of the node's standalone-P3 items non-clean (decimal-bearing student-visible data, tractable path) | gold post-adjust 40%; SAT 30% |
+| Realistic-values share — standalone P3 | 30–40% of the node's standalone-P3 items non-clean (decimal-bearing student-visible data, tractable path); binds the whole-bank standalone-P3 slice; construct-integrity exemptions (integer-snap interactives, boundary-construct clean numbers) per the archetype entries | SAT 30% (operative); gold post-ADJUST 2/5 of P3 enriched items (§11.1 row 10's own denominator) |
 
 **Severity: `major`.** A violation does NOT quarantine (that is F-SCHEMA/F-TAG territory) and
 does NOT fail the batch by itself — it is emitted as a `major` finding into the batch report,
