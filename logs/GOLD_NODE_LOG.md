@@ -68,3 +68,10 @@ Next: awaiting Matt's deliverables list for the full gold-standard experience bu
 - Swap-template envelope per INTEREST_DOMAINS invariance contract: machine-usable frozen/swappable classes, presentation-class freeze, solver-equivalence required (RUNTIME 3.3 consumer). 15-domain registry (6 platform sports fillTarget:false - sport swaps ride the D1 hook mechanism; 6 high-fidelity fill domains; cooking route-to-default; music/social light/held per 6.1 proximity).
 - 9 skinnable / 6 neutral-or-default-only with per-item reasons (P3 discipline, collision probes incl. pr-01, integer-snap). 2 fully-filled exemplars (scaf-01, ea-01) across all six fill domains; density convention declared.
 - mr-kahn APPROVE WITH CHANGES, applied: scaf-01 automotive fill authored at week scale (fuel log, ea-01 precedent), capstone distractors re-verified under the new context. Declared unfillables honest (pr-01 spread, 6.1 hard constraints all pass).
+
+### D6 - gold-node-transfer.json (DONE, committed this entry)
+
+- Transfer battery: 4 dimensions per new_plan/CLAUDE.md 5 (keys dimension1-4 per the namespace caution), passRule all-4 at confidence bound on delayed+unseen items (spaced-scheduler delay gate; pass decision on the RUNTIME 6 never-LLM list), hintPolicy none-during-battery.
+- 5 certified item families: 2 dimension-1 foreign domains (lapse rate ref -> D4 file; print-shop economics), dimension-2 graph->table on unequal scales (2.11 at the gate; production bar noted: generated batteries need >=2 representation pairings), dimension-3 symbolic subscripts, dimension-4 novel inverse form (given m + point + y, find x - novelty census-verified vs all 62 live items).
+- mr-kahn APPROVE WITH CHANGES, applied: dimension key rename, dimension-2 coverage note, tb-d1-02 + tb-d1-01 unseen claims corrected to census-verified wording (live x-vars include event counts; freshness = order-size/unit-price and spatial-gradient constructs).
+- GOLD NODE COMPLETE: all six deliverables now exist and are committed (D1 lesson, D2 hints, D3 items, D4 rubrics, D5 variants, D6 transfer battery).
