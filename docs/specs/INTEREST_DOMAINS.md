@@ -100,6 +100,7 @@ Every skin is a **structure-frozen re-render** of an already-certified neutral i
 - **Difficulty tier** — the certified difficulty (1–3) and IRT parameters; the skin must be psychometric-equivalent (§9.5), so it cannot add reading load, ambiguity, or prior-knowledge barriers the neutral item lacked.
 - **Hint-ladder mapping** — the 3-rung ladder (root probe → targeted counter → worked micro-step) keys to the same entry IDs; only the *nouns* in the templated hint text swap.
 - **Phase** — P1/P2/P3 designation and the P3-neutral mastery requirement are unaffected by the skin.
+- **Presentation class** — named-quantity vs bare-pair (per the slope taxonomy §2.3 collision rule): a skin that names quantities on a bare-pair item (or vice versa) changes which taxonomy entry a distractor keys and is an invalid skin under psychometric equivalence — render neutral instead. *(Added 2026-07-06 at consolidation per GAP_NOTES §4.3.)*
 
 **Swap-validity gate (per rendered variant):** the swap is valid only if (a) all frozen elements are byte-identical to the neutral certified item except noun/unit labels, (b) every realistic-number guideline for the domain is satisfied by the *labels* without touching the *values*, and (c) the domain's surface map (§3) marks the item's concept as ● or ◐ for that domain. Fail any → **fall back to neutral** for this item (§5). This gate is the D5 contract the archetype-extraction and RUNTIME interest-variant paths both enforce (solver-verified "structureUnchanged" flag, `RUNTIME_TUTOR_SPEC` §3.3).
 

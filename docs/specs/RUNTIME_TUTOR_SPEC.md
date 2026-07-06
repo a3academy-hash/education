@@ -109,7 +109,7 @@ Every runtime call receives one **context envelope** assembled by the server fro
   "item": {                                // grading / variant calls
     "id": "ALG-L06-p3-neutral-04",
     "prompt": "string",
-    "rubric": [ { "elementId": "identifies-slope-as-rate", "counteredEntryIds": ["slope-as-height"] } ],
+    "rubric": { "metThreshold": 0.7, "elements": [ { "elementId": "identifies-slope-as-rate" } ] },
     "canonicalAnswer": "string",           // grading only; never sent to the student
     "template": { "slots": {"context": null}, "solverContract": "string" }  // variant only
   },
@@ -131,6 +131,7 @@ Envelope rules:
 - **`masterySnapshot.engineDecision` and every number are read-only inputs.** The model may reference them but the *only* channel back is the call's structured output schema (§3), which carries evidence, never a decision.
 - Student free text appears **only** inside `studentText.raw`, wrapped and sanitized per §7 — never interpolated into the system prompt or any instruction field.
 - The envelope is assembled from the deterministic engine's current state; it is not a place the model writes to.
+- **2026-07-06 amendment (per D4 rubric contract, GOLD_NODE_RUBRICS §1, mr-kahn confirmed):** `counteredEntryIds` are host-side only — withheld from grader input to avoid biasing tag detection; `met = score ≥ metThreshold` is D4-supplied semantics; `metThreshold` is grader input, never echoed in output.
 
 ---
 
