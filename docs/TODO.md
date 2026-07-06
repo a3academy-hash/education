@@ -60,3 +60,12 @@ Last reviewed: 2026-06-15.
   M1 `2ccf3ce`, M2/M3/L1/L2 `e140ae8` (570→694 tests). See docs/qa-findings-and-plan.md.
 - 2026-06-14 — Phase 11 live verification + LB2 (FERPA read-audit) + LB3 (choice render) closed
   (memory: phase-11-supabase-wiring).
+
+## P0-adjacent — graph 1.12.0 follow-ups (added 2026-07-06)
+- [ ] **ALG-L19 bank lands before any student ships.** The stub node is router-recommendable once
+      L03/L05/L06 are mastered and shows "being prepared" empty states; progress/transcript
+      denominators include an uncompletable 75th node until the Phase-3 enriched bank lands.
+      (mr-gates SHOULD-FIX, DECISION_F-IF-B6 §7.)
+- [ ] **diagnostic-sim estimator variance:** raise N 500 → 2000 (~4× the 11s runtime) to shrink the
+      false-READY estimate's variance — the ≤.05 bound passed with ~1-count margin. Any future trip
+      of that bound is a REAL signal (universe rescoping is a one-time correction, never repeatable).

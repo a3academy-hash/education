@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { InMemoryRepository } from "../in-memory";
 import { getLoadedGraphVersion } from "../../curriculum";
 import { ENGINE_VERSION } from "../../mastery-engine";
@@ -80,8 +80,8 @@ describe("InMemoryRepository — graph", () => {
   it("getGraph returns the validated real graph (and caches)", async () => {
     const repo = new InMemoryRepository();
     const graph = await repo.getGraph();
-    expect(graph.nodes).toHaveLength(74);
-    expect(graph.edges).toHaveLength(114);
+    expect(graph.nodes).toHaveLength(75);
+    expect(graph.edges).toHaveLength(117);
     expect(await repo.getGraph()).toBe(graph); // cached instance
   });
 

@@ -1,7 +1,7 @@
 # DECISION_F-IF-B6 — Average Rate of Change coverage gap
 
 **Type:** Decision record (a *proposed* graph change — this document changes **no** graph, registry, or Supabase state).
-**Status:** **PROPOSED — awaiting Matt approval.**
+**Status:** **APPROVED (Matt, 2026-07-06) / APPLIED at graph 1.12.0** — see the Application addendum at the end of this document. (Was: PROPOSED — awaiting Matt approval.)
 **Date:** 2026-07-03. **Author:** main session (remote/mobile design). **Reviewers required:** mr-kahn (curriculum/standards/accreditation), mr-gates (graph/schema) before any implementation.
 **Session gates honored:** no graph edits, no registry-diff application, no Supabase writes, no `docs/gold-node/` edits. All graph facts below are **read-only-verified against the pinned baseline `data/algebra1-graph.json` schema `1.11.0`** (git-authoritative per `logs/REMOTE_DESIGN_LOG.md`).
 
@@ -89,4 +89,18 @@ Keep the §2.14 items on L05 as the sole F-IF.B.6 touch; author nothing new.
 
 ## 6. Status
 
-**PROPOSED — awaiting Matt approval.** On approval: mr-kahn confirms the node objectives + prereq set (esp. L03) + misconception re-home and the F-IF.B.6 standards move; mr-gates confirms the DAG mutation; the node is authored to the enriched standard via the regen pipeline; and the whole thing lands in the single gated batch of §5.
+**APPROVED / APPLIED (2026-07-06).** The on-approval sequence below ran as specified — see the addendum. Original text: On approval: mr-kahn confirms the node objectives + prereq set (esp. L03) + misconception re-home and the F-IF.B.6 standards move; mr-gates confirms the DAG mutation; the node is authored to the enriched standard via the regen pipeline; and the whole thing lands in the single gated batch of §5.
+
+---
+
+## 7. Application addendum (2026-07-06, branch graph-mutations-v1.12)
+
+Matt approved the batch; applied per the §5 atomic-batch rule with the registry diff. Graph `1.11.0` → `1.12.0` (75 nodes, 117 edges, registry 163). Gate record:
+
+- **Precondition 7a (mr-kahn CONFIRM):** `ALG-L05-p1-baseball-04` survived Phase 2 with the same id (v2); the `−0.03` distractor present and unmapped exactly as the diff describes; re-keyed to `rate-not-per-unit` (item → v3). The third distractor (`0.0015` = |m|) stays UNKEYED by ruling: on m < 0 items §2.5 and §2.2 collide on that value, and a single-tag map would write misattributed evidence — deferred to Phase-3 pair-semantics authoring, recorded here as a known open key.
+- **mr-kahn ruling — F-IF.B.6 re-home (option a):** L05 drops the standard entirely (`ccss: ["8.EE.B.5"]`); L19 is the sole assessment home (`ccss: ["F-IF.B.6"]`). `standards.ccss[]` is single-purpose — anything in it claims assessment home, and a double claim is exactly what a scope-and-sequence audit flags. The real "L05 introduces rate-of-change language" relationship lives here in prose, not in the field.
+- **mr-kahn ruling — prereqs:** `[ALG-L03, ALG-L05, ALG-L06]`; **L03 is load-bearing** (objective 2's symbolic form `(f(b) − f(a))/(b − a)` is unreachable without F-IF.A.2), not optional.
+- **mr-kahn ruling — sequencing (Matt's flagged trap): NO TRAP.** Quadratics (tier 5) / exponents-polynomials (tier 4) sit 2–3 tiers after L19 (tier 2), but F-IF.B.6's demands are representation-based, and every required task decomposes to L03/L05/L06 machinery plus direct arithmetic substitution. **Binding authoring constraint (Phase-3 L19 bank):** *"Nonlinear relations are PRESENTED only (graph, table, or pre-evaluated values; symbolic rules only where evaluation is direct arithmetic substitution with small integers). Items must not require quadratic-specific concepts (vertex, factoring, solving), exponential manipulation, or any symbolic work beyond substitution. Function notation per L03."* A quadratics-tier prereq was considered and REJECTED (a convenience edge with no cognitive dependency, delaying the standard two tiers).
+- **§2.14 primary home** moves to L19 (first tag in the node's `misconceptionTags`); L05 keeps its ≥2 nonlinear-table discrimination items as the Axis-B boundary guard. Taxonomy doc carries two dated annotations; full entry revision is Phase-3 L19 taxonomy authoring. The "reads average rate as f(b)" candidate entry remains OUT (unapproved).
+- **mr-gates (APPROVE WITH CHANGES, all applied):** stub encoding = empty banks + `schema.notes` sentence (no status field — no untyped shadow metadata); `rate-not-per-unit` added to `ALG-L05.misconceptionTags` in the same diff (map-tag ⊆ node-tags invariant); count-pin test updates (75 nodes / 117 edges / locked 74); diagnostic-sim universe scoped to the engine's neutral-p3 serve gate after the stub displaced the seeded RNG stream (harness correction, thresholds untouched, gates-ruled legitimate). Known accepted state until the Phase-3 bank lands: the router can recommend L19 as a dead end once L03/L05/L06 are mastered (student surfaces show "being prepared" empty states), and progress denominators include an uncompletable 75th node — tracked in docs/TODO.md with a hard "bank lands before any student ships" note.
+- **This document is the on-branch copy** of the record authored on `claude/batch-regen-runtime-tutor-specs-u79i6t` (13ec37c), materialized here with the status update; the remote branch remains unmerged.

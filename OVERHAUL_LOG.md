@@ -217,3 +217,13 @@ Every code commit through codexreview (security pass on anything privileged). Lo
   threshold-constant + grading-scale + retention-timer pilot calibration. Pre-existing parallel ALG-F01
   nl-range flagged for its owner.
 - The overhaul defined by new_plan/ is COMPLETE.
+
+## 2026-07-06 — Gated graph-mutation batch (Matt-approved): registry diff + ALG-L19 (graph 1.12.0)
+
+Branch `graph-mutations-v1.12` off `overhaul/v0.2`. Matt approved the atomic batch (DECISION_F-IF-B6 §5 coupling rule). Three commits, one per task:
+
+- **Registry diff** (`ec29b36`): gold-node slope taxonomy §4 applied — 4 redefinitions, 10 additions (registry 153 → 163), and the 1 live-item re-key (`ALG-L05-p1-baseball-04` distractor `−0.03` → `rate-not-per-unit`, item v3) after 7a re-verification against the 1.11.0 bank (mr-kahn CONFIRM — item survived Phase 2 with the same id). `rate-not-per-unit` added to L05's node tags (map⊆tags invariant, mr-gates blocker). All 14 gold-node item tags now resolve against the registry.
+- **ALG-L19 stub** (`447e218`): "Average Rate of Change over an Interval", linear/tier 2, prereqs [L03, L05, L06] (L03 load-bearing per mr-kahn), F-IF.B.6 re-homed L05 → L19 (single assessment home), empty banks + schema.notes stub convention pending the Phase-3 enriched bank. Sequencing ruled NO TRAP (representation-based demands; binding authoring constraint recorded in DECISION_F-IF-B6 §7). Count-pin tests updated (75/117/locked-74); diagnostic-sim universe scoped to the engine's neutral-p3 serve gate (gates-approved harness correction after the stub displaced the seeded RNG stream; thresholds untouched).
+- **Version + reconcile** (this commit): graph 1.11.0 → 1.12.0; DECISION_F-IF-B6 materialized on-branch with APPROVED/APPLIED status + full gate addendum; taxonomy §2.14/structural-finding annotations dated; TODO entries for the L19 dead-end router window and diagnostic-sim N.
+
+Validation: `validate:graph` VALID (2 pre-existing warnings), full suite 915/915 after each mutation. Supabase NOT touched (promotion precondition 7b is a reported requirement, not performed).

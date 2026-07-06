@@ -1,6 +1,6 @@
 {
   "schema": {
-    "version": "1.11.0",
+    "version": "1.12.0",
     "course": "Algebra 1",
     "audience": "middle-school",
     "sports": [
@@ -26,7 +26,7 @@
       "needs_review",
       "prerequisite_gap"
     ],
-    "notes": "prereqs[] are the source of truth; edges[] must mirror them exactly (validated). problems p1/p2/p3 and workedExamples are authored later per prompts/03-curriculum-graph-builder.md; misconceptionTags must exist in the top-level misconceptionRegistry; standards codes pending mr-kahn verification pass"
+    "notes": "prereqs[] are the source of truth; edges[] must mirror them exactly (validated). problems p1/p2/p3 and workedExamples are authored later per prompts/03-curriculum-graph-builder.md; misconceptionTags must exist in the top-level misconceptionRegistry; standards codes pending mr-kahn verification pass ALG-L19 is a stub (empty banks + workedExamples) pending its Phase 3 enriched bank; remove this sentence when the bank lands."
   },
   "domains": [
     {
@@ -105,6 +105,10 @@
     {
       "id": "answers-wrong-question",
       "description": "Solves the equation correctly but reports the variable's value instead of the quantity the problem actually asked for."
+    },
+    {
+      "id": "assumes-constant-rate-nonlinear",
+      "description": "Computes a two-point slope on a nonlinear relation and treats it as the constant rate everywhere, extrapolating a curve linearly from one interval."
     },
     {
       "id": "axis-from-wrong-formula",
@@ -227,6 +231,10 @@
       "description": "When subtracting a polynomial, distributes the minus sign to only its first term, leaving later terms' signs unchanged."
     },
     {
+      "id": "drops-negative-slope-sign",
+      "description": "Computes correct rise and run magnitudes but reports slope unsigned, treating the sign as bookkeeping rather than the direction of change; answers |m| on negative-slope items."
+    },
+    {
       "id": "drops-term-after-factoring",
       "description": "Omits the quotient of 1 when a term equals the GCF, e.g., factoring 3x² + 3 as 3(x²) instead of 3(x² + 1)."
     },
@@ -268,7 +276,11 @@
     },
     {
       "id": "forgot-denominator",
-      "description": "Computes slope as the change in y alone, omitting division by the change in x."
+      "description": "Believes slope/rate is the amount the output changed (Δy alone), never coordinating the change in input; answers y₂ − y₁ where a ratio is required."
+    },
+    {
+      "id": "grid-count-ignores-scale",
+      "description": "Counts grid squares for rise and run without converting to axis units, answering m·(x-scale/y-scale) on graphs whose axes use different scales."
     },
     {
       "id": "grouping-sign-slip",
@@ -300,7 +312,7 @@
     },
     {
       "id": "inconsistent-subtraction-order",
-      "description": "Computes slope with mismatched subtraction order, taking (y₂ − y₁)/(x₁ − x₂) and flipping the sign."
+      "description": "Treats the subtraction order in the slope formula's numerator and denominator as independent choices, computing (y₂ − y₁)/(x₁ − x₂) and producing −m; consistent full reversal is correct and is not this error."
     },
     {
       "id": "intercept-as-pair-confusion",
@@ -328,7 +340,7 @@
     },
     {
       "id": "inverted-ratio",
-      "description": "Computes slope as run over rise (Δx/Δy), inverting the rate."
+      "description": "Believes the rate compares input per output, computing Δx/Δy (1/m) — often anchored by word order, e.g. 'games per hit' instead of 'hits per game.'"
     },
     {
       "id": "joint-vs-marginal",
@@ -483,6 +495,10 @@
       "description": "Misassigns coordinate sign combinations to quadrants, plotting a point in the wrong quadrant (e.g., placing (−3, 2) in Quadrant IV)."
     },
     {
+      "id": "rate-not-per-unit",
+      "description": "Reports a true change over a multi-unit interval as the rate (e.g., '12 hits per 4 games') without normalizing to one unit of input."
+    },
+    {
       "id": "ratio-order-flipped",
       "description": "Writes a ratio with terms in the reverse order of the stated comparison (e.g., 'hits per at-bat' written as at-bats/hits)."
     },
@@ -512,7 +528,7 @@
     },
     {
       "id": "rise-run-direction-error",
-      "description": "Steps the rise or run in the wrong direction for the slope's sign (e.g., up-and-right for a negative slope), drawing a line of the wrong inclination."
+      "description": "When constructing or stepping along a line, moves rise/run in the direction contradicting the slope's sign (rise always 'up'), placing (x+run, y+|rise|) for a negative slope."
     },
     {
       "id": "roots-a-sum",
@@ -567,6 +583,22 @@
       "description": "Collapses two distinct conditions (e.g., a count and a value) into one equation, losing a constraint needed to determine both unknowns."
     },
     {
+      "id": "slope-as-difference",
+      "description": "Compares the change in output to the change in input by subtraction instead of division (answers Δy − Δx, or y₂ − x₂ from one point), applying additive reasoning where a ratio is required."
+    },
+    {
+      "id": "slope-as-height",
+      "description": "Reads slope as the height/y-value of the graph at a point, conflating the value of the function with its rate of change."
+    },
+    {
+      "id": "slope-as-single-point-ratio",
+      "description": "Computes slope as y/x from a single point, overgeneralizing proportional reasoning to lines that do not pass through the origin."
+    },
+    {
+      "id": "slope-as-visual-steepness",
+      "description": "Judges slope by the drawn line's visual steepness or angle without consulting axis scales, so rescaled versions of the same relationship appear to have different slopes."
+    },
+    {
       "id": "solid-vs-dashed-confusion",
       "description": "Uses a solid boundary line for a strict inequality, or a dashed line for an inclusive one, misrepresenting whether boundary points are solutions."
     },
@@ -605,6 +637,10 @@
     {
       "id": "subtracting-negative",
       "description": "Evaluates subtraction of a negative as subtraction of a positive (e.g., 5 − (−3) = 2)."
+    },
+    {
+      "id": "subtracts-within-points",
+      "description": "Forms the slope fraction from differences within each ordered pair instead of across pairs, computing (y₂ − x₂)/(y₁ − x₁)."
     },
     {
       "id": "swaps-domain-and-range",
@@ -677,6 +713,10 @@
     {
       "id": "zero-equals-zero-as-no-solution",
       "description": "Interprets an identity outcome (e.g., 0 = 0) while solving a system as 'no solution' rather than infinitely many solutions."
+    },
+    {
+      "id": "zero-undefined-slope-swap",
+      "description": "Swaps the degenerate cases, calling a vertical line's slope 0 and a horizontal line's slope undefined, because the labels were memorized unattached to the ratio Δy/Δx."
     }
   ],
   "nodes": [
@@ -50504,15 +50544,15 @@
       ],
       "standards": {
         "ccss": [
-          "8.EE.B.5",
-          "F-IF.B.6"
+          "8.EE.B.5"
         ],
         "state": null
       },
       "objective": "Interpret slope as a constant rate: change in output per unit input.",
       "misconceptionTags": [
         "forgot-denominator",
-        "inverted-ratio"
+        "inverted-ratio",
+        "rate-not-per-unit"
       ],
       "visual": "coordinate",
       "contextHooks": {
@@ -50653,7 +50693,7 @@
           },
           {
             "id": "ALG-L05-p1-baseball-04",
-            "version": 2,
+            "version": 3,
             "skillId": "ALG-L05",
             "phase": 1,
             "sport": "baseball",
@@ -50670,7 +50710,8 @@
               "−0.03 in batting average per game"
             ],
             "misconceptionMap": {
-              "−20 games per point of average": "inverted-ratio"
+              "−20 games per point of average": "inverted-ratio",
+              "−0.03 in batting average per game": "rate-not-per-unit"
             },
             "hints": [
               "Output is batting average; input is games. The phrase is 'output per 1 input.'",
@@ -78552,6 +78593,47 @@
             "calculatorFlag": "no_calculator"
           }
         ]
+      }
+    },
+    {
+      "id": "ALG-L19",
+      "title": "Average Rate of Change over an Interval",
+      "domain": "linear",
+      "tier": 2,
+      "prereqs": [
+        "ALG-L03",
+        "ALG-L05",
+        "ALG-L06"
+      ],
+      "standards": {
+        "ccss": [
+          "F-IF.B.6"
+        ],
+        "state": null
+      },
+      "objective": "Calculate the average rate of change of a function over a specified interval [a, b] from a table, symbolically as (f(b) − f(a))/(b − a), or estimated from a graph, and interpret its sign, size, and interval-dependence for nonlinear functions.",
+      "misconceptionTags": [
+        "assumes-constant-rate-nonlinear",
+        "rate-not-per-unit",
+        "slope-as-single-point-ratio",
+        "forgot-denominator",
+        "slope-as-difference"
+      ],
+      "visual": "coordinate",
+      "contextHooks": {
+        "baseball": "8 hits through game 10, 44 through game 30: (44 − 8)/(30 − 10) = 1.8 hits per game over that stretch — hotter than his 0.8 start.",
+        "softball": "A pitcher's strikeout total: 30 through game 5, 48 through game 10 — an average of 3.6 per game lately, down from her 6.0 early pace.",
+        "basketball": "Season points: 120 through game 10, 210 through game 15 — an average of 18 per game over that stretch, up from 12 before it.",
+        "soccer": "10 goals through match 10, 22 through match 16 — the club averaged 2 per match over the last six, double its early rate.",
+        "football": "Cumulative rushing yards: 400 through game 4, 1000 through game 8 — 600 over 4 games is 150 per game, up from 100.",
+        "volleyball": "Her kill total: 6 through set 2, 18 through set 5 — (18 − 6)/(5 − 2) = 4 kills per set late, up from 3.",
+        "neutral": "For f(x) = x² on [1, 4]: (f(4) − f(1))/(4 − 1) = 15/3 = 5 — the average rate over that interval, not the rate everywhere."
+      },
+      "workedExamples": [],
+      "problems": {
+        "p1": [],
+        "p2": [],
+        "p3": []
       }
     },
     {
@@ -135870,6 +135952,18 @@
     {
       "from": "ALG-Q03",
       "to": "ALG-Q07"
+    },
+    {
+      "from": "ALG-L03",
+      "to": "ALG-L19"
+    },
+    {
+      "from": "ALG-L05",
+      "to": "ALG-L19"
+    },
+    {
+      "from": "ALG-L06",
+      "to": "ALG-L19"
     }
   ]
 }

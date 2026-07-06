@@ -51,7 +51,23 @@ function lcg(seed: number): () => number {
 // mastered, with a small random "brittle gap" probability that knocks some
 // below-threshold nodes back to not-mastered (the realistic case §3a targets).
 
-const NODE_IDS = graph.nodes.map((n) => n.id).sort((a, b) => a.localeCompare(b));
+// Simulation universe = PROBEABLE nodes only, using the diagnostic engine's
+// own serve gate: ≥1 NEUTRAL p3 item (lib/diagnostic-engine/index.ts,
+// neutralP3 — the engine abstains on anything else). A bankless stub node
+// (e.g. ALG-L19 at graph 1.12.0) can never be served, so it belongs in
+// neither the truth model nor the per-student RNG budget; including it would
+// shift every seeded draw and turn the statistical bounds below into
+// artifacts of node count rather than engine behavior.
+// FRAGILITY NOTE: the false-READY bound passed pre-1.12.0 with ~1-count
+// margin (40/804-ish of the ≤.05 line at N=500). Any future trip of that
+// bound must be investigated as a REAL signal — this universe scoping was a
+// one-time harness correction and may never be rescoped again to make the
+// test pass (docstring rule). Backlog: raise N to shrink estimator variance
+// (docs/TODO.md).
+const NODE_IDS = graph.nodes
+  .filter((n) => n.problems.p3.some((p) => p.sport === "neutral"))
+  .map((n) => n.id)
+  .sort((a, b) => a.localeCompare(b));
 
 /** Longest prerequisite chain length per node (global depth proxy). */
 function globalDepth(): Map<string, number> {

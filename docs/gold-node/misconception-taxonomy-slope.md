@@ -4,7 +4,7 @@
 
 **Authored by:** mr-kahn (agent a6087caa8bc320a1d), 2026-07-02. Verdict: APPROVE on ALG-L06 as gold node (see §5).
 
-**Structural finding:** F-IF.B.6 is carried entirely by ALG-L05 (`data/algebra1-graph.json`) — there is no downstream average-rate-of-change node — which makes L05 the mandatory home for the nonlinearity-blindness entry (§2.14).
+**Structural finding:** F-IF.B.6 is carried entirely by ALG-L05 (`data/algebra1-graph.json`) — there is no downstream average-rate-of-change node — which makes L05 the mandatory home for the nonlinearity-blindness entry (§2.14). *(2026-07-06: superseded — ALG-L19 "Average Rate of Change over an Interval" added at graph 1.12.0 per DECISION_F-IF-B6; F-IF.B.6 re-homed to L19; §2.14's primary home moves to L19; L05 retains ≥2 discrimination items as the Axis-B boundary guard.)*
 
 **Notation used throughout.** Item parameters: points P₁ = (x₁, y₁), P₂ = (x₂, y₂); Δy = y₂ − y₁; Δx = x₂ − x₁; true slope m = Δy/Δx; intercept b = y₁ − m·x₁. For graph items: s_x, s_y = units per gridline on each axis. Every detection signature is a computable function of these parameters — the item generator evaluates all applicable signatures at render time (§3.4).
 
@@ -178,7 +178,7 @@ An entry is admitted to this taxonomy only if it satisfies all four conditions:
 
 - **Definition:** The student computes a two-point slope on a nonlinear relation and treats it as *the* rate everywhere — believing any relationship has one rate, so two points always suffice to know all of it.
 - **Cognitive root:** Illusion of linearity (De Bock, Van Dooren et al.); rate-constancy overgeneralization (Bezuidenhout 1998 on average vs. instantaneous rate). Sibling of the existing E-domain tag `treats-exponential-as-steep-linear` — that tag is the *extension* flavor (grows a pattern additively); this is the *measurement* flavor (measures a curve as if straight). Boundary: exponential-context items key the existing tag; measurement items on any nonlinear data key this one.
-- **Nodes:** **L05 (primary and mandatory home)** — F-IF.B.6 lives on L05 with no downstream average-rate node in the current graph, so "is the rate even constant?" checks must be authored here; re-surfaces in L07 (constant-differences test on tables) and quadratics-domain rate items.
+- **Nodes:** **L05 (primary and mandatory home)** — F-IF.B.6 lives on L05 with no downstream average-rate node in the current graph, so "is the rate even constant?" checks must be authored here; re-surfaces in L07 (constant-differences test on tables) and quadratics-domain rate items. *(2026-07-06: ALG-L19 added at graph 1.12.0 — primary home of this entry moves to L19; L05's ≥2 nonlinear-table discrimination items stand regardless as the Axis-B boundary guard. Full entry revision is Phase-3 L19 taxonomy authoring.)*
 - **Detection signature:** two deterministic forms:
   - (a) On a table with nonconstant first differences, prediction item: answer = **y₁ + m₁·(x − x₁)** where m₁ is the first-interval rate (linear extrapolation of a curve);
   - (b) Constancy-check choice item ("Is this a constant rate?" with the table shown): keyed choice = **"yes"** computed from endpoints only.
