@@ -9,8 +9,12 @@
 ## 1. Version pin
 
 ```
-archetypeLibraryVersion: 1.0.0
+archetypeLibraryVersion: 1.1.0
 ```
+
+**Change log:**
+- **1.1.0** — adds rubric-explanation + transfer-battery entries from the completed gold node; distribution rules extended.
+- 1.0.0 — initial seven-entry library.
 
 This is THE value the BATCH_REGEN harness F-DEP precondition checks. Freezing semantics:
 
@@ -20,7 +24,7 @@ This is THE value the BATCH_REGEN harness F-DEP precondition checks. Freezing se
 
 ## 2. Archetype inventory
 
-Seven archetypes. Five populate the enriched item bank; two are lesson-embedded and are counted in the lesson, **not** in the item bank.
+Nine archetypes across **three counting categories**. Six populate the enriched item bank; two are lesson-embedded and are counted in the lesson, **not** in the item bank; one is gate-side — counted in the **mastery gate**, a third category that is neither teaching bank nor lesson (battery items are delayed + unseen and never appear in teaching). Battery items are the node's **primary credited-mastery evidence**, logged first-class (StudentAttempt/MasteryUpdate; the mastery transcript reads gate evidence) — the third category governs scheduling and counting, never evidence status.
 
 | Archetype | File | Role (one line) | Counted in |
 |---|---|---|---|
@@ -29,8 +33,10 @@ Seven archetypes. Five populate the enriched item bank; two are lesson-embedded 
 | predict-reveal | `archetype-predict-reveal.md` | Commit-then-see: student predicts, the resolve shows the consequence | Item bank |
 | interactive | `archetype-interactive.md` | Manipulable visual (plot, drag, build); the interaction IS the answer | Item bank |
 | discrimination | `archetype-discrimination.md` | Near-miss choice sets forcing a concept-vs-lookalike distinction (`interpretationSlot: false` — interpretation floors ride on scaffolded-multistep) | Item bank |
+| rubric-explanation | `archetype-rubric-explanation.md` | Deterministic closed-form anchor part + rubric-scored open explanation; the open part is advisory-only LLM evidence, the anchor the item's sole gating evidence | Item bank |
 | embedded-check | `archetype-embedded-check.md` | One check per lesson fading stage; at least one in interpretation form | Lesson |
 | worked-example | `archetype-worked-example.md` | Faded worked example (concrete → representational → abstract) | Lesson |
+| transfer-battery | `archetype-transfer-battery.md` | Delayed, unseen, hint-free gate items across the four transfer dimensions; pass decision deterministic (RUNTIME §6 never-LLM list) | Mastery gate |
 
 **Namespace caution:** the gold **deliverables** D1–D6 (lesson, items, …) and RUNTIME_TUTOR_SPEC's **transfer-battery dimensions** "D1–D4" are different namespaces (REVIEW_DIGEST warning). Files in this library citing "D4 rubric contract" mean the *deliverable* (taxonomy §3.3 + element table); citations of transfer dimensions say "transfer dimension" explicitly.
 
@@ -51,14 +57,14 @@ The full 74-node class assignment lands in the derived `manifest.json`; mr-kahn 
 
 ## 4. Distribution rules — enriched-archetype instances per node
 
-Instances of the five item-bank archetypes, as a function of node class. Anchor: the gold reference (ALG-L06, conceptual) = **4 scaf / 3 ea / 2 pr / 3 int / 3 disc = 15** (`gold-node-items.json` counts block). Every class total stays in **12–15**.
+Instances of the six item-bank archetypes, as a function of node class. Anchor: the gold reference (ALG-L06, conceptual) = **4 scaf / 3 ea / 2 pr / 3 int / 3 disc = 15** (`gold-node-items.json` counts block) **plus** the additive gold rubric-explanation exemplar `ALG-L06-gold-rex-01` (GOLD_NODE_RUBRICS.md §3). Every class total stays in **12–15**. Where adding rubric-explanation would push a row past 15, the **substitution rule** applies instead of inflating: a rubric-explanation instance replaces an error-analysis instance (conceptual / word-problem rows) — but never below **2** error-analysis instances, the root-spanning minimum (archetype-error-analysis interface misconceptionSlots; TAXONOMY_TEMPLATE §4.5 row 6's 2–4 band). Where one substitution is not enough (conceptual), the second slot comes from predict-reveal — the library's established reallocation direction (GAP_NOTES §1.1) — precisely so error-analysis never drops below 2.
 
-| Node class | scaffolded-multistep | error-analysis | predict-reveal | interactive | discrimination | **Total** | Rationale |
-|---|---|---|---|---|---|---|---|
-| conceptual | 4 | 3 | 2 | 3 | 3 | **15** | Gold anchor row verbatim — meaning-heavy nodes get the full mix. |
-| procedural | 5 | 4 | 1 | 1 | 2 | **13** | Algorithm nodes live on stepwise execution and buggy-work diagnosis; predict-reveal and interactive have little to reveal or manipulate. |
-| word-problem / modeling | 4 | 3 | 2 | 2 | 3 | **14** | Translation nodes keep the scaf/ea/disc core; the scaf capstones carry the interpretation load, and modeling contexts make meaning asks cheapest and most valuable. |
-| graphing / representation | 3 | 2 | 2 | 5 | 2 | **14** | The manipulable plane is the point of the node — interactive dominates; error-analysis on graphs is harder to stage faithfully, so it thins. |
+| Node class | scaffolded-multistep | error-analysis | predict-reveal | interactive | discrimination | rubric-explanation | **Total** | Rationale |
+|---|---|---|---|---|---|---|---|---|
+| conceptual | 4 | 2 | 1 | 3 | 3 | 2 | **15** | Gold total preserved at the band ceiling: rex #1 substitutes one error-analysis (on meaning-heavy nodes the rubric's counteredEntryIds table covers the same belief-diagnosis ground); rex #2's slot comes from predict-reveal, because dropping error-analysis below 2 would break the root-spanning minimum. |
+| procedural | 5 | 4 | 1 | 1 | 2 | 1 | **14** | Additive, no substitution (13 → 14 stays in band): one rubric-explanation forces the algorithm to be *stated*, the cheapest honest meaning pressure a procedure-heavy row carries. |
+| word-problem / modeling | 4 | 2 | 2 | 2 | 3 | 2 | **15** | One rex substitutes one error-analysis per the substitution rule (14 + 2 − 1 = 15): explain-the-method pays double on translation nodes (the method IS the translation), and ea keeps its 2-instance root-spanning minimum. |
+| graphing / representation | 3 | 2 | 2 | 5 | 2 | 1 | **15** | Additive, no substitution (14 → 15 stays in band); interactive keeps its dominant 5 and scaf holds at 3, the §7 floor. |
 
 **Lesson-side counts (fixed, all classes — from the gold lesson `GOLD_NODE_LESSON.md`):**
 
@@ -67,9 +73,15 @@ Instances of the five item-bank archetypes, as a function of node class. Anchor:
 - **≥1 embedded check in interpretation form** (meaning ask, not computation — gold EC2 per QUESTION_VOICE §11 ADJUST #8).
 - **Degradation (adopted rule):** a node with no honest signed/degenerate variant AND no Axis-B contrast runs a **3-stage lesson with 3 embedded checks**, flagged `stage3-absent` in the batch report and lesson appendix (GAP_NOTES §1.3); never a filler stage. mr-kahn adjudicates flagged lessons at the batch gate.
 
+**Transfer-battery families (gate-side; UNIFORM across all classes — the gate is universal; counted in §2's third category, never in the row totals above):**
+
+- **≥6 item families per node, minimum:** 2× transfer dimension 1 (two distinct foreign domains — `new_plan/CLAUDE.md` §5.1's ≥2), 2× transfer dimension 2 (two distinct representation pairings — the per-battery production rule, `gold-node-transfer.json` dimension-2 coverage note), 1× transfer dimension 3, 1× transfer dimension 4.
+- **Gold's 5 families (2/1/1/1) are the certified floor exemplar** — the pattern each family is authored against; the second dimension-2 pairing is the one production addition beyond gold. Each family renders parameter-randomized unseen instances toward the 3–5-successful-items-per-dimension evidence bar (`new_plan/CLAUDE.md` §3).
+- **Degradation:** a procedural node whose honest surface cannot field 2 authentic foreign domains (dimension-1 shortfall) — or any node missing a second unseen pairing — degrades per the GAP_NOTES posture: flag (`tb-family-shortfall`) in the batch report, reallocate within the battery's exemplified dimensions, **never fake a freshness claim and never pad a family**. mr-kahn adjudicates flagged batteries at the batch gate.
+
 ## 5. Phase split rules
 
-**The phase bands bind the whole node bank** (core + enriched) — that is where the harness checks them (mr-kahn ruling, gate 1). At enriched granularity the bands are *targets*, not integer-satisfiable constraints (a 13-item enriched set has no integer P1 count inside 25–30%). The hard enriched-level constraints are **(i) P3 non-empty** and **(ii) ≥1 P3 scaffolded instance** (required independently by archetype-scaffolded-multistep §a.7's fading capstone and §7's carrier arithmetic). Bands, from the gold spread — 4 P1 / 6 P2 / 5 P3 of 15 (`gold-node-items.json`):
+**The phase bands bind the whole node bank** (core + enriched) — that is where the harness checks them (mr-kahn ruling, gate 1). At enriched granularity the bands are *targets*, not integer-satisfiable constraints (a 13-item enriched set has no integer P1 count inside 25–30%). The hard enriched-level constraints are **(i) P3 non-empty** and **(ii) ≥1 P3 scaffolded instance** (required independently by archetype-scaffolded-multistep §a.7's fading capstone and §7's carrier arithmetic). Bands, from the gold spread — 4 P1 / 6 P2 / 5 P3 of 15 (`gold-node-items.json`; with the additive rex-01 the frozen exemplar is now 4 P1 / 6 P2 / 6 P3 of 16 — bands unchanged):
 
 - **P1 (sport context): 25–30%**
 - **P2 (blended): 35–40%**
@@ -93,21 +105,23 @@ Per BATCH_REGEN_PATCH_voice §2: `manifest.json` MUST select, per node, an arche
 - **Floor 2 — standalone-P3 bank:** ≥13% of standalone-P3 items ask interpretation as the **final** ask.
 - **Manifest obligation:** floor satisfiability = the enriched slice in-band (below) **plus** explicit core-regen quotas for BOTH floors carried in the core-regen prompt. A row/phase combination out of band, or a core-regen prompt missing either quota, is a manifest defect, fixed here — not a generation prompt problem.
 
-**Carriers (per the entry files — the field decides):** **scaffolded-multistep is the only item-bank archetype with `interpretationSlot: true`.** Its entry requires every instance to carry a meaning ask somewhere: interpretation capstone on instruction instances, interpret-then-generalize progression on P3 fading instances (compute → use → interpret → generalize; gold scaf-03 carries its meaning ask mid-item). The embedded-check interpretation form carries the lesson side; it does not feed the bank floors. Discrimination, error-analysis, predict-reveal, and interactive all declare `interpretationSlot: false`.
+**Carriers (per the entry files — the field decides):** **scaffolded-multistep is the only item-bank archetype with `interpretationSlot: true`** (unchanged at 1.1.0). Its entry requires every instance to carry a meaning ask somewhere: interpretation capstone on instruction instances, interpret-then-generalize progression on P3 fading instances (compute → use → interpret → generalize; gold scaf-03 carries its meaning ask mid-item). The embedded-check interpretation form carries the lesson side; it does not feed the bank floors. Discrimination, error-analysis, predict-reveal, and interactive all declare `interpretationSlot: false`. **rubric-explanation also declares `interpretationSlot: false`** — its open part is an `explain/justify` demand, which the QUESTION_VOICE instrument buckets as justification, not meaning-in-context (its entry's honest note); it claims no floor coverage. **transfer-battery declares `true` for dimension-1 instances only** (declared per-dimension) — gate-side, see the floor-2 note below.
+
+**1.1.0 arithmetic note:** rubric-explanation instances are P3 assessment items (entry phaseApplicability) and never enter the instruction-register denominator; the conceptual/word-problem substitutions in §4 remove non-scaf instances only, so every row's enriched instruction-register scaf share stays ≥ the self-conformance figures below.
 
 **Floor 1 binds the whole node bank** (mr-kahn ruling, gate 1): the patch §3.1 check runs per node over all generated items, so ~4 scaf instances among ~60 core instruction-register items is ~7% without a core obligation. The core-regen prompt MUST therefore carry the explicit quota: **≥25% of the bank's instruction-register items carry a meaning-in-context ask anywhere.**
 
 **Enriched-slice self-conformance** (guarantees the interpretation-capstone and fading-capstone forms exist in every bank and that the enriched slice never dilutes the floor — it is NOT the satisfaction proof): interpretation-anywhere carriers = the row's scaf count; enriched instruction items = row total minus standalone-P3 instances (~3–4), with the P3 scaf counting as instruction-register per QUESTION_VOICE §10's scoping:
 conceptual 4/≈11 ≈ 36% · procedural 5/≈10 ≈ 50% · word-problem 4/≈10 ≈ 40% · graphing 3/≈10 ≈ 30% — all ≥25%. Graphing has the least slack; below 3 scaf the enriched slice itself falls out of band — a manifest defect.
 
-**Floor 2 (standalone-P3 final-ask interpretation ≥13%) binds at the whole-bank level, not the enriched set.** Stated plainly: the gold *enriched* standalone-P3 slice (ea-03, pr-02, int-03, disc-01) contains **zero** interpretation-final asks — QUESTION_VOICE §11.1's "20% final" is an all-items figure, not this slice. The floor is therefore a **core-regen obligation**: the regenerated core bank's standalone-P3 slice MUST schedule ≥13% single-ask interpretation items in the assessment register ("which sentence says what N means" — the EC2 belief-form keying mode, per archetype-embedded-check, worn as a bank item). The harness's per-node voice validation checks the whole bank, so this lands automatically — but the manifest states the obligation so the core-regen prompt carries it explicitly.
+**Floor 2 (standalone-P3 final-ask interpretation ≥13%) binds at the whole-bank level, not the enriched set.** Stated plainly: the gold *enriched* standalone-P3 slice (ea-03, pr-02, int-03, disc-01) contains **zero** interpretation-final asks — QUESTION_VOICE §11.1's "20% final" is an all-items figure, not this slice. The floor is therefore a **core-regen obligation**: the regenerated core bank's standalone-P3 slice MUST schedule ≥13% single-ask interpretation items in the assessment register ("which sentence says what N means" — the EC2 belief-form keying mode, per archetype-embedded-check, worn as a bank item). The harness's per-node voice validation checks the whole bank, so this lands automatically — but the manifest states the obligation so the core-regen prompt carries it explicitly. **1.1.0 addition: transfer-battery dimension-1 instances end on an interpretation-final ask** (entry `interpretationSlot`, declared per-dimension; gold tb-d1-01 part (b) — sign meaning) **and contribute to floor 2's** standalone-P3 interpretation-final coverage; they are gate-side (§2 third category), so the floor's satisfaction *proof* remains the core-regen quota — the battery adds coverage, it never substitutes for the quota. Battery items enter **neither the numerator nor the denominator** of the harness's floor-2 computation: the check is teaching-bank-scoped, and battery items live in the third category; "contributes coverage" is student-experience narrative, not floor arithmetic.
 
 ## 8. F-DEP checklist — harness preconditions
 
 Before any run, the harness verifies ALL of the following; any failure is a **hard stop** (BATCH_REGEN_SPEC §7 F-DEP class):
 
 1. **Version pinned + matches:** run config pins `archetypeLibraryVersion`; it equals §1's value; derived `manifest.json` carries the same value.
-2. **All 7 entry files present** (§2 inventory) at the pinned version, each entry's `version` consistent with the library version.
+2. **All 9 entry files present** (§2 inventory); each entry file's `version` ≤ the library version, and equals the library version at which that entry last changed; any entry edited in a release bumps to that release's version. This amended rule supersedes any per-file "(tracks MANIFEST §1)" parenthetical.
 3. **Every target node classified:** each of the 73 nodes resolves to exactly one §3 class in `manifest.json` (ties resolved per the declared tie-break, mr-kahn-signed).
 4. **Distribution row resolved:** each node's class maps to exactly one §4 row; per-node enriched-instance count is in 12–15; the enriched hard constraints hold (P3 non-empty, ≥1 P3 scaffolded instance); §5 bands are checked whole-bank post-generation.
 5. **Voice floors satisfiable:** per node, (i) the enriched mix's `interpretationSlot` coverage is in-band per §7, AND (ii) the core-regen prompt carries both §7 core quotas (≥25% instruction-register meaning-anywhere; ≥13% standalone-P3 interpretation-final) — deterministic check before any generation tokens are spent.
