@@ -107,6 +107,10 @@
       "description": "Solves the equation correctly but reports the variable's value instead of the quantity the problem actually asked for."
     },
     {
+      "id": "assumes-constant-rate-nonlinear",
+      "description": "Computes a two-point slope on a nonlinear relation and treats it as the constant rate everywhere, extrapolating a curve linearly from one interval."
+    },
+    {
       "id": "axis-from-wrong-formula",
       "description": "Computes the axis of symmetry with a corrupted variant of x = −b/(2a) (e.g., b/(2a) or −b/a), misplacing the vertex."
     },
@@ -227,6 +231,10 @@
       "description": "When subtracting a polynomial, distributes the minus sign to only its first term, leaving later terms' signs unchanged."
     },
     {
+      "id": "drops-negative-slope-sign",
+      "description": "Computes correct rise and run magnitudes but reports slope unsigned, treating the sign as bookkeeping rather than the direction of change; answers |m| on negative-slope items."
+    },
+    {
       "id": "drops-term-after-factoring",
       "description": "Omits the quotient of 1 when a term equals the GCF, e.g., factoring 3x² + 3 as 3(x²) instead of 3(x² + 1)."
     },
@@ -268,7 +276,11 @@
     },
     {
       "id": "forgot-denominator",
-      "description": "Computes slope as the change in y alone, omitting division by the change in x."
+      "description": "Believes slope/rate is the amount the output changed (Δy alone), never coordinating the change in input; answers y₂ − y₁ where a ratio is required."
+    },
+    {
+      "id": "grid-count-ignores-scale",
+      "description": "Counts grid squares for rise and run without converting to axis units, answering m·(x-scale/y-scale) on graphs whose axes use different scales."
     },
     {
       "id": "grouping-sign-slip",
@@ -300,7 +312,7 @@
     },
     {
       "id": "inconsistent-subtraction-order",
-      "description": "Computes slope with mismatched subtraction order, taking (y₂ − y₁)/(x₁ − x₂) and flipping the sign."
+      "description": "Treats the subtraction order in the slope formula's numerator and denominator as independent choices, computing (y₂ − y₁)/(x₁ − x₂) and producing −m; consistent full reversal is correct and is not this error."
     },
     {
       "id": "intercept-as-pair-confusion",
@@ -328,7 +340,7 @@
     },
     {
       "id": "inverted-ratio",
-      "description": "Computes slope as run over rise (Δx/Δy), inverting the rate."
+      "description": "Believes the rate compares input per output, computing Δx/Δy (1/m) — often anchored by word order, e.g. 'games per hit' instead of 'hits per game.'"
     },
     {
       "id": "joint-vs-marginal",
@@ -483,6 +495,10 @@
       "description": "Misassigns coordinate sign combinations to quadrants, plotting a point in the wrong quadrant (e.g., placing (−3, 2) in Quadrant IV)."
     },
     {
+      "id": "rate-not-per-unit",
+      "description": "Reports a true change over a multi-unit interval as the rate (e.g., '12 hits per 4 games') without normalizing to one unit of input."
+    },
+    {
       "id": "ratio-order-flipped",
       "description": "Writes a ratio with terms in the reverse order of the stated comparison (e.g., 'hits per at-bat' written as at-bats/hits)."
     },
@@ -512,7 +528,7 @@
     },
     {
       "id": "rise-run-direction-error",
-      "description": "Steps the rise or run in the wrong direction for the slope's sign (e.g., up-and-right for a negative slope), drawing a line of the wrong inclination."
+      "description": "When constructing or stepping along a line, moves rise/run in the direction contradicting the slope's sign (rise always 'up'), placing (x+run, y+|rise|) for a negative slope."
     },
     {
       "id": "roots-a-sum",
@@ -567,6 +583,22 @@
       "description": "Collapses two distinct conditions (e.g., a count and a value) into one equation, losing a constraint needed to determine both unknowns."
     },
     {
+      "id": "slope-as-difference",
+      "description": "Compares the change in output to the change in input by subtraction instead of division (answers Δy − Δx, or y₂ − x₂ from one point), applying additive reasoning where a ratio is required."
+    },
+    {
+      "id": "slope-as-height",
+      "description": "Reads slope as the height/y-value of the graph at a point, conflating the value of the function with its rate of change."
+    },
+    {
+      "id": "slope-as-single-point-ratio",
+      "description": "Computes slope as y/x from a single point, overgeneralizing proportional reasoning to lines that do not pass through the origin."
+    },
+    {
+      "id": "slope-as-visual-steepness",
+      "description": "Judges slope by the drawn line's visual steepness or angle without consulting axis scales, so rescaled versions of the same relationship appear to have different slopes."
+    },
+    {
       "id": "solid-vs-dashed-confusion",
       "description": "Uses a solid boundary line for a strict inequality, or a dashed line for an inclusive one, misrepresenting whether boundary points are solutions."
     },
@@ -605,6 +637,10 @@
     {
       "id": "subtracting-negative",
       "description": "Evaluates subtraction of a negative as subtraction of a positive (e.g., 5 − (−3) = 2)."
+    },
+    {
+      "id": "subtracts-within-points",
+      "description": "Forms the slope fraction from differences within each ordered pair instead of across pairs, computing (y₂ − x₂)/(y₁ − x₁)."
     },
     {
       "id": "swaps-domain-and-range",
@@ -677,6 +713,10 @@
     {
       "id": "zero-equals-zero-as-no-solution",
       "description": "Interprets an identity outcome (e.g., 0 = 0) while solving a system as 'no solution' rather than infinitely many solutions."
+    },
+    {
+      "id": "zero-undefined-slope-swap",
+      "description": "Swaps the degenerate cases, calling a vertical line's slope 0 and a horizontal line's slope undefined, because the labels were memorized unattached to the ratio Δy/Δx."
     }
   ],
   "nodes": [
@@ -50512,7 +50552,8 @@
       "objective": "Interpret slope as a constant rate: change in output per unit input.",
       "misconceptionTags": [
         "forgot-denominator",
-        "inverted-ratio"
+        "inverted-ratio",
+        "rate-not-per-unit"
       ],
       "visual": "coordinate",
       "contextHooks": {
@@ -50653,7 +50694,7 @@
           },
           {
             "id": "ALG-L05-p1-baseball-04",
-            "version": 2,
+            "version": 3,
             "skillId": "ALG-L05",
             "phase": 1,
             "sport": "baseball",
@@ -50670,7 +50711,8 @@
               "−0.03 in batting average per game"
             ],
             "misconceptionMap": {
-              "−20 games per point of average": "inverted-ratio"
+              "−20 games per point of average": "inverted-ratio",
+              "−0.03 in batting average per game": "rate-not-per-unit"
             },
             "hints": [
               "Output is batting average; input is games. The phrase is 'output per 1 input.'",
