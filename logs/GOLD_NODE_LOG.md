@@ -55,3 +55,10 @@ Next: awaiting Matt's deliverables list for the full gold-standard experience bu
 - 15 hint ladders (14 taxonomy tags + HL-L06-generic), every hintLadderRef id in gold-node-items.json + lesson EC wiring covered (0 undefined, 0 orphaned). Taxonomy 3.1 three-rung contract; rungs 1-2 formula-free (programmatic audit); collision service rules for the -m/|m|, dy, and 1/m pairs.
 - Declared deviation from taxonomy 3.1 (header block): ladders use item-agnostic fixed numbers, not "this item's numbers" - answer-safer, outage-servable verbatim (RUNTIME 4). Pending taxonomy amendment.
 - mr-kahn APPROVE WITH CHANGES, applied: generic + forgot-denominator examples renumbered off a widened collision set (numeric answers + EC keys + construct components; the int-03 slope-3 near-miss drove the widening); A.3 audit re-run, two standing boundary findings ruled (quotient-5 accepted on trigger-ordering; zero-ladder collision permanent structural exemption).
+
+### D4 - GOLD_NODE_RUBRICS.md (DONE, committed this entry)
+
+- Rubric contract mapped field-for-field to RUNTIME_TUTOR_SPEC 3.2 (parity script-verified); advisory-only semantics per taxonomy 3.3; met = score >= metThreshold declared as D4-supplied semantics; counteredEntryIds withheld from grader input - flagged as a proposed RUNTIME 2 envelope amendment.
+- RUB-L06-explain (5 elements, 3.3 row-for-row) + RUB-L06-transfer-d1 (4 elements; row-4 subtraction-direction element trimmed - prompt never elicits it, 2.2 keeps its deterministic channel via part (a)).
+- Gold instances: rex-01 (rubric-explanation, P3 neutral) and tb-d1-01 (dimension-1 cross-domain, atmospheric lapse rate, spatial x - freshness claim census-verified against all 62 live + 15 gold items). Four sample graded responses in exact 3.2 JSON.
+- Voice: instrument-measured, 6/6 new items pass the assessment register; two-part anchor+explanation shape accepted by mr-kahn as an archetype-declared exception (RUNTIME 4 deterministic-evidence grounding).
