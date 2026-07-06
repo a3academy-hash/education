@@ -16,6 +16,14 @@ Last reviewed: 2026-06-15.
 - [ ] **COPPA parental-consent method.** Verifiable-consent mechanism counsel for under-13
       (separate from LB1). Accreditation/legal — needs Matt + counsel decision.
 
+## Pre-pilot required — must clear before any BATCH_REGEN pilot gate
+- [ ] **diagnostic-sim estimator variance: raise N 500 → 2000** (~4× the 11s runtime) to shrink the
+      false-READY estimate's variance. PROMOTED 2026-07-06: the false-READY ≤.05 bound tipped on a
+      pure RNG reshuffle when node 75 landed (~1-count margin at N=500) — the estimator lacks the
+      power to support pilot verdicts; raise N before any BATCH_REGEN pilot gate reads this bound.
+      Any future trip of that bound is a REAL signal (universe rescoping is a one-time correction,
+      never repeatable).
+
 ## P1 — Quality & test coverage (QA plan §B–F, docs/qa-findings-and-plan.md)
 - [ ] **E2E harness (Playwright)** vs a seeded throwaway Supabase test project — full loops
       (signup→confirm→launch, diagnostic incl. a choice item, practice correct/wrong/hint/probe/
@@ -66,6 +74,6 @@ Last reviewed: 2026-06-15.
       L03/L05/L06 are mastered and shows "being prepared" empty states; progress/transcript
       denominators include an uncompletable 75th node until the Phase-3 enriched bank lands.
       (mr-gates SHOULD-FIX, DECISION_F-IF-B6 §7.)
-- [ ] **diagnostic-sim estimator variance:** raise N 500 → 2000 (~4× the 11s runtime) to shrink the
-      false-READY estimate's variance — the ≤.05 bound passed with ~1-count margin. Any future trip
-      of that bound is a REAL signal (universe rescoping is a one-time correction, never repeatable).
+- ~~diagnostic-sim estimator variance (N 500 → 2000)~~ — PROMOTED 2026-07-06 to
+      "Pre-pilot required" above (the bound tipped on a pure RNG reshuffle at node-75 landing;
+      pilot verdicts need the power).
