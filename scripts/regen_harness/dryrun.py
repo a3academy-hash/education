@@ -181,8 +181,30 @@ def main() -> int:
               and r["params"]["max_tokens"] == config.MAX_TOKENS,
               f"{r['params']['model']}, max_tokens={r['params']['max_tokens']}")
     oc = r["params"]["output_config"]
-    ck.record("structured output: output_config.format=json_schema, strict",
-              oc.get("format") == "json_schema" and oc.get("strict") is True)
+    # Verified API shape (2026-07-06 pre-smoke): format is a nested object
+    # {type: "json_schema", schema: {...}} - the old flat rendering 400s.
+    # The wire schema must also satisfy structured-output limits: every object
+    # carries additionalProperties:false and no min/max-class constraints.
+    fmt = oc.get("format") or {}
+    wire = fmt.get("schema") or {}
+
+    def _wire_clean(obj):
+        if isinstance(obj, dict):
+            if obj.get("type") == "object" and obj.get("additionalProperties") is not False:
+                return False
+            if any(k in obj for k in payload._UNSUPPORTED_WIRE_KEYS):
+                return False
+            return all(_wire_clean(v) for v in obj.values())
+        if isinstance(obj, list):
+            return all(_wire_clean(v) for v in obj)
+        return True
+
+    ck.record("structured output: output_config.format nested json_schema (verified API shape)",
+              isinstance(fmt, dict) and fmt.get("type") == "json_schema"
+              and isinstance(wire, dict) and bool(wire),
+              "format={type: json_schema, schema: {...}}")
+    ck.record("wire schema API-safe (additionalProperties:false everywhere, no unsupported constraints)",
+              _wire_clean(wire))
     ck.record("2-3 archetype-matched exemplars injected",
               2 <= len(exemplars) <= 3,
               f"{len(exemplars)}: " + ", ".join(f"{e['id']}({e['phase']})" for e in exemplars))

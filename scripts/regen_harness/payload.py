@@ -9,10 +9,42 @@ exemplars + the node's manifest class row) sits AFTER the cache breakpoint.
 
 from __future__ import annotations
 
+import copy
 import json
 
 from . import config
 from .failures import split_custom_ids
+
+# JSON-Schema keys the structured-outputs API does NOT support (verified
+# against the live API reference, 2026-07-06). The official SDKs strip these
+# client-side and validate them locally; we are raw REST, so we derive an
+# API-safe WIRE schema ourselves. The full-constraint schema stays authoritative
+# for HOST-side re-validation (spec §5.2 belt-and-suspenders).
+_UNSUPPORTED_WIRE_KEYS = (
+    "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum",
+    "multipleOf", "minLength", "maxLength", "minItems", "maxItems",
+)
+
+
+def to_wire_schema(schema: dict) -> dict:
+    """API-safe copy: additionalProperties:false on every object, unsupported
+    constraint keys stripped. Deterministic; host-side validation unchanged."""
+    wire = copy.deepcopy(schema)
+
+    def walk(obj):
+        if isinstance(obj, dict):
+            if obj.get("type") == "object":
+                obj["additionalProperties"] = False
+            for key in _UNSUPPORTED_WIRE_KEYS:
+                obj.pop(key, None)
+            for value in obj.values():
+                walk(value)
+        elif isinstance(obj, list):
+            for value in obj:
+                walk(value)
+
+    walk(wire)
+    return wire
 
 # node-JSON fields the generator needs (spec §4.1 row 7: "trimmed to
 # relevant fields"); baseline problem bodies are summarized, not injected.
@@ -97,11 +129,18 @@ def render_request(node: dict, prefix_blocks: list[dict], exemplars: list[dict],
                                                     manifest_row, phase_scope),
                 }],
             }],
-            # spec Appendix A: output_config.format = json_schema, strict
+            # spec Appendix A: structured outputs. Verified against the live API
+            # reference (2026-07-06, pre-smoke): the canonical GA shape is
+            #   output_config: {format: {type: "json_schema", schema: {...}}}
+            # (no beta header required). The earlier flat rendering
+            # ({"format": "json_schema", "schema": ..., "strict": ...}) would
+            # have 400'd on first submission - the exact failure class the
+            # guarded smoke request exists to catch.
             "output_config": {
-                "format": "json_schema",
-                "schema": output_schema,
-                "strict": True,
+                "format": {
+                    "type": "json_schema",
+                    "schema": to_wire_schema(output_schema),
+                },
             },
         },
     }
