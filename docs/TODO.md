@@ -87,3 +87,9 @@ Last reviewed: 2026-06-15.
 - ~~diagnostic-sim estimator variance (N 500 → 2000)~~ — PROMOTED 2026-07-06 to
       "Pre-pilot required" above (the bound tipped on a pure RNG reshuffle at node-75 landing;
       pilot verdicts need the power).
+
+## P3-adjacent — logged 2026-07-07
+- [ ] **CoordinatePlane `<title>` React warning:** components/learning/CoordinatePlane.tsx (~line 329)
+      renders `<title>Coordinate plane, {xLabel} by {yLabel}</title>` as a 4-node children array;
+      React wants a single template string. Fires on student surfaces too (dev console only,
+      cosmetic) — violates the no-console-errors definition of done. One-line zero-behavior fix.
