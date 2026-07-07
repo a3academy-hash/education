@@ -137,8 +137,12 @@ const FALSE_GAP_LABELS = new Set(["NEEDS_WORK"]);
 describe("diagnostic simulation (§4 / §V2 R11) — high-impact classification + length", () => {
   // 500 students × full pure-replay-per-item is intentionally heavy; the
   // engine re-derives state from scratch each step (determinism guarantee).
-  it("meets sensitivity ≥ .80, specificity ≥ .85, false-READY ≤ .05 on the covered high-impact subset", { timeout: 120000 }, () => {
-    const N = 500;
+  it("meets sensitivity ≥ .80, specificity ≥ .85, false-READY ≤ .05 on the covered high-impact subset", { timeout: 300000 }, () => {
+    // N raised 500 → 2000 (pre-pilot-required, docs/TODO.md): the ≤.05 false-READY
+    // bound previously passed with ~1-count margin and tipped on a pure RNG reshuffle
+    // when node 75 landed — pilot verdicts need the estimator's variance shrunk.
+    // Any trip at this N is a REAL signal (mr-gates ruling): investigate, never re-tune.
+    const N = 2000;
     const lengths: number[] = [];
 
     // High-impact confusion counts over COVERED nodes (directly answered ≥1).
