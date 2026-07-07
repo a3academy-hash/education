@@ -23,6 +23,16 @@ Last reviewed: 2026-06-15.
       power to support pilot verdicts; raise N before any BATCH_REGEN pilot gate reads this bound.
       Any future trip of that bound is a REAL signal (universe rescoping is a one-time correction,
       never repeatable).
+- [ ] **enriched→ProblemTemplate promotion transform: define + gate before BATCH_REGEN gate 6
+      (promotion)** — AUDIT_PASS staging nodes cannot reach the graph without it (mr-gates gate-3
+      finding). The regen harness validates the enriched STAGING shape (ENRICHED_NODE_SCHEMA /
+      ENRICHED_ITEM_SCHEMA), not types/problem.ts ProblemTemplate; mr-gates gates any /types change.
+- [ ] **pre-live API verification** — confirm structured-output param name
+      (`output_config.format=json_schema` literal) + any required beta header against current API
+      docs, then ONE minimal guarded smoke request with Matt's explicit go; a 400 is F-DEP, not
+      retry-fodder.
+- [ ] **first live batch: record response.usage cache write/read actuals** into the batch report;
+      re-base the cost model (27.1k measured prefix vs 23k plan).
 
 ## P1 — Quality & test coverage (QA plan §B–F, docs/qa-findings-and-plan.md)
 - [ ] **E2E harness (Playwright)** vs a seeded throwaway Supabase test project — full loops
