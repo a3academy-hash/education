@@ -10,6 +10,7 @@
 // straight into that child's session → student home (skip the dashboard). They
 // reach the dashboard via the quiet "Manage students" entry in the student shell.
 
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAuthMode } from "../../lib/auth/mode";
 import { getCurrentParent, getRoster } from "../../lib/auth/parent";
@@ -42,12 +43,12 @@ export default async function ParentDashboardPage() {
           title="Your students"
           subhead="Launch a student to begin, or add another to your account."
         />
-        <a
+        <Link
           href="/parent/children/new"
           className="mt-1 inline-flex shrink-0 items-center justify-center rounded-[10px] bg-accent px-[22px] py-[11px] text-[14px] font-semibold text-white transition-colors duration-150 hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           Add a student
-        </a>
+        </Link>
       </div>
 
       {roster.length === 0 ? (
