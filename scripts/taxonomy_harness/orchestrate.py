@@ -16,9 +16,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.request
 
+import adapters
 import citations
 import collisions
 import config
@@ -91,6 +93,75 @@ def _confusable_rows(cmap, node_id):
     return [c for c in cmap["clusters"] if node_id in c.get("nodes", [])]
 
 
+# ---------------------------------------------------------------------------
+# Pilot GAP 1 — mechanical injection of kahn-ruled content into BOTH passes.
+# Sources (cited, injected verbatim, never paraphrased):
+#   - pilotObligations / pilotNotes: docs/specs/confusable-clusters.json
+#     (APPROVED WITH CHANGES, mr-kahn gate 2, 2026-07-06 — the map version is
+#     F-DEP-pinned in config.py);
+#   - the binding presented-only authoring constraint L19's pilotNotes
+#     reference: docs/specs/DECISION_F-IF-B6.md §7 application addendum
+#     (mr-kahn ruling in the graph-1.12.0 batch, approved by Matt 2026-07-06).
+# ---------------------------------------------------------------------------
+_BINDING_CONSTRAINT_RE = re.compile(
+    r"\*\*Binding authoring constraint[^:*]*:\*\*\s*\*[\"“](.+?)[\"”]\*",
+    re.DOTALL)
+_binding_cache: dict[str, str] = {}
+
+
+def _binding_constraint_text() -> str:
+    """Extract DECISION_F-IF-B6 §7's binding constraint verbatim. Extraction
+    failure is F-DEP: rendering an L19 payload WITHOUT the binding constraint
+    would drop a kahn ruling on the floor — refuse instead."""
+    cached = _binding_cache.get("F-IF-B6")
+    if cached is not None:
+        return cached
+    try:
+        text = _read(config.DECISION_F_IF_B6_PATH)
+    except OSError as e:
+        raise config.FDepError(
+            f"F-DEP: DECISION_F-IF-B6.md unreadable ({e}) — the binding "
+            f"constraint referenced by pilotNotes cannot be injected")
+    m = _BINDING_CONSTRAINT_RE.search(text)
+    if m is None:
+        raise config.FDepError(
+            "F-DEP: DECISION_F-IF-B6.md §7 'Binding authoring constraint' "
+            "text not found — the doc drifted from the extraction pattern; "
+            "refusing to render the node without the kahn-ruled constraint")
+    constraint = re.sub(r"\s+", " ", m.group(1)).strip()
+    _binding_cache["F-IF-B6"] = constraint
+    return constraint
+
+
+def _pilot_injection_text(node_id, cmap) -> str:
+    """Volatile-payload text for the node's pilot obligations, pilot notes
+    (verbatim), and — where the notes reference it — the binding authoring
+    constraint (L19 -> DECISION_F-IF-B6 §7). Empty string when none apply."""
+    obligations = (cmap.get("pilotObligations") or {}).get(node_id)
+    notes = (cmap.get("pilotNotes") or {}).get(node_id)
+    parts = []
+    if obligations:
+        parts.append(
+            "PILOT OBLIGATIONS (confusable-clusters.json pilotObligations — "
+            "mr-kahn gate 2, 2026-07-06; every listed cluster's duties bind "
+            "this node's matrix rows and probes): "
+            + json.dumps(obligations, ensure_ascii=False))
+    if notes:
+        parts.append(
+            "PILOT NOTES (confusable-clusters.json pilotNotes, verbatim):\n"
+            + notes)
+        # pilotNotes referencing a binding authoring constraint pull the
+        # constraint text itself into the payload (L19 -> DECISION_F-IF-B6 §7)
+        if "binding" in notes.lower() and "DECISION_F-IF-B6" in notes:
+            parts.append(
+                "BINDING CONSTRAINT (DECISION_F-IF-B6 §7 application "
+                "addendum, mr-kahn ruling approved by Matt 2026-07-06 — "
+                "verbatim; binds EVERY generator constraint, worked example, "
+                "item spec, and probe this document authors):\n\""
+                + _binding_constraint_text() + "\"")
+    return ("\n\n" + "\n\n".join(parts)) if parts else ""
+
+
 def _registry_slice(graph, tags):
     reg = {e["id"]: e["description"] for e in graph["misconceptionRegistry"]}
     return {t: reg[t] for t in tags if t in reg}
@@ -119,6 +190,14 @@ def _shared_blocks(passname, graph, cmap, citation_registry=None):
                        "available for reuse, with their verified claims):\n"
                        + json.dumps(citation_registry, indent=1,
                                     ensure_ascii=False)})
+    # GAP 2a: the machine-block contract (both passes) — the fenced
+    # ```json taxonomy-machine-block``` the adapter parses; stable text,
+    # so it lives in the cached prefix. GAP 4: judgment additionally owes
+    # the fenced ```json citations-delta``` block (spec §2.4/§9).
+    contract = adapters.MACHINE_BLOCK_CONTRACT
+    if passname == "judgment":
+        contract += "\n\n" + adapters.CITATIONS_DELTA_CONTRACT
+    blocks.append({"type": "text", "text": contract})
     # cache breakpoint on the LAST shared block (spec §1.4)
     blocks[-1]["cache_control"] = {"type": "ephemeral"}
     return blocks
@@ -154,8 +233,12 @@ def render_draft_request(node_id, graph, cmap, node_class, round_n=0):
                  "marks, archetype-eligibility flags, §3-contract scaffold; "
                  "hint-ladder rung 3 only). Do NOT author beliefs, roots, "
                  "severities, probes, or grounding — the judgment pass owns "
-                 "those.\n\nNODE PAYLOAD:\n"
-                 + json.dumps(payload, indent=1, ensure_ascii=False)},
+                 "those. End the document with the required "
+                 "taxonomy-machine-block (harness contract above).\n\n"
+                 "NODE PAYLOAD:\n"
+                 + json.dumps(payload, indent=1, ensure_ascii=False)
+                 # GAP 1: pilot obligations / notes / binding constraint
+                 + _pilot_injection_text(node_id, cmap)},
             ]}],
         },
     }
@@ -181,14 +264,23 @@ def render_judgment_request(node_id, draft_md, machine_collision_list,
                  "from or queued into the registry; hint-ladder rungs 1-2). "
                  "You may strike, merge, or ADD entries — an addition carries "
                  "the full mechanical field set and re-triggers §3/§4.1 "
-                 "verification at assembly.\n\n"
+                 "verification at assembly. Return the COMPLETE document "
+                 "(TEMPLATE §2 structure), ending with the required "
+                 "taxonomy-machine-block — your machine block is merged over "
+                 "the draft's at assembly (your entries win on conflict; the "
+                 "draft supplies mechanical fields you leave unstated) — and "
+                 "include the required citations-delta block (contracts "
+                 "above).\n\n"
                  "ASSEMBLED DRAFT:\n" + draft_md + "\n\n"
                  "MACHINE COLLISION LIST (every row needs a named probe):\n"
                  + json.dumps(machine_collision_list, indent=1, default=str,
                               ensure_ascii=False) + "\n\n"
                  "DRAFT HARNESS REPORT:\n"
                  + json.dumps(draft_harness_report, indent=1, default=str,
-                              ensure_ascii=False)},
+                              ensure_ascii=False)
+                 # GAP 1 mirror: the judgment pass holds the same pilot
+                 # obligations and binding constraint the draft was given
+                 + _pilot_injection_text(node_id, cmap)},
             ]}],
         },
     }
@@ -225,6 +317,86 @@ def run_check_chain(taxonomy, graph, cmap, registry_pin,
         "failures": failures,
         "status": "HARNESS_PASS" if not failures else "QUARANTINE",
     }
+
+
+def machine_jsonable(machine: dict) -> dict:
+    """collisions.compute_machine_list output in JSON-stageable form (the
+    frozenset pair keys flattened) — the draft-collisions.json content the
+    judgment payload injects (spec §1.3 step 3 / §4.2)."""
+    return {
+        "structural": machine["structural"],
+        "pairs": {"-".join(sorted(k)): v for k, v in machine["pairs"].items()},
+        "keyCollisions": machine["key_collisions"],
+    }
+
+
+def run_draft_stage_check(taxonomy) -> tuple[dict, dict]:
+    """Spec §1.3 step 2 — the cheap fail-fast draft check: §3 signature
+    computability + constraint satisfiability (+ worked-example recompute,
+    all draft-owned) on the DRAFT, and the §4.1 machine collision list.
+
+    Assertion (ii)/(iii) findings are reported as ADVISORY here, not
+    blocking: separation defects are constraint/matrix decisions the
+    judgment pass and assembly own (§3.3 — 'the regen round decides').
+    Returns (machine_list, report)."""
+    machine = collisions.compute_machine_list(taxonomy)
+    sig = sig_verify.verify(taxonomy, machine)
+    blocking_assertions = ("constraint-satisfiability", "(i)",
+                           "worked-example")
+    blocking = [f for f in sig["failures"]
+                if f.get("assertion") in blocking_assertions]
+    advisory = [f for f in sig["failures"] if f not in blocking]
+    report = {
+        "stage": "draft (spec §1.3 step 2)",
+        "failures": blocking,
+        "advisorySeparationFindings": advisory,
+        "warnings": sig["warnings"],
+        "entries": sig["entries"],
+        "status": "DRAFT_VALID" if not blocking else "F-SIG",
+    }
+    return machine, report
+
+
+# ---------------------------------------------------------------------------
+# GAP 3 — assembly (spec §1.3 step 4, deterministic, no model call)
+# ---------------------------------------------------------------------------
+def assemble_taxonomy(node_id: str) -> str:
+    """Merge staged draft + judgment outputs into the final taxonomy.md.
+
+    Judgment is authoritative for judgment-owned fields (spec §1.5
+    field-ownership map) and for entry membership (strike/merge/add
+    authority, §1.3 step 3); the draft supplies the mechanical layer. The
+    machine blocks are merged with judgment's entries winning on conflict;
+    additions flag the mandatory harness re-chain (§4.2). The final doc is
+    the judgment prose with the MERGED machine block spliced over its own.
+
+    Writes taxonomy.md + assembly-report.json, sets status ASSEMBLED,
+    returns the taxonomy.md path. Missing staged inputs -> FDepError;
+    missing/malformed machine blocks -> adapters.AdapterError (F-STRUCT)."""
+    node_dir = os.path.join(config.STAGING_ROOT, node_id)
+    paths = {"draft": os.path.join(node_dir, "draft.md"),
+             "judgment": os.path.join(node_dir, "judgment.md")}
+    missing = [p for p in paths.values() if not os.path.exists(p)]
+    if missing:
+        raise config.FDepError(
+            f"assembly for {node_id} needs staged draft + judgment outputs; "
+            f"missing: {missing}")
+    draft_md = _read(paths["draft"])
+    judgment_md = _read(paths["judgment"])
+
+    draft_block = adapters.extract_machine_block(draft_md)
+    judgment_block = adapters.extract_machine_block(judgment_md)
+    merged, merge_report = adapters.merge_machine_blocks(draft_block,
+                                                         judgment_block)
+    # the merged block must itself parse into an executable Taxonomy —
+    # a merge that produces an unloadable block stops HERE, not at checks
+    adapters.taxonomy_from_block(merged, doc_text=judgment_md)
+
+    final_md = adapters.replace_machine_block(judgment_md, merged)
+    path = write_stage(node_id, "taxonomy.md", final_md)
+    write_stage(node_id, "assembly-report.json", merge_report)
+    set_status(node_id, "ASSEMBLED")
+    return path
 
 
 # ---------------------------------------------------------------------------

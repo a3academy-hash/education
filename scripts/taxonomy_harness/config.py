@@ -65,6 +65,12 @@ CONFUSABLE_MAP_PATH = os.path.join(REPO_ROOT, "docs", "specs", "confusable-clust
 CONFUSABLE_MAP_DOC_PATH = os.path.join(REPO_ROOT, "docs", "specs", "CONFUSABLE_CLUSTERS.md")
 CONFUSABLE_MAP_VERSION = "1.0.0"      # Appendix-A pin (gate 2)
 
+# DECISION_F-IF-B6 §7 application addendum (mr-kahn ruling, batch approved by
+# Matt 2026-07-06) — source of the binding presented-only authoring constraint
+# that L19's pilotNotes reference; orchestrate extracts and injects it
+# verbatim into the L19 draft/judgment payloads (pilot GAP 1).
+DECISION_F_IF_B6_PATH = os.path.join(REPO_ROOT, "docs", "specs", "DECISION_F-IF-B6.md")
+
 GOLD_TAXONOMY_PATH = os.path.join(REPO_ROOT, "docs", "gold-node", "misconception-taxonomy-slope.md")
 GOLD_NODE_IDS = ("ALG-L05", "ALG-L06")   # the gold doc is a cluster doc (TEMPLATE §2 rule)
 
